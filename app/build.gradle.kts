@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    kotlin("kapt")
 }
 
 android {
@@ -29,15 +30,24 @@ android {
             )
         }
     }
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
+
+    kapt {
+        javacOptions {
+            // These options are used by the kapt task itself
+            option("-source", "17")
+            option("-target", "17")
+        }
+    }
+
     buildFeatures {
-       // compose = true
         dataBinding = true
     }
 
@@ -52,6 +62,8 @@ android {
 }
 
 dependencies {
+    val roomVersion = "2.4.3" // Replace with your actual Room version
+    val lifecycleExtensionsVersion = "2.2.0" // Replace with your actual Lifecycle Extensions version
 
     implementation("androidx.core:core-ktx:1.3.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
@@ -71,7 +83,15 @@ dependencies {
     //debugImplementation("androidx.compose.ui:ui-tooling")
     //debugImplementation("androidx.compose.ui:ui-test-manifest")
 
-    //Navigation
+    // Navigation
     implementation("androidx.navigation:navigation-fragment-ktx:2.5.0")
     implementation("androidx.navigation:navigation-ui-ktx:2.5.0")
+
+    // Room
+    implementation("androidx.room:room-runtime:$roomVersion")
+    kapt("androidx.room:room-compiler:$roomVersion")
+
+    // Legacy support and Lifecycle Extensions
+    implementation("androidx.legacy:legacy-support-v4:1.0.0")
+    implementation("androidx.lifecycle:lifecycle-extensions:$lifecycleExtensionsVersion")
 }

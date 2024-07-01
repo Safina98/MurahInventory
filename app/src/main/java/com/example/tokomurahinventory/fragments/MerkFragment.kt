@@ -7,13 +7,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.example.tokomurahinventory.R
 import com.example.tokomurahinventory.adapters.MerkAdapter
 import com.example.tokomurahinventory.adapters.MerkClickListener
 import com.example.tokomurahinventory.adapters.MerkLongListener
+import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentMerkBinding
 import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.viewmodels.MerkViewModel
+import com.example.tokomurahinventory.viewmodels.MerkViewModelFactory
 
 
 class MerkFragment : Fragment() {
@@ -36,13 +39,19 @@ class MerkFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_merk,container,false)
 
-
+        val application = requireNotNull(this.activity).application
+        val dataSource1 = DatabaseInventory.getInstance(application).merkDao
+        val viewModelFactory = MerkViewModelFactory(dataSource1,application)
+        binding.lifecycleOwner =this
+        val viewModel = ViewModelProvider(this,viewModelFactory)
+            .get(MerkViewModel::class.java)
+        binding.viewModel = viewModel
         binding.rvMerk.adapter = adapter
         var listDummyMerk= mutableListOf<MerkTable>()
         listDummyMerk.add(MerkTable(1,"CAMARO","sdfas"))
         listDummyMerk.add(MerkTable(2,"carrera","sdfas"))
         listDummyMerk.add(MerkTable(3,"fisesta","sdfas"))
-        adapter.submitList(listDummyMerk)
+        adapter.submitList(viewModel.listDummyMerk)
         return binding.root
     }
 
