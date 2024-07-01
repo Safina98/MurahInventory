@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("androidx.navigation.safeargs.kotlin")
     kotlin("kapt")
 }
 
@@ -64,6 +65,7 @@ android {
 dependencies {
     val roomVersion = "2.4.3" // Replace with your actual Room version
     val lifecycleExtensionsVersion = "2.2.0" // Replace with your actual Lifecycle Extensions version
+    val coroutineVersion = "1.7.3"
 
     implementation("androidx.core:core-ktx:1.3.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
@@ -90,6 +92,10 @@ dependencies {
     // Room
     implementation("androidx.room:room-runtime:$roomVersion")
     kapt("androidx.room:room-compiler:$roomVersion")
+
+    //Coroutine
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutineVersion")
 
     // Legacy support and Lifecycle Extensions
     implementation("androidx.legacy:legacy-support-v4:1.0.0")

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation"
     app:startDestination="@id/merkFragment">
 
@@ -8,4 +10,24 @@
         android:id="@+id/merkFragment"
         android:name="com.example.tokomurahinventory.fragments.MerkFragment"
         android:label="MerkFragment" />
+
+    <fragment
+        android:id="@+id/warnaFragment"
+        android:name="com.example.tokomurahinventory.fragments.WarnaFragment"
+        android:label="fragment_warna"
+        tools:layout="@layout/fragment_warna">
+        <argument
+            android:name="idmerk"
+            app:argType="integer"
+            android:defaultValue="-1" />
+    </fragment>
+
+    <action
+        android:id="@+id/action_merkFragment_to_warnaFragment"
+        app:destination="@id/warnaFragment">
+        <argument
+            android:name="idmerk"
+            app:argType="integer"
+            android:defaultValue="-1" />
+    </action>
 </navigation>

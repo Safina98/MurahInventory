@@ -7,9 +7,9 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "merk_table")
 data class MerkTable (
     @PrimaryKey(autoGenerate = true)
-    val id:Int,
+    var id:Int=0,
     @ColumnInfo(name="namaMerk")
     var namaMerk:String="",
     @ColumnInfo(name="refMerk")
-    var ref:String=""
+    var refMerk:String=""
 )

@@ -17,6 +17,7 @@ class MerkAdapter(
     class MyViewHolder private constructor(val binding: ItemListMerkBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: MerkTable, clickListener: MerkClickListener, longListener: MerkLongListener) {
             binding.merk = item
+            binding.clickListemer = clickListener
             binding.executePendingBindings()
         }
 
