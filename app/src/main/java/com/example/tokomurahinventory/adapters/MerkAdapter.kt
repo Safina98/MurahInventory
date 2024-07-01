@@ -7,15 +7,15 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tokomurahinventory.databinding.ItemListMerkBinding
-import com.example.tokomurahinventory.models.MerkDummyModel
+import com.example.tokomurahinventory.models.MerkTable
 
 class MerkAdapter(
     private val merkClickListener: MerkClickListener,
     private val merkLongListener: MerkLongListener
-) : ListAdapter<MerkDummyModel, MerkAdapter.MyViewHolder>(MerkStockDiffCallback()) {
+) : ListAdapter<MerkTable, MerkAdapter.MyViewHolder>(MerkStockDiffCallback()) {
 
     class MyViewHolder private constructor(val binding: ItemListMerkBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: MerkDummyModel, clickListener: MerkClickListener, longListener: MerkLongListener) {
+        fun bind(item: MerkTable, clickListener: MerkClickListener, longListener: MerkLongListener) {
             binding.merk = item
             binding.executePendingBindings()
         }
@@ -38,22 +38,22 @@ class MerkAdapter(
     }
 }
 
-class MerkStockDiffCallback: DiffUtil.ItemCallback<MerkDummyModel>(){
-    override fun areItemsTheSame(oldItem: MerkDummyModel, newItem: MerkDummyModel): Boolean {
+class MerkStockDiffCallback: DiffUtil.ItemCallback<MerkTable>(){
+    override fun areItemsTheSame(oldItem: MerkTable, newItem: MerkTable): Boolean {
         return oldItem.id == newItem.id
     }
 
-    override fun areContentsTheSame(oldItem: MerkDummyModel, newItem: MerkDummyModel): Boolean {
+    override fun areContentsTheSame(oldItem: MerkTable, newItem: MerkTable): Boolean {
         return oldItem == newItem
     }
 
 }
-class MerkClickListener(val clickListener: (Merk_id: MerkDummyModel) -> Unit) {
-    fun onClick(Merk:MerkDummyModel) = clickListener(Merk)
+class MerkClickListener(val clickListener: (Merk_id: MerkTable) -> Unit) {
+    fun onClick(Merk:MerkTable) = clickListener(Merk)
 
 }
-class  MerkLongListener(val longListener: (Merk: MerkDummyModel) -> Unit){
-    fun onLongClick(v: View, Merk: MerkDummyModel): Boolean {
+class  MerkLongListener(val longListener: (Merk: MerkTable) -> Unit){
+    fun onLongClick(v: View, Merk: MerkTable): Boolean {
         //logic goes here
 
         longListener(Merk)

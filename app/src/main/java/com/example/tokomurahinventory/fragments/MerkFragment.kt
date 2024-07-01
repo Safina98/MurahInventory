@@ -12,7 +12,7 @@ import com.example.tokomurahinventory.adapters.MerkAdapter
 import com.example.tokomurahinventory.adapters.MerkClickListener
 import com.example.tokomurahinventory.adapters.MerkLongListener
 import com.example.tokomurahinventory.databinding.FragmentMerkBinding
-import com.example.tokomurahinventory.models.MerkDummyModel
+import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.viewmodels.MerkViewModel
 
 
@@ -38,10 +38,10 @@ class MerkFragment : Fragment() {
 
 
         binding.rvMerk.adapter = adapter
-        var listDummyMerk= mutableListOf<MerkDummyModel>()
-        listDummyMerk.add(MerkDummyModel(1,"CAMARO","sdfas"))
-        listDummyMerk.add(MerkDummyModel(2,"carrera","sdfas"))
-        listDummyMerk.add(MerkDummyModel(3,"fisesta","sdfas"))
+        var listDummyMerk= mutableListOf<MerkTable>()
+        listDummyMerk.add(MerkTable(1,"CAMARO","sdfas"))
+        listDummyMerk.add(MerkTable(2,"carrera","sdfas"))
+        listDummyMerk.add(MerkTable(3,"fisesta","sdfas"))
         adapter.submitList(listDummyMerk)
         return binding.root
     }
