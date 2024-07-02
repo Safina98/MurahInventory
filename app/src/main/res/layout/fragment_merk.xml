@@ -34,6 +34,7 @@
             android:onClick="@{()->viewModel.onAddMerkFabClick()}"
             android:onLongClick="@{(view) -> viewModel.onLongClick(view)}"
             android:src="@drawable/baseline_add_24"
+            android:scaleType="center"
             android:clickable="true"
             android:focusable="true" />
 

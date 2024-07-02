@@ -11,34 +11,24 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 //Source : https://stackoverflow.com/a/56377297/16776791
 class DraggableFloatingActionButton : FloatingActionButton, OnTouchListener {
-    private var customClickListener: CustomClickListener? = null
     private var downRawX = 0f
     private var downRawY = 0f
     private var dX = 0f
     private var dY = 0f
-    var viewWidth = 0
-    var viewHeight = 0
-    var parentWidth = 0
-    var parentHeight = 0
-    var newX = 0f
-    var newY = 0f
 
     constructor(context: Context?) : super(context!!) {
         init()
     }
 
     constructor(context: Context?, attrs: AttributeSet?) : super(
-        context!!,
-        attrs
+        context!!, attrs
     ) {
         init()
     }
 
-    constructor(
-        context: Context?,
-        attrs: AttributeSet?,
-        defStyleAttr: Int
-    ) : super(context!!, attrs, defStyleAttr) {
+    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context!!, attrs, defStyleAttr
+    ) {
         init()
     }
 
@@ -54,29 +44,29 @@ class DraggableFloatingActionButton : FloatingActionButton, OnTouchListener {
             downRawY = motionEvent.rawY
             dX = view.x - downRawX
             dY = view.y - downRawY
-            false // not Consumed for ripple effect
+            true // Consumed
         } else if (action == MotionEvent.ACTION_MOVE) {
-            viewWidth = view.width
-            viewHeight = view.height
+            val viewWidth = view.width
+            val viewHeight = view.height
             val viewParent = view.parent as View
-            parentWidth = viewParent.width
-            parentHeight = viewParent.height
-            newX = motionEvent.rawX + dX
+            val parentWidth = viewParent.width
+            val parentHeight = viewParent.height
+            var newX = motionEvent.rawX + dX
             newX = Math.max(
                 layoutParams.leftMargin.toFloat(),
                 newX
             ) // Don't allow the FAB past the left hand side of the parent
             newX = Math.min(
-                parentWidth - viewWidth - layoutParams.rightMargin.toFloat(),
+                (parentWidth - viewWidth - layoutParams.rightMargin).toFloat(),
                 newX
             ) // Don't allow the FAB past the right hand side of the parent
-            newY = motionEvent.rawY + dY
+            var newY = motionEvent.rawY + dY
             newY = Math.max(
                 layoutParams.topMargin.toFloat(),
                 newY
             ) // Don't allow the FAB past the top of the parent
             newY = Math.min(
-                parentHeight - viewHeight - layoutParams.bottomMargin.toFloat(),
+                (parentHeight - viewHeight - layoutParams.bottomMargin).toFloat(),
                 newY
             ) // Don't allow the FAB past the bottom of the parent
             view.animate()
@@ -90,39 +80,14 @@ class DraggableFloatingActionButton : FloatingActionButton, OnTouchListener {
             val upRawY = motionEvent.rawY
             val upDX = upRawX - downRawX
             val upDY = upRawY - downRawY
-            newX = if (newX > (parentWidth - viewWidth - layoutParams.rightMargin) / 2) {
-                parentWidth - viewWidth - layoutParams.rightMargin.toFloat()
-            } else {
-                layoutParams.leftMargin.toFloat()
-            }
-            view.animate()
-                .x(newX)
-                .y(newY)
-                .setInterpolator(OvershootInterpolator())
-                .setDuration(300)
-                .start()
-            if (Math.abs(upDX) < CLICK_DRAG_TOLERANCE && Math.abs(
-                    upDY
-                ) < CLICK_DRAG_TOLERANCE
-            ) { // A click
-                if (customClickListener != null) {
-                    customClickListener!!.onClick(view)
-                }
-                false // not Consumed for ripple effect
+            if (Math.abs(upDX) < CLICK_DRAG_TOLERANCE && Math.abs(upDY) < CLICK_DRAG_TOLERANCE) { // A click
+                performClick()
             } else { // A drag
-                false // not Consumed for ripple effect
+                true // Consumed
             }
         } else {
             super.onTouchEvent(motionEvent)
         }
-    }
-
-    fun setCustomClickListener(customClickListener: CustomClickListener?) {
-        this.customClickListener = customClickListener
-    }
-
-    interface CustomClickListener {
-        fun onClick(view: View?)
     }
 
     companion object {

@@ -43,21 +43,16 @@ class MerkStockDiffCallback: DiffUtil.ItemCallback<MerkTable>(){
     override fun areItemsTheSame(oldItem: MerkTable, newItem: MerkTable): Boolean {
         return oldItem.id == newItem.id
     }
-
     override fun areContentsTheSame(oldItem: MerkTable, newItem: MerkTable): Boolean {
         return oldItem == newItem
     }
-
 }
 class MerkClickListener(val clickListener: (Merk_id: MerkTable) -> Unit) {
     fun onClick(Merk:MerkTable) = clickListener(Merk)
-
 }
 class  MerkLongListener(val longListener: (Merk: MerkTable) -> Unit){
     fun onLongClick(v: View, Merk: MerkTable): Boolean {
         //logic goes here
-
         longListener(Merk)
-
         return true}
 }

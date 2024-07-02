@@ -15,7 +15,6 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -100,4 +99,8 @@ dependencies {
     // Legacy support and Lifecycle Extensions
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.lifecycle:lifecycle-extensions:$lifecycleExtensionsVersion")
+
+    //Nav drawer
+    implementation("androidx.drawerlayout:drawerlayout:1.1.1")
+    implementation("com.google.android.material:material:1.8.0")
 }

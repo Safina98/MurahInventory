@@ -38,5 +38,9 @@
             android:defaultValue='""'
             app:argType="string" />
     </fragment>
+    <fragment
+        android:id="@+id/usersFragment"
+        android:name="com.example.tokomurahinventory.fragments.UsersFragment"
+        android:label="Pengguna" />
 
 </navigation>
