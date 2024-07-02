@@ -5,10 +5,12 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.tokomurahinventory.models.MerkTable
+import com.example.tokomurahinventory.models.WarnaTable
 
-@Database(entities = [MerkTable::class],version=1, exportSchema = true)
+@Database(entities = [MerkTable::class,WarnaTable::class],version=2, exportSchema = true)
 abstract class DatabaseInventory: RoomDatabase()  {
     abstract val merkDao :MerkDao
+    abstract val warnaDao:WarnaDao
 
     companion object{
         @Volatile

@@ -28,18 +28,7 @@ import com.google.android.material.textfield.TextInputEditText
 class MerkFragment : Fragment() {
     private lateinit var binding: FragmentMerkBinding
     private val viewModel:MerkViewModel by viewModels()
-    private val adapter by lazy {
-        MerkAdapter(
-            MerkClickListener {
-                // Handle item click
-                            //  Toast.makeText(context,it.namaMerk,Toast.LENGTH_SHORT).show()
-                viewModel.onNavigateToWarna(it.id)
-            },
-            MerkLongListener {
-                // Handle item long click
-            }
-        )
-    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -54,31 +43,37 @@ class MerkFragment : Fragment() {
         val viewModel = ViewModelProvider(this,viewModelFactory)
             .get(MerkViewModel::class.java)
         binding.viewModel = viewModel
+        val adapter  = MerkAdapter(
+                MerkClickListener {
+                    viewModel.onNavigateToWarna(it.refMerk)
+                },
+                MerkLongListener {
+                    // Handle item long click
+                }
+            )
+
         binding.rvMerk.adapter = adapter
 
-        var listDummyMerk= mutableListOf<MerkTable>()
-        listDummyMerk.add(MerkTable(1,"CAMARO","sdfas"))
-        listDummyMerk.add(MerkTable(2,"carrera","sdfas"))
-        listDummyMerk.add(MerkTable(3,"fisesta","sdfas"))
-        //adapter.submitList(viewModel.listDummyMerk)
-
+        //Observe all merk from db
         viewModel.allMerkTable.observe(viewLifecycleOwner, Observer {
             it.let {
                 adapter.submitList(it)
             }
         })
+        //Observe fab merk state
         viewModel.addMerkFab.observe(viewLifecycleOwner, Observer {
             if (it==true){
                 showAddDialog(viewModel,0)
                 viewModel.onAddMerkFabClicked()
             }
         })
+
+        //On rv click navigate to fragment warna
         viewModel.navigateToWarna.observe(viewLifecycleOwner, Observer {
             if (it!=null){
                // this.findNavController().navigate(BrandStockFragmentDirections.actionBrandStockFragmentToProductStockFragment(id))
                 this.findNavController().navigate(MerkFragmentDirections.actionMerkFragmentToWarnaFragment(it))
                 viewModel.onNavigatetedToWarna()
-
         }
         })
 

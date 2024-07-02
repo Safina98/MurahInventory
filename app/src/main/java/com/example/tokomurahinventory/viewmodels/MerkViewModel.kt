@@ -28,8 +28,8 @@ class MerkViewModel(
     val addMerkFab: LiveData<Boolean> get() = addMerkFabM
 
     //Add navigation
-    private val navigateToWarnaM = MutableLiveData<Int>()
-    val navigateToWarna: LiveData<Int> get() = navigateToWarnaM
+    private val navigateToWarnaM = MutableLiveData<String>()
+    val navigateToWarna: LiveData<String> get() = navigateToWarnaM
     init {
         listDummyMerk.add(MerkTable(1,"CAMARO","sdfas"))
         listDummyMerk.add(MerkTable(1,"CAMARO","sdfas"))
@@ -54,7 +54,7 @@ class MerkViewModel(
     fun onAddMerkFabClick(){ addMerkFabM.value = true }
     fun onAddMerkFabClicked(){ addMerkFabM.value = false }
 
-    fun onNavigateToWarna(merkId:Int){ navigateToWarnaM.value = merkId }
+    fun onNavigateToWarna(refMerk:String){ navigateToWarnaM.value = refMerk }
     @SuppressLint("NullSafeMutableLiveData")
     fun onNavigatetedToWarna(){ navigateToWarnaM.value = null }
 }

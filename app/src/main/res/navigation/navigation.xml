@@ -9,7 +9,11 @@
     <fragment
         android:id="@+id/merkFragment"
         android:name="com.example.tokomurahinventory.fragments.MerkFragment"
-        android:label="MerkFragment" />
+        android:label="MerkFragment" >
+        <action
+            android:id="@+id/action_merkFragment_to_warnaFragment"
+            app:destination="@id/warnaFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/warnaFragment"
@@ -17,17 +21,9 @@
         android:label="fragment_warna"
         tools:layout="@layout/fragment_warna">
         <argument
-            android:name="idmerk"
-            app:argType="integer"
-            android:defaultValue="-1" />
+            android:name="ref_merk"
+            app:argType="string"
+            android:defaultValue='""' />
     </fragment>
 
-    <action
-        android:id="@+id/action_merkFragment_to_warnaFragment"
-        app:destination="@id/warnaFragment">
-        <argument
-            android:name="idmerk"
-            app:argType="integer"
-            android:defaultValue="-1" />
-    </action>
 </navigation>
