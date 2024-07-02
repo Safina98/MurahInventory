@@ -44,11 +44,9 @@ class WarnaStockDiffCallback: DiffUtil.ItemCallback<WarnaTable>(){
     override fun areItemsTheSame(oldItem: WarnaTable, newItem: WarnaTable): Boolean {
         return oldItem.idWarna== newItem.idWarna
     }
-
     override fun areContentsTheSame(oldItem: WarnaTable, newItem: WarnaTable): Boolean {
         return oldItem == newItem
     }
-
 }
 class WarnaClickListener(val clickListener: (warna: WarnaTable) -> Unit) {
     fun onClick(Warna: WarnaTable) = clickListener(Warna)

@@ -1,6 +1,8 @@
 package com.example.tokomurahinventory.viewmodels
 
+import android.annotation.SuppressLint
 import android.app.Application
+import android.view.View
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -26,6 +28,10 @@ class WarnaViewModel(
     private val addWarnaFabM = MutableLiveData<Boolean>()
     val addWanraFab: LiveData<Boolean> get() = addWarnaFabM
 
+    //Navigate to detail warna
+    private val navigateToDetailWarnaM = MutableLiveData<String>()
+    val navigateToDetailWarna: LiveData<String> get() = navigateToDetailWarnaM
+
     //Insert New Warna
     fun insertWarna(kodeWarna:String,satuan:String){
         viewModelScope.launch {
@@ -46,5 +52,10 @@ class WarnaViewModel(
     //Navigation
     fun onAddWarnaFabClick(){ addWarnaFabM.value = true }
     fun onAddWarnaFabClicked(){ addWarnaFabM.value = false }
+    fun onLongClick(v: View): Boolean { return true }
+
+    fun onNavigateToDetailWarna(refMerk:String){ navigateToDetailWarnaM.value = refMerk }
+    @SuppressLint("NullSafeMutableLiveData")
+    fun onNavigatetedToDetailWarna(){ navigateToDetailWarnaM.value = null }
 
 }

@@ -29,6 +29,7 @@
             <TextView
                 android:id="@+id/textView"
                 android:layout_margin="@dimen/small_margin"
+                style="@style/rv_item_text_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@{warna.kodeWarna}"
@@ -39,6 +40,7 @@
             <TextView
                 android:id="@+id/textView2"
                 android:layout_margin="@dimen/small_margin"
+                style="@style/rv_item_text_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text='@{String.valueOf(warna.totalPcs)}'

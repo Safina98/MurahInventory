@@ -9,7 +9,7 @@
     <fragment
         android:id="@+id/merkFragment"
         android:name="com.example.tokomurahinventory.fragments.MerkFragment"
-        android:label="MerkFragment" >
+        android:label="Merk">
         <action
             android:id="@+id/action_merkFragment_to_warnaFragment"
             app:destination="@id/warnaFragment" />
@@ -18,12 +18,25 @@
     <fragment
         android:id="@+id/warnaFragment"
         android:name="com.example.tokomurahinventory.fragments.WarnaFragment"
-        android:label="fragment_warna"
+        android:label="Kode Warna"
         tools:layout="@layout/fragment_warna">
         <argument
             android:name="ref_merk"
-            app:argType="string"
-            android:defaultValue='""' />
+            android:defaultValue='""'
+            app:argType="string" />
+        <action
+            android:id="@+id/action_warnaFragment_to_detailWarnaFragment"
+            app:destination="@id/detailWarnaFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/detailWarnaFragment"
+        android:name="com.example.tokomurahinventory.fragments.DetailWarnaFragment"
+        android:label="Isi"
+        tools:layout="@layout/fragment_detail_warna">
+        <argument
+            android:name="refWarna"
+            android:defaultValue='""'
+            app:argType="string" />
     </fragment>
 
 </navigation>

@@ -7,7 +7,6 @@ import com.example.tokomurahinventory.database.MerkDao
 
 class MerkViewModelFactory(
     private val dataSource1: MerkDao,
-
     private val application: Application
 ): ViewModelProvider.Factory{
     @Suppress("unchecked_cast")

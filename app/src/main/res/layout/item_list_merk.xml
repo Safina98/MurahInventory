@@ -24,8 +24,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="24sp"
-            android:text="@{merk.namaMerk}"/>
+            android:text="@{merk.namaMerk}"
+            style="@style/rv_item_text_style" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

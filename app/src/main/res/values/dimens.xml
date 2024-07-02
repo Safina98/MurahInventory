@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="small_margin">4dp</dimen>
+    <dimen name="big_margin">16dp</dimen>
+    <dimen name="fragment_title_text">36sp</dimen>
+    <dimen name="plus_minus_btn_width">50dp</dimen>
+    <dimen name="enormous_margin">36dp</dimen>
+    <dimen name="medium_margin">8dp</dimen>
 </resources>

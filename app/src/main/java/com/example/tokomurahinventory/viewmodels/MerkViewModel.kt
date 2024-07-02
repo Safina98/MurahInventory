@@ -2,6 +2,7 @@ package com.example.tokomurahinventory.viewmodels
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.view.View
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -53,6 +54,8 @@ class MerkViewModel(
     //Navigation
     fun onAddMerkFabClick(){ addMerkFabM.value = true }
     fun onAddMerkFabClicked(){ addMerkFabM.value = false }
+    fun onLongClick(v: View): Boolean { return true }
+
 
     fun onNavigateToWarna(refMerk:String){ navigateToWarnaM.value = refMerk }
     @SuppressLint("NullSafeMutableLiveData")

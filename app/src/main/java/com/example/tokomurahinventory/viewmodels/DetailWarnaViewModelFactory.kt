@@ -5,15 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.tokomurahinventory.database.WarnaDao
 
-class WarnaViewModelFactory(
-    private val dataSource2: WarnaDao,
-    private val refMerk:String,
-    private val application: Application
+class DetailWarnaViewModelFactory (private val dataSource2: WarnaDao,
+                                   private val refWarna:String,
+                                   private val application: Application
 ): ViewModelProvider.Factory{
     @Suppress("unchecked_cast")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(WarnaViewModel::class.java)) {
-            return WarnaViewModel(dataSource2,refMerk,application) as T
+        if (modelClass.isAssignableFrom(DetailWarnaViewModel::class.java)) {
+            return DetailWarnaViewModel(dataSource2,refWarna,application) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
