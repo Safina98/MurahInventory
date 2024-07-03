@@ -1,25 +1,21 @@
 package com.example.tokomurahinventory.fragments
 
+import android.app.AlertDialog
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.tokomurahinventory.R
-import com.example.tokomurahinventory.adapters.MerkAdapter
-import com.example.tokomurahinventory.adapters.MerkClickListener
-import com.example.tokomurahinventory.adapters.MerkLongListener
 import com.example.tokomurahinventory.adapters.UsersAdapter
 import com.example.tokomurahinventory.adapters.UsersClickListener
 import com.example.tokomurahinventory.adapters.UsersLongListener
-import com.example.tokomurahinventory.database.DatabaseInventory
-import com.example.tokomurahinventory.databinding.FragmentMerkBinding
 import com.example.tokomurahinventory.databinding.FragmentUsersBinding
-import com.example.tokomurahinventory.viewmodels.MerkViewModel
-import com.example.tokomurahinventory.viewmodels.MerkViewModelFactory
 import com.example.tokomurahinventory.viewmodels.UsersViewModel
 import com.example.tokomurahinventory.viewmodels.UsersViewModelFactory
 
@@ -51,7 +47,35 @@ class UsersFragment : Fragment() {
 
         adapter.submitList(viewModel.dummyModel)
 
+        viewModel.addUserFab.observe(viewLifecycleOwner, Observer {
+            if (it==true){
+                showAddUserDialog(viewModel,-1)
+                viewModel.onAddUserFabClicked()
+            }
+        })
+
         return binding.root
+    }
+
+    fun showAddUserDialog(viewModel: UsersViewModel, i:Int){
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle("Tambah Pengguna")
+        val inflater = LayoutInflater.from(context)
+        val view = inflater.inflate(R.layout.pop_up_add_warna, null)
+        val textNama = view.findViewById<EditText>(R.id.txt_warna)
+        val textPassword = view.findViewById<EditText>(R.id.txt_satuan)
+        textNama.setHint("Nama")
+        textPassword.setHint("Password")
+        builder.setView(view)
+        builder.setPositiveButton("OK") { dialog, which ->
+            val nama = textNama.text.toString().toUpperCase()
+            val password = textPassword.text.toString().toUpperCase()
+            viewModel.insertUser(nama,password)
+        }
+        builder.setNegativeButton("No") { dialog, which ->
+        }
+        val alert = builder.create()
+        alert.show()
     }
 
 }

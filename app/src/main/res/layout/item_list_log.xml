@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <variable
+            name="log"
+            type="com.example.tokomurahinventory.models.LogTable" />
+    </data>
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="130dp"
+        android:layout_margin="@dimen/small_margin"
+        >
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/txtDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="7/3/2024"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                style="@style/txt_item_log_style" />
+
+            <TextView
+                android:id="@+id/label_pembeli"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pembeli: "
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/txtDate"
+                style="@style/txt_item_log_style"
+                />
+
+            <TextView
+                android:id="@+id/txt_pembeli"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{log.namaToko}"
+                style="@style/txt_item_log_style"
+                app:layout_constraintBaseline_toBaselineOf="@+id/label_pembeli"
+                app:layout_constraintStart_toEndOf="@+id/label_pembeli" />
+
+            <TextView
+                android:id="@+id/label_user"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="User:"
+                style="@style/txt_item_log_style"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/label_pembeli" />
+
+            <TextView
+                android:id="@+id/textView10"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{log.user}"
+                style="@style/txt_item_log_style"
+                app:layout_constraintBaseline_toBaselineOf="@+id/label_user"
+                app:layout_constraintStart_toEndOf="@+id/label_user" />
+
+            <TextView
+                android:id="@+id/label_ket"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Keterangan: "
+                style="@style/txt_item_log_style"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/label_user" />
+
+            <TextView
+                android:id="@+id/txt_ket"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{log.keterangan}"
+                style="@style/txt_item_log_style"
+                app:layout_constraintBaseline_toBaselineOf="@+id/label_ket"
+                app:layout_constraintStart_toEndOf="@+id/label_ket" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</layout>

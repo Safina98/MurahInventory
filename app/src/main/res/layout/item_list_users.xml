@@ -19,12 +19,12 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             style="@style/rv_item_text_style"
-            android:text="Nama" />
+            android:text="@{users.nama}" />
 
         <TextView
             android:id="@+id/txt_password"
             android:layout_width="wrap_content"
-            android:text="Password"
+            android:text="@{users.passrord}"
             style="@style/rv_item_text_style"
             android:layout_height="wrap_content" />
 

@@ -42,5 +42,17 @@
         android:id="@+id/usersFragment"
         android:name="com.example.tokomurahinventory.fragments.UsersFragment"
         android:label="Pengguna" />
+    <fragment
+        android:id="@+id/logFragment"
+        android:name="com.example.tokomurahinventory.fragments.LogFragment"
+        android:label="Log Barang" >
+        <action
+            android:id="@+id/action_logFragment_to_inputLogFragment"
+            app:destination="@id/inputLogFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/inputLogFragment"
+        android:name="com.example.tokomurahinventory.fragments.InputLogFragment"
+        android:label="Input Log" />
 
 </navigation>

@@ -6,32 +6,34 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.tokomurahinventory.viewmodels.UsersViewModel" />
+            type="com.example.tokomurahinventory.viewmodels.LogViewModel" />
+
     </data>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:context=".fragments.UsersFragment">
+        tools:context=".fragments.LogFragment">
+
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_users"
-            android:layout_weight="1"
+            android:id="@+id/rv_log"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             />
         <com.example.tokomurahinventory.utils.DraggableFloatingActionButton
-            android:id="@+id/btn_add_new_isi"
+            android:id="@+id/btn_add_new_merk"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
             android:layout_margin="16dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:onClick="@{()->viewModel.onAddUserFabClick()}"
-            android:onLongClick="@{(view) -> viewModel.onLongClick(view)}"
             android:src="@drawable/baseline_add_24"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:onClick="@{()->viewModel.onAddLogFabClick()}"
+            android:scaleType="center"
+            android:clickable="true"
+            android:focusable="true" />
+
     </LinearLayout>
 </layout>

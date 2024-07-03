@@ -94,7 +94,7 @@ class WarnaFragment : Fragment() {
         builder.setPositiveButton("OK") { dialog, which ->
             val kodeWarna = textWarna.text.toString().toUpperCase()
             val kodeSatuan = textSatuan.text.toString().toUpperCase()
-            viewModel.insertWarna(kodeWarna,"")
+            viewModel.insertWarna(kodeWarna,kodeSatuan)
         }
         builder.setNegativeButton("No") { dialog, which ->
         }

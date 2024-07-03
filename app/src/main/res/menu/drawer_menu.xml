@@ -6,4 +6,7 @@
     <item
         android:id="@+id/usersFragment"
         android:title="Pengguna" />
+    <item
+        android:id="@+id/logFragment"
+        android:title="Pengguna" />
 </menu>
