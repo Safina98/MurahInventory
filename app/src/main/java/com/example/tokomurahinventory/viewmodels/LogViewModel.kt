@@ -19,10 +19,7 @@ class LogViewModel (application: Application): AndroidViewModel(application){
     //dummy list
     var logDummy = mutableListOf<LogTable>()
 
-    //fab
-    //Add merk fab
-    private val _addLogFab = MutableLiveData<Boolean>()
-    val addLogFab: LiveData<Boolean> get() = _addLogFab
+
 
     //
     private var logRef =MutableLiveData<String>()
@@ -44,6 +41,14 @@ class LogViewModel (application: Application): AndroidViewModel(application){
     val subKeterangan = MutableLiveData("")
     val barangString = MutableLiveData("")
     val subDate = MutableLiveData("")
+
+    //Navigation
+    //add log fab from log
+    private val _addLogFab = MutableLiveData<Boolean>()
+    val addLogFab: LiveData<Boolean> get() = _addLogFab
+    //buntton save from input log
+    private val _navigateToLog = MutableLiveData<Boolean>()
+    val navigateToLog: LiveData<Boolean> get() = _navigateToLog
 
     init {
         //dummy list
@@ -103,30 +108,57 @@ class LogViewModel (application: Application): AndroidViewModel(application){
     //Save log
     fun addLog(){
         viewModelScope.launch {
+            /*
             mutableLogTable.value?.namaToko = namaToko.value ?: "Failed"
             mutableLogTable.value?.pcs = countModelList.value!!.sumOf{ it.psc}
             mutableLogTable.value?.logRef = logRef.value ?: ""
-            mutableLogTable.value?.namaToko = namaToko.value ?: "Failed"
             mutableLogTable.value?.keterangan = subKeterangan.value ?: "Failed"
             mutableLogTable.value?.user = user.value ?: "Failed"
+             */
+            var s = getStringS()
 
+            val newLog = LogTable(
+                id = 0,
+                user = user.value ?: "Failed",
+                password = "",
+                namaToko = namaToko.value ?: "Failed",
+                date = Date(), // assuming you have a date field
+                keterangan = subKeterangan.value ?: "Failed",
+                merk = s,
+                kodeWarna = "",
+                isi = 0.0,
+                pcs = countModelList.value!!.sumOf { it.psc },
+                detailWarnaRef = "",
+                logRef = logRef.value ?: ""
+            )
+            Log.i("InsertLogTry", "add log mutable${mutableLogTable.value}")
             if ( mutableLogTable.value?.logRef =="") {
-                insertLogToDao(mutableLogTable.value!!)
+                insertLogToDao(newLog)
                 addLogBarang()
+
             }
             else {
                 //updateSubNewTable(mutableLogTable.value!!)
                 //addDsp()
             }
+            onNavigateToLog()
         }
     }
-
-
-
+    fun getStringS():String{
+        var s =""
+        for (i in countModelList.value!!){
+            mutableDspTableNew.value!!.kodeBarang = i.kodeBarang.toString()
+            mutableDspTableNew.value!!.isi = i.isi
+            mutableDspTableNew.value!!.pcs = i.psc
+            mutableDspTableNew.value!!.id = i.id
+            s = s+"${i.kodeBarang}; ${i.isi} meter; ${i.psc} pcs\n"
+        }
+        return s
+    }
     fun addLogBarang(){
         viewModelScope.launch {
-            mutableDspTableNew.value!!.logRef = logRef.value ?: ""
-            mutableLogTable.value!!.date = Date()
+           // mutableDspTableNew.value!!.logRef = logRef.value ?: ""
+           // mutableLogTable.value!!.date = Date()
             for (i in countModelList.value!!){
                 mutableDspTableNew.value!!.kodeBarang = i.kodeBarang.toString()
                 mutableDspTableNew.value!!.isi = i.isi
@@ -145,9 +177,8 @@ class LogViewModel (application: Application): AndroidViewModel(application){
             //dataSource5.insert(logTable)
             logDummy.add(logTable)
             for (i in logDummy){
-                Log.i("InsertLogTry", "${i.namaToko} ${i.user} ${i.keterangan}")
+                Log.i("InsertLogTry", "dummy ${i}")
             }
-
         }
     }
 
@@ -156,6 +187,8 @@ class LogViewModel (application: Application): AndroidViewModel(application){
     //Navigation
     fun onAddLogFabClick(){ _addLogFab.value = true }
     fun onAddLogFabClicked(){ _addLogFab.value = false }
+    fun onNavigateToLog(){ _navigateToLog.value = true }
+    fun onNavigatedToLog(){ _navigateToLog.value = false }
     fun onLongClick(v: View): Boolean { return true }
 
 

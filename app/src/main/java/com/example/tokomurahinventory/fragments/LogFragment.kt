@@ -28,7 +28,7 @@ import com.example.tokomurahinventory.viewmodels.MerkViewModelFactory
 
 class LogFragment : Fragment() {
     private lateinit var binding: FragmentLogBinding
-    private val viewModel:LogViewModel by viewModels()
+    private lateinit var viewModel: LogViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,9 +39,10 @@ class LogFragment : Fragment() {
 
         val application = requireNotNull(this.activity).application
         //val dataSource1 = DatabaseInventory.getInstance(application).merkDao
-        val viewModelFactory = LogViewModelFactory(application)
+       // val viewModelFactory = LogViewModelFactory(application)
         binding.lifecycleOwner =this
-        val viewModel = ViewModelProvider(this,viewModelFactory)
+        //val viewModel = ViewModelProvider(this,viewModelFactory).get(LogViewModel::class.java)
+        viewModel = ViewModelProvider(requireActivity(), LogViewModelFactory(application))
             .get(LogViewModel::class.java)
         binding.viewModel = viewModel
         val adapter  = LogAdapter(
@@ -64,10 +65,6 @@ class LogFragment : Fragment() {
             }
         })
 
-
-
-
         return binding.root
-
     }
 }
