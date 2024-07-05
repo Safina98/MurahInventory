@@ -11,6 +11,13 @@
         <variable
             name="clickListener"
             type="com.example.tokomurahinventory.adapters.WarnaClickListener" />
+        <variable
+            name="updateClickListemer"
+            type="com.example.tokomurahinventory.adapters.UpdateWarnaClickListener" />
+        <variable
+            name="deleteClickListener"
+            type="com.example.tokomurahinventory.adapters.DeleteWarnaClickListener" />
+
 
 
     </data>
@@ -45,8 +52,30 @@
                 android:layout_height="wrap_content"
                 android:text='@{String.valueOf(warna.totalPcs)}'
                 app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/img_update"
+                app:layout_constraintTop_toTopOf="parent" />
+            <ImageView
+                android:id="@+id/img_update"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/small_margin"
+                android:background="@drawable/baseline_edit_24"
+                android:onClick="@{()->updateClickListemer.onClick(warna)}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/img_delete"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/img_delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/small_margin"
+                android:background="@drawable/baseline_delete_forever_24"
+                android:onClick="@{()->deleteClickListener.onClick(warna)}"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 </layout>

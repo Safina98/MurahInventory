@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.models.WarnaTable
 
 
@@ -15,6 +16,9 @@ interface WarnaDao {
 
     @Update
     fun update(warnaTable: WarnaTable)
+
+    @Query("DELETE FROM warna_table WHERE idWarna =:id")
+    fun deleteAnItemWarna(id:Int)
 
     @Query("SELECT * FROM warna_table WHERE refMerk = :refMerk")
     fun selectWarnaByMerk(refMerk:String):LiveData<List<WarnaTable>>

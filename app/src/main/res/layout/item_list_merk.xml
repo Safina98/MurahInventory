@@ -8,6 +8,13 @@
         <variable
             name="clickListemer"
             type="com.example.tokomurahinventory.adapters.MerkClickListener" />
+        <variable
+            name="updateCLickListemer"
+            type="com.example.tokomurahinventory.adapters.UpdateMerkClickListener" />
+        <variable
+            name="deleteClickListemer"
+            type="com.example.tokomurahinventory.adapters.DeleteMerkClickListener" />
+
 
     </data>
 <androidx.cardview.widget.CardView
@@ -19,13 +26,35 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="horizontal"
         android:layout_margin="@dimen/small_margin"
         >
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="@{merk.namaMerk}"
             style="@style/rv_item_text_style" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/img_update"
+            android:layout_margin="@dimen/small_margin"
+            android:onClick="@{()->updateCLickListemer.onClick(merk)}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/baseline_edit_24" />
+
+        <ImageView
+            android:id="@+id/img_delete"
+            android:layout_margin="@dimen/small_margin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{()->deleteClickListemer.onClick(merk)}"
+            android:background="@drawable/baseline_delete_forever_24" />
+    </LinearLayout>
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

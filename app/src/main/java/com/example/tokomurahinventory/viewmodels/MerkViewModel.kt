@@ -45,11 +45,32 @@ class MerkViewModel(
             insertMerkToDao(merk)
         }
     }
+    fun updateMerk(merkTable:MerkTable){
+        viewModelScope.launch {
+            updateMerkToDao(merkTable)
+        }
+    }
+    fun deleteMerk(merkTable: MerkTable){
+        viewModelScope.launch {
+            deleteMerkToDao(merkTable)
+        }
+    }
+
     private suspend fun insertMerkToDao(merkTable: MerkTable){
         withContext(Dispatchers.IO){
             dataSource1.insert(merkTable)
         }
 
+    }
+    private suspend fun updateMerkToDao(merkTable: MerkTable){
+        withContext(Dispatchers.IO){
+            dataSource1.update(merkTable)
+        }
+    }
+    private suspend fun deleteMerkToDao(merkTable: MerkTable){
+        withContext(Dispatchers.IO){
+            dataSource1.deleteAnItemMerk(merkTable.id)
+        }
     }
     //Navigation
     fun onAddMerkFabClick(){ addMerkFabM.value = true }

@@ -38,7 +38,7 @@ class LogFragment : Fragment() {
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_log,container,false)
 
         val application = requireNotNull(this.activity).application
-        //val dataSource1 = DatabaseInventory.getInstance(application).merkDao
+        val dataSourceLog = DatabaseInventory.getInstance(application).logDao
        // val viewModelFactory = LogViewModelFactory(application)
         binding.lifecycleOwner =this
         //val viewModel = ViewModelProvider(this,viewModelFactory).get(LogViewModel::class.java)

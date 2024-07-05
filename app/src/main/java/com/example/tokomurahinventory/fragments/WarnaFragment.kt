@@ -15,14 +15,18 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.tokomurahinventory.R
+import com.example.tokomurahinventory.adapters.DeleteWarnaClickListener
 import com.example.tokomurahinventory.adapters.MerkAdapter
 import com.example.tokomurahinventory.adapters.MerkClickListener
 import com.example.tokomurahinventory.adapters.MerkLongListener
+import com.example.tokomurahinventory.adapters.UpdateWarnaClickListener
 import com.example.tokomurahinventory.adapters.WarnaAdapter
 import com.example.tokomurahinventory.adapters.WarnaClickListener
 import com.example.tokomurahinventory.adapters.WarnaLongListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentWarnaBinding
+import com.example.tokomurahinventory.models.DetailWarnaTable
+import com.example.tokomurahinventory.models.WarnaTable
 import com.example.tokomurahinventory.viewmodels.MerkViewModel
 import com.example.tokomurahinventory.viewmodels.MerkViewModelFactory
 import com.example.tokomurahinventory.viewmodels.WarnaViewModel
@@ -54,53 +58,63 @@ class WarnaFragment : Fragment() {
             },
             WarnaLongListener {
                 // Handle item long click
+            },
+            UpdateWarnaClickListener {
+                showAddWarnaDialog(viewModel,it,1)
+            },
+            DeleteWarnaClickListener {
+                viewModel.deleteWarna(it)
             }
         )
         binding.rvWarna.adapter = adapter
         viewModel.allWarnaByMerk.observe(viewLifecycleOwner, Observer {
             it?.let {
                 adapter.submitList(it)
+                adapter.notifyDataSetChanged()
             }
         })
-
         viewModel.addWanraFab.observe(viewLifecycleOwner, Observer {
             if (it==true){
-                showAddWarnaDialog(viewModel,0)
+                showAddWarnaDialog(viewModel,null,0)
                 viewModel.onAddWarnaFabClicked()
             }
         })
-
         viewModel.navigateToDetailWarna.observe(viewLifecycleOwner, Observer {
             if (it!=null){
                 this.findNavController().navigate(WarnaFragmentDirections.actionWarnaFragmentToDetailWarnaFragment(it))
                 viewModel.onNavigatetedToDetailWarna()
             }
         })
-
-
-
         return binding.root
     }
-    fun showAddWarnaDialog(viewModel: WarnaViewModel,i:Int){
+    fun showAddWarnaDialog(viewModel: WarnaViewModel,warnaTable:WarnaTable?,i:Int){
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Tambah Warna")
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.pop_up_add_warna, null)
         val textWarna = view.findViewById<EditText>(R.id.txt_warna)
         val textSatuan = view.findViewById<EditText>(R.id.txt_satuan)
+        if (warnaTable!=null){
+            textWarna.setText(warnaTable.kodeWarna)
+            textSatuan.setText(warnaTable.satuan)
+        }
         textWarna.setHint("Kode warna")
         textSatuan.setHint("Satuan (meter/yard/dll)")
         builder.setView(view)
         builder.setPositiveButton("OK") { dialog, which ->
             val kodeWarna = textWarna.text.toString().toUpperCase()
             val kodeSatuan = textSatuan.text.toString().toUpperCase()
-            viewModel.insertWarna(kodeWarna,kodeSatuan)
+            if (warnaTable==null){
+                viewModel.insertWarna(kodeWarna,kodeSatuan)
+            }else {
+                warnaTable.kodeWarna = kodeWarna
+                warnaTable.satuan = kodeSatuan
+                viewModel.updateWarna(warnaTable)
+            }
         }
         builder.setNegativeButton("No") { dialog, which ->
         }
         val alert = builder.create()
         alert.show()
     }
-
-
 }

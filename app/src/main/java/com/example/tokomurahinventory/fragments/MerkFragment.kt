@@ -7,22 +7,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.tokomurahinventory.R
+import com.example.tokomurahinventory.adapters.DeleteMerkClickListener
 import com.example.tokomurahinventory.adapters.MerkAdapter
 import com.example.tokomurahinventory.adapters.MerkClickListener
 import com.example.tokomurahinventory.adapters.MerkLongListener
+import com.example.tokomurahinventory.adapters.UpdateMerkClickListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentMerkBinding
 import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.viewmodels.MerkViewModel
 import com.example.tokomurahinventory.viewmodels.MerkViewModelFactory
-import com.google.android.material.textfield.TextInputEditText
 
 
 class MerkFragment : Fragment() {
@@ -44,12 +44,18 @@ class MerkFragment : Fragment() {
             .get(MerkViewModel::class.java)
         binding.viewModel = viewModel
         val adapter  = MerkAdapter(
-                MerkClickListener {
+            MerkClickListener {
                     viewModel.onNavigateToWarna(it.refMerk)
                 },
-                MerkLongListener {
+            MerkLongListener {
                     // Handle item long click
-                }
+                },
+            UpdateMerkClickListener{
+                showAddDialog(viewModel,it,1)
+            },
+            DeleteMerkClickListener{
+                viewModel.deleteMerk(it)
+            }
             )
 
         binding.rvMerk.adapter = adapter
@@ -63,7 +69,7 @@ class MerkFragment : Fragment() {
         //Observe fab merk state
         viewModel.addMerkFab.observe(viewLifecycleOwner, Observer {
             if (it==true){
-                showAddDialog(viewModel,0)
+                showAddDialog(viewModel,null,-1)
                 viewModel.onAddMerkFabClicked()
             }
         })
@@ -76,21 +82,28 @@ class MerkFragment : Fragment() {
                 viewModel.onNavigatetedToWarna()
         }
         })
-
-
         return binding.root
     }
 
-    fun showAddDialog(viewModel: MerkViewModel,i:Int){
+    fun showAddDialog(viewModel: MerkViewModel, merkTable:MerkTable?, i:Int){
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Tambah Merk Barang")
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.pop_up_add_item, null)
         val textBrand = view.findViewById<EditText>(R.id.txt_merk)
+       if (merkTable!=null)(
+           textBrand.setText(merkTable.namaMerk)
+       )
         builder.setView(view)
         builder.setPositiveButton("OK") { dialog, which ->
             val merk = textBrand.text.toString().toUpperCase()
-            viewModel.insertMerk(merk)
+            if (merkTable==null){
+                viewModel.insertMerk(merk)
+            }else
+            {
+                merkTable.namaMerk = merk
+                viewModel.updateMerk(merkTable)
+            }
         }
         builder.setNegativeButton("No") { dialog, which ->
         }

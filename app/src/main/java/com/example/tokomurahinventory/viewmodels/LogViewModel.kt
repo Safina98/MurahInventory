@@ -19,8 +19,6 @@ class LogViewModel (application: Application): AndroidViewModel(application){
     //dummy list
     var logDummy = mutableListOf<LogTable>()
 
-
-
     //
     private var logRef =MutableLiveData<String>()
 
@@ -119,20 +117,20 @@ class LogViewModel (application: Application): AndroidViewModel(application){
 
             val newLog = LogTable(
                 id = 0,
-                user = user.value ?: "Failed",
+                userName = user.value ?: "Failed",
                 password = "",
                 namaToko = namaToko.value ?: "Failed",
-                date = Date(), // assuming you have a date field
+                logDate = Date(), // assuming you have a date field
                 keterangan = subKeterangan.value ?: "Failed",
                 merk = s,
                 kodeWarna = "",
-                isi = 0.0,
+                logIsi = 0.0,
                 pcs = countModelList.value!!.sumOf { it.psc },
                 detailWarnaRef = "",
-                logRef = logRef.value ?: ""
+                refLog = logRef.value ?: ""
             )
             Log.i("InsertLogTry", "add log mutable${mutableLogTable.value}")
-            if ( mutableLogTable.value?.logRef =="") {
+            if ( mutableLogTable.value?.refLog =="") {
                 insertLogToDao(newLog)
                 addLogBarang()
 
@@ -147,7 +145,7 @@ class LogViewModel (application: Application): AndroidViewModel(application){
     fun getStringS():String{
         var s =""
         for (i in countModelList.value!!){
-            mutableDspTableNew.value!!.kodeBarang = i.kodeBarang.toString()
+            mutableDspTableNew.value!!.refMerk = i.kodeBarang.toString()
             mutableDspTableNew.value!!.isi = i.isi
             mutableDspTableNew.value!!.pcs = i.psc
             mutableDspTableNew.value!!.id = i.id
@@ -160,12 +158,11 @@ class LogViewModel (application: Application): AndroidViewModel(application){
            // mutableDspTableNew.value!!.logRef = logRef.value ?: ""
            // mutableLogTable.value!!.date = Date()
             for (i in countModelList.value!!){
-                mutableDspTableNew.value!!.kodeBarang = i.kodeBarang.toString()
+                mutableDspTableNew.value!!.refMerk = i.kodeBarang.toString()
                 mutableDspTableNew.value!!.isi = i.isi
                 mutableDspTableNew.value!!.pcs = i.psc
                 mutableDspTableNew.value!!.id = i.id
                Log.i("InsertLogTry", "${i.kodeBarang} ${i.isi}meter ${i.psc}pcs")
-
             }
         }
     }

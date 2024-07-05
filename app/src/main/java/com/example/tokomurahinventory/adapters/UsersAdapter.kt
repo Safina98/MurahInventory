@@ -13,12 +13,16 @@ import com.example.tokomurahinventory.models.UsersTable
 
 class UsersAdapter(
     private val usersClickListener: UsersClickListener,
-    private val usersLongListener: UsersLongListener
+    private val usersLongListener: UsersLongListener,
+    private val updateUsersClickListener: UpdateUsersClickListener,
+    private val deleteUsersClickListener: DeleteUsersClickListener
 ) : ListAdapter<UsersTable, UsersAdapter.MyViewHolder>(UsersStockDiffCallback()) {
 
     class MyViewHolder private constructor(val binding: ItemListUsersBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: UsersTable, clickListener: UsersClickListener, longListener: UsersLongListener) {
+        fun bind(item: UsersTable, clickListener: UsersClickListener, longListener: UsersLongListener,updateUsersClickListener: UpdateUsersClickListener,deleteUsersClickListener: DeleteUsersClickListener) {
             binding.users = item
+            binding.updateClickListemer = updateUsersClickListener
+            binding.deleteClickListener = deleteUsersClickListener
           //  binding.clickListemer = clickListener
             binding.executePendingBindings()
         }
@@ -37,7 +41,7 @@ class UsersAdapter(
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        holder.bind(getItem(position), usersClickListener, usersLongListener)
+        holder.bind(getItem(position), usersClickListener, usersLongListener,updateUsersClickListener,deleteUsersClickListener)
     }
 }
 
@@ -57,4 +61,10 @@ class  UsersLongListener(val longListener: (users: UsersTable) -> Unit){
         //logic goes here
         longListener(users)
         return true}
+}
+class UpdateUsersClickListener(val clickListener: (users: UsersTable) -> Unit) {
+    fun onClick(Users: UsersTable) = clickListener(Users)
+}
+class DeleteUsersClickListener(val clickListener: (users: UsersTable) -> Unit) {
+    fun onClick(Users: UsersTable) = clickListener(Users)
 }

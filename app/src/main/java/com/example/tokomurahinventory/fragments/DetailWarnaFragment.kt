@@ -3,7 +3,6 @@ package com.example.tokomurahinventory.fragments
 import android.app.AlertDialog
 import android.os.Bundle
 import android.text.InputType
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -15,24 +14,24 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.tokomurahinventory.R
+import com.example.tokomurahinventory.adapters.DeleteDetailWarnaClickListener
 import com.example.tokomurahinventory.adapters.DetailWarnaAdapter
 import com.example.tokomurahinventory.adapters.DetailWarnaClickListener
 import com.example.tokomurahinventory.adapters.DetailWarnaLongListener
-import com.example.tokomurahinventory.adapters.WarnaAdapter
-import com.example.tokomurahinventory.adapters.WarnaClickListener
-import com.example.tokomurahinventory.adapters.WarnaLongListener
+import com.example.tokomurahinventory.adapters.UpdateDetailWarnaClickListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentDetailWarnaBinding
+import com.example.tokomurahinventory.models.DetailWarnaTable
 import com.example.tokomurahinventory.viewmodels.DetailWarnaViewModel
 import com.example.tokomurahinventory.viewmodels.DetailWarnaViewModelFactory
 import com.example.tokomurahinventory.viewmodels.MerkViewModel
-import com.example.tokomurahinventory.viewmodels.WarnaViewModel
 
 
 class DetailWarnaFragment : Fragment() {
 
     private lateinit var binding:FragmentDetailWarnaBinding
     private val viewModel: MerkViewModel by viewModels()
+    /*
     val adapter by lazy {
         DetailWarnaAdapter(
             DetailWarnaClickListener {
@@ -41,9 +40,15 @@ class DetailWarnaFragment : Fragment() {
             },
             DetailWarnaLongListener {
                 // Handle item long click
+            }, UpdateDetailWarnaClickListener {
+
+            }, DeleteDetailWarnaClickListener {
+
             }
         )
     }
+
+     */
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -55,35 +60,66 @@ class DetailWarnaFragment : Fragment() {
         var refWarna = arguments?.let { DetailWarnaFragmentArgs.fromBundle(it).refWarna}
 
         val dataSourceWarna = DatabaseInventory.getInstance(application).warnaDao
-        val viewModelFactory = DetailWarnaViewModelFactory(dataSourceWarna,refWarna!!,application)
+        val dataSourceDetailWarna = DatabaseInventory.getInstance(application).detailWarnaDao
+        val viewModelFactory = DetailWarnaViewModelFactory(dataSourceWarna,dataSourceDetailWarna,refWarna!!,application)
         binding.lifecycleOwner =this
         val viewModel = ViewModelProvider(this,viewModelFactory)
             .get(DetailWarnaViewModel::class.java)
         binding.viewModel = viewModel
 
+        val adapter=DetailWarnaAdapter(
+            DetailWarnaClickListener {
+
+                //viewModel.onNavigateToDetailWarna(it.warnaRef)
+            },
+            DetailWarnaLongListener {
+                // Handle item long click
+            }, UpdateDetailWarnaClickListener {
+                                              showAddDetailWarnaDialog(viewModel,it,-1)
+
+
+            }, DeleteDetailWarnaClickListener {
+                viewModel.deleteDetailWarna(it)
+
+            }
+        )
+
         binding.rvDetailWarna.adapter = adapter
-        adapter.submitList(viewModel.dummyDetail)
+
+        //Obsert detail warna recycler view
+        viewModel.detailWarnaList.observe(viewLifecycleOwner, Observer {
+            it.let {
+                adapter.submitList(it)
+            }
+        })
+
+
         viewModel.addDetailWarnaFab.observe(viewLifecycleOwner, Observer {
             if (it==true){
-                showAddDetailWarnaDialog(viewModel,0)
+                showAddDetailWarnaDialog(viewModel,null,0)
                 viewModel.onAddWarnaFabClicked()
 
             }
 
         })
 
+
         viewModel.warna.observe(viewLifecycleOwner, Observer {
         })
 
         return binding.root
     }
-    fun showAddDetailWarnaDialog(viewModel: DetailWarnaViewModel, i:Int){
+    fun showAddDetailWarnaDialog(viewModel: DetailWarnaViewModel,detailWarnaTable: DetailWarnaTable?, i:Int){
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Tambah Barang")
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.pop_up_add_warna, null)
         val textWarna = view.findViewById<EditText>(R.id.txt_warna)
         val textSatuan = view.findViewById<EditText>(R.id.txt_satuan)
+        if (detailWarnaTable!=null){
+            textWarna.setText(detailWarnaTable.detailWarnaPcs.toString())
+            textSatuan.setText(detailWarnaTable.detailWarnaIsi.toString())
+        }
         textWarna.inputType = InputType.TYPE_CLASS_NUMBER
         textSatuan.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
         textWarna.setHint("pcs")
@@ -94,8 +130,15 @@ class DetailWarnaFragment : Fragment() {
             val isi = textSatuan.text.toString().toUpperCase().trim().toDoubleOrNull()
             if (pcs!=null && isi!=null)
             {
+                if (detailWarnaTable==null)
+                {
                 viewModel.insertDetailWarna(pcs,isi)
-                adapter.notifyDataSetChanged()
+                }else{
+                    detailWarnaTable.detailWarnaPcs = pcs
+                    detailWarnaTable.detailWarnaIsi = isi
+                    viewModel.updateDetailWarna(detailWarnaTable)
+                }
+
             }else
                 Toast.makeText(context,"Gagal menambah data",Toast.LENGTH_SHORT).show()
 

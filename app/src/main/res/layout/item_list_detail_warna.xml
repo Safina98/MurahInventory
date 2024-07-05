@@ -7,6 +7,12 @@
         <variable
             name="detailWarna"
             type="com.example.tokomurahinventory.models.DetailWarnaTable" />
+        <variable
+            name="updateClickListemer"
+            type="com.example.tokomurahinventory.adapters.UpdateDetailWarnaClickListener" />
+        <variable
+            name="deleteClickListemer"
+            type="com.example.tokomurahinventory.adapters.DeleteDetailWarnaClickListener" />
 
     </data>
 
@@ -14,37 +20,46 @@
         android:layout_margin="@dimen/small_margin"
         android:padding="@dimen/small_margin"
         android:layout_width="match_parent"
-        android:layout_height="100dp">
+        android:layout_height="80dp">
 
         <TextView
             android:id="@+id/textView3"
+            style="@style/rv_item_text_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/rv_item_text_style"
-            android:text="@{String.valueOf(detailWarna.pcs)}"
+            android:text="@{String.valueOf(detailWarna.detailWarnaPcs)}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/button"
-            app:layout_constraintTop_toTopOf="parent"
-            />
+            app:layout_constraintEnd_toStartOf="@+id/img_update"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/textView4"
             style="@style/rv_item_text_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{String.valueOf(detailWarna.meter)}"
+            android:text="@{String.valueOf(detailWarna.detailWarnaIsi)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <ImageView
+            android:id="@+id/img_update"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/small_margin"
+            android:background="@drawable/baseline_edit_24"
+            android:onClick="@{()->updateClickListemer.onClick(detailWarna)}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/img_delete"
+            app:layout_constraintTop_toTopOf="parent" />
 
-
-        <Button
-            android:id="@+id/button"
-            android:layout_width="@dimen/plus_minus_btn_width"
-            android:layout_height="@dimen/plus_minus_btn_width"
-            android:text="+"
-            android:layout_margin="@dimen/medium_margin"
+        <ImageView
+            android:id="@+id/img_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/small_margin"
+            android:background="@drawable/baseline_delete_forever_24"
+            android:onClick="@{()->deleteClickListemer.onClick(detailWarna)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

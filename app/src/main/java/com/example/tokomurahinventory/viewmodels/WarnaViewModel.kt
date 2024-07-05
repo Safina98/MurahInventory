@@ -43,9 +43,30 @@ class WarnaViewModel(
             insertWarnaToDao(warna)
         }
     }
+    fun updateWarna(warnaTable:WarnaTable){
+        viewModelScope.launch {
+            updateWarnaToDao(warnaTable)
+
+        }
+    }
+    fun deleteWarna(warnaTable:WarnaTable){
+        viewModelScope.launch {
+            deleteWarnaToDao(warnaTable)
+        }
+    }
     private suspend fun  insertWarnaToDao(warna:WarnaTable){
         withContext(Dispatchers.IO){
             dataSourceWarna.insert(warna)
+        }
+    }
+    private suspend fun  deleteWarnaToDao(warna:WarnaTable){
+        withContext(Dispatchers.IO){
+            dataSourceWarna.deleteAnItemWarna(warna.idWarna)
+        }
+    }
+    private suspend fun  updateWarnaToDao(warna:WarnaTable){
+        withContext(Dispatchers.IO){
+            dataSourceWarna.update(warna)
         }
     }
 

@@ -11,12 +11,16 @@ import com.example.tokomurahinventory.models.WarnaTable
 
 
 class WarnaAdapter (private val warnaClickListener: WarnaClickListener,
-                     private val warnaLongListener: WarnaLongListener
+                     private val warnaLongListener: WarnaLongListener,
+                    private val updateWarnaClickListener: UpdateWarnaClickListener,
+                    private val deleteWarnaClickListener: DeleteWarnaClickListener
 ) : ListAdapter<WarnaTable, WarnaAdapter.MyViewHolder>(WarnaStockDiffCallback()){
     class MyViewHolder private constructor(val binding: ItemListWarnaBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: WarnaTable, clickListener: WarnaClickListener, longListener: WarnaLongListener) {
+        fun bind(item: WarnaTable, clickListener: WarnaClickListener, longListener: WarnaLongListener,updateWarnaClickListener: UpdateWarnaClickListener,deleteWarnaClickListener: DeleteWarnaClickListener) {
             binding.warna = item
             binding.clickListener = clickListener
+            binding.updateClickListemer = updateWarnaClickListener
+            binding.deleteClickListener = deleteWarnaClickListener
             binding.executePendingBindings()
         }
 
@@ -34,7 +38,7 @@ class WarnaAdapter (private val warnaClickListener: WarnaClickListener,
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        holder.bind(getItem(position), warnaClickListener, warnaLongListener)
+        holder.bind(getItem(position), warnaClickListener, warnaLongListener, updateWarnaClickListener,deleteWarnaClickListener)
     }
 }
 
@@ -50,11 +54,16 @@ class WarnaStockDiffCallback: DiffUtil.ItemCallback<WarnaTable>(){
 }
 class WarnaClickListener(val clickListener: (warna: WarnaTable) -> Unit) {
     fun onClick(Warna: WarnaTable) = clickListener(Warna)
-
 }
 class  WarnaLongListener(val longListener: (Warna: WarnaTable) -> Unit){
     fun onLongClick(v: View, Warna: WarnaTable): Boolean {
         longListener(Warna)
 
         return true}
+}
+class UpdateWarnaClickListener(val clickListener: (warna: WarnaTable) -> Unit) {
+    fun onClick(Warna: WarnaTable) = clickListener(Warna)
+}
+class DeleteWarnaClickListener(val clickListener: (warna: WarnaTable) -> Unit) {
+    fun onClick(Warna: WarnaTable) = clickListener(Warna)
 }

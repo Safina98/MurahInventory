@@ -9,17 +9,22 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.tokomurahinventory.databinding.ItemListDetailWarnaBinding
 import com.example.tokomurahinventory.databinding.ItemListWarnaBinding
 import com.example.tokomurahinventory.models.DetailWarnaTable
+import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.models.WarnaTable
 
 
 class DetailWarnaAdapter(
     private val detailWarnaClickListener: DetailWarnaClickListener,
-    private val detailWarnaLongListener: DetailWarnaLongListener
+    private val detailWarnaLongListener: DetailWarnaLongListener,
+    private val updateDetailWarnaClickListener: UpdateDetailWarnaClickListener,
+    private val deleteDetailWarnaClickListener: DeleteDetailWarnaClickListener
 ) : ListAdapter<DetailWarnaTable, DetailWarnaAdapter.MyViewHolder>(DetailWarnaStockDiffCallback()){
 
     class MyViewHolder private constructor(val binding: ItemListDetailWarnaBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: DetailWarnaTable, clickListener: DetailWarnaClickListener, longListener: DetailWarnaLongListener) {
+        fun bind(item: DetailWarnaTable, clickListener: DetailWarnaClickListener, longListener: DetailWarnaLongListener,updateDetailWarnaClickListener: UpdateDetailWarnaClickListener,deleteDetailWarnaClickListener: DeleteDetailWarnaClickListener) {
             binding.detailWarna = item
+            binding.updateClickListemer = updateDetailWarnaClickListener
+            binding.deleteClickListemer = deleteDetailWarnaClickListener
             //binding.clickListener = clickListener
             binding.executePendingBindings()
         }
@@ -38,7 +43,7 @@ class DetailWarnaAdapter(
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        holder.bind(getItem(position), detailWarnaClickListener, detailWarnaLongListener)
+        holder.bind(getItem(position), detailWarnaClickListener, detailWarnaLongListener,updateDetailWarnaClickListener,deleteDetailWarnaClickListener)
     }
 }
 
@@ -57,4 +62,10 @@ class  DetailWarnaLongListener(val longListener: (Warna: DetailWarnaTable) -> Un
     fun onLongClick(v: View, Warna: DetailWarnaTable): Boolean {
         longListener(Warna)
         return true}
+}
+class UpdateDetailWarnaClickListener(val clickListener: (warna: DetailWarnaTable) -> Unit) {
+    fun onClick(warna: DetailWarnaTable) = clickListener(warna)
+}
+class DeleteDetailWarnaClickListener(val clickListener: (warna: DetailWarnaTable) -> Unit) {
+    fun onClick(warna: DetailWarnaTable) = clickListener(warna)
 }

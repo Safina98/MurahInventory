@@ -5,6 +5,12 @@
         <variable
             name="users"
             type="com.example.tokomurahinventory.models.UsersTable" />
+        <variable
+            name="updateClickListemer"
+            type="com.example.tokomurahinventory.adapters.UpdateUsersClickListener" />
+        <variable
+            name="deleteClickListener"
+            type="com.example.tokomurahinventory.adapters.DeleteUsersClickListener" />
 
     </data>
 
@@ -12,21 +18,48 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:orientation="horizontal">
-
         <TextView
             android:id="@+id/txt_nama"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             style="@style/rv_item_text_style"
-            android:text="@{users.nama}" />
-
-        <TextView
-            android:id="@+id/txt_password"
+            android:text="@{users.userName}" />
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:text="@{users.passrord}"
-            style="@style/rv_item_text_style"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/txt_password"
+                android:layout_width="wrap_content"
+                android:text="@{users.passrord}"
+                style="@style/rv_item_text_style"
+                android:layout_height="wrap_content" />
+            <ImageView
+                android:id="@+id/img_password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/baseline_remove_red_eye_24" />
+            <ImageView
+                android:id="@+id/img_update"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/small_margin"
+                android:background="@drawable/baseline_edit_24"
+                android:onClick="@{()->updateClickListemer.onClick(users)}"
+                 />
+
+            <ImageView
+                android:id="@+id/img_delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/small_margin"
+                android:background="@drawable/baseline_delete_forever_24"
+                android:onClick="@{()->deleteClickListener.onClick(users)}"
+                 />
+
+        </LinearLayout>
+
+
 
     </LinearLayout>
 </layout>

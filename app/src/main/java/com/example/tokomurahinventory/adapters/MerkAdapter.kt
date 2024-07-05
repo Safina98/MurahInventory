@@ -11,13 +11,17 @@ import com.example.tokomurahinventory.models.MerkTable
 
 class MerkAdapter(
     private val merkClickListener: MerkClickListener,
-    private val merkLongListener: MerkLongListener
+    private val merkLongListener: MerkLongListener,
+    private val updateMerkClickListener: UpdateMerkClickListener,
+    private val deleteMerkClickListener: DeleteMerkClickListener
 ) : ListAdapter<MerkTable, MerkAdapter.MyViewHolder>(MerkStockDiffCallback()) {
 
     class MyViewHolder private constructor(val binding: ItemListMerkBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: MerkTable, clickListener: MerkClickListener, longListener: MerkLongListener) {
+        fun bind(item: MerkTable, clickListener: MerkClickListener, longListener: MerkLongListener,updateMerkClickListener: UpdateMerkClickListener,deleteMerkClickListener: DeleteMerkClickListener) {
             binding.merk = item
             binding.clickListemer = clickListener
+            binding.updateCLickListemer = updateMerkClickListener
+            binding.deleteClickListemer= deleteMerkClickListener
             binding.executePendingBindings()
         }
 
@@ -35,7 +39,7 @@ class MerkAdapter(
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        holder.bind(getItem(position), merkClickListener, merkLongListener)
+        holder.bind(getItem(position), merkClickListener, merkLongListener,updateMerkClickListener,deleteMerkClickListener)
     }
 }
 
@@ -55,4 +59,10 @@ class  MerkLongListener(val longListener: (Merk: MerkTable) -> Unit){
         //logic goes here
         longListener(Merk)
         return true}
+}
+class UpdateMerkClickListener(val clickListener: (merk: MerkTable) -> Unit) {
+    fun onClick(Merk:MerkTable) = clickListener(Merk)
+}
+class DeleteMerkClickListener(val clickListener: (merk: MerkTable) -> Unit) {
+    fun onClick(Merk:MerkTable) = clickListener(Merk)
 }

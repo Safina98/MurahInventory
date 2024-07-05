@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import com.example.tokomurahinventory.models.MerkTable
 
 @Dao
@@ -11,6 +12,18 @@ interface MerkDao  {
     @Insert
     fun insert(merkTable: MerkTable)
 
+    @Update
+    fun update(merkTable: MerkTable)
+
+    @Query("DELETE FROM merk_table WHERE id=:id")
+    fun deleteAnItemMerk(id:Int)
+
     @Query("SELECT * FROM merk_table")
     fun selectAllMerk():LiveData<List<MerkTable>>
+
+
+
+
+
+
 }
