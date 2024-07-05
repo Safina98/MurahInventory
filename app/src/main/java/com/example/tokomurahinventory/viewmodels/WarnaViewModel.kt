@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.WarnaDao
 import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.models.WarnaTable
+import com.example.tokomurahinventory.models.model.WarnaModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -22,7 +23,8 @@ class WarnaViewModel(
 ): AndroidViewModel(application) {
 
     //all warna by merk
-    val allWarnaByMerk = dataSourceWarna.selectWarnaByMerk(refMerk)
+    //val allWarnaByMerk = dataSourceWarna.selectWarnaByMerk(refMerk)
+    val allWarnaByMerk  = dataSourceWarna.getWarnaWithTotalPcs(refMerk)
 
     //Add warna fab
     private val addWarnaFabM = MutableLiveData<Boolean>()
@@ -43,15 +45,27 @@ class WarnaViewModel(
             insertWarnaToDao(warna)
         }
     }
-    fun updateWarna(warnaTable:WarnaTable){
+    fun WarnaModel.toWarnaTable(): WarnaTable {
+        return WarnaTable(
+            idWarna = this.idWarna,
+            refMerk = this.refMerk,
+            kodeWarna = this.kodeWarna,
+            totalPcs = this.totalPcs,
+            satuanTotal = this.satuanTotal,
+            satuan = this.satuan,
+            warnaRef = this.warnaRef
+        )
+    }
+
+    fun updateWarna(warnaTable:WarnaModel){
         viewModelScope.launch {
-            updateWarnaToDao(warnaTable)
+            updateWarnaToDao(warnaTable.toWarnaTable())
 
         }
     }
-    fun deleteWarna(warnaTable:WarnaTable){
+    fun deleteWarna(warnaTable:WarnaModel){
         viewModelScope.launch {
-            deleteWarnaToDao(warnaTable)
+            deleteWarnaToDao(warnaTable.toWarnaTable())
         }
     }
     private suspend fun  insertWarnaToDao(warna:WarnaTable){

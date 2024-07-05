@@ -7,7 +7,7 @@
     <data>
         <variable
             name="warna"
-            type="com.example.tokomurahinventory.models.WarnaTable" />
+            type="com.example.tokomurahinventory.models.model.WarnaModel" />
         <variable
             name="clickListener"
             type="com.example.tokomurahinventory.adapters.WarnaClickListener" />
@@ -50,7 +50,7 @@
                 style="@style/rv_item_text_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text='@{String.valueOf(warna.totalPcs)}'
+                android:text='@{String.valueOf(warna.totalDetailPcs)}'
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/img_update"
                 app:layout_constraintTop_toTopOf="parent" />

@@ -3,6 +3,7 @@ package com.example.tokomurahinventory.fragments
 import android.app.AlertDialog
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -21,7 +22,7 @@ import com.example.tokomurahinventory.adapters.DetailWarnaLongListener
 import com.example.tokomurahinventory.adapters.UpdateDetailWarnaClickListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentDetailWarnaBinding
-import com.example.tokomurahinventory.models.DetailWarnaTable
+import com.example.tokomurahinventory.models.model.DetailWarnaModel
 import com.example.tokomurahinventory.viewmodels.DetailWarnaViewModel
 import com.example.tokomurahinventory.viewmodels.DetailWarnaViewModelFactory
 import com.example.tokomurahinventory.viewmodels.MerkViewModel
@@ -90,6 +91,8 @@ class DetailWarnaFragment : Fragment() {
         viewModel.detailWarnaList.observe(viewLifecycleOwner, Observer {
             it.let {
                 adapter.submitList(it)
+                adapter.notifyDataSetChanged()
+                Log.i("DETAILWARNAPROB","$it")
             }
         })
 
@@ -109,16 +112,16 @@ class DetailWarnaFragment : Fragment() {
 
         return binding.root
     }
-    fun showAddDetailWarnaDialog(viewModel: DetailWarnaViewModel,detailWarnaTable: DetailWarnaTable?, i:Int){
+    fun showAddDetailWarnaDialog(viewModel: DetailWarnaViewModel, detailWarnaModel: DetailWarnaModel?, i:Int){
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Tambah Barang")
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.pop_up_add_warna, null)
         val textWarna = view.findViewById<EditText>(R.id.txt_warna)
         val textSatuan = view.findViewById<EditText>(R.id.txt_satuan)
-        if (detailWarnaTable!=null){
-            textWarna.setText(detailWarnaTable.detailWarnaPcs.toString())
-            textSatuan.setText(detailWarnaTable.detailWarnaIsi.toString())
+        if (detailWarnaModel!=null){
+            textWarna.setText(detailWarnaModel.detailWarnaPcs.toString())
+            textSatuan.setText(detailWarnaModel.detailWarnaIsi.toString())
         }
         textWarna.inputType = InputType.TYPE_CLASS_NUMBER
         textSatuan.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
@@ -130,13 +133,13 @@ class DetailWarnaFragment : Fragment() {
             val isi = textSatuan.text.toString().toUpperCase().trim().toDoubleOrNull()
             if (pcs!=null && isi!=null)
             {
-                if (detailWarnaTable==null)
+                if (detailWarnaModel==null)
                 {
                 viewModel.insertDetailWarna(pcs,isi)
                 }else{
-                    detailWarnaTable.detailWarnaPcs = pcs
-                    detailWarnaTable.detailWarnaIsi = isi
-                    viewModel.updateDetailWarna(detailWarnaTable)
+                    detailWarnaModel.detailWarnaPcs = pcs
+                    detailWarnaModel.detailWarnaIsi = isi
+                    viewModel.updateDetailWarna(detailWarnaModel)
                 }
 
             }else

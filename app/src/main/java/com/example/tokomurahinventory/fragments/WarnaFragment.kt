@@ -27,6 +27,7 @@ import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentWarnaBinding
 import com.example.tokomurahinventory.models.DetailWarnaTable
 import com.example.tokomurahinventory.models.WarnaTable
+import com.example.tokomurahinventory.models.model.WarnaModel
 import com.example.tokomurahinventory.viewmodels.MerkViewModel
 import com.example.tokomurahinventory.viewmodels.MerkViewModelFactory
 import com.example.tokomurahinventory.viewmodels.WarnaViewModel
@@ -71,6 +72,7 @@ class WarnaFragment : Fragment() {
             it?.let {
                 adapter.submitList(it)
                 adapter.notifyDataSetChanged()
+                Log.i("WarnaProb","$it")
             }
         })
         viewModel.addWanraFab.observe(viewLifecycleOwner, Observer {
@@ -87,7 +89,7 @@ class WarnaFragment : Fragment() {
         })
         return binding.root
     }
-    fun showAddWarnaDialog(viewModel: WarnaViewModel,warnaTable:WarnaTable?,i:Int){
+    fun showAddWarnaDialog(viewModel: WarnaViewModel, warnaTable: WarnaModel?, i:Int){
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Tambah Warna")
         val inflater = LayoutInflater.from(context)

@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Update
 import com.example.tokomurahinventory.models.DetailWarnaTable
 import com.example.tokomurahinventory.models.MerkTable
+import com.example.tokomurahinventory.models.model.DetailWarnaModel
 
 @Dao
 interface DetailWarnaDao {
@@ -21,4 +22,17 @@ interface DetailWarnaDao {
 
     @Query("SELECT * from detail_warna_table WHERE warnaRef =:warnaRef GROUP BY detailWarnaIsi")
     fun selectDetailWarnaByWarnaIdGroupByIsi(warnaRef:String):LiveData<List<DetailWarnaTable>>
+
+    @Query("""
+        SELECT 
+            id,
+            detailWarnaIsi,
+            SUM(detailWarnaPcs) as detailWarnaPcs
+        FROM detail_warna_table 
+        WHERE warnaRef = :warnaRef 
+        GROUP BY detailWarnaIsi
+    """)
+    fun getDetailWarnaSummary(warnaRef: String): LiveData<List<DetailWarnaModel>>
+
+
 }

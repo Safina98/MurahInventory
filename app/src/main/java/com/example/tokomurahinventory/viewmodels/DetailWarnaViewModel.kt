@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.DetailWarnaDao
 import com.example.tokomurahinventory.database.WarnaDao
 import com.example.tokomurahinventory.models.DetailWarnaTable
+import com.example.tokomurahinventory.models.model.DetailWarnaModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -26,27 +27,43 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
     //delete?
     val warna = dataSourceWarna.selectWarnaByWarnaRef(refWarna)
     //detail warna
-    val detailWarnaList = dataSourceDetailWarna.selectDetailWarnaByWarnaIdGroupByIsi(refWarna)
-
+    //val detailWarnaList = dataSourceDetailWarna.selectDetailWarnaByWarnaIdGroupByIsi(refWarna)
+    val detailWarnaList = dataSourceDetailWarna.getDetailWarnaSummary(refWarna)
 
     fun insertDetailWarna(pcs: Int, isi: Double) {
         viewModelScope.launch {
-            var detailWarnaTable = DetailWarnaTable()
-            detailWarnaTable.warnaRef = refWarna
-            detailWarnaTable.detailWarnaIsi = isi
-            detailWarnaTable.detailWarnaPcs = pcs
-            detailWarnaTable.detailWarnaRef = UUID.randomUUID().toString()
-            insertDetailWarnaToDao(detailWarnaTable)
+            for (i in 1..pcs) {
+                var detailWarnaTable = DetailWarnaTable()
+                detailWarnaTable.warnaRef = refWarna
+                detailWarnaTable.detailWarnaIsi = isi
+                detailWarnaTable.detailWarnaPcs = 1
+                detailWarnaTable.detailWarnaRef = UUID.randomUUID().toString()
+                insertDetailWarnaToDao(detailWarnaTable)
+            }
         }
     }
-    fun updateDetailWarna(detailWarnaTable:DetailWarnaTable){
+    /*
+    fun DetailWarnaModel.toDetailWarnaTable(): DetailWarnaTable {
+        return DetailWarnaTable(
+            id = this.id,
+            warnaRef = this.warnaRef,
+            detailWarnaIsi = this.detailWarnaIsi,
+            detailWarnaPcs = 1,
+            detailWarnaDate = this.detailWarnaDate,
+            detailWarnaRef = this.detailWarnaRef
+        )
+    }
+
+     */
+
+    fun updateDetailWarna(detailWarnaModel:DetailWarnaModel){
         viewModelScope.launch {
-            updateDetailWarnaToDao(detailWarnaTable)
+            //updateDetailWarnaToDao(detailWarnaModel.toDetailWarnaTable())
         }
     }
-    fun deleteDetailWarna(detailWarnaTable: DetailWarnaTable){
+    fun deleteDetailWarna(detailWarnaModel: DetailWarnaModel){
         viewModelScope.launch{
-            deleteDetailWarnaToDao(detailWarnaTable)
+           // deleteDetailWarnaToDao(detailWarnaModel.toDetailWarnaTable())
         }
     }
     private suspend fun updateDetailWarnaToDao(detailWarnaTable:DetailWarnaTable){

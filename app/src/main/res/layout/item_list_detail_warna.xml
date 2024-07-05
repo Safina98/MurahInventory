@@ -6,7 +6,7 @@
     <data>
         <variable
             name="detailWarna"
-            type="com.example.tokomurahinventory.models.DetailWarnaTable" />
+            type="com.example.tokomurahinventory.models.model.DetailWarnaModel" />
         <variable
             name="updateClickListemer"
             type="com.example.tokomurahinventory.adapters.UpdateDetailWarnaClickListener" />

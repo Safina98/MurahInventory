@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Update
 import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.models.WarnaTable
+import com.example.tokomurahinventory.models.model.WarnaModel
 
 
 @Dao
@@ -20,10 +21,31 @@ interface WarnaDao {
     @Query("DELETE FROM warna_table WHERE idWarna =:id")
     fun deleteAnItemWarna(id:Int)
 
+    //old rv
     @Query("SELECT * FROM warna_table WHERE refMerk = :refMerk")
     fun selectWarnaByMerk(refMerk:String):LiveData<List<WarnaTable>>
 
     @Query("SELECT kodeWarna FROM warna_table WHERE warnaRef = :refWarna")
     fun selectWarnaByWarnaRef(refWarna:String):LiveData<String>
+
+
+        @Query("""
+        SELECT 
+            w.idWarna,
+            w.refMerk,
+            w.kodeWarna,
+            w.totalPcs,
+            w.satuanTotal,
+            w.satuan,
+            w.warnaRef,
+            SUM(d.detailWarnaPcs) as totalDetailPcs
+        FROM warna_table w
+        LEFT JOIN detail_warna_table d ON w.warnaRef = d.warnaRef
+        where w.refMerk = :refMerk
+        GROUP BY w.idWarna, w.refMerk, w.kodeWarna, w.totalPcs, w.satuanTotal, w.satuan, w.warnaRef
+    """)
+        fun getWarnaWithTotalPcs(refMerk:String): LiveData<List<WarnaModel>>
+
+
 
 }

@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tokomurahinventory.databinding.ItemListDetailWarnaBinding
 import com.example.tokomurahinventory.databinding.ItemListWarnaBinding
-import com.example.tokomurahinventory.models.DetailWarnaTable
+import com.example.tokomurahinventory.models.model.DetailWarnaModel
 import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.models.WarnaTable
 
@@ -18,10 +18,10 @@ class DetailWarnaAdapter(
     private val detailWarnaLongListener: DetailWarnaLongListener,
     private val updateDetailWarnaClickListener: UpdateDetailWarnaClickListener,
     private val deleteDetailWarnaClickListener: DeleteDetailWarnaClickListener
-) : ListAdapter<DetailWarnaTable, DetailWarnaAdapter.MyViewHolder>(DetailWarnaStockDiffCallback()){
+) : ListAdapter<DetailWarnaModel, DetailWarnaAdapter.MyViewHolder>(DetailWarnaStockDiffCallback()){
 
     class MyViewHolder private constructor(val binding: ItemListDetailWarnaBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: DetailWarnaTable, clickListener: DetailWarnaClickListener, longListener: DetailWarnaLongListener,updateDetailWarnaClickListener: UpdateDetailWarnaClickListener,deleteDetailWarnaClickListener: DeleteDetailWarnaClickListener) {
+        fun bind(item: DetailWarnaModel, clickListener: DetailWarnaClickListener, longListener: DetailWarnaLongListener,updateDetailWarnaClickListener: UpdateDetailWarnaClickListener,deleteDetailWarnaClickListener: DeleteDetailWarnaClickListener) {
             binding.detailWarna = item
             binding.updateClickListemer = updateDetailWarnaClickListener
             binding.deleteClickListemer = deleteDetailWarnaClickListener
@@ -47,25 +47,25 @@ class DetailWarnaAdapter(
     }
 }
 
-class DetailWarnaStockDiffCallback: DiffUtil.ItemCallback<DetailWarnaTable>(){
-    override fun areItemsTheSame(oldItem: DetailWarnaTable, newItem: DetailWarnaTable): Boolean {
-        return oldItem.id== newItem.id
+class DetailWarnaStockDiffCallback: DiffUtil.ItemCallback<DetailWarnaModel>(){
+    override fun areItemsTheSame(oldItem: DetailWarnaModel, newItem: DetailWarnaModel): Boolean {
+        return oldItem.detailWarnaIsi== newItem.detailWarnaIsi
     }
-    override fun areContentsTheSame(oldItem: DetailWarnaTable, newItem: DetailWarnaTable): Boolean {
+    override fun areContentsTheSame(oldItem: DetailWarnaModel, newItem: DetailWarnaModel): Boolean {
         return oldItem == newItem
     }
 }
-class DetailWarnaClickListener(val clickListener: (warna: DetailWarnaTable) -> Unit) {
-    fun onClick(Warna: DetailWarnaTable) = clickListener(Warna)
+class DetailWarnaClickListener(val clickListener: (warna: DetailWarnaModel) -> Unit) {
+    fun onClick(Warna: DetailWarnaModel) = clickListener(Warna)
 }
-class  DetailWarnaLongListener(val longListener: (Warna: DetailWarnaTable) -> Unit){
-    fun onLongClick(v: View, Warna: DetailWarnaTable): Boolean {
+class  DetailWarnaLongListener(val longListener: (Warna: DetailWarnaModel) -> Unit){
+    fun onLongClick(v: View, Warna: DetailWarnaModel): Boolean {
         longListener(Warna)
         return true}
 }
-class UpdateDetailWarnaClickListener(val clickListener: (warna: DetailWarnaTable) -> Unit) {
-    fun onClick(warna: DetailWarnaTable) = clickListener(warna)
+class UpdateDetailWarnaClickListener(val clickListener: (warna: DetailWarnaModel) -> Unit) {
+    fun onClick(warna: DetailWarnaModel) = clickListener(warna)
 }
-class DeleteDetailWarnaClickListener(val clickListener: (warna: DetailWarnaTable) -> Unit) {
-    fun onClick(warna: DetailWarnaTable) = clickListener(warna)
+class DeleteDetailWarnaClickListener(val clickListener: (warna: DetailWarnaModel) -> Unit) {
+    fun onClick(warna: DetailWarnaModel) = clickListener(warna)
 }
