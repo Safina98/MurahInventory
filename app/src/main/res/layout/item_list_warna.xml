@@ -18,8 +18,6 @@
             name="deleteClickListener"
             type="com.example.tokomurahinventory.adapters.DeleteWarnaClickListener" />
 
-
-
     </data>
 
     <androidx.cardview.widget.CardView

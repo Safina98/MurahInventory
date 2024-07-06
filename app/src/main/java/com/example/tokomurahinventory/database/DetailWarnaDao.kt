@@ -8,6 +8,7 @@ import androidx.room.Update
 import com.example.tokomurahinventory.models.DetailWarnaTable
 import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.models.model.DetailWarnaModel
+import java.util.Date
 
 @Dao
 interface DetailWarnaDao {
@@ -20,19 +21,46 @@ interface DetailWarnaDao {
     @Query("DELETE FROM detail_warna_table WHERE id=:id")
     fun deleteAnItemMerk(id:Int)
 
+    @Query("DELETE FROM detail_warna_table WHERE warnaRef = :warnaRef and detailWarnaIsi =:isi")
+    fun deteteDetailWarnaByIsi(warnaRef: String,isi: Double)
+
     @Query("SELECT * from detail_warna_table WHERE warnaRef =:warnaRef GROUP BY detailWarnaIsi")
     fun selectDetailWarnaByWarnaIdGroupByIsi(warnaRef:String):LiveData<List<DetailWarnaTable>>
 
+
+    @Query("""SELECT * FROM detail_warna_table WHERE detailWarnaIsi = :detailWarnaIsi AND detailWarnaRef = :warnaRef LIMIT :pcs""")
+    fun getFirstDetailWarna(detailWarnaIsi: Double, warnaRef: String,pcs:Int): List<DetailWarnaTable>
+
     @Query("""
         SELECT 
-            id,
-            detailWarnaIsi,
-            SUM(detailWarnaPcs) as detailWarnaPcs
-        FROM detail_warna_table 
-        WHERE warnaRef = :warnaRef 
-        GROUP BY detailWarnaIsi
+            d.detailWarnaIsi,
+            d.warnaRef,
+            w.satuan,
+            SUM(d.detailWarnaPcs) as detailWarnaPcs
+        FROM detail_warna_table d
+        INNER JOIN warna_table w ON d.warnaRef = w.warnaRef
+        WHERE d.warnaRef = :warnaRef 
+        GROUP BY d.detailWarnaIsi, d.warnaRef, w.satuan
     """)
     fun getDetailWarnaSummary(warnaRef: String): LiveData<List<DetailWarnaModel>>
+
+    @Query("""
+        UPDATE detail_warna_table
+        SET detailWarnaIsi = :newIsi,
+            
+            detailWarnaDate = :newDate
+        WHERE detailWarnaRef = :warnaRef AND detailWarnaIsi = :oldIsi
+    """)
+    fun updateDetailWarna(
+        oldIsi: Double,
+        newIsi: Double,
+        newDate: Date,
+        warnaRef: String
+    )
+
+    @Query("SELECT * FROM detail_warna_table WHERE detailWarnaIsi = :isi AND detailWarnaRef = :warnaRef")
+    fun getDetailWarnaByIsiAndRef(isi: Double, warnaRef: String): List<DetailWarnaTable>
+
 
 
 }

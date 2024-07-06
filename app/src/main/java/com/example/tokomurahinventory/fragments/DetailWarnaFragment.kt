@@ -76,11 +76,10 @@ class DetailWarnaFragment : Fragment() {
             DetailWarnaLongListener {
                 // Handle item long click
             }, UpdateDetailWarnaClickListener {
-                                              showAddDetailWarnaDialog(viewModel,it,-1)
-
-
+                showAddDetailWarnaDialog(viewModel,it,-1)
             }, DeleteDetailWarnaClickListener {
                 viewModel.deleteDetailWarna(it)
+                Log.i("DETAILWARNAPROB","Adapter $it")
 
             }
         )
@@ -92,7 +91,7 @@ class DetailWarnaFragment : Fragment() {
             it.let {
                 adapter.submitList(it)
                 adapter.notifyDataSetChanged()
-                Log.i("DETAILWARNAPROB","$it")
+
             }
         })
 
@@ -137,9 +136,9 @@ class DetailWarnaFragment : Fragment() {
                 {
                 viewModel.insertDetailWarna(pcs,isi)
                 }else{
-                    detailWarnaModel.detailWarnaPcs = pcs
-                    detailWarnaModel.detailWarnaIsi = isi
-                    viewModel.updateDetailWarna(detailWarnaModel)
+                    //detailWarnaModel.detailWarnaPcs = pcs
+                    //detailWarnaModel.detailWarnaIsi = isi
+                    viewModel.updateDetailWarna(detailWarnaModel,pcs,isi)
                 }
 
             }else

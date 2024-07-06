@@ -82,7 +82,7 @@ class UsersFragment : Fragment() {
         textPassword.setHint("Password")
         if (usersTable!=null){
             textNama.setText(usersTable.userName)
-            textPassword.setText(usersTable.passrord)
+            textPassword.setText(usersTable.password)
         }
         builder.setView(view)
         builder.setPositiveButton("OK") { dialog, which ->
@@ -93,7 +93,7 @@ class UsersFragment : Fragment() {
             }else
             {
                 usersTable.userName= nama
-                usersTable.passrord=password
+                usersTable.password=password
                 viewModel.updateUser(usersTable)
             }
 

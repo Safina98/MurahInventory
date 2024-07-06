@@ -39,10 +39,14 @@ class LogFragment : Fragment() {
 
         val application = requireNotNull(this.activity).application
         val dataSourceLog = DatabaseInventory.getInstance(application).logDao
+        val dataSourcebarangLog = DatabaseInventory.getInstance(application).barangLogDao
+        val dataSourceMerk =  DatabaseInventory.getInstance(application).merkDao
+        val dataSourceWarna =  DatabaseInventory.getInstance(application).warnaDao
+        val dataSourceDetailWarna =  DatabaseInventory.getInstance(application).detailWarnaDao
        // val viewModelFactory = LogViewModelFactory(application)
         binding.lifecycleOwner =this
         //val viewModel = ViewModelProvider(this,viewModelFactory).get(LogViewModel::class.java)
-        viewModel = ViewModelProvider(requireActivity(), LogViewModelFactory(application))
+        viewModel = ViewModelProvider(requireActivity(), LogViewModelFactory(dataSourceMerk,dataSourceWarna,dataSourceDetailWarna,dataSourceLog,dataSourcebarangLog,application))
             .get(LogViewModel::class.java)
         binding.viewModel = viewModel
         val adapter  = LogAdapter(

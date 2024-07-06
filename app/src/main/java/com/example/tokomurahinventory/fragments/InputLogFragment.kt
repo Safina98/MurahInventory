@@ -13,6 +13,7 @@ import com.example.tokomurahinventory.R
 import com.example.tokomurahinventory.adapters.AddNetClickListener
 import com.example.tokomurahinventory.adapters.CountAdapter
 import com.example.tokomurahinventory.adapters.DeleteNetClickListener
+import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentInputLogBinding
 import com.example.tokomurahinventory.viewmodels.LogViewModel
 import com.example.tokomurahinventory.viewmodels.LogViewModelFactory
@@ -31,9 +32,16 @@ class InputLogFragment : Fragment() {
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_input_log,container,false)
 
         val application = requireNotNull(this.activity).application
-        viewModel = ViewModelProvider(requireActivity(), LogViewModelFactory(application))
-            .get(LogViewModel::class.java)
+        val dataSourceLog = DatabaseInventory.getInstance(application).logDao
+        val dataSourcebarangLog = DatabaseInventory.getInstance(application).barangLogDao
+        val dataSourceMerk =  DatabaseInventory.getInstance(application).merkDao
+        val dataSourceWarna =  DatabaseInventory.getInstance(application).warnaDao
+        val dataSourceDetailWarna =  DatabaseInventory.getInstance(application).detailWarnaDao
+        // val viewModelFactory = LogViewModelFactory(application)
         binding.lifecycleOwner =this
+        //val viewModel = ViewModelProvider(this,viewModelFactory).get(LogViewModel::class.java)
+        viewModel = ViewModelProvider(requireActivity(), LogViewModelFactory(dataSourceMerk,dataSourceWarna,dataSourceDetailWarna,dataSourceLog,dataSourcebarangLog,application))
+            .get(LogViewModel::class.java)
         binding.viewModel = viewModel
 
         val adapter  = CountAdapter(

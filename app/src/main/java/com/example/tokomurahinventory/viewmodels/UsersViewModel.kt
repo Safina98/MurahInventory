@@ -27,7 +27,7 @@ class UsersViewModel(
         viewModelScope.launch {
             var user = UsersTable()
             user.userName= nama
-            user.passrord = password
+            user.password = password
             user.usersRef = UUID.randomUUID().toString()
             insertUsersToDao(user)
         }

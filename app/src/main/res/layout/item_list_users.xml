@@ -31,7 +31,7 @@
             <TextView
                 android:id="@+id/txt_password"
                 android:layout_width="wrap_content"
-                android:text="@{users.passrord}"
+                android:text="@{users.password}"
                 style="@style/rv_item_text_style"
                 android:layout_height="wrap_content" />
             <ImageView

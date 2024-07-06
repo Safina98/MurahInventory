@@ -1,6 +1,7 @@
 package com.example.tokomurahinventory.viewmodels
 
 import android.app.Application
+import android.util.Log
 import android.view.View
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -42,38 +43,44 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
             }
         }
     }
-    /*
+
     fun DetailWarnaModel.toDetailWarnaTable(): DetailWarnaTable {
         return DetailWarnaTable(
-            id = this.id,
-            warnaRef = this.warnaRef,
             detailWarnaIsi = this.detailWarnaIsi,
-            detailWarnaPcs = 1,
-            detailWarnaDate = this.detailWarnaDate,
-            detailWarnaRef = this.detailWarnaRef
+            detailWarnaPcs = this.detailWarnaPcs,
+            detailWarnaRef = this.warnaRef
         )
     }
 
-     */
 
-    fun updateDetailWarna(detailWarnaModel:DetailWarnaModel){
+
+    fun updateDetailWarna(oldDetailWarnaModel:DetailWarnaModel,pcs:Int,isi:Double){
         viewModelScope.launch {
-            //updateDetailWarnaToDao(detailWarnaModel.toDetailWarnaTable())
+            //for i in pcs, update isi from detail warna where isi = old isi and ref = warna ref
+        var list = withContext(Dispatchers.IO){ dataSourceDetailWarna.getFirstDetailWarna(isi,oldDetailWarnaModel.warnaRef,pcs) }
+            for (i in list){
+                //i.detailWarnaIsi = isi
+                updateDetailWarnaToDao(i,isi)
+            }
+        //updateDetailWarnaToDao(detailWarnaModel.toDetailWarnaTable())
         }
     }
     fun deleteDetailWarna(detailWarnaModel: DetailWarnaModel){
         viewModelScope.launch{
-           // deleteDetailWarnaToDao(detailWarnaModel.toDetailWarnaTable())
+
+            deleteDetailWarnaToDao(detailWarnaModel.detailWarnaIsi,detailWarnaModel.warnaRef)
         }
     }
-    private suspend fun updateDetailWarnaToDao(detailWarnaTable:DetailWarnaTable){
+    private suspend fun updateDetailWarnaToDao(detailWarnaTable:DetailWarnaTable,newIsi:Double){
         withContext(Dispatchers.IO){
-            dataSourceDetailWarna.update(detailWarnaTable)
+            dataSourceDetailWarna.updateDetailWarna(detailWarnaTable.detailWarnaIsi,newIsi,detailWarnaTable.detailWarnaDate,detailWarnaTable.warnaRef)
         }
     }
-    private suspend fun deleteDetailWarnaToDao(detailWarnaTable:DetailWarnaTable){
+    private suspend fun deleteDetailWarnaToDao(isi:Double,warnaRef:String){
         withContext(Dispatchers.IO){
-            dataSourceDetailWarna.deleteAnItemMerk(detailWarnaTable.id)
+            val records = dataSourceDetailWarna.getDetailWarnaByIsiAndRef(isi, warnaRef)
+            Log.i("DETAILWARNAPROB","records $records")
+            dataSourceDetailWarna.deteteDetailWarnaByIsi(warnaRef,isi)
         }
     }
     private suspend fun insertDetailWarnaToDao(detailWarnaTable: DetailWarnaTable) {

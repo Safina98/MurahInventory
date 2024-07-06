@@ -7,6 +7,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.tokomurahinventory.database.BarangLogDao
+import com.example.tokomurahinventory.database.DetailWarnaDao
+import com.example.tokomurahinventory.database.LogDao
+import com.example.tokomurahinventory.database.MerkDao
+import com.example.tokomurahinventory.database.WarnaDao
 import com.example.tokomurahinventory.models.BarangLog
 import com.example.tokomurahinventory.models.CountModel
 import com.example.tokomurahinventory.models.LogTable
@@ -15,7 +20,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
 
-class LogViewModel (application: Application): AndroidViewModel(application){
+class LogViewModel (
+    val dataSourceMerk:MerkDao,
+    val dataSourceWarna:WarnaDao,
+    val dataSourceDetailWarna:DetailWarnaDao,
+    val dataSourceLog:LogDao,
+    val dataSourceBarangLog:BarangLogDao,
+    application: Application): AndroidViewModel(application){
     //dummy list
     var logDummy = mutableListOf<LogTable>()
 
