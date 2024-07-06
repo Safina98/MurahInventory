@@ -60,7 +60,13 @@ class LogFragment : Fragment() {
 
         binding.rvLog.adapter = adapter
 
-        adapter.submitList(viewModel.logDummy)
+        //adapter.submitList(viewModel.logDummy)
+        viewModel.allLog.observe(viewLifecycleOwner, Observer {
+            it?.let{
+                adapter.submitList(it)
+                adapter.notifyDataSetChanged()
+            }
+        })
 
         viewModel.addLogFab.observe(viewLifecycleOwner, Observer {
             if (it==true){

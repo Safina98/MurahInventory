@@ -34,6 +34,17 @@ class CountAdapter(
                 }
                 override fun afterTextChanged(s: Editable?) {}
             })
+            binding.inputMerk.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    // Update the ViewModel when input_count changes
+                    val count1 = s.toString()
+                    binding.viewModel?.updateMerk(position, count1)
+                }
+                override fun afterTextChanged(s: Editable?) {}
+            })
+
             binding.inputKode.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {

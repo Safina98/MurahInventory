@@ -31,7 +31,7 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
     //val detailWarnaList = dataSourceDetailWarna.selectDetailWarnaByWarnaIdGroupByIsi(refWarna)
     val detailWarnaList = dataSourceDetailWarna.getDetailWarnaSummary(refWarna)
 
-    fun insertDetailWarna(pcs: Int, isi: Double) {
+    fun insertDetailWarnaOld(pcs: Int, isi: Double) {
         viewModelScope.launch {
             for (i in 1..pcs) {
                 var detailWarnaTable = DetailWarnaTable()
@@ -41,6 +41,16 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
                 detailWarnaTable.detailWarnaRef = UUID.randomUUID().toString()
                 insertDetailWarnaToDao(detailWarnaTable)
             }
+        }
+    }
+    fun insertDetailWarna(pcs: Int, isi: Double) {
+        viewModelScope.launch {
+                var detailWarnaTable = DetailWarnaTable()
+                detailWarnaTable.warnaRef = refWarna
+                detailWarnaTable.detailWarnaIsi = isi
+                detailWarnaTable.detailWarnaPcs = pcs
+                detailWarnaTable.detailWarnaRef = UUID.randomUUID().toString()
+                insertDetailWarnaToDao(detailWarnaTable)
         }
     }
 
@@ -73,7 +83,7 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
     }
     private suspend fun updateDetailWarnaToDao(detailWarnaTable:DetailWarnaTable,newIsi:Double){
         withContext(Dispatchers.IO){
-            dataSourceDetailWarna.updateDetailWarna(detailWarnaTable.detailWarnaIsi,newIsi,detailWarnaTable.detailWarnaDate,detailWarnaTable.warnaRef)
+           // dataSourceDetailWarna.updateDetailWarna(detailWarnaTable.detailWarnaIsi,newIsi,detailWarnaTable.detailWarnaDate,detailWarnaTable.warnaRef)
         }
     }
     private suspend fun deleteDetailWarnaToDao(isi:Double,warnaRef:String){

@@ -19,6 +19,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
+import java.util.UUID
+import kotlin.math.log
 
 class LogViewModel (
     val dataSourceMerk:MerkDao,
@@ -29,6 +31,7 @@ class LogViewModel (
     application: Application): AndroidViewModel(application){
     //dummy list
     var logDummy = mutableListOf<LogTable>()
+    var allLog= dataSourceLog.selectAllLog()
 
     //
     private var logRef =MutableLiveData<String>()
@@ -88,6 +91,13 @@ class LogViewModel (
         _countModelList.value = updatedList!!
 
     }
+    // Function to update the merk value
+    fun updateMerk(position: Int, merk: String) {
+        val updatedList = countModelList.value?.toMutableList()
+        updatedList?.get(position)?.merkBarang = merk
+        _countModelList.value = updatedList!!
+    }
+
     // Function to update the net value
     fun updatePcs(position: Int, net: Int) {
         val updatedList = countModelList.value?.toMutableList()
@@ -104,7 +114,7 @@ class LogViewModel (
     //add new item to _countModelList when button clicked
     fun addNewCountItemBtn(){
         val a = _countModelList.value?.toMutableList() ?: mutableListOf()
-        a.add(CountModel(getAutoIncrementId(),"9001",1.0,1,""))
+        a.add(CountModel(getAutoIncrementId(),"9001","CAMARO",35.0,1,""))
         _countModelList.value=a
 
     }
@@ -117,15 +127,8 @@ class LogViewModel (
     //Save log
     fun addLog(){
         viewModelScope.launch {
-            /*
-            mutableLogTable.value?.namaToko = namaToko.value ?: "Failed"
-            mutableLogTable.value?.pcs = countModelList.value!!.sumOf{ it.psc}
-            mutableLogTable.value?.logRef = logRef.value ?: ""
-            mutableLogTable.value?.keterangan = subKeterangan.value ?: "Failed"
-            mutableLogTable.value?.user = user.value ?: "Failed"
-             */
             var s = getStringS()
-
+            //TODO update detailWarna
             val newLog = LogTable(
                 id = 0,
                 userName = user.value ?: "Failed",
@@ -138,13 +141,12 @@ class LogViewModel (
                 logIsi = 0.0,
                 pcs = countModelList.value!!.sumOf { it.psc },
                 detailWarnaRef = "",
-                refLog = logRef.value ?: ""
+                refLog = UUID.randomUUID().toString(),
             )
             Log.i("InsertLogTry", "add log mutable${mutableLogTable.value}")
             if ( mutableLogTable.value?.refLog =="") {
                 insertLogToDao(newLog)
-                addLogBarang()
-
+                addLogBarang(newLog.refLog)
             }
             else {
                 //updateSubNewTable(mutableLogTable.value!!)
@@ -164,16 +166,37 @@ class LogViewModel (
         }
         return s
     }
-    fun addLogBarang(){
+
+    fun getBarangLog(namaMerk:String,kodeWarna:String,isi:Double,pcs:Int,refLog:String){
+        viewModelScope.launch{
+            val refMerk = getrefMerkByName(namaMerk.toUpperCase())
+            val refWarna = getrefWanraByName(kodeWarna.toUpperCase(),refMerk)
+            var refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna,isi)
+            var barangLog = BarangLog(
+                refMerk = refMerk,
+                warnaRef =  refWarna,
+                detailWarnaRef = refDetailWarna,
+                isi = isi,
+                pcs = pcs,
+                barangLogDate = Date(),
+                refLog = refLog,
+                barangLogRef = UUID.randomUUID().toString()
+            )
+            updateDetailWarna(refDetailWarna,isi,pcs)
+            insertBarangLogToDao(barangLog)
+        }
+    }
+    private suspend fun updateDetailWarna(refDetailWarna:String,isi:Double,pcs:Int){
+        withContext(Dispatchers.IO){
+            dataSourceDetailWarna.updateDetailWarna(refDetailWarna,isi,pcs)
+        }
+
+    }
+
+    fun addLogBarang(logRef:String){
         viewModelScope.launch {
-           // mutableDspTableNew.value!!.logRef = logRef.value ?: ""
-           // mutableLogTable.value!!.date = Date()
             for (i in countModelList.value!!){
-                mutableDspTableNew.value!!.refMerk = i.kodeBarang.toString()
-                mutableDspTableNew.value!!.isi = i.isi
-                mutableDspTableNew.value!!.pcs = i.psc
-                mutableDspTableNew.value!!.id = i.id
-               Log.i("InsertLogTry", "${i.kodeBarang} ${i.isi}meter ${i.psc}pcs")
+                getBarangLog(i.merkBarang,i.kodeBarang,i.isi,i.psc,logRef)
             }
         }
     }
@@ -183,10 +206,28 @@ class LogViewModel (
     private suspend fun insertLogToDao(logTable:LogTable){
         withContext(Dispatchers.IO){
             //dataSource5.insert(logTable)
-            logDummy.add(logTable)
-            for (i in logDummy){
-                Log.i("InsertLogTry", "dummy ${i}")
-            }
+            dataSourceLog.insert(logTable)
+        }
+    }
+    private suspend fun insertBarangLogToDao(barangLog: BarangLog){
+        withContext(Dispatchers.IO){
+            //dataSource5.insert(logTable)
+            dataSourceBarangLog.insert(barangLog)
+        }
+    }
+    private suspend fun getrefMerkByName(name:String):String{
+        return withContext(Dispatchers.IO){
+            dataSourceMerk.getMerkRefByName(name)
+        }
+    }
+    private suspend fun getrefWanraByName(name:String,refMerk:String):String{
+        return withContext(Dispatchers.IO){
+            dataSourceWarna.getWarnaRefByName(name,refMerk)
+        }
+    }
+    private suspend fun getrefDetailWanraByWarnaRefndIsi(name:String,isi:Double):String{
+        return withContext(Dispatchers.IO){
+            dataSourceDetailWarna.getDetailWarnaByIsi(name,isi)
         }
     }
 

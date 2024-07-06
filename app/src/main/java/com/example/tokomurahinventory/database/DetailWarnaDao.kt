@@ -46,20 +46,21 @@ interface DetailWarnaDao {
 
     @Query("""
         UPDATE detail_warna_table
-        SET detailWarnaIsi = :newIsi,
-            
-            detailWarnaDate = :newDate
-        WHERE detailWarnaRef = :warnaRef AND detailWarnaIsi = :oldIsi
-    """)
+SET detailWarnaPcs = detailWarnaPcs-:detailWarnaPcs
+WHERE detailWarnaRef = :refDetailWarna AND detailWarnaIsi = :detailWarnaIsi;
+""")
     fun updateDetailWarna(
-        oldIsi: Double,
-        newIsi: Double,
-        newDate: Date,
-        warnaRef: String
+        refDetailWarna:String,
+        detailWarnaIsi: Double,
+        detailWarnaPcs:Int
     )
 
     @Query("SELECT * FROM detail_warna_table WHERE detailWarnaIsi = :isi AND detailWarnaRef = :warnaRef")
     fun getDetailWarnaByIsiAndRef(isi: Double, warnaRef: String): List<DetailWarnaTable>
+
+    @Query("SELECT detailWarnaRef FROM detail_warna_table WHERE warnaRef = :warnaRef and detailWarnaIsi =:isi")
+    fun getDetailWarnaByIsi(warnaRef: String,isi: Double):String
+
 
 
 

@@ -13,4 +13,6 @@ interface LogDao {
 
     @Query("SELECT * FROM LOG_TABLE")
     fun selectAllLog():LiveData<List<LogTable>>
+
+
 }

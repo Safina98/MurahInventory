@@ -29,8 +29,22 @@
         android:onClick="@{() -> clickListener.onAddNetClick(item, position)}"
         >
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layout_kode_"
+            android:id="@+id/layout_merk_"
             android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@+id/layout_net_"
+            app:layout_constraintTop_toTopOf="parent">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/input_merk"
+            android:hint="Merk"
+            android:text="@{String.valueOf(item.merkBarang)}"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_kode_"
+            android:layout_width="80dp"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toEndOf="@+id/layout_net_"
             app:layout_constraintTop_toTopOf="parent">
@@ -44,22 +58,22 @@
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layout_net_"
-            android:layout_width="80dp"
+            android:layout_width="60dp"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
+
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/input_isi"
-                android:hint="isi"
-                android:text="@{String.valueOf(item.isi)}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                />
+                android:hint="isi"
+                android:text="@{String.valueOf(item.isi)}" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layout_count_"
-            android:layout_width="80dp"
+            android:layout_width="60dp"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toEndOf="@+id/layout_net_"
             app:layout_constraintTop_toTopOf="parent">
