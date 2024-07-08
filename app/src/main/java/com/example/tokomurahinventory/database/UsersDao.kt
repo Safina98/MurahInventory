@@ -21,4 +21,7 @@ interface UsersDao {
 
     @Query("SELECT * FROM users_table")
     fun selectAllUsers():LiveData<List<UsersTable>>
+
+    @Query("SELECT * FROM users_table")
+    fun selectAllUsersList():List<UsersTable>
 }

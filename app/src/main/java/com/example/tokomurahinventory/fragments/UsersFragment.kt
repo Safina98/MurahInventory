@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -27,6 +28,7 @@ import com.example.tokomurahinventory.viewmodels.UsersViewModelFactory
 class UsersFragment : Fragment() {
     private lateinit var binding: FragmentUsersBinding
     private val viewModel: UsersViewModel by viewModels()
+    private lateinit var adapter: UsersAdapter
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -40,7 +42,7 @@ class UsersFragment : Fragment() {
         val viewModel = ViewModelProvider(this,viewModelFactory)
             .get(UsersViewModel::class.java)
         binding.viewModel = viewModel
-        val adapter  = UsersAdapter(
+         adapter  = UsersAdapter(
             UsersClickListener {
             },
            UsersLongListener {
@@ -56,6 +58,16 @@ class UsersFragment : Fragment() {
         binding.rvUsers.adapter = adapter
 
         //adapter.submitList(viewModel.dummyModel)
+
+        binding.searchBarUser.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return true
+            }
+            override fun onQueryTextChange(newText: String?): Boolean {
+                viewModel.filterUsers(newText)
+                return true
+            }
+        })
 
         viewModel.usersList.observe(viewLifecycleOwner, Observer {
             adapter.submitList(it)
@@ -96,6 +108,7 @@ class UsersFragment : Fragment() {
                 usersTable.password=password
                 viewModel.updateUser(usersTable)
             }
+            adapter.notifyDataSetChanged()
 
         }
         builder.setNegativeButton("No") { dialog, which ->

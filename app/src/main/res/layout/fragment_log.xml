@@ -7,7 +7,6 @@
         <variable
             name="viewModel"
             type="com.example.tokomurahinventory.viewmodels.LogViewModel" />
-
     </data>
 
     <LinearLayout
@@ -15,6 +14,16 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         tools:context=".fragments.LogFragment">
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/search_bar_log"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:queryHint="Search here..."
+            app:iconifiedByDefault="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_log"

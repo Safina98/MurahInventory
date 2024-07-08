@@ -77,7 +77,6 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
     }
     fun deleteDetailWarna(detailWarnaModel: DetailWarnaModel){
         viewModelScope.launch{
-
             deleteDetailWarnaToDao(detailWarnaModel.detailWarnaIsi,detailWarnaModel.warnaRef)
         }
     }

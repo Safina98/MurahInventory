@@ -14,6 +14,7 @@ import com.example.tokomurahinventory.models.model.WarnaModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Locale
 import java.util.UUID
 
 class WarnaViewModel(
@@ -24,8 +25,9 @@ class WarnaViewModel(
 
     //all warna by merk
     //val allWarnaByMerk = dataSourceWarna.selectWarnaByMerk(refMerk)
-    val allWarnaByMerk  = dataSourceWarna.getWarnaWithTotalPcs(refMerk)
-
+   // val allWarnaByMerk  = dataSourceWarna.getWarnaWithTotalPcs(refMerk)
+    private var _allWarnaByMerk = MutableLiveData<List<WarnaModel>>()
+    val allWarnaByMerk :LiveData<List<WarnaModel>> get() = _allWarnaByMerk
     //Add warna fab
     private val addWarnaFabM = MutableLiveData<Boolean>()
     val addWanraFab: LiveData<Boolean> get() = addWarnaFabM
@@ -34,6 +36,32 @@ class WarnaViewModel(
     private val navigateToDetailWarnaM = MutableLiveData<String>()
     val navigateToDetailWarna: LiveData<String> get() = navigateToDetailWarnaM
 
+    private val _unFilteredWarna = MutableLiveData<List<WarnaModel>>()
+
+init {
+    getWarnaByMerk()
+}
+
+    fun getWarnaByMerk(){
+        viewModelScope.launch {
+            var list = withContext(Dispatchers.IO){
+                dataSourceWarna.getWarnaWithTotalPcsList(refMerk)
+            }
+            _allWarnaByMerk.value = list
+            _unFilteredWarna.value = list
+        }
+    }
+    fun filterWarna(query: String?) {
+        val list = mutableListOf<WarnaModel>()
+        if(!query.isNullOrEmpty()) {
+            list.addAll(_unFilteredWarna.value!!.filter {
+                it.kodeWarna.lowercase(Locale.getDefault()).contains(query.toString().lowercase(
+                    Locale.getDefault()))})
+        } else {
+            list.addAll(_unFilteredWarna.value!!)
+        }
+        _allWarnaByMerk.value =list
+    }
     //Insert New Warna
     fun insertWarna(kodeWarna:String,satuan:String){
         viewModelScope.launch {
@@ -43,6 +71,7 @@ class WarnaViewModel(
             warna.satuan = satuan
             warna.warnaRef = UUID.randomUUID().toString()
             insertWarnaToDao(warna)
+            getWarnaByMerk()
         }
     }
     fun WarnaModel.toWarnaTable(): WarnaTable {
@@ -60,12 +89,14 @@ class WarnaViewModel(
     fun updateWarna(warnaTable:WarnaModel){
         viewModelScope.launch {
             updateWarnaToDao(warnaTable.toWarnaTable())
+            getWarnaByMerk()
 
         }
     }
     fun deleteWarna(warnaTable:WarnaModel){
         viewModelScope.launch {
             deleteWarnaToDao(warnaTable.toWarnaTable())
+            getWarnaByMerk()
         }
     }
     private suspend fun  insertWarnaToDao(warna:WarnaTable){

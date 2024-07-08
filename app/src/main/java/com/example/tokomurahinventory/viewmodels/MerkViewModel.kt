@@ -5,13 +5,16 @@ import android.app.Application
 import android.view.View
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.MerkDao
 import com.example.tokomurahinventory.models.MerkTable
+import com.example.tokomurahinventory.models.UsersTable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Locale
 import java.util.UUID
 
 class MerkViewModel(
@@ -19,40 +22,68 @@ class MerkViewModel(
     application: Application
 
 ): AndroidViewModel(application) {
-    var listDummyMerk= mutableListOf<MerkTable>()
 
     //all merkTable from db
-    val allMerkTable= dataSource1.selectAllMerk()
+    //var allMerkTable= dataSource1.selectAllMerk()
+    private var _allMerkTable = MutableLiveData<List<MerkTable>>()
+    val allMerkTable :LiveData<List<MerkTable>> get() = _allMerkTable
 
     //Add merk fab
     private val addMerkFabM = MutableLiveData<Boolean>()
     val addMerkFab: LiveData<Boolean> get() = addMerkFabM
 
+    //search query
+    private val _unFilteredMerk = MutableLiveData<List<MerkTable>>()
+
     //Add navigation
     private val navigateToWarnaM = MutableLiveData<String>()
     val navigateToWarna: LiveData<String> get() = navigateToWarnaM
+
     init {
-        listDummyMerk.add(MerkTable(1,"CAMARO","sdfas"))
-        listDummyMerk.add(MerkTable(1,"CAMARO","sdfas"))
-        listDummyMerk.add(MerkTable(1,"CAMARO","sdfas"))
+        getAllMerkTable()
     }
 
+    fun getAllMerkTable(){
+        viewModelScope.launch {
+            var list = withContext(Dispatchers.IO){
+                dataSource1.selectAllMerkList()
+            }
+            _allMerkTable.value = list
+            _unFilteredMerk.value = list
+        }
+    }
+
+
+    fun filterMerk(query: String?) {
+        val list = mutableListOf<MerkTable>()
+        if(!query.isNullOrEmpty()) {
+            list.addAll(_unFilteredMerk.value!!.filter {
+                it.namaMerk.lowercase(Locale.getDefault()).contains(query.toString().lowercase(
+                    Locale.getDefault()))})
+        } else {
+            list.addAll(_unFilteredMerk.value!!)
+        }
+        _allMerkTable.value =list
+    }
     fun insertMerk(namaMerk:String){
         viewModelScope.launch {
             var merk= MerkTable()
             merk.namaMerk = namaMerk
             merk.refMerk = UUID.randomUUID().toString()
             insertMerkToDao(merk)
+            getAllMerkTable()
         }
     }
     fun updateMerk(merkTable:MerkTable){
         viewModelScope.launch {
             updateMerkToDao(merkTable)
+            getAllMerkTable()
         }
     }
     fun deleteMerk(merkTable: MerkTable){
         viewModelScope.launch {
             deleteMerkToDao(merkTable)
+            getAllMerkTable()
         }
     }
 

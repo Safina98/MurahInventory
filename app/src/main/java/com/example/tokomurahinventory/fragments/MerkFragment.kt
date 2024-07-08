@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -64,6 +65,19 @@ class MerkFragment : Fragment() {
         viewModel.allMerkTable.observe(viewLifecycleOwner, Observer {
             it.let {
                 adapter.submitList(it)
+                adapter.notifyDataSetChanged()
+            }
+        })
+
+
+
+        binding.searchBarMerk.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return true
+            }
+            override fun onQueryTextChange(newText: String?): Boolean {
+                viewModel.filterMerk(newText)
+                return true
             }
         })
         //Observe fab merk state

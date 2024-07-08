@@ -19,7 +19,7 @@ class LogAdapter(
     class MyViewHolder private constructor(val binding: ItemListLogBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: LogTable, clickListener: LogClickListener, longListener: LogLongListener) {
             binding.log = item
-            //binding.clickListemer = clickListener
+            binding.clickListemer = clickListener
             binding.executePendingBindings()
         }
 

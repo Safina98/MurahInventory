@@ -6,5 +6,6 @@ data class CountModel(
     var merkBarang: String,
     var isi: Double,
     var psc:Int,
-    var logRef:String
+    var logRef:String,
+    var barangLogRef:String
 )

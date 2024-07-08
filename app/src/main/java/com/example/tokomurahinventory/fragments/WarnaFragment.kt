@@ -8,7 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -16,20 +16,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.tokomurahinventory.R
 import com.example.tokomurahinventory.adapters.DeleteWarnaClickListener
-import com.example.tokomurahinventory.adapters.MerkAdapter
-import com.example.tokomurahinventory.adapters.MerkClickListener
-import com.example.tokomurahinventory.adapters.MerkLongListener
 import com.example.tokomurahinventory.adapters.UpdateWarnaClickListener
 import com.example.tokomurahinventory.adapters.WarnaAdapter
 import com.example.tokomurahinventory.adapters.WarnaClickListener
 import com.example.tokomurahinventory.adapters.WarnaLongListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentWarnaBinding
-import com.example.tokomurahinventory.models.DetailWarnaTable
-import com.example.tokomurahinventory.models.WarnaTable
 import com.example.tokomurahinventory.models.model.WarnaModel
-import com.example.tokomurahinventory.viewmodels.MerkViewModel
-import com.example.tokomurahinventory.viewmodels.MerkViewModelFactory
 import com.example.tokomurahinventory.viewmodels.WarnaViewModel
 import com.example.tokomurahinventory.viewmodels.WarnaViewModelFactory
 
@@ -79,6 +72,15 @@ class WarnaFragment : Fragment() {
             if (it==true){
                 showAddWarnaDialog(viewModel,null,0)
                 viewModel.onAddWarnaFabClicked()
+            }
+        })
+        binding.searchBarWarna.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return true
+            }
+            override fun onQueryTextChange(newText: String?): Boolean {
+                viewModel.filterWarna(newText)
+                return true
             }
         })
         viewModel.navigateToDetailWarna.observe(viewLifecycleOwner, Observer {
