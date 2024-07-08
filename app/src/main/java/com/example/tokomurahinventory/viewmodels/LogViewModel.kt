@@ -35,6 +35,16 @@ class LogViewModel (
     private var _allLog = MutableLiveData<List<LogTable>>()
     val allLog :LiveData<List<LogTable>> get() = _allLog
 
+    val allMerkFromDb = dataSourceMerk.selectAllNamaMerk()
+    private val _pendingDialog = MutableLiveData<Triple<CountModel, Int, String>?>()
+    val pendingDialog: LiveData<Triple<CountModel, Int, String>?> get() = _pendingDialog
+
+    private val _codeWarnaByMerk = MutableLiveData<List<String>>()
+    val codeWarnaByMerk: LiveData<List<String>> get() = _codeWarnaByMerk
+
+    private val _isiByWarnaAndMerk = MutableLiveData<List<Double>>()
+    val isiByWarnaAndMerk: LiveData<List<Double>> get() = _isiByWarnaAndMerk
+
     //Live Data List for Barang Log
     private val _countModelList = MutableLiveData<List<CountModel>?>()
     val countModelList :LiveData<List<CountModel>?> get() = _countModelList
@@ -49,6 +59,7 @@ class LogViewModel (
     val namaToko = MutableLiveData("")
     val user = MutableLiveData("")
     val subKeterangan = MutableLiveData("")
+    val merkMutable=MutableLiveData<String?>(null)
 
     //Navigation
     //add log fab from log
@@ -61,12 +72,24 @@ class LogViewModel (
     private val _navigateToLog = MutableLiveData<Boolean>()
     val navigateToLog: LiveData<Boolean> get() = _navigateToLog
 
+    //state
+    private val _isWarnaClick = MutableLiveData<Boolean>()
+    val isWarnaClick: LiveData<Boolean> get() = isWarnaClick
+
+
     var mutableLog = MutableLiveData<LogTable?>()
     var mutableLogBarang = MutableLiveData<List<BarangLog>?>()
 
 
     init {
         getAllMerkTable()
+    }
+
+    fun setPendingDialog(countModel: CountModel, position: Int, type: String) {
+        _pendingDialog.value = Triple(countModel, position, type)
+    }
+    fun resetPendingDialog() {
+        _pendingDialog.value = null
     }
 
 
@@ -117,9 +140,31 @@ class LogViewModel (
 
     // Function to update the merk value
     fun updateMerk(position: Int, merk: String) {
-        val updatedList = countModelList.value?.toMutableList()
-        updatedList?.get(position)?.merkBarang = merk
-        _countModelList.value = updatedList!!
+        val updatedList = _countModelList.value?.toMutableList()
+        if (updatedList != null && position in updatedList.indices) {
+            updatedList[position].merkBarang = merk
+            merkMutable.value = merk
+            _countModelList.value = updatedList // Notify observers of the change
+        }
+    }
+
+    fun getWarnaByMerk(merk:String){
+        viewModelScope.launch {
+            val refMerk = withContext(Dispatchers.IO){dataSourceMerk.getMerkRefByName(merk)}
+            val stringWarnaList=withContext(Dispatchers.IO){dataSourceWarna.selectStringWarnaByMerk(refMerk)}
+            _codeWarnaByMerk.value = stringWarnaList
+        }
+    }
+    fun getIsiByWarnaAndMerk(merk:String,warna:String){
+        viewModelScope.launch {
+            val refMerk = withContext(Dispatchers.IO){dataSourceMerk.getMerkRefByName(merk)}
+            val refWarna = withContext(Dispatchers.IO){dataSourceWarna.getWarnaRefByName(warna,refMerk)}
+            val stringWarnaList=withContext(Dispatchers.IO){dataSourceDetailWarna.getIsiDetailWarnaByWarna(refWarna)}
+            Log.i("AutoCompleteTextProb","Merk: $merk ref: $refMerk")
+            Log.i("AutoCompleteTextProb","Warna: $warna ref: $refMerk")
+            Log.i("AutoCompleteTextProb","listDetail: $stringWarnaList")
+            _isiByWarnaAndMerk.value = stringWarnaList
+        }
     }
 
     // Function to update the net value
@@ -133,6 +178,7 @@ class LogViewModel (
         val updatedList = countModelList.value?.toMutableList()
         updatedList?.get(position)?.kodeBarang = kode
         _countModelList.value = updatedList!!
+       // _codeWarnaByMerk.value =null
     }
 
     //add new item to _countModelList when button clicked
@@ -443,6 +489,9 @@ class LogViewModel (
     fun onNavigateToLog(){ _navigateToLog.value = true }
     fun onNavigatedToLog(){ _navigateToLog.value = false }
     fun onLongClick(v: View): Boolean { return true }
+
+    fun onWarnaClick(){ _isWarnaClick.value = true }
+    fun onWarnaClickked(){ _isWarnaClick.value = false }
 
 
 }

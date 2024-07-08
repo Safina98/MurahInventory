@@ -1,22 +1,35 @@
 package com.example.tokomurahinventory.fragments
 
+import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import android.widget.EditText
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.tokomurahinventory.R
 import com.example.tokomurahinventory.adapters.AddNetClickListener
+import com.example.tokomurahinventory.adapters.BarangLogIsiClickListener
+import com.example.tokomurahinventory.adapters.BarangLogKodeClickListener
+import com.example.tokomurahinventory.adapters.BarangLogMerkClickListener
+import com.example.tokomurahinventory.adapters.BarangLogPcsClickListener
 import com.example.tokomurahinventory.adapters.CountAdapter
 import com.example.tokomurahinventory.adapters.DeleteNetClickListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentInputLogBinding
+import com.example.tokomurahinventory.databinding.PopUpAutocompleteTextviewBinding
+import com.example.tokomurahinventory.models.CountModel
+import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.viewmodels.LogViewModel
 import com.example.tokomurahinventory.viewmodels.LogViewModelFactory
+import com.example.tokomurahinventory.viewmodels.MerkViewModel
 
 
 class InputLogFragment : Fragment() {
@@ -38,25 +51,46 @@ class InputLogFragment : Fragment() {
         val dataSourceWarna =  DatabaseInventory.getInstance(application).warnaDao
         val dataSourceDetailWarna =  DatabaseInventory.getInstance(application).detailWarnaDao
         // val viewModelFactory = LogViewModelFactory(application)
-        binding.lifecycleOwner =this
-        //val viewModel = ViewModelProvider(this,viewModelFactory).get(LogViewModel::class.java)
-        viewModel = ViewModelProvider(requireActivity(), LogViewModelFactory(dataSourceMerk,dataSourceWarna,dataSourceDetailWarna,dataSourceLog,dataSourcebarangLog,application))
-            .get(LogViewModel::class.java)
+        binding.lifecycleOwner = this
+
+        viewModel = ViewModelProvider(
+            requireActivity(),
+            LogViewModelFactory(dataSourceMerk, dataSourceWarna, dataSourceDetailWarna, dataSourceLog, dataSourcebarangLog, application)
+        ).get(LogViewModel::class.java)
+
         binding.viewModel = viewModel
 
-        val adapter  = CountAdapter(
-            AddNetClickListener { countModel, position ->
+        val adapter = CountAdapter(
+            AddNetClickListener { countModel, position -> },
+            DeleteNetClickListener { countModel, position -> viewModel.deleteCountModel(countModel, position) },
+            BarangLogMerkClickListener { countModel, position -> showPopUpDialog(countModel, position, "Merk") },
+            BarangLogKodeClickListener { countModel, position ->
+                viewModel.getWarnaByMerk(countModel.merkBarang)
+                viewModel.codeWarnaByMerk.observe(viewLifecycleOwner) { it ->
+                    if(it!=null){
+                        showPopUpDialog(countModel, position, "Warna")
+                    }
+                }
+            }, BarangLogIsiClickListener{countModel, position ->
+                viewModel.getIsiByWarnaAndMerk(countModel.merkBarang,countModel.kodeBarang)
+                viewModel.isiByWarnaAndMerk.observe(viewLifecycleOwner) { it ->
+                    if(it!=null){
+                        showPopUpDialog(countModel, position, "Isi")
+                    }
+                }
             },
-            DeleteNetClickListener{ countModel, position ->
-                viewModel.deleteCountModel(countModel,position)
-            } ,
+            BarangLogPcsClickListener{countModel, position ->
+                showPopUpDialog(countModel, position, "Pcs")
+            },
             viewModel, this
         )
 
         binding.rvAddBarang.adapter = adapter
-        viewModel.countModelList.observe(viewLifecycleOwner){it?.let {
+        viewModel.countModelList.observe(viewLifecycleOwner) { it?.let {
             adapter.submitList(it)
+            adapter.notifyDataSetChanged()
         }}
+        viewModel.allMerkFromDb.observe(viewLifecycleOwner){it?.let {}}
         viewModel.navigateToLog.observe(viewLifecycleOwner, Observer {
             if (it==true){
                 this.findNavController().navigate(InputLogFragmentDirections.actionInputLogFragmentToLogFragment())
@@ -66,6 +100,74 @@ class InputLogFragment : Fragment() {
 
         return binding.root
     }
+    fun showPopUpDialog(countModel: CountModel?, position: Int, code: String) {
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Tambah Merk Barang")
+
+        val binding: PopUpAutocompleteTextviewBinding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.pop_up_autocomplete_textview, null, false)
+        binding.viewModel = viewModel
+        val autoCompleteTextView: AutoCompleteTextView = binding.autocompleteText
+
+        // Convert the list of Double to a list of String and then to an array
+        val suggestions = when (code) {
+            "Merk" -> viewModel.allMerkFromDb.value?.toTypedArray() ?: arrayOf()
+            "Warna" -> viewModel.codeWarnaByMerk.value?.toTypedArray() ?: arrayOf()
+            "Isi" -> viewModel.isiByWarnaAndMerk.value?.map { it.toString() }?.toTypedArray() ?: arrayOf()
+            else -> arrayOf()
+        }
+
+        if (suggestions.isEmpty()) {
+            Log.e("showPopUpDialog", "Suggestions for $code are empty")
+        }
+
+        val adapter: ArrayAdapter<String> = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, suggestions)
+        autoCompleteTextView.setAdapter(adapter)
+
+        // Show dropdown when AutoCompleteTextView is clicked
+        autoCompleteTextView.setOnClickListener {
+            autoCompleteTextView.showDropDown()
+        }
+
+        // Show dropdown when AutoCompleteTextView is focused
+        autoCompleteTextView.setOnFocusChangeListener { view, hasFocus ->
+            if (hasFocus) {
+                autoCompleteTextView.showDropDown()
+            }
+        }
+
+        // Set the custom view to the AlertDialog
+        builder.setView(binding.root)
+        builder.setPositiveButton("OK") { dialog, which ->
+            // Handle the positive button click
+            var name  = autoCompleteTextView.text.toString()
+            when (code){
+                "Merk" -> {
+                    viewModel.updateMerk(position,name)
+                }
+                "Warna" -> {
+                    viewModel.updateKode(position,name)
+                }
+                "Isi" -> {
+                    // Convert the list of Double to a list of String and then to an array
+                    viewModel.updateIsi(position,name.toDouble())
+                }
+                "Pcs" -> {
+                    // Convert the list of Double to a list of String and then to an array
+                    viewModel.updatePcs(position,name.toInt())
+                }
+
+            }
+            if (code=="Merk") viewModel.updateMerk(position,name)
+            else if(code=="Warna") viewModel.updateKode(position,name)
+        }
+        builder.setNegativeButton("No") { dialog, which ->
+            // Handle the negative button click
+        }
+        val alert = builder.create()
+        alert.show()
+    }
+
+
 
 
 }

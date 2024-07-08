@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
@@ -15,11 +14,25 @@
             name="clickListener"
             type="com.example.tokomurahinventory.adapters.AddNetClickListener" />
         <variable
+            name="merkListener"
+            type="com.example.tokomurahinventory.adapters.BarangLogMerkClickListener" />
+        <variable
+            name="kodeListener"
+            type="com.example.tokomurahinventory.adapters.BarangLogKodeClickListener" />
+        <variable
             name="delteListener"
             type="com.example.tokomurahinventory.adapters.DeleteNetClickListener" />
         <variable
+            name="isiistener"
+            type="com.example.tokomurahinventory.adapters.BarangLogIsiClickListener" />
+        <variable
+            name="pcsListener"
+            type="com.example.tokomurahinventory.adapters.BarangLogPcsClickListener" />
+
+        <variable
             name="position"
             type="Integer"/>
+
     </data>
 
     <LinearLayout
@@ -28,63 +41,39 @@
         android:orientation="horizontal"
         android:onClick="@{() -> clickListener.onAddNetClick(item, position)}"
         >
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layout_merk_"
+        <TextView
+            android:id="@+id/input_merk"
+            style="@style/txt_item_log_style"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toEndOf="@+id/layout_net_"
-            app:layout_constraintTop_toTopOf="parent">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/input_merk"
-                android:hint="Merk"
-                android:text="@{String.valueOf(item.merkBarang)}"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
-        </com.google.android.material.textfield.TextInputLayout>
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layout_kode_"
-            android:layout_width="80dp"
+            android:onClick="@{() -> merkListener.onAddNetClick(item, position)}"
+            android:text="@{item.merkBarang}"
+            />
+        <TextView
+            android:id="@+id/input_kode"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toEndOf="@+id/layout_net_"
-            app:layout_constraintTop_toTopOf="parent">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/input_kode"
-                android:hint="kode"
-                android:text="@{String.valueOf(item.kodeBarang)}"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
-        </com.google.android.material.textfield.TextInputLayout>
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layout_net_"
             android:layout_width="60dp"
+            style="@style/txt_item_log_style"
+            android:onClick="@{() -> kodeListener.onAddNetClick(item, position)}"
+            android:text="@{item.kodeBarang}"
+            />
+
+        <TextView
+            android:id="@+id/input_isi"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/input_isi"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="isi"
-                android:text="@{String.valueOf(item.isi)}" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layout_count_"
             android:layout_width="60dp"
+            style="@style/txt_item_log_style"
+            android:onClick="@{() -> isiistener.onAddNetClick(item, position)}"
+            android:text="@{String.valueOf(item.isi)}"
+            />
+        <TextView
+            android:id="@+id/input_pcs"
+            android:layout_width="40dp"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toEndOf="@+id/layout_net_"
-            app:layout_constraintTop_toTopOf="parent">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/input_pcs"
-                android:hint="pcs"
-                android:text="@{String.valueOf(item.psc)}"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
-        </com.google.android.material.textfield.TextInputLayout>
+            android:text="@{String.valueOf(item.psc)}"
+            android:onClick="@{() -> pcsListener.onAddNetClick(item, position)}"
+            style="@style/txt_item_log_style"
+            />
 
         <Button
             android:id="@+id/btn_delete_net"

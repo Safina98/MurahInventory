@@ -16,6 +16,7 @@
         <variable
             name="delteListener"
             type="com.example.tokomurahinventory.adapters.DeleteNetClickListener" />
+
         <variable
             name="position"
             type="Integer"/>

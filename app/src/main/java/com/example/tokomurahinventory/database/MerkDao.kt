@@ -21,6 +21,9 @@ interface MerkDao  {
     @Query("SELECT * FROM merk_table")
     fun selectAllMerk():LiveData<List<MerkTable>>
 
+    @Query("SELECT namaMerk FROM merk_table")
+    fun selectAllNamaMerk():LiveData<List<String>>
+
     @Query("SELECT * FROM merk_table")
     fun selectAllMerkList():List<MerkTable>
 
