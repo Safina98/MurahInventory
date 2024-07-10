@@ -32,6 +32,8 @@ interface MerkDao  {
 
     @Query("SELECT namaMerk FROM merk_table WHERE refMerk = :merkRef")
     fun getMerkNameByRef(merkRef:String):String
+    @Query("SELECT EXISTS(SELECT 1 FROM merk_table WHERE namaMerk = :namaMerk)")
+    fun isDataExists(namaMerk: String): Boolean
 
 
 

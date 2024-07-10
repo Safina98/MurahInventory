@@ -95,6 +95,7 @@ dependencies {
     //Coroutine
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutineVersion")
+    implementation("androidx.room:room-ktx:2.4.0")
 
     // Legacy support and Lifecycle Extensions
     implementation("androidx.legacy:legacy-support-v4:1.0.0")

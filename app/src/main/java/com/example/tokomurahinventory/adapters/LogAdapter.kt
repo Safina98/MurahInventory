@@ -13,13 +13,15 @@ import com.example.tokomurahinventory.models.LogTable
 
 class LogAdapter(
     private val LogClickListener: LogClickListener,
-    private val LogLongListener: LogLongListener
+    private val LogLongListener: LogLongListener,
+    private val logDeleteListener: LogDeleteListener,
 ) : ListAdapter<LogTable, LogAdapter.MyViewHolder>(LogStockDiffCallback()) {
 
     class MyViewHolder private constructor(val binding: ItemListLogBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: LogTable, clickListener: LogClickListener, longListener: LogLongListener) {
+        fun bind(item: LogTable, clickListener: LogClickListener, longListener: LogLongListener,logDeleteListener: LogDeleteListener) {
             binding.log = item
             binding.clickListemer = clickListener
+            binding.deleteListener = logDeleteListener
             binding.executePendingBindings()
         }
 
@@ -37,7 +39,7 @@ class LogAdapter(
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        holder.bind(getItem(position), LogClickListener, LogLongListener)
+        holder.bind(getItem(position), LogClickListener, LogLongListener,logDeleteListener)
     }
 }
 
@@ -51,6 +53,9 @@ class LogStockDiffCallback: DiffUtil.ItemCallback<LogTable>(){
 }
 
 class LogClickListener(val clickListener: (log: LogTable) -> Unit) {
+    fun onClick(log: LogTable) = clickListener(log)
+}
+class LogDeleteListener(val clickListener: (log: LogTable) -> Unit) {
     fun onClick(log: LogTable) = clickListener(log)
 }
 class  LogLongListener(val longListener: (log: LogTable) -> Unit){

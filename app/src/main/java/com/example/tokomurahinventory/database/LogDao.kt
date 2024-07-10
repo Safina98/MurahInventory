@@ -20,4 +20,7 @@ interface LogDao {
 
     @Query("SELECT * FROM LOG_TABLE")
     fun selectAllLogList():List<LogTable>
+
+    @Query("DELETE FROM log_table WHERE id =:id")
+    fun delete(id:Int)
 }

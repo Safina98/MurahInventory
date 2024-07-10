@@ -13,6 +13,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.tokomurahinventory.R
 import com.example.tokomurahinventory.adapters.LogAdapter
 import com.example.tokomurahinventory.adapters.LogClickListener
+import com.example.tokomurahinventory.adapters.LogDeleteListener
 import com.example.tokomurahinventory.adapters.LogLongListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentLogBinding
@@ -52,6 +53,8 @@ class LogFragment : Fragment() {
             },
             LogLongListener {
                 // Handle item long click
+            }, LogDeleteListener {
+                viewModel.deleteLog(it)
             }
         )
 

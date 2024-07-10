@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.EditText
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -65,19 +66,25 @@ class InputLogFragment : Fragment() {
             DeleteNetClickListener { countModel, position -> viewModel.deleteCountModel(countModel, position) },
             BarangLogMerkClickListener { countModel, position -> showPopUpDialog(countModel, position, "Merk") },
             BarangLogKodeClickListener { countModel, position ->
-                viewModel.getWarnaByMerk(countModel.merkBarang)
-                viewModel.codeWarnaByMerk.observe(viewLifecycleOwner) { it ->
-                    if(it!=null){
-                        showPopUpDialog(countModel, position, "Warna")
+                if (countModel.merkBarang!=null){
+                    viewModel.getWarnaByMerk(countModel.merkBarang!!)
+                    viewModel.codeWarnaByMerk.observe(viewLifecycleOwner) { it ->
+                        if(it!=null){
+                            showPopUpDialog(countModel, position, "Warna")
+                        }
                     }
-                }
+                }else Toast.makeText(application,"Masukkan Merk",Toast.LENGTH_SHORT).show()
+
             }, BarangLogIsiClickListener{countModel, position ->
-                viewModel.getIsiByWarnaAndMerk(countModel.merkBarang,countModel.kodeBarang)
-                viewModel.isiByWarnaAndMerk.observe(viewLifecycleOwner) { it ->
-                    if(it!=null){
-                        showPopUpDialog(countModel, position, "Isi")
+                if (countModel.merkBarang!=null && countModel.kodeBarang!=null) {
+                    viewModel.getIsiByWarnaAndMerk(countModel.merkBarang!!,countModel.kodeBarang!!)
+                    viewModel.isiByWarnaAndMerk.observe(viewLifecycleOwner) { it ->
+                        if(it!=null){
+                            showPopUpDialog(countModel, position, "Isi")
+                        }
                     }
-                }
+                }else Toast.makeText(application,"Masukkan Merk dan warna",Toast.LENGTH_SHORT).show()
+
             },
             BarangLogPcsClickListener{countModel, position ->
                 showPopUpDialog(countModel, position, "Pcs")
@@ -156,12 +163,13 @@ class InputLogFragment : Fragment() {
                     viewModel.updatePcs(position,name.toInt())
                 }
 
+
             }
-            if (code=="Merk") viewModel.updateMerk(position,name)
-            else if(code=="Warna") viewModel.updateKode(position,name)
+            viewModel.setLiveDataToNull()
         }
         builder.setNegativeButton("No") { dialog, which ->
             // Handle the negative button click
+            viewModel.setLiveDataToNull()
         }
         val alert = builder.create()
         alert.show()

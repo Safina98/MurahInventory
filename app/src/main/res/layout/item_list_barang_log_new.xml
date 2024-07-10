@@ -47,7 +47,7 @@
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:onClick="@{() -> merkListener.onAddNetClick(item, position)}"
-            android:text="@{item.merkBarang}"
+            app:textOrMerk="@{item.merkBarang}"
             />
         <TextView
             android:id="@+id/input_kode"
@@ -55,7 +55,7 @@
             android:layout_width="60dp"
             style="@style/txt_item_log_style"
             android:onClick="@{() -> kodeListener.onAddNetClick(item, position)}"
-            android:text="@{item.kodeBarang}"
+            app:textOrKode="@{item.kodeBarang}"
             />
 
         <TextView
@@ -64,7 +64,7 @@
             android:layout_width="60dp"
             style="@style/txt_item_log_style"
             android:onClick="@{() -> isiistener.onAddNetClick(item, position)}"
-            android:text="@{String.valueOf(item.isi)}"
+            app:textOrIsi="@{item.isi}"
             />
         <TextView
             android:id="@+id/input_pcs"
@@ -75,17 +75,13 @@
             style="@style/txt_item_log_style"
             />
 
-        <Button
+        <ImageView
             android:id="@+id/btn_delete_net"
-            android:text="x"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_margin="@dimen/small_margin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:onClick="@{()->delteListener.onDeleteNetClick(item,position)}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/layout_count_"
-            app:layout_constraintTop_toTopOf="parent"
-            />
+            android:background="@drawable/baseline_delete_forever_24" />
 
     </LinearLayout>
 </layout>

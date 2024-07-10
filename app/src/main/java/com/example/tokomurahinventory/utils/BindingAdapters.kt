@@ -16,4 +16,23 @@ object BindingAdapters {
         val dateToDisplay = date ?: Date() // Use today's date if date is null
         textView.text = sdf.format(dateToDisplay)
     }
+    @JvmStatic
+    @BindingAdapter("app:textOrMerk")
+    fun setTextOrMerk(textView: TextView, value: String?) {
+        val defaultText = "+Merk" // Replace with your default string or use a resource
+        textView.text = value ?: defaultText
+    }
+    @JvmStatic
+    @BindingAdapter("app:textOrKode")
+    fun setTextOrKode(textView: TextView, value: String?) {
+        val defaultText = "+Kode" // Replace with your default string or use a resource
+        textView.text = value ?: defaultText
+    }
+    @JvmStatic
+    @BindingAdapter("app:textOrIsi")
+    fun setTextOrIsi(textView: TextView, value: Double?) {
+        val defaultText = "0.0" // Replace with your default string or use a resource
+
+        textView.text = if (value!=null) value.toString() else defaultText
+    }
 }

@@ -37,8 +37,12 @@ interface WarnaDao {
     @Query("SELECT kodeWarna FROM warna_table WHERE warnaRef = :warnaRef")
     fun getKodeWarnaByRef(warnaRef:String):String
 
+    @Query("SELECT EXISTS(SELECT 1 FROM warna_table WHERE kodeWarna = :kodeWarna AND refMerk=:refMerk)")
+    suspend fun isDataExists(kodeWarna: String, refMerk: String): Boolean
 
-        @Query("""
+
+
+    @Query("""
         SELECT 
             w.idWarna,
             w.refMerk,

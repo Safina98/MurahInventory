@@ -17,6 +17,9 @@ interface BarangLogDao {
     @Update
     fun update(barangLog: BarangLog)
 
+    @Query("DELETE FROM barang_log WHERE id =:id")
+    fun delete(id:Int)
+
     @Query("SELECT * FROM barang_log")
     fun selectAllLog(): LiveData<List<BarangLog>>
 
@@ -25,6 +28,7 @@ interface BarangLogDao {
 
     @Query("SELECT * FROM barang_log WHERE barangLogRef = :ref")
     fun selectBarangLogByRef(ref:String): BarangLog
+
 
     @Query("UPDATE barang_log SET refMerk = :refMerk, warnaRef = :warnaRef, detailWarnaRef = :detailWarnaRef, isi = :isi, pcs = :pcs, barangLogDate = :barangLogDate, refLog = :refLog WHERE barangLogRef = :barangLogRef")
     fun updateByBarangLogRef(

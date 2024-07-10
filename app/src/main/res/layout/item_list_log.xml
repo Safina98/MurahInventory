@@ -10,6 +10,10 @@
         <variable
             name="clickListemer"
             type="com.example.tokomurahinventory.adapters.LogClickListener" />
+        <variable
+            name="deleteListener"
+            type="com.example.tokomurahinventory.adapters.LogDeleteListener" />
+
     </data>
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -21,6 +25,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="@dimen/small_margin">
+
+            <ImageView
+                android:id="@+id/btn_delete_net"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/small_margin"
+                android:background="@drawable/baseline_delete_forever_24"
+                android:onClick="@{()->deleteListener.onClick(log)}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/txtDate"
