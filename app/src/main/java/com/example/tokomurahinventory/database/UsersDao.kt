@@ -24,4 +24,7 @@ interface UsersDao {
 
     @Query("SELECT * FROM users_table")
     fun selectAllUsersList():List<UsersTable>
+
+    @Query("SELECT COUNT(*) FROM users_table WHERE userName = :userName AND password = :password")
+    fun getUser(userName: String, password: String): Int
 }

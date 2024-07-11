@@ -44,10 +44,9 @@ interface DetailWarnaDao {
     """)
     fun getDetailWarnaSummary(warnaRef: String): LiveData<List<DetailWarnaModel>>
 
-    @Query("""
-        UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs-:detailWarnaPcs WHERE detailWarnaRef = :refDetailWarna AND detailWarnaIsi = :detailWarnaIsi;
-""")
-    fun updateDetailWarna(refDetailWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int): Int
+    @Query(" UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs-:detailWarnaPcs WHERE warnaRef = :refWarna AND detailWarnaIsi = :detailWarnaIsi")
+    fun updateDetailWarna(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int): Int
+
     @Query("""
         UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs+:detailWarnaPcs WHERE detailWarnaRef = :refDetailWarna AND detailWarnaIsi = :detailWarnaIsi;
 """)
@@ -70,6 +69,7 @@ interface DetailWarnaDao {
     fun getDetailWarnaByIsi(warnaRef: String,isi: Double):String
 
 
-
+    @Query("SELECT * from detail_warna_table WHERE warnaRef =:warnaRef")
+    fun selecttTry(warnaRef:String):List<DetailWarnaTable>
 
 }

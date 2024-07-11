@@ -61,6 +61,8 @@ class MerkFragment : Fragment() {
 
         binding.rvMerk.adapter = adapter
 
+        showLoginDialog()
+
         //Observe all merk from db
         viewModel.allMerkTable.observe(viewLifecycleOwner, Observer {
             it.let {
@@ -68,8 +70,6 @@ class MerkFragment : Fragment() {
                 adapter.notifyDataSetChanged()
             }
         })
-
-
 
         binding.searchBarMerk.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -119,6 +119,25 @@ class MerkFragment : Fragment() {
                 viewModel.updateMerk(merkTable)
             }
         }
+        builder.setNegativeButton("No") { dialog, which ->
+        }
+        val alert = builder.create()
+        alert.show()
+    }
+    fun showLoginDialog(){
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle("Tambah Merk Barang")
+        val inflater = LayoutInflater.from(context)
+        val view = inflater.inflate(R.layout.pop_up_login, null)
+        val textUserName = view.findViewById<EditText>(R.id.etUsername)
+        val textUserPassword = view.findViewById<EditText>(R.id.etPassword)
+
+        builder.setView(view)
+        builder.setPositiveButton("OK") { dialog, which ->
+            val user = textUserName.text.toString().toUpperCase()
+            val password = textUserPassword.text.toString().toUpperCase()
+        }
+
         builder.setNegativeButton("No") { dialog, which ->
         }
         val alert = builder.create()
