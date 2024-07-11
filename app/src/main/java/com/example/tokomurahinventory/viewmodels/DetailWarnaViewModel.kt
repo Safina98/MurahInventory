@@ -40,6 +40,8 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
                 detailWarnaTable.detailWarnaIsi = isi
                 detailWarnaTable.detailWarnaPcs = 1
                 detailWarnaTable.detailWarnaRef = UUID.randomUUID().toString()
+                detailWarnaTable.createdBy = loggedInUser
+                detailWarnaTable.lastEditedBy=loggedInUser
                 insertDetailWarnaToDao(detailWarnaTable)
             }
         }
@@ -51,6 +53,8 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
                 detailWarnaTable.detailWarnaIsi = isi
                 detailWarnaTable.detailWarnaPcs = pcs
                 detailWarnaTable.detailWarnaRef = UUID.randomUUID().toString()
+                detailWarnaTable.createdBy = loggedInUser
+                detailWarnaTable.lastEditedBy=loggedInUser
                 insertDetailWarnaToDao(detailWarnaTable)
         }
     }

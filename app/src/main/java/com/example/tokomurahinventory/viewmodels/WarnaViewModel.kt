@@ -14,6 +14,7 @@ import com.example.tokomurahinventory.models.model.WarnaModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Date
 import java.util.Locale
 import java.util.UUID
 
@@ -71,6 +72,8 @@ init {
             warna.kodeWarna = kodeWarna
             warna.satuan = satuan
             warna.warnaRef = UUID.randomUUID().toString()
+            warna.createdBy=loggedInUser
+            warna.lastEditedBy=loggedInUser
             insertWarnaToDao(warna)
             getWarnaByMerk()
         }
@@ -83,7 +86,11 @@ init {
             totalPcs = this.totalPcs,
             satuanTotal = this.satuanTotal,
             satuan = this.satuan,
-            warnaRef = this.warnaRef
+            warnaRef = this.warnaRef,
+            lastEditedBy = loggedInUser,
+            createdBy = this.createdBy,
+            warnaCreatedDate = this.warnaCreatedDate,
+            warnaLastEditedDate = Date()
         )
     }
 

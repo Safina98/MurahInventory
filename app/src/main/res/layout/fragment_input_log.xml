@@ -39,7 +39,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:logDate="@{viewModel.mutableLog.logDate}"
+                    app:logDate="@{viewModel.mutableLog.logCreatedDate}"
                     style="@style/rv_item_text_style"
                     />
 

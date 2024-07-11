@@ -14,8 +14,10 @@ import com.example.tokomurahinventory.models.UsersTable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Date
 import java.util.Locale
 import java.util.UUID
+import kotlin.math.log
 
 class MerkViewModel(
     val dataSource1 :MerkDao,
@@ -71,6 +73,10 @@ class MerkViewModel(
         viewModelScope.launch {
             var merk= MerkTable()
             merk.namaMerk = namaMerk
+            merk.lastEditedBy = loggedInUser
+            merk.createdBy=loggedInUser
+            merk.merkCreatedDate=Date()
+            merk.merkLastEditedDate=Date()
             merk.refMerk = UUID.randomUUID().toString()
             insertMerkToDao(merk)
             getAllMerkTable()
@@ -78,6 +84,8 @@ class MerkViewModel(
     }
     fun updateMerk(merkTable:MerkTable){
         viewModelScope.launch {
+            merkTable.lastEditedBy = loggedInUser
+            merkTable.merkLastEditedDate = Date()
             updateMerkToDao(merkTable)
             getAllMerkTable()
         }

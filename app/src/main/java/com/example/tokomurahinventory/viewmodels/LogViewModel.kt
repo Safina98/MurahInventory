@@ -1,11 +1,9 @@
 package com.example.tokomurahinventory.viewmodels
 
 import android.app.Application
-import android.os.Build
 import android.util.Log
 import android.view.View
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -21,7 +19,6 @@ import com.example.tokomurahinventory.models.LogTable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -200,7 +197,7 @@ class LogViewModel (
                 userName = loggedInUser,
                 password = "",
                 namaToko = namaToko.value ?: "Failed",
-                logDate = mutableLog.value!!.logDate, // assuming you have a date field
+                logCreatedDate = mutableLog.value!!.logCreatedDate, // assuming you have a date field
                 keterangan = subKeterangan.value ?: "Failed",
                 merk = s,
                 kodeWarna = "",
@@ -208,6 +205,9 @@ class LogViewModel (
                 pcs = countModelList.value!!.sumOf { it.psc },
                 detailWarnaRef = "",
                 refLog = mutableLog.value!!.refLog,
+                lastEditedBy = loggedInUser,
+                logLastEditedDate = Date(),
+                createdBy = mutableLog.value!!.createdBy
             )
             updateLogToDao(updatedLog)
             updateLogBarang(updatedLog.refLog)
@@ -225,7 +225,7 @@ class LogViewModel (
                     userName = loggedInUser,
                     password = "",
                     namaToko = namaToko.value ?: "Failed",
-                    logDate = constructYesterdayDate(7)!!, // assuming you have a date field
+                    logCreatedDate = constructYesterdayDate(7)!!, // assuming you have a date field
                     keterangan = subKeterangan.value ?: "Failed",
                     merk = s,
                     kodeWarna = "",
@@ -233,6 +233,9 @@ class LogViewModel (
                     pcs = countModelList.value!!.sumOf { it.psc },
                     detailWarnaRef = "",
                     refLog = UUID.randomUUID().toString(),
+                    logLastEditedDate=Date(),
+                    createdBy=loggedInUser,
+                    lastEditedBy=loggedInUser
                 )
                 insertLogToDao(newLog)
                 addLogBarang(newLog.refLog)
