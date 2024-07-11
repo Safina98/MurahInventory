@@ -1,11 +1,15 @@
 package com.example.tokomurahinventory.fragments
 
+import android.app.AlertDialog
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.DatePicker
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -21,6 +25,7 @@ import com.example.tokomurahinventory.databinding.FragmentLogBinding
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.LogViewModel
 import com.example.tokomurahinventory.viewmodels.LogViewModelFactory
+import java.util.Calendar
 
 
 class LogFragment : AuthFragment(){
@@ -40,14 +45,10 @@ class LogFragment : AuthFragment(){
         val dataSourceMerk =  DatabaseInventory.getInstance(application).merkDao
         val dataSourceWarna =  DatabaseInventory.getInstance(application).warnaDao
         val dataSourceDetailWarna =  DatabaseInventory.getInstance(application).detailWarnaDao
-       // val viewModelFactory = LogViewModelFactory(application)
         binding.lifecycleOwner =this
-        //val viewModel = ViewModelProvider(this,viewModelFactory).get(LogViewModel::class.java)
         val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?: ""
-        viewModel = ViewModelProvider(requireActivity(), LogViewModelFactory(dataSourceMerk,dataSourceWarna,dataSourceDetailWarna,dataSourceLog,dataSourcebarangLog,loggedInUser,application))
-            .get(LogViewModel::class.java)
+        viewModel = ViewModelProvider(requireActivity(), LogViewModelFactory(dataSourceMerk,dataSourceWarna,dataSourceDetailWarna,dataSourceLog,dataSourcebarangLog,loggedInUser,application)).get(LogViewModel::class.java)
         binding.viewModel = viewModel
-
 
         viewModel.resetTwoWayBindingSub()
         val adapter  = LogAdapter(
@@ -62,7 +63,6 @@ class LogFragment : AuthFragment(){
                 viewModel.deleteLog(it)
             }
         )
-
         binding.rvLog.adapter = adapter
 
         //adapter.submitList(viewModel.logDummy)
@@ -81,14 +81,58 @@ class LogFragment : AuthFragment(){
                 return true
             }
         })
-
+        viewModel.selectedStartDate.observe(viewLifecycleOwner) {
+            viewModel.updateRv4()
+        }
+        viewModel.selectedEndDate.observe(viewLifecycleOwner) {
+            viewModel.updateRv4()
+        }
+        viewModel.isStartDatePickerClicked.observe(viewLifecycleOwner) {
+            if (it==true){
+                showDatePickerDialog(1)
+                viewModel.onStartDatePickerClicked()
+            }
+        }
         viewModel.addLogFab.observe(viewLifecycleOwner, Observer {
             if (it==true){
                 this.findNavController().navigate(LogFragmentDirections.actionLogFragmentToInputLogFragment())
                 viewModel.onAddLogFabClicked()
             }
         })
-
         return binding.root
+    }
+
+    private fun showDatePickerDialog(code:Int) {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.pop_up_date_picker, null)
+        val datePickerStart = dialogView.findViewById<DatePicker>(R.id.datePickerStart)
+        val datePickerEnd = dialogView.findViewById<DatePicker>(R.id.datePickerEnd)
+        val dialog = AlertDialog.Builder(requireContext())
+            .setTitle("Select Date Range")
+            .setView(dialogView)
+            .setPositiveButton("OK") { _, _ ->
+                val startYear = datePickerStart.year
+                val startMonth = datePickerStart.month
+                val startDay = datePickerStart.dayOfMonth
+                val endYear = datePickerEnd.year
+                val endMonth = datePickerEnd.month
+                val endDay = datePickerEnd.dayOfMonth
+
+                val startDate = Calendar.getInstance().apply {
+                    set(startYear, startMonth, startDay, 0, 0, 0) // Set time to start of the day
+                    set(Calendar.MILLISECOND, 0)
+                }.time
+
+                val endDate = Calendar.getInstance().apply {
+                    set(endYear, endMonth, endDay, 23, 59, 59) // Set time to end of the day
+                    set(Calendar.MILLISECOND, 999)
+                }.time
+                viewModel.updateDateRangeString(startDate,endDate)
+                viewModel.setStartDateRange(startDate)
+                viewModel.setEndDateRange(endDate)
+            }
+            .setNegativeButton("Cancel", null)
+            .create()
+
+        dialog.show()
     }
 }

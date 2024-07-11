@@ -1,9 +1,11 @@
 package com.example.tokomurahinventory.viewmodels
 
 import android.app.Application
+import android.os.Build
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -19,6 +21,9 @@ import com.example.tokomurahinventory.models.LogTable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
@@ -57,6 +62,15 @@ class LogViewModel (
     //count model id
     private var currentId = -1
 
+    //show or hide start date picker dialog
+    private var _isStartDatePickerClicked = MutableLiveData<Boolean>()
+    val isStartDatePickerClicked :LiveData<Boolean>get() = _isStartDatePickerClicked
+    //Selected Date
+    private val _selectedStartDate = MutableLiveData<Date?>()
+    val selectedStartDate: LiveData<Date?> get() = _selectedStartDate
+    private val _selectedEndDate = MutableLiveData<Date?>()
+    val selectedEndDate: LiveData<Date?> get() = _selectedEndDate
+    val _dateRangeString = MutableLiveData<String>()
     //two way binding edit text for input purpose
     val namaToko = MutableLiveData("")
     val user = MutableLiveData("")
@@ -85,6 +99,7 @@ class LogViewModel (
 
     init {
         getAllLogTable()
+        updateDateRangeString(_selectedStartDate.value, _selectedEndDate.value)
     }
 
 
@@ -98,6 +113,64 @@ class LogViewModel (
             }
             _allLog.value = list
             _unFilteredLog.value = list
+        }
+    }
+    fun setStartDateRange(startDate: Date?){
+        viewModelScope.launch {
+            _selectedStartDate.value = startDate
+        }
+    }
+    fun setEndDateRange(endDate: Date?){
+        viewModelScope.launch {
+            _selectedEndDate.value=endDate
+        }
+    }
+    private fun formatDate(date: Date?): String? {
+        if (date != null) {
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            return dateFormat.format(date)
+        }
+        return null
+    }
+    fun updateDateRangeString(startDate: Date?, endDate: Date?) {
+        _dateRangeString.value = formatDateRange(startDate, endDate)
+    }
+    fun resetDate(){
+        setStartDateRange(null)
+        setEndDateRange(null)
+        updateDateRangeString(null,null)
+    }
+
+    private fun formatDateRange(startDate: Date?, endDate: Date?): String {
+        return if (startDate != null && endDate != null) {
+            val dateFormat = SimpleDateFormat("EEEE, d MMMM yyyy", Locale("in", "ID"))
+            val startDateString = dateFormat.format(startDate)
+            val endDateString = dateFormat.format(endDate)
+            "$startDateString - $endDateString"
+        } else {
+            "Pilih Tanggal"
+        }
+    }
+    private fun constructYesterdayDate(month: Int): Date? {
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.DAY_OF_YEAR, -2)
+        val date = calendar.time
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return date
+    }
+    fun updateRv4(){
+        viewModelScope.launch {
+            performDataFiltering(selectedStartDate.value, selectedEndDate.value)
+        }
+    }
+    //filter data from database by date
+    private fun performDataFiltering(startDate: Date?, endDate: Date?) {
+        viewModelScope.launch {
+            val filteredData = withContext(Dispatchers.IO) {
+                dataSourceLog.getLogsByDateRange(startDate,endDate)
+            }
+            _allLog.value = filteredData
+            _unFilteredLog.value = filteredData
         }
     }
     //get list merk for suggestion
@@ -152,7 +225,7 @@ class LogViewModel (
                     userName = loggedInUser,
                     password = "",
                     namaToko = namaToko.value ?: "Failed",
-                    logDate = Date(), // assuming you have a date field
+                    logDate = constructYesterdayDate(7)!!, // assuming you have a date field
                     keterangan = subKeterangan.value ?: "Failed",
                     merk = s,
                     kodeWarna = "",
@@ -596,6 +669,8 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
     //Navigation
     fun onAddLogFabClick(){ _addLogFab.value = true }
     fun onAddLogFabClicked(){ _addLogFab.value = false }
+    fun onStartDatePickerClick(){ _isStartDatePickerClicked.value = true }
+    fun onStartDatePickerClicked(){ _isStartDatePickerClicked.value = false }
     fun onNavigateToLog(){ _navigateToLog.value = true }
     fun onNavigatedToLog(){ _navigateToLog.value = false }
     fun onLongClick(v: View): Boolean { return true }

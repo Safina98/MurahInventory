@@ -9,40 +9,77 @@
             type="com.example.tokomurahinventory.viewmodels.LogViewModel" />
     </data>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         tools:context=".fragments.LogFragment">
+
         <androidx.appcompat.widget.SearchView
             android:id="@+id/search_bar_log"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:queryHint="Search here..."
             app:iconifiedByDefault="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            />
+            app:queryHint="Search here..." />
+
+            <ImageView
+                android:layout_margin="@dimen/small_margin"
+                android:id="@+id/calender_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/search_bar_log"
+                android:onClick="@{()->viewModel.onStartDatePickerClick()}"
+                app:srcCompat="@drawable/baseline_calendar_month_24" />
+
+            <TextView
+                android:id="@+id/txt_date"
+                android:layout_margin="@dimen/small_margin"
+                style="@style/txt_item_log_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toEndOf="@id/calender_icon"
+                app:layout_constraintTop_toBottomOf="@id/search_bar_log"
+                android:onClick="@{()->viewModel.onStartDatePickerClick()}"
+                android:text="@{viewModel._dateRangeString}" />
+
+            <TextView
+                android:id="@+id/txt_reset"
+                style="@style/txt_item_log_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="@id/search_bar_log"
+                app:layout_constraintTop_toBottomOf="@id/search_bar_log"
+                android:onClick="@{()->viewModel.resetDate()}"
+                android:text="reset" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_log"
+            android:layout_margin="@dimen/small_margin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txt_date" />
+
         <com.example.tokomurahinventory.utils.DraggableFloatingActionButton
             android:id="@+id/btn_add_new_merk"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end|bottom"
             android:layout_margin="16dp"
-            android:src="@drawable/baseline_add_24"
+            android:clickable="true"
+            android:focusable="true"
             android:onClick="@{()->viewModel.onAddLogFabClick()}"
             android:scaleType="center"
-            android:clickable="true"
-            android:focusable="true" />
+            android:src="@drawable/baseline_add_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

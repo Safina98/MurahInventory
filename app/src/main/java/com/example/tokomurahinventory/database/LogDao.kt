@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.example.tokomurahinventory.models.LogTable
+import java.util.Date
 
 @Dao
 interface LogDao {
@@ -23,4 +24,11 @@ interface LogDao {
 
     @Query("DELETE FROM log_table WHERE id =:id")
     fun delete(id:Int)
+
+    @Query("""
+        SELECT * FROM log_table
+        WHERE (:startDate IS NULL OR logDate >= :startDate)
+        AND (:endDate IS NULL OR logDate <= :endDate)
+    """)
+    fun getLogsByDateRange(startDate: Date?, endDate: Date?): List<LogTable>
 }

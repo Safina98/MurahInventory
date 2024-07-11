@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph, drawerLayout)
         NavigationUI.setupWithNavController(binding.navView, navController)
 
-        checkAuthentication()
+        //checkAuthentication()
     }
 
     override fun onSupportNavigateUp(): Boolean {
