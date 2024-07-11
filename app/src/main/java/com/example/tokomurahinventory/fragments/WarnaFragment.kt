@@ -71,7 +71,7 @@ class WarnaFragment : AuthFragment() {
             it?.let {
                 adapter.submitList(it)
                 adapter.notifyDataSetChanged()
-                Log.i("WarnaProb","$it")
+
             }
         })
         viewModel.addWanraFab.observe(viewLifecycleOwner, Observer {

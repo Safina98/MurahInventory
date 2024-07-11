@@ -43,39 +43,47 @@ interface WarnaDao {
 
 
     @Query("""
-        SELECT 
-            w.idWarna,
-            w.refMerk,
-            w.kodeWarna,
-            w.totalPcs,
-            w.satuanTotal,
-            w.satuan,
-            w.warnaRef,
-            SUM(d.detailWarnaPcs) as totalDetailPcs
-        FROM warna_table w
-        LEFT JOIN detail_warna_table d ON w.warnaRef = d.warnaRef
-        where w.refMerk = :refMerk
-        GROUP BY w.idWarna, w.refMerk, w.kodeWarna, w.totalPcs, w.satuanTotal, w.satuan, w.warnaRef
-    """)
+    SELECT 
+        w.idWarna,
+        w.refMerk,
+        w.kodeWarna,
+        w.totalPcs,
+        w.satuanTotal,
+        w.satuan,
+        w.warnaRef,
+        w.createdBy,
+        w.lastEditedBy,
+        w.warnaCreatedDate,
+        w.warnaLastEditedDate,
+        SUM(d.detailWarnaPcs) as totalDetailPcs
+    FROM warna_table w
+    LEFT JOIN detail_warna_table d ON w.warnaRef = d.warnaRef
+    WHERE w.refMerk = :refMerk
+    GROUP BY w.idWarna, w.refMerk, w.kodeWarna, w.totalPcs, w.satuanTotal, w.satuan, w.warnaRef, w.createdBy, w.lastEditedBy, w.warnaCreatedDate, w.warnaLastEditedDate
+""")
         fun getWarnaWithTotalPcs(refMerk:String): LiveData<List<WarnaModel>>
 
     @Query("""
-        SELECT 
-            w.idWarna,
-            w.refMerk,
-            w.kodeWarna,
-            w.totalPcs,
-            w.satuanTotal,
-            w.satuan,
-            w.warnaRef,
-            SUM(d.detailWarnaPcs) as totalDetailPcs
-        FROM warna_table w
-        LEFT JOIN detail_warna_table d ON w.warnaRef = d.warnaRef
-        where w.refMerk = :refMerk
-        GROUP BY w.idWarna, w.refMerk, w.kodeWarna, w.totalPcs, w.satuanTotal, w.satuan, w.warnaRef
-    """)
-    fun getWarnaWithTotalPcsList(refMerk:String): List<WarnaModel>
-
-
+    SELECT 
+        w.idWarna,
+        w.refMerk,
+        w.kodeWarna,
+        w.totalPcs,
+        w.satuanTotal,
+        w.satuan,
+        w.warnaRef,
+        w.createdBy,
+        w.lastEditedBy,
+        w.warnaCreatedDate,
+        w.warnaLastEditedDate,
+        SUM(d.detailWarnaPcs) as totalDetailPcs
+    FROM warna_table w
+    LEFT JOIN detail_warna_table d ON w.warnaRef = d.warnaRef
+    WHERE w.refMerk = :refMerk
+    GROUP BY w.idWarna, w.refMerk, w.kodeWarna, w.totalPcs, w.satuanTotal, w.satuan, w.warnaRef, w.createdBy, w.lastEditedBy, w.warnaCreatedDate, w.warnaLastEditedDate
+""")
+    fun getWarnaWithTotalPcsList(refMerk: String): List<WarnaModel>
 
 }
+
+
