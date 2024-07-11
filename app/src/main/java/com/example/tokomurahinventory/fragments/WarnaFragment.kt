@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
@@ -23,11 +24,12 @@ import com.example.tokomurahinventory.adapters.WarnaLongListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentWarnaBinding
 import com.example.tokomurahinventory.models.model.WarnaModel
+import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.WarnaViewModel
 import com.example.tokomurahinventory.viewmodels.WarnaViewModelFactory
 
 
-class WarnaFragment : Fragment() {
+class WarnaFragment : AuthFragment() {
     private lateinit var binding : FragmentWarnaBinding
     private val viewModel: WarnaViewModel by viewModels()
     override fun onCreateView(
@@ -39,11 +41,15 @@ class WarnaFragment : Fragment() {
         val application = requireNotNull(this.activity).application
         var refMerk = arguments?.let { WarnaFragmentArgs.fromBundle(it).refMerk}
         val dataSourceWarna = DatabaseInventory.getInstance(application).warnaDao
-        val viewModelFactory = WarnaViewModelFactory(dataSourceWarna,refMerk!!,application)
+        val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext())
+        val viewModelFactory = WarnaViewModelFactory(dataSourceWarna,refMerk!!,loggedInUser!!,application)
         binding.lifecycleOwner =this
+
         val viewModel = ViewModelProvider(this,viewModelFactory)
             .get(WarnaViewModel::class.java)
         binding.viewModel = viewModel
+
+
         val adapter  = WarnaAdapter(
             WarnaClickListener {
                 Log.i("WarnaProb","warna table : $it")

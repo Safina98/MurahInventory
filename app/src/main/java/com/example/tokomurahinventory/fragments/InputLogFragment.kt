@@ -28,12 +28,13 @@ import com.example.tokomurahinventory.databinding.FragmentInputLogBinding
 import com.example.tokomurahinventory.databinding.PopUpAutocompleteTextviewBinding
 import com.example.tokomurahinventory.models.CountModel
 import com.example.tokomurahinventory.models.MerkTable
+import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.LogViewModel
 import com.example.tokomurahinventory.viewmodels.LogViewModelFactory
 import com.example.tokomurahinventory.viewmodels.MerkViewModel
 
 
-class InputLogFragment : Fragment() {
+class InputLogFragment : AuthFragment() {
 
     private lateinit var binding: FragmentInputLogBinding
     private lateinit var viewModel: LogViewModel
@@ -53,10 +54,10 @@ class InputLogFragment : Fragment() {
         val dataSourceDetailWarna =  DatabaseInventory.getInstance(application).detailWarnaDao
         // val viewModelFactory = LogViewModelFactory(application)
         binding.lifecycleOwner = this
-
+        val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?: ""
         viewModel = ViewModelProvider(
             requireActivity(),
-            LogViewModelFactory(dataSourceMerk, dataSourceWarna, dataSourceDetailWarna, dataSourceLog, dataSourcebarangLog, application)
+            LogViewModelFactory(dataSourceMerk, dataSourceWarna, dataSourceDetailWarna, dataSourceLog, dataSourcebarangLog, loggedInUser,application)
         ).get(LogViewModel::class.java)
 
         binding.viewModel = viewModel

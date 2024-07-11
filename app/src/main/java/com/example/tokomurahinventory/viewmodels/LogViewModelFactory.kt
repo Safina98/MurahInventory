@@ -15,13 +15,13 @@ class LogViewModelFactory (
     private val dataSourceDetailWarna: DetailWarnaDao,
     private val dataSourceLog: LogDao,
     private val dataSourceBarangLog: BarangLogDao,
-
+    private val loggedInUser: String,
     private val application: Application
 ): ViewModelProvider.Factory{
     @Suppress("unchecked_cast")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(LogViewModel::class.java)) {
-            return LogViewModel(dataSourceMerk,dataSourceWarna,dataSourceDetailWarna,dataSourceLog,dataSourceBarangLog,application) as T
+            return LogViewModel(dataSourceMerk,dataSourceWarna,dataSourceDetailWarna,dataSourceLog,dataSourceBarangLog,loggedInUser,application) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

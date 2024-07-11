@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
@@ -21,11 +22,12 @@ import com.example.tokomurahinventory.adapters.UsersLongListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentUsersBinding
 import com.example.tokomurahinventory.models.UsersTable
+import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.UsersViewModel
 import com.example.tokomurahinventory.viewmodels.UsersViewModelFactory
 
 
-class UsersFragment : Fragment() {
+class UsersFragment : AuthFragment() {
     private lateinit var binding: FragmentUsersBinding
     private val viewModel: UsersViewModel by viewModels()
     private lateinit var adapter: UsersAdapter
@@ -37,11 +39,14 @@ class UsersFragment : Fragment() {
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_users,container,false)
         val application = requireNotNull(this.activity).application
         val usersDao = DatabaseInventory.getInstance(application).usersDao
-        val viewModelFactory = UsersViewModelFactory(usersDao,application)
+        val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?: ""
+        val viewModelFactory = UsersViewModelFactory(usersDao,loggedInUser,application)
         binding.lifecycleOwner =this
         val viewModel = ViewModelProvider(this,viewModelFactory)
             .get(UsersViewModel::class.java)
         binding.viewModel = viewModel
+
+
          adapter  = UsersAdapter(
             UsersClickListener {
             },

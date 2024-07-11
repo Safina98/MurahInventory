@@ -19,9 +19,11 @@ import java.util.UUID
 
 class MerkViewModel(
     val dataSource1 :MerkDao,
+    val loggedInUser:String,
     application: Application
 
 ): AndroidViewModel(application) {
+
 
     //all merkTable from db
     //var allMerkTable= dataSource1.selectAllMerk()

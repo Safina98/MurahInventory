@@ -19,6 +19,7 @@ import java.util.UUID
 class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
                            val dataSourceDetailWarna:DetailWarnaDao,
                            val refWarna:String,
+                           val loggedInUser:String,
                            application: Application
 ): AndroidViewModel(application) {
     //Add detail warna fab

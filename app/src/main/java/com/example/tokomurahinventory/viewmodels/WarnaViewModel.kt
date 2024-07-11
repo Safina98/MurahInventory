@@ -20,6 +20,7 @@ import java.util.UUID
 class WarnaViewModel(
     val dataSourceWarna : WarnaDao,
     val refMerk:String,
+    val loggedInUser:String,
     application: Application
 ): AndroidViewModel(application) {
 

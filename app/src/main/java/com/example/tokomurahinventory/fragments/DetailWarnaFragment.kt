@@ -23,12 +23,13 @@ import com.example.tokomurahinventory.adapters.UpdateDetailWarnaClickListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentDetailWarnaBinding
 import com.example.tokomurahinventory.models.model.DetailWarnaModel
+import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.DetailWarnaViewModel
 import com.example.tokomurahinventory.viewmodels.DetailWarnaViewModelFactory
 import com.example.tokomurahinventory.viewmodels.MerkViewModel
 
 
-class DetailWarnaFragment : Fragment() {
+class DetailWarnaFragment : AuthFragment() {
 
     private lateinit var binding:FragmentDetailWarnaBinding
     private val viewModel: MerkViewModel by viewModels()
@@ -62,11 +63,13 @@ class DetailWarnaFragment : Fragment() {
 
         val dataSourceWarna = DatabaseInventory.getInstance(application).warnaDao
         val dataSourceDetailWarna = DatabaseInventory.getInstance(application).detailWarnaDao
-        val viewModelFactory = DetailWarnaViewModelFactory(dataSourceWarna,dataSourceDetailWarna,refWarna!!,application)
+        val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?: ""
+        val viewModelFactory = DetailWarnaViewModelFactory(dataSourceWarna,dataSourceDetailWarna,refWarna!!,loggedInUser,application)
         binding.lifecycleOwner =this
         val viewModel = ViewModelProvider(this,viewModelFactory)
             .get(DetailWarnaViewModel::class.java)
         binding.viewModel = viewModel
+
 
         val adapter=DetailWarnaAdapter(
             DetailWarnaClickListener {

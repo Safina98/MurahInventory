@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -17,11 +18,12 @@ import com.example.tokomurahinventory.adapters.LogDeleteListener
 import com.example.tokomurahinventory.adapters.LogLongListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentLogBinding
+import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.LogViewModel
 import com.example.tokomurahinventory.viewmodels.LogViewModelFactory
 
 
-class LogFragment : Fragment() {
+class LogFragment : AuthFragment(){
     private lateinit var binding: FragmentLogBinding
     private lateinit var viewModel: LogViewModel
 
@@ -41,9 +43,12 @@ class LogFragment : Fragment() {
        // val viewModelFactory = LogViewModelFactory(application)
         binding.lifecycleOwner =this
         //val viewModel = ViewModelProvider(this,viewModelFactory).get(LogViewModel::class.java)
-        viewModel = ViewModelProvider(requireActivity(), LogViewModelFactory(dataSourceMerk,dataSourceWarna,dataSourceDetailWarna,dataSourceLog,dataSourcebarangLog,application))
+        val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?: ""
+        viewModel = ViewModelProvider(requireActivity(), LogViewModelFactory(dataSourceMerk,dataSourceWarna,dataSourceDetailWarna,dataSourceLog,dataSourcebarangLog,loggedInUser,application))
             .get(LogViewModel::class.java)
         binding.viewModel = viewModel
+
+
         viewModel.resetTwoWayBindingSub()
         val adapter  = LogAdapter(
             LogClickListener {

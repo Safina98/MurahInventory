@@ -29,6 +29,7 @@ class LogViewModel (
     val dataSourceDetailWarna:DetailWarnaDao,
     val dataSourceLog:LogDao,
     val dataSourceBarangLog:BarangLogDao,
+    val loggedInUser:String,
     application: Application): AndroidViewModel(application){
 
     //all log in database
@@ -123,7 +124,7 @@ class LogViewModel (
             val s = getStringS()
             val updatedLog = LogTable(
                 id = mutableLog.value!!.id,
-                userName = user.value ?: "Failed",
+                userName = loggedInUser,
                 password = "",
                 namaToko = namaToko.value ?: "Failed",
                 logDate = mutableLog.value!!.logDate, // assuming you have a date field
@@ -148,7 +149,7 @@ class LogViewModel (
             if (allDataPresent){
                 val newLog = LogTable(
                     id = 0,
-                    userName = user.value ?: "Failed",
+                    userName = loggedInUser,
                     password = "",
                     namaToko = namaToko.value ?: "Failed",
                     logDate = Date(), // assuming you have a date field

@@ -16,8 +16,8 @@ import java.util.UUID
 
 class UsersViewModel(
     val dataSourceUsers:UsersDao,
+    val loggedInUser:String,
     application: Application): AndroidViewModel(application){
-
     //val usersList = dataSourceUsers.selectAllUsers()
     private val _addUserFab = MutableLiveData<Boolean>()
     val addUserFab: LiveData<Boolean> get() = _addUserFab

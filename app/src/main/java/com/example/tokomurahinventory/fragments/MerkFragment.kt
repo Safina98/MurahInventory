@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
@@ -22,11 +23,12 @@ import com.example.tokomurahinventory.adapters.UpdateMerkClickListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentMerkBinding
 import com.example.tokomurahinventory.models.MerkTable
+import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.MerkViewModel
 import com.example.tokomurahinventory.viewmodels.MerkViewModelFactory
 
 
-class MerkFragment : Fragment() {
+class MerkFragment : AuthFragment() {
     private lateinit var binding: FragmentMerkBinding
     private val viewModel:MerkViewModel by viewModels()
 
@@ -39,11 +41,13 @@ class MerkFragment : Fragment() {
 
         val application = requireNotNull(this.activity).application
         val dataSource1 = DatabaseInventory.getInstance(application).merkDao
-        val viewModelFactory = MerkViewModelFactory(dataSource1,application)
+        val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?:""
+        val viewModelFactory = MerkViewModelFactory(dataSource1,loggedInUser,application)
         binding.lifecycleOwner =this
         val viewModel = ViewModelProvider(this,viewModelFactory)
             .get(MerkViewModel::class.java)
         binding.viewModel = viewModel
+
         val adapter  = MerkAdapter(
             MerkClickListener {
                     viewModel.onNavigateToWarna(it.refMerk)
@@ -61,7 +65,7 @@ class MerkFragment : Fragment() {
 
         binding.rvMerk.adapter = adapter
 
-        showLoginDialog()
+        //showLoginDialog()
 
         //Observe all merk from db
         viewModel.allMerkTable.observe(viewLifecycleOwner, Observer {
