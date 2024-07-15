@@ -8,16 +8,23 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.DetailWarnaDao
+import com.example.tokomurahinventory.database.InputLogDao
 import com.example.tokomurahinventory.database.WarnaDao
 import com.example.tokomurahinventory.models.DetailWarnaTable
+import com.example.tokomurahinventory.models.InputLogTable
 import com.example.tokomurahinventory.models.model.DetailWarnaModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 import java.util.UUID
 
 class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
                            val dataSourceDetailWarna:DetailWarnaDao,
+                           val dataSourceInputLog:InputLogDao,
                            val refWarna:String,
                            val loggedInUser:String,
                            application: Application
@@ -32,30 +39,83 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
     //val detailWarnaList = dataSourceDetailWarna.selectDetailWarnaByWarnaIdGroupByIsi(refWarna)
     val detailWarnaList = dataSourceDetailWarna.getDetailWarnaSummary(refWarna)
 
-    fun insertDetailWarnaOld(pcs: Int, isi: Double) {
-        viewModelScope.launch {
-            for (i in 1..pcs) {
-                var detailWarnaTable = DetailWarnaTable()
-                detailWarnaTable.warnaRef = refWarna
-                detailWarnaTable.detailWarnaIsi = isi
-                detailWarnaTable.detailWarnaPcs = 1
-                detailWarnaTable.detailWarnaRef = UUID.randomUUID().toString()
-                detailWarnaTable.createdBy = loggedInUser
-                detailWarnaTable.lastEditedBy=loggedInUser
-                insertDetailWarnaToDao(detailWarnaTable)
-            }
-        }
+    private fun constructYesterdayDate(month: Int): Date? {
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.DAY_OF_YEAR, -2)
+        val date = calendar.time
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return date
     }
+
     fun insertDetailWarna(pcs: Int, isi: Double) {
         viewModelScope.launch {
-                var detailWarnaTable = DetailWarnaTable()
-                detailWarnaTable.warnaRef = refWarna
-                detailWarnaTable.detailWarnaIsi = isi
-                detailWarnaTable.detailWarnaPcs = pcs
+
+            var detailWarnaTable = DetailWarnaTable()
+            detailWarnaTable.warnaRef = refWarna
+            detailWarnaTable.lastEditedBy=loggedInUser
+            detailWarnaTable.detailWarnaLastEditedDate=Date()
+            detailWarnaTable.detailWarnaIsi = isi
+            detailWarnaTable.detailWarnaPcs = pcs
+            var detailWarnaTable1 = checkIfIsiExisted(isi,refWarna)
+            if (detailWarnaTable1!=null){
+                detailWarnaTable1.lastEditedBy=loggedInUser
+                detailWarnaTable1.detailWarnaIsi = isi
+                detailWarnaTable1.detailWarnaPcs = pcs
+                detailWarnaTable.detailWarnaLastEditedDate = Date()
+                updateDetailWarnaToDao(detailWarnaTable1,isi)
+                insertInputLog(detailWarnaTable1)
+            }else{
                 detailWarnaTable.detailWarnaRef = UUID.randomUUID().toString()
                 detailWarnaTable.createdBy = loggedInUser
-                detailWarnaTable.lastEditedBy=loggedInUser
+                detailWarnaTable.detailWarnaDate = Date()
                 insertDetailWarnaToDao(detailWarnaTable)
+                insertInputLog(detailWarnaTable)
+
+            }
+
+            detailWarnaList
+        }
+    }
+    fun insertInputLog(detailWarnaTable: DetailWarnaTable){
+        viewModelScope.launch {
+            var inputLogTable =InputLogTable()
+            inputLogTable.refMerk = getMerkRef()
+            inputLogTable.warnaRef = detailWarnaTable.warnaRef
+            inputLogTable.detailWarnaRef = detailWarnaTable.detailWarnaRef
+            inputLogTable.isi = detailWarnaTable.detailWarnaIsi
+            inputLogTable.pcs = detailWarnaTable.detailWarnaPcs
+            inputLogTable.createdBy = loggedInUser
+            inputLogTable.lastEditedBy = loggedInUser
+            inputLogTable.barangLogInsertedDate = Date()
+            inputLogTable.barangLogLastEditedDate=Date()
+            inputLogTable.inputBarangLogRef = UUID.randomUUID().toString()
+            insertInputLogToDao(inputLogTable)
+            selectAllInputLog()
+        }
+    }
+
+    fun selectAllInputLog(){
+        viewModelScope.launch {
+            var list = withContext(Dispatchers.IO){
+                dataSourceInputLog.selectAllTable()
+            }
+            Log.i("INPUTLOGTRY","$list")
+        }
+    }
+
+    private suspend fun insertInputLogToDao(inputLogTable: InputLogTable){
+        withContext(Dispatchers.IO){
+            dataSourceInputLog.insert(inputLogTable)
+        }
+    }
+    private suspend fun getMerkRef():String{
+       return withContext(Dispatchers.IO){
+            dataSourceWarna.getMerkRefByWarnaRef(refWarna)
+        }
+    }
+    private suspend fun checkIfIsiExisted(isi:Double,refWarna: String):DetailWarnaTable?{
+        return withContext(Dispatchers.IO){
+            dataSourceDetailWarna.checkIfIsiExisted(isi,refWarna)
         }
     }
 
@@ -87,7 +147,7 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
     }
     private suspend fun updateDetailWarnaToDao(detailWarnaTable:DetailWarnaTable,newIsi:Double){
         withContext(Dispatchers.IO){
-           // dataSourceDetailWarna.updateDetailWarna(detailWarnaTable.detailWarnaIsi,newIsi,detailWarnaTable.detailWarnaDate,detailWarnaTable.warnaRef)
+            dataSourceDetailWarna.updateDetailWarnaA(detailWarnaTable.warnaRef,newIsi,detailWarnaTable.detailWarnaPcs,detailWarnaTable.lastEditedBy,detailWarnaTable.detailWarnaDate)
         }
     }
     private suspend fun deleteDetailWarnaToDao(isi:Double,warnaRef:String){

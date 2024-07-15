@@ -10,18 +10,61 @@
 
     </data>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".fragments.InputStokFragment">
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/search_bar_log"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:iconifiedByDefault="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:queryHint="Search here..." />
 
+        <ImageView
+            android:layout_margin="@dimen/small_margin"
+            android:id="@+id/calender_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/search_bar_log"
+            android:onClick="@{()->viewModel.onStartDatePickerClick()}"
+            app:srcCompat="@drawable/baseline_calendar_month_24" />
+
+        <TextView
+            android:id="@+id/txt_date"
+            android:layout_margin="@dimen/small_margin"
+            style="@style/txt_item_log_style"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/calender_icon"
+            app:layout_constraintTop_toBottomOf="@id/search_bar_log"
+            android:onClick="@{()->viewModel.onStartDatePickerClick()}"
+            android:text="@{viewModel._dateRangeString}" />
+
+        <TextView
+            android:id="@+id/txt_reset"
+            style="@style/txt_item_log_style"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="@id/search_bar_log"
+            app:layout_constraintTop_toBottomOf="@id/search_bar_log"
+            android:onClick="@{()->viewModel.resetDate()}"
+            android:text="reset" />
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_input_stokLog"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:layout_margin="@dimen/small_margin"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-             />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txt_date"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

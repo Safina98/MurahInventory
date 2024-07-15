@@ -10,46 +10,90 @@
 
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <TextView
-            android:id="@+id/txt_tanggal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="12/7/2024"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/small_margin">
 
-        <TextView
-            android:id="@+id/txt_merk"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@{inputStokLog.namaMerk}"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/txt_tanggal" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="110dp">
 
-        <TextView
-            android:id="@+id/txt_kode"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@{inputStokLog.kodeWarna}"
-            app:layout_constraintStart_toEndOf="@id/txt_merk"
-            app:layout_constraintTop_toBottomOf="@id/txt_tanggal" />
+            <TextView
+                android:id="@+id/txt_tanggal"
+                style="@style/txt_item_log_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:logDate="@{inputStokLog.barangLogInsertedDate}"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/txt_pcs"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="5pcs"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/txt_tanggal" />
-        <TextView
-            android:id="@+id/txt_user"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Fina"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/txt_pcs" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/txt_merk"
+                style="@style/rv_input_Log_big_text_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{inputStokLog.namaMerk}"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/txt_tanggal" />
+
+            <TextView
+                android:id="@+id/txt_kode"
+                style="@style/rv_input_Log_big_text_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{inputStokLog.kodeWarna}"
+                app:layout_constraintStart_toEndOf="@id/txt_merk"
+                app:layout_constraintTop_toBottomOf="@id/txt_tanggal" />
+
+            <TextView
+                android:id="@+id/txt_isi"
+                style="@style/rv_input_Log_big_text_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{String.valueOf(inputStokLog.isi)}"
+                app:layout_constraintEnd_toStartOf="@id/txt_satuan"
+                app:layout_constraintTop_toBottomOf="@id/txt_tanggal" />
+
+            <TextView
+                android:id="@+id/txt_satuan"
+                style="@style/rv_input_Log_big_text_style_with_bigMargin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="64dp"
+                android:text="@{inputStokLog.satuan    }"
+                app:layout_constraintEnd_toStartOf="@id/txt_pcs"
+                app:layout_constraintTop_toBottomOf="@id/txt_tanggal" />
+
+            <TextView
+                android:id="@+id/txt_pcs"
+                style="@style/rv_input_Log_big_text_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{String.valueOf(inputStokLog.pcs)}"
+                app:layout_constraintEnd_toStartOf="@id/label_pcs"
+                app:layout_constraintTop_toBottomOf="@id/txt_tanggal" />
+
+            <TextView
+                android:id="@+id/label_pcs"
+                style="@style/rv_input_Log_big_text_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="pcs"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/txt_tanggal" />
+
+            <TextView
+                android:id="@+id/txt_user"
+                style="@style/txt_item_log_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{inputStokLog.createdBy}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/txt_pcs" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
 </layout>

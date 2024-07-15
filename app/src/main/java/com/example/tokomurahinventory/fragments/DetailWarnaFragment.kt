@@ -63,8 +63,9 @@ class DetailWarnaFragment : AuthFragment() {
 
         val dataSourceWarna = DatabaseInventory.getInstance(application).warnaDao
         val dataSourceDetailWarna = DatabaseInventory.getInstance(application).detailWarnaDao
+        val dataSourceInputLog = DatabaseInventory.getInstance(application).inputLogDao
         val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?: ""
-        val viewModelFactory = DetailWarnaViewModelFactory(dataSourceWarna,dataSourceDetailWarna,refWarna!!,loggedInUser,application)
+        val viewModelFactory = DetailWarnaViewModelFactory(dataSourceWarna,dataSourceDetailWarna,dataSourceInputLog,refWarna!!,loggedInUser,application)
         binding.lifecycleOwner =this
         val viewModel = ViewModelProvider(this,viewModelFactory)
             .get(DetailWarnaViewModel::class.java)

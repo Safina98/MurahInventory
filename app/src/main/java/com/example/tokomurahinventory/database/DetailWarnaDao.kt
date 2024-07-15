@@ -48,6 +48,16 @@ interface DetailWarnaDao {
     fun updateDetailWarna(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int): Int
 
     @Query("""
+        UPDATE detail_warna_table 
+        SET detailWarnaPcs = detailWarnaPcs + :detailWarnaPcs, 
+            lastEditedBy = :lastEditedBy, 
+            detailWarnaLastEditedDate = :lastEditedDate 
+        WHERE warnaRef = :refWarna 
+        AND detailWarnaIsi = :detailWarnaIsi
+    """)
+    fun updateDetailWarnaA(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,lastEditedBy:String,lastEditedDate:Date): Int
+
+    @Query("""
         UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs+:detailWarnaPcs WHERE detailWarnaRef = :refDetailWarna AND detailWarnaIsi = :detailWarnaIsi;
 """)
     fun updateOldDetailWarna(refDetailWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int
@@ -72,4 +82,6 @@ interface DetailWarnaDao {
     @Query("SELECT * from detail_warna_table WHERE warnaRef =:warnaRef")
     fun selecttTry(warnaRef:String):List<DetailWarnaTable>
 
+    @Query("SELECT * FROM detail_warna_table WHERE detailWarnaIsi = :detailWarnaIsi AND warnaRef = :warnaRef LIMIT 1")
+    fun checkIfIsiExisted(detailWarnaIsi: Double, warnaRef: String): DetailWarnaTable?
 }
