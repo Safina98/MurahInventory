@@ -6,7 +6,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
@@ -92,9 +94,13 @@ class UsersFragment : AuthFragment() {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Tambah Pengguna")
         val inflater = LayoutInflater.from(context)
-        val view = inflater.inflate(R.layout.pop_up_add_warna, null)
-        val textNama = view.findViewById<EditText>(R.id.txt_warna)
-        val textPassword = view.findViewById<EditText>(R.id.txt_satuan)
+        val view = inflater.inflate(R.layout.pop_up_login, null)
+        val textNama = view.findViewById<EditText>(R.id.etUsername)
+        val textPassword = view.findViewById<EditText>(R.id.etPassword)
+        val login = view.findViewById<TextView>(R.id.tvLogin)
+        val btn = view.findViewById<Button>(R.id.btnLogin)
+        login.visibility = View.GONE
+        btn.visibility = View.GONE
         textNama.setHint("Nama")
         textPassword.setHint("Password")
         if (usersTable!=null){
@@ -107,8 +113,7 @@ class UsersFragment : AuthFragment() {
             val password = textPassword.text.toString().toUpperCase()
             if (usersTable==null){
                 viewModel.insertUser(nama,password)
-            }else
-            {
+            }else {
                 usersTable.userName= nama
                 usersTable.password=password
                 viewModel.updateUser(usersTable)

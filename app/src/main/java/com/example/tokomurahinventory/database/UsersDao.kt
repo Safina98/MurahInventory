@@ -27,4 +27,15 @@ interface UsersDao {
 
     @Query("SELECT COUNT(*) FROM users_table WHERE userName = :userName AND password = :password")
     fun getUser(userName: String, password: String): Int
+
+    @Query("SELECT COUNT(*) FROM users_table")
+    fun getUserCount(): Int
+    @Insert
+    suspend fun insertUser(user: UsersTable)
+
+    @Query("SELECT COUNT(*) FROM users_table WHERE userName = :username")
+    fun checkUserExists(username: String): Int
+
+    @Query("SELECT * FROM users_table WHERE userName = :username")
+    suspend fun getUserByUsername(username: String): UsersTable?
 }

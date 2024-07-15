@@ -2,6 +2,7 @@ package com.example.tokomurahinventory.viewmodels
 
 import android.app.Application
 import android.view.View
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,6 +12,7 @@ import com.example.tokomurahinventory.models.UsersTable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.mindrot.jbcrypt.BCrypt
 import java.util.Locale
 import java.util.UUID
 
@@ -53,15 +55,31 @@ class UsersViewModel(
         }
         _usersList.value =list
     }
-    fun insertUser(nama:String, password:String){
+    fun insertUser(nama: String, password: String) {
         viewModelScope.launch {
-            var user = UsersTable()
-            user.userName= nama
-            user.password = password
-            user.usersRef = UUID.randomUUID().toString()
-            insertUsersToDao(user)
-            getAllUserTable()
+            val userExists = withContext(Dispatchers.IO) {
+                dataSourceUsers.checkUserExists(nama) > 0
+            }
+            if (!userExists) {
+                val newUser = UsersTable(
+                    userName = nama,
+                    password = hashPassword(password),
+                    usersRef = UUID.randomUUID().toString()
+                )
+                insertUsersToDao(newUser)
+                getAllUserTable()
+            } else {
+                // Handle the case where the username already exists
+                // e.g., show a toast message
+                onAddUserFabClick()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(getApplication(), "Username already exists", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
+    }
+    private fun hashPassword(password: String): String {
+        return BCrypt.hashpw(password, BCrypt.gensalt())
     }
     fun updateUser(usersTable: UsersTable){
         viewModelScope.launch {

@@ -33,6 +33,8 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph, drawerLayout)
         NavigationUI.setupWithNavController(binding.navView, navController)
 
+        // Check if the table is empty and insert a default user if needed
+        authViewModel.checkAndInsertDefaultUser(applicationContext)
         checkAuthentication()
     }
 

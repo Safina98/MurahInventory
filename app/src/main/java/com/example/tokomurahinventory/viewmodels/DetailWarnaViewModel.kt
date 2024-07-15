@@ -49,7 +49,6 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
 
     fun insertDetailWarna(pcs: Int, isi: Double) {
         viewModelScope.launch {
-
             var detailWarnaTable = DetailWarnaTable()
             detailWarnaTable.warnaRef = refWarna
             detailWarnaTable.lastEditedBy=loggedInUser
