@@ -8,5 +8,8 @@
         android:title="Pengguna" />
     <item
         android:id="@+id/logFragment"
-        android:title="Log" />
+        android:title="Log Barang Keluar" />
+    <item
+        android:id="@+id/inputStokFragment"
+        android:title="Log Barang Masuk" />
 </menu>

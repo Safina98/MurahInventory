@@ -58,5 +58,9 @@
             android:id="@+id/action_inputLogFragment_to_logFragment"
             app:destination="@id/logFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/inputStokFragment"
+        android:name="com.example.tokomurahinventory.fragments.InputStokFragment"
+        android:label="Log Barang Masuk" />
 
 </navigation>
