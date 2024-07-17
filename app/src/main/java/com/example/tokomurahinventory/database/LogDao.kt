@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.example.tokomurahinventory.models.LogTable
+import com.example.tokomurahinventory.models.model.CombinedLogData
 import java.util.Date
 
 @Dao
@@ -31,4 +32,33 @@ interface LogDao {
         AND (:endDate IS NULL OR logDate <= :endDate)
     """)
     fun getLogsByDateRange(startDate: Date?, endDate: Date?): List<LogTable>
+
+    @Query("""
+        SELECT 
+            l.id AS logId,
+            l.userName,
+            l.password,
+            l.namaToko,
+            l.logDate AS logDate, -- Use the correct column name here
+            l.keterangan,
+            l.merk,
+            l.kodeWarna,
+            l.logIsi,
+            l.logPcs AS logPcs,
+            l.detailWarnaRef,
+            l.refLog,
+            l.logLastEditedDate,
+            l.createdBy,
+            l.lastEditedBy,
+            b.id AS barangLogId,
+            b.refMerk,
+            b.warnaRef,
+            b.isi AS barangLogIsi,
+            b.pcs AS barangLogPcs,
+            b.barangLogDate,
+            b.barangLogRef
+        FROM log_table AS l
+        JOIN barang_log AS b ON l.refLog = b.refLog
+    """)
+    fun getAllCombinedLogData(): List<CombinedLogData>
 }

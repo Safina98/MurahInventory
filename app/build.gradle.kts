@@ -104,7 +104,11 @@ dependencies {
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.lifecycle:lifecycle-extensions:$lifecycleExtensionsVersion")
 
-    //Nav drawer
+    // Nav drawer
     implementation("androidx.drawerlayout:drawerlayout:1.1.1")
-    implementation("com.google.android.material:material:1.8.0")
+    implementation("com.google.android.material:material:1.9.0") // Updated version
+
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1") // Updated version
+
+
 }

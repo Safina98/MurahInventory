@@ -25,6 +25,9 @@ interface WarnaDao {
     @Query("SELECT * FROM warna_table WHERE refMerk = :refMerk")
     fun selectWarnaByMerk(refMerk:String):LiveData<List<WarnaTable>>
 
+    @Query("SELECT * FROM warna_table")
+    fun getAllWarnas():List<WarnaTable>
+
     @Query("SELECT kodeWarna FROM warna_table WHERE refMerk = :refMerk")
     fun selectStringWarnaByMerk(refMerk:String):List<String>
 

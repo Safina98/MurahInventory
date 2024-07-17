@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Update
 import com.example.tokomurahinventory.models.DetailWarnaTable
 import com.example.tokomurahinventory.models.MerkTable
+import com.example.tokomurahinventory.models.model.CombinedDataModel
 import com.example.tokomurahinventory.models.model.DetailWarnaModel
 import java.util.Date
 
@@ -30,6 +31,9 @@ interface DetailWarnaDao {
 
     @Query("""SELECT * FROM detail_warna_table WHERE detailWarnaIsi = :detailWarnaIsi AND detailWarnaRef = :warnaRef LIMIT :pcs""")
     fun getFirstDetailWarna(detailWarnaIsi: Double, warnaRef: String,pcs:Int): List<DetailWarnaTable>
+
+    @Query("""SELECT * FROM detail_warna_table """)
+    fun getAllDetailWarnas(): List<DetailWarnaTable>
 
     @Query("""
         SELECT 
@@ -84,4 +88,36 @@ interface DetailWarnaDao {
 
     @Query("SELECT * FROM detail_warna_table WHERE detailWarnaIsi = :detailWarnaIsi AND warnaRef = :warnaRef LIMIT 1")
     fun checkIfIsiExisted(detailWarnaIsi: Double, warnaRef: String): DetailWarnaTable?
+
+    @Query("""
+        SELECT 
+            m.id AS merkId,
+            m.namaMerk,
+            m.refMerk,
+            m.merkCreatedDate,
+            m.merkLastEditedDate,
+            m.createdBy AS merkCreatedBy,
+            m.lastEditedBy AS merkLastEditedBy,
+            w.idWarna AS warnaId,
+            w.kodeWarna,
+            w.totalPcs,
+            w.satuanTotal,
+            w.satuan,
+            w.warnaRef,
+            w.warnaCreatedDate,
+            w.warnaLastEditedDate,
+            w.createdBy AS warnaCreatedBy,
+            w.lastEditedBy AS warnaLastEditedBy,
+            d.id AS detailWarnaId,
+            d.detailWarnaIsi,
+            d.detailWarnaPcs,
+            d.detailWarnaDate,
+            d.detailWarnaLastEditedDate,
+            d.createdBy AS detailWarnaCreatedBy,
+            d.lastEditedBy AS detailWarnaLastEditedBy
+        FROM merk_table AS m
+        JOIN warna_table AS w ON m.refMerk = w.refMerk
+        JOIN detail_warna_table AS d ON w.warnaRef = d.warnaRef
+    """)
+    fun getAllCombinedData(): List<CombinedDataModel>
 }

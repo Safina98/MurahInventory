@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.tokomurahinventory.viewmodels.ExportImportViewModel" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".fragments.ExportImportFragment">
+
+        <Button
+            android:id="@+id/btn_export_merk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="export merk"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/btn_export_users"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="export pengguna"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_export_merk" />
+        <Button
+            android:id="@+id/btn_export_log"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="export Log"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_export_users" />
+
+        <Button
+            android:id="@+id/btn_export_log_barang_masuk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="export Barang Masuk Log"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_export_log" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

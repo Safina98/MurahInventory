@@ -62,5 +62,9 @@
         android:id="@+id/inputStokFragment"
         android:name="com.example.tokomurahinventory.fragments.InputStokFragment"
         android:label="Log Barang Masuk" />
+    <fragment
+        android:id="@+id/exportImportFragment"
+        android:name="com.example.tokomurahinventory.fragments.ExportImportFragment"
+        android:label="Export and Import Data" />
 
 </navigation>
