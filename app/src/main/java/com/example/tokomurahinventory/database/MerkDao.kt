@@ -3,7 +3,9 @@ package com.example.tokomurahinventory.database
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import com.example.tokomurahinventory.models.MerkTable
 
@@ -11,6 +13,9 @@ import com.example.tokomurahinventory.models.MerkTable
 interface MerkDao  {
     @Insert
     fun insert(merkTable: MerkTable)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insertMerkTable(merkTable: MerkTable)
 
     @Update
     fun update(merkTable: MerkTable)
@@ -35,7 +40,16 @@ interface MerkDao  {
     @Query("SELECT EXISTS(SELECT 1 FROM merk_table WHERE namaMerk = :namaMerk)")
     fun isDataExists(namaMerk: String): Boolean
 
-
+    @Transaction
+    suspend fun performTransaction(block: suspend () -> Unit) {
+        // Begin transaction
+        try {
+            block()
+        } catch (e: Exception) {
+            // Handle exceptions
+            throw e
+        }
+    }
 
 
 

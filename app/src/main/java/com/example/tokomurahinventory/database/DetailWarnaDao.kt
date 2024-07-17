@@ -3,10 +3,10 @@ package com.example.tokomurahinventory.database
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.tokomurahinventory.models.DetailWarnaTable
-import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.models.model.CombinedDataModel
 import com.example.tokomurahinventory.models.model.DetailWarnaModel
 import java.util.Date
@@ -15,6 +15,9 @@ import java.util.Date
 interface DetailWarnaDao {
     @Insert
     fun insert(detailWarnaTable: DetailWarnaTable)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insertDetailWarnaTable(detailWarnaTable: DetailWarnaTable)
 
     @Update
     fun update(detailWarnaTable: DetailWarnaTable)
@@ -85,6 +88,11 @@ interface DetailWarnaDao {
 
     @Query("SELECT * from detail_warna_table WHERE warnaRef =:warnaRef")
     fun selecttTry(warnaRef:String):List<DetailWarnaTable>
+    @Query("SELECT * from detail_warna_table")
+    fun selectAll():List<DetailWarnaTable>
+
+    @Query("SELECT * from detail_warna_table WHERE detailWarnaRef =:detailWarnaRef")
+    fun selecttDetailWarnaByRef(detailWarnaRef:String):List<DetailWarnaTable>
 
     @Query("SELECT * FROM detail_warna_table WHERE detailWarnaIsi = :detailWarnaIsi AND warnaRef = :warnaRef LIMIT 1")
     fun checkIfIsiExisted(detailWarnaIsi: Double, warnaRef: String): DetailWarnaTable?
@@ -114,7 +122,8 @@ interface DetailWarnaDao {
             d.detailWarnaDate,
             d.detailWarnaLastEditedDate,
             d.createdBy AS detailWarnaCreatedBy,
-            d.lastEditedBy AS detailWarnaLastEditedBy
+            d.lastEditedBy AS detailWarnaLastEditedBy,
+            d.detailWarnaRef
         FROM merk_table AS m
         JOIN warna_table AS w ON m.refMerk = w.refMerk
         JOIN detail_warna_table AS d ON w.warnaRef = d.warnaRef

@@ -3,6 +3,7 @@ package com.example.tokomurahinventory.database
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.tokomurahinventory.models.MerkTable
@@ -14,6 +15,9 @@ import com.example.tokomurahinventory.models.model.WarnaModel
 interface WarnaDao {
     @Insert
     fun insert(warnaTable: WarnaTable)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insertWarnaTable(warnaTable: WarnaTable)
 
     @Update
     fun update(warnaTable: WarnaTable)

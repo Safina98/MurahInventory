@@ -36,10 +36,13 @@ class AuthViewModel : ViewModel() {
             val userCount = userDao.getUserCount()
             if (userCount == 0) {
                 // Insert default user if the table is empty
-                val defaultUser = UsersTable(userName = "admin", password = "1111", usersRef = "adminRef")
+                val defaultUser = UsersTable(userName = "admin", password = hashPassword("1111"), usersRef = "adminRef")
                 userDao.insertUser(defaultUser)
             }
         }
+    }
+    private fun hashPassword(password: String): String {
+        return BCrypt.hashpw(password, BCrypt.gensalt())
     }
 
 }

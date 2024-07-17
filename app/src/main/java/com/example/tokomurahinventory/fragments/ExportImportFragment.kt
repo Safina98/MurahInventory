@@ -1,6 +1,7 @@
 package com.example.tokomurahinventory.fragments
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -11,6 +12,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -30,12 +33,39 @@ import com.example.tokomurahinventory.viewmodels.MerkViewModel
 import com.example.tokomurahinventory.viewmodels.MerkViewModelFactory
 import kotlinx.coroutines.launch
 import java.io.File
+import java.io.FileNotFoundException
 
 
 class ExportImportFragment : AuthFragment() {
     private lateinit var binding: FragmentExportImportBinding
     private lateinit var viewModel: ExportImportViewModel
     private val PERMISSION_REQUEST_CODE = 200
+
+    var resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        Log.i("Insert Csv", "result Launcher")
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data: Intent? = result.data
+            var isFirstLine = true
+            Log.i("InsertCsv", "result Launcher if " + data?.data?.path.toString())
+            val tokensList = mutableListOf<List<String>>()
+            try {
+                context?.contentResolver?.openInputStream(data!!.data!!)?.bufferedReader()
+                    ?.forEachLine { line ->
+                        if (!isFirstLine) {
+                            val tokens: List<String> = line.split(",")
+                            tokensList.add(tokens)
+                        }
+                        isFirstLine = false
+                    }
+                viewModel.insertCSVBatch(tokensList)
+            } catch (e: java.lang.Exception) {
+                Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show()
+                Log.e("Insert Csv", "Error reading CSV: $e")
+            }
+
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -77,8 +107,18 @@ class ExportImportFragment : AuthFragment() {
         binding.btnExportLogBarangMasuk.setOnClickListener {
             exportStockCSV("Daftar Input Log Toko Murah","INPUT LOG")
         }
+        binding.btnImportMerk.setOnClickListener {
+            importCSVStock()
+        }
 
         return binding.root
+    }
+    private fun importCSVStock() {
+        var fileIntent = Intent(Intent.ACTION_GET_CONTENT)
+        fileIntent.type = "text/*"
+        try { resultLauncher.launch(fileIntent) }
+        catch (e: FileNotFoundException) {
+            Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show() }
     }
     private fun checkPermission(): Boolean {
         // checking of permissions.

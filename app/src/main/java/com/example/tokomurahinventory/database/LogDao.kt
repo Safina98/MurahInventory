@@ -3,6 +3,7 @@ package com.example.tokomurahinventory.database
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.tokomurahinventory.models.LogTable
@@ -13,6 +14,9 @@ import java.util.Date
 interface LogDao {
     @Insert
     fun insert(logTable: LogTable)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insertLogTable(logTable: LogTable)
 
     @Update
     fun update(logTable: LogTable)
@@ -45,7 +49,7 @@ interface LogDao {
             l.kodeWarna,
             l.logIsi,
             l.logPcs AS logPcs,
-            l.detailWarnaRef,
+            b.detailWarnaRef,
             l.refLog,
             l.logLastEditedDate,
             l.createdBy,

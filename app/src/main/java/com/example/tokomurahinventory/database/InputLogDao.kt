@@ -2,6 +2,7 @@ package com.example.tokomurahinventory.database
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.tokomurahinventory.models.InputLogTable
 import com.example.tokomurahinventory.models.LogTable
@@ -12,6 +13,9 @@ import java.util.Date
 interface InputLogDao {
     @Insert
     fun insert(inputLogTable: InputLogTable)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insertInputLogTable(inputLogTable: InputLogTable)
 
     @Query("""
         SELECT 

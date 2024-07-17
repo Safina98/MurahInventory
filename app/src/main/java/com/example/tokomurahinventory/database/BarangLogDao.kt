@@ -3,9 +3,11 @@ package com.example.tokomurahinventory.database
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.tokomurahinventory.models.BarangLog
+import com.example.tokomurahinventory.models.LogTable
 import java.util.Date
 
 
@@ -13,6 +15,9 @@ import java.util.Date
 interface BarangLogDao {
     @Insert
     fun insert(barangLog: BarangLog)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insertBarangLogTable(barangLog: BarangLog)
 
     @Update
     fun update(barangLog: BarangLog)

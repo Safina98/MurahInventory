@@ -45,6 +45,34 @@
             android:text="export Barang Masuk Log"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btn_export_log" />
+        <Button
+            android:id="@+id/btn_import_merk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Import Merk"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_export_log_barang_masuk" />
+        <Button
+            android:id="@+id/btn_import_pengguna"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Import Pengguna"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_import_merk"/>
+        <Button
+            android:id="@+id/btn_import_log"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Import Log"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_import_pengguna"/>
+        <Button
+            android:id="@+id/btn_import_log_barang_masuk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Import barang masuk Log"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_import_log"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
