@@ -27,6 +27,7 @@ import com.example.tokomurahinventory.models.UsersTable
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.UsersViewModel
 import com.example.tokomurahinventory.viewmodels.UsersViewModelFactory
+import com.google.android.material.textfield.TextInputLayout
 
 
 class UsersFragment : AuthFragment() {
@@ -90,41 +91,44 @@ class UsersFragment : AuthFragment() {
         return binding.root
     }
 
-    fun showAddUserDialog(viewModel: UsersViewModel, usersTable: UsersTable?,i:Int){
+    fun showAddUserDialog(viewModel: UsersViewModel, usersTable: UsersTable?, i: Int) {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Tambah Pengguna")
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.pop_up_login, null)
         val textNama = view.findViewById<EditText>(R.id.etUsername)
         val textPassword = view.findViewById<EditText>(R.id.etPassword)
-        val login = view.findViewById<TextView>(R.id.tvLogin)
+        val passwordInputLayout = view.findViewById<TextInputLayout>(R.id.tilPassword)
         val btn = view.findViewById<Button>(R.id.btnLogin)
-        login.visibility = View.GONE
+        val txtLogin = view.findViewById<TextView>(R.id.tvLogin)
         btn.visibility = View.GONE
-        textNama.setHint("Nama")
-        textPassword.setHint("Password")
-        if (usersTable!=null){
+        txtLogin.visibility = View.GONE
+        // Handle user data
+        if (usersTable != null) {
             textNama.setText(usersTable.userName)
             textPassword.setText(usersTable.password)
         }
+
+        // Set up the password visibility toggle
+        passwordInputLayout.endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
+
         builder.setView(view)
-        builder.setPositiveButton("OK") { dialog, which ->
+        builder.setPositiveButton("OK") { _, _ ->
             val nama = textNama.text.toString().toUpperCase()
             val password = textPassword.text.toString().toUpperCase()
-            if (usersTable==null){
-                viewModel.insertUser(nama,password)
-            }else {
-                usersTable.userName= nama
-                usersTable.password=password
+            if (usersTable == null) {
+                viewModel.insertUser(nama, password)
+            } else {
+                usersTable.userName = nama
+                usersTable.password = password
                 viewModel.updateUser(usersTable)
             }
             adapter.notifyDataSetChanged()
-
         }
-        builder.setNegativeButton("No") { dialog, which ->
-        }
+        builder.setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
         val alert = builder.create()
         alert.show()
     }
+
 
 }
