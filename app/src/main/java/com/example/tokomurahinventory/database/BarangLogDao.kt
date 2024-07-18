@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.tokomurahinventory.models.BarangLog
+import com.example.tokomurahinventory.models.CountModel
 import com.example.tokomurahinventory.models.LogTable
 import java.util.Date
 
@@ -24,6 +25,13 @@ interface BarangLogDao {
 
     @Query("DELETE FROM barang_log WHERE id =:id")
     fun delete(id:Int)
+
+    @Query("SELECT merk_table.namaMerk AS merkBarang, warna_table.kodeWarna AS kodeBarang,barang_log.id as id, barang_log.isi, barang_log.pcs as psc, barang_log.refLog as logRef, barang_log.barangLogRef " +
+            "FROM barang_log " +
+            "JOIN merk_table ON barang_log.refMerk = merk_table.refMerk " +
+            "JOIN warna_table ON barang_log.warnaRef = warna_table.warnaRef " +
+            "WHERE barang_log.refLog = :refLog")
+    fun selectCountModelByLogRef(refLog: String): List<CountModel>
 
     @Query("SELECT * FROM barang_log")
     fun selectAllLog(): LiveData<List<BarangLog>>
@@ -46,4 +54,7 @@ interface BarangLogDao {
         refLog: String,
         barangLogRef: String
     )
+
+    @Query("SELECT * FROM barang_log WHERE barangLogRef =:barangLogRef")
+    fun findByBarangLogRef(barangLogRef:String):BarangLog
 }

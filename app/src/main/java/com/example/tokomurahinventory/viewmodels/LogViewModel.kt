@@ -216,8 +216,10 @@ class LogViewModel (
                 logLastEditedDate = Date(),
                 createdBy = mutableLog.value!!.createdBy
             )
+            val cmList = countModelList.value!!
             updateLogToDao(updatedLog)
             updateLogBarang(updatedLog.refLog)
+            compare(updatedLog.refLog,cmList)
             getAllLogTable()
             onNavigateToLog()
         }
@@ -473,10 +475,31 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
 
     fun updateLogBarang(logRef: String){
         viewModelScope.launch {
+
             for (i in countModelList.value!!){
                 getBarangLogUpdate(i.merkBarang!!,i.kodeBarang!!,i.isi!!,i.psc,logRef,i.barangLogRef)
             }
         }
+    }
+    fun compare(logRef:String,cmList:List<CountModel>){
+        viewModelScope.launch {
+            var a = withContext(Dispatchers.IO){dataSourceBarangLog.selectBarangLogByLogRef(logRef)}
+// Find items in 'a' that are not in 'cmList' based on 'barangLogRef'
+            val itemsNotInCmList = a.filter { dbItem ->
+                cmList.none { cmItem -> cmItem.barangLogRef == dbItem.barangLogRef }
+            }
+
+            // Process the items not in cmList
+            itemsNotInCmList.forEach { item ->
+                Log.i("InsertLogTry", "Item ${item.isi} - ${item.isi} not found in cmList")
+                // Perform your action here, for example:
+                // showToast("Item ${item.merkBarang} - ${item.kodeBarang} not found in cmList")
+                updateDetailWarnaTODao(item.warnaRef,item.isi,-item.pcs)
+                deleteBarangLogToDao(item.id)
+
+            }
+        }
+
     }
     fun getBarangLogUpdate(namaMerk:String,kodeWarna:String,isi:Double,pcs:Int,refLog:String,barangLogRef:String){
         viewModelScope.launch{
@@ -493,8 +516,15 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
                 refLog = refLog,
                 barangLogRef = barangLogRef
             )
-            updateDetailWarna(barangLog)
-            updateBarangLogToDao(barangLog)
+
+            if (doesBarangLogExist(barangLogRef)) {
+                updateDetailWarna(barangLog)
+                updateBarangLogToDao(barangLog)
+            }else{
+                insertBarangLogToDao(barangLog)
+                updateDetailWarnaTODao(barangLog.warnaRef,barangLog.isi,barangLog.pcs)
+            }
+
         }
     }
 
@@ -640,11 +670,20 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
             dataSourceLog.update(log)
         }
     }
-    private suspend fun updateBarangLogToDao(log: BarangLog){
-        withContext(Dispatchers.IO){
-            dataSourceBarangLog.updateByBarangLogRef(log.refMerk,log.warnaRef,log.detailWarnaRef,log.isi,log.pcs,log.barangLogDate,log.refLog,log.barangLogRef)
+    private suspend fun updateBarangLogToDao(log: BarangLog) {
+        withContext(Dispatchers.IO) {
+            if (doesBarangLogExist(log.barangLogRef)) {
+                // Update existing record if barangLogRef exists
+                dataSourceBarangLog.updateByBarangLogRef(log.refMerk, log.warnaRef, log.detailWarnaRef, log.isi, log.pcs, log.barangLogDate, log.refLog, log.barangLogRef)
+            }
         }
     }
+    private suspend fun doesBarangLogExist(barangLogRef: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            dataSourceBarangLog.findByBarangLogRef(barangLogRef) != null
+        }
+    }
+
     private suspend fun deleteLogToDao(log: LogTable){
         withContext(Dispatchers.IO){
             dataSourceLog.delete(log.id)
