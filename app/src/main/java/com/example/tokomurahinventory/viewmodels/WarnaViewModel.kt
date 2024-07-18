@@ -142,6 +142,11 @@ init {
     @SuppressLint("NullSafeMutableLiveData")
     fun onNavigatetedToDetailWarna(){ navigateToDetailWarnaM.value = null }
     fun clearScope() {
+        //super.onCleared()
+
+    }
+
+    override fun onCleared() {
         super.onCleared()
         viewModelJob.cancel()
     }

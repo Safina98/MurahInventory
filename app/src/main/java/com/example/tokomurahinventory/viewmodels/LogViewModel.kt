@@ -15,6 +15,7 @@ import com.example.tokomurahinventory.database.MerkDao
 import com.example.tokomurahinventory.database.WarnaDao
 import com.example.tokomurahinventory.models.BarangLog
 import com.example.tokomurahinventory.models.CountModel
+import com.example.tokomurahinventory.models.DetailWarnaTable
 import com.example.tokomurahinventory.models.LogTable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -486,64 +487,52 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
                 refLog = refLog,
                 barangLogRef = barangLogRef
             )
-            //updateDetailWarna(refDetailWarna,isi,pcs)
-            //get the old number of pcs, use barang log ref?
-            updateDetailWarnaTODao(barangLog)
-            //updateBarangLogToDao(barangLog)
+            updateDetailWarna(barangLog)
+            updateBarangLogToDao(barangLog)
         }
     }
-    /*
-    fun updateDetailWarna(newBarangLog: BarangLog){
-        viewModelScope.launch{
-            var oldBarangLog = withContext(Dispatchers.IO){ dataSourceBarangLog.selectBarangLogByRef(newBarangLog.barangLogRef)}
-            var selisihPcs=0
-            if (oldBarangLog.warnaRef ==newBarangLog.warnaRef){
-                if (oldBarangLog.isi == newBarangLog.isi){
-                    selisihPcs = newBarangLog.pcs-oldBarangLog.pcs
-                    updateDetailWarna(newBarangLog.detailWarnaRef,newBarangLog.isi,selisihPcs)
-                }else{
-                    selisihPcs = oldBarangLog.pcs*-1
-                    updateDetailWarna(oldBarangLog.detailWarnaRef,oldBarangLog.isi,selisihPcs)
-                    updateDetailWarna(newBarangLog.detailWarnaRef,newBarangLog.isi,newBarangLog.pcs)
-                }
-            }else{
-                Log.i("InsertLogTry", "old ref!= new ref")
-            }
 
-        }
-    }
-     */
+        fun updateDetailWarna(newBarangLog: BarangLog) {
+            viewModelScope.launch {
+                try {
+                    val oldBarangLog = withContext(Dispatchers.IO) {
+                        dataSourceBarangLog.selectBarangLogByRef(newBarangLog.barangLogRef)
+                    }
+                    var selisihPcs: Int
 
-    fun updateDetailWarnaTODao(newBarangLog: BarangLog) {
-        viewModelScope.launch {
-            try {
-                val oldBarangLog = withContext(Dispatchers.IO) {
-                    dataSourceBarangLog.selectBarangLogByRef(newBarangLog.barangLogRef)
-                }
-                var selisihPcs = 0
-                if (oldBarangLog != null) {
-                    if (oldBarangLog.warnaRef == newBarangLog.warnaRef) {
-                        if (oldBarangLog.isi == newBarangLog.isi) {
-                            selisihPcs = newBarangLog.pcs - oldBarangLog.pcs
-                            updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, selisihPcs)
+                    if (oldBarangLog != null) {
+                        Log.i("InsertLogTry", "old log barang isi ${oldBarangLog.isi} new log barang isi=${newBarangLog.isi}")
+
+                        if (oldBarangLog.warnaRef == newBarangLog.warnaRef) {
+                            if (oldBarangLog.isi == newBarangLog.isi) {
+                                selisihPcs = newBarangLog.pcs - oldBarangLog.pcs
+                                updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, selisihPcs)
+                            } else {
+                                val oldDetailWarna = getDetailWarna(oldBarangLog.warnaRef, oldBarangLog.isi)
+                                val newDetailWarnaTable = getDetailWarna(newBarangLog.warnaRef, newBarangLog.isi)
+                                selisihPcs = -oldBarangLog.pcs
+                                Log.i("InsertLogTry", "old detail warna pcs - selisih pcs=${oldDetailWarna.detailWarnaIsi} -> ${oldDetailWarna.detailWarnaPcs - selisihPcs}")
+                                Log.i("InsertLogTry", "new detail warna - selisih pcs:${newDetailWarnaTable.detailWarnaIsi} -> ${newDetailWarnaTable.detailWarnaPcs - newBarangLog.pcs}")
+                                updateDetailWarnaTODao(oldBarangLog.warnaRef, oldBarangLog.isi, selisihPcs)
+                                updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, newBarangLog.pcs)
+                            }
                         } else {
-                            selisihPcs = oldBarangLog.pcs * -1
+                            Log.i("InsertLogTry", "old ref != new ref")
+                            selisihPcs = -oldBarangLog.pcs
                             updateDetailWarnaTODao(oldBarangLog.warnaRef, oldBarangLog.isi, selisihPcs)
                             updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, newBarangLog.pcs)
                         }
                     } else {
-                        Log.i("InsertLogTry", "old ref!= new ref")
-                        selisihPcs = oldBarangLog.pcs * -1
-                        updateDetailWarnaTODao(oldBarangLog.warnaRef, oldBarangLog.isi, selisihPcs)
+                        Log.e("InsertLogTry", "oldBarangLog is null")
+                        updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, newBarangLog.pcs)
                     }
-                } else {
-                    Log.e("InsertLogTry", "oldBarangLog is null")
+                } catch (e: Exception) {
+                    Log.e("InsertLogTry", "Error updating detail warna: ${e.message}", e)
                 }
-            } catch (e: Exception) {
-                Log.e("InsertLogTry", "Error updating detail warna: ${e.message}", e)
             }
         }
-    }
+
+
     fun areAllCountModelValuesNotNull(countModelList: LiveData<List<CountModel>?>): Boolean {
         val countModelItems = countModelList.value ?: return false
         for (countModel in countModelItems) {
@@ -618,6 +607,11 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
         }
 
      */
+    private suspend fun getDetailWarna(waraRef:String, isi:Double):DetailWarnaTable{
+        return withContext(Dispatchers.IO){
+            dataSourceDetailWarna. getDetailWarnaByIsii(waraRef,isi)
+        }
+    }
     private suspend fun updateOldDetailWarna(refDetailWarna:String,isi:Double,pcs:Int){
         withContext(Dispatchers.IO){
             dataSourceDetailWarna.updateOldDetailWarna(refDetailWarna,isi,pcs)
@@ -628,7 +622,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
             try {
                 val result = dataSourceDetailWarna.updateDetailWarna(refWarna, isi, pcs)
                 val resultt = dataSourceDetailWarna.selecttTry(refWarna)
-                Log.i("InsertLogTry", "Updated $resultt rows for refDetailWarna=$refWarna, isi=$isi, pcs=$pcs")
+                //Log.i("InsertLogTry", "Updated $resultt rows for refDetailWarna=$refWarna, isi=$isi, pcs=$pcs")
             } catch (e: Exception) {
                 Log.e("InsertLogTry", "Error updating detail warna: ${e.message}", e)
             }

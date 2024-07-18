@@ -83,6 +83,7 @@ class UsersViewModel(
     }
     fun updateUser(usersTable: UsersTable){
         viewModelScope.launch {
+            usersTable.password = hashPassword(usersTable.password)
             updateUsersToDao(usersTable)
             getAllUserTable()
         }
