@@ -33,6 +33,7 @@ class LogFragment : AuthFragment(){
     private lateinit var binding: FragmentLogBinding
     private lateinit var viewModel: LogViewModel
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

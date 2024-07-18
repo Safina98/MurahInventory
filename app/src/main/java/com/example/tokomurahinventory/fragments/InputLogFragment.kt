@@ -38,6 +38,8 @@ class InputLogFragment : AuthFragment() {
 
     private lateinit var binding: FragmentInputLogBinding
     private lateinit var viewModel: LogViewModel
+    private var isDialogShowing = false
+    private var dialog: AlertDialog? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -68,6 +70,7 @@ class InputLogFragment : AuthFragment() {
             BarangLogMerkClickListener { countModel, position -> showPopUpDialog(countModel, position, "Merk") },
             BarangLogKodeClickListener { countModel, position ->
                 if (countModel.merkBarang!=null){
+                    isDialogShowing = true
                     viewModel.getWarnaByMerk(countModel.merkBarang!!)
                     viewModel.codeWarnaByMerk.observe(viewLifecycleOwner) { it ->
                         if(it!=null){
@@ -78,6 +81,7 @@ class InputLogFragment : AuthFragment() {
 
             }, BarangLogIsiClickListener{countModel, position ->
                 if (countModel.merkBarang!=null && countModel.kodeBarang!=null) {
+
                     viewModel.getIsiByWarnaAndMerk(countModel.merkBarang!!,countModel.kodeBarang!!)
                     viewModel.isiByWarnaAndMerk.observe(viewLifecycleOwner) { it ->
                         if(it!=null){
@@ -109,6 +113,9 @@ class InputLogFragment : AuthFragment() {
         return binding.root
     }
     fun showPopUpDialog(countModel: CountModel?, position: Int, code: String) {
+        // Dismiss any existing dialog to ensure only one dialog is shown at a time
+        dialog?.dismiss()
+
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Tambah Merk Barang")
 
@@ -145,6 +152,7 @@ class InputLogFragment : AuthFragment() {
 
         // Set the custom view to the AlertDialog
         builder.setView(binding.root)
+
         builder.setPositiveButton("OK") { dialog, which ->
             // Handle the positive button click
             var name  = autoCompleteTextView.text.toString()
@@ -163,17 +171,19 @@ class InputLogFragment : AuthFragment() {
                     // Convert the list of Double to a list of String and then to an array
                     viewModel.updatePcs(position,name.toInt())
                 }
-
-
             }
             viewModel.setLiveDataToNull()
+            dialog.dismiss()  // Dismiss the dialog after handling input
         }
+
         builder.setNegativeButton("No") { dialog, which ->
             // Handle the negative button click
             viewModel.setLiveDataToNull()
+            dialog.dismiss()  // Dismiss the dialog after handling input
         }
-        val alert = builder.create()
-        alert.show()
+
+        dialog = builder.create()
+        dialog?.show()
     }
 
 

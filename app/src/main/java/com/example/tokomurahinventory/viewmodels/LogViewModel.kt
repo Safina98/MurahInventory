@@ -17,6 +17,7 @@ import com.example.tokomurahinventory.models.BarangLog
 import com.example.tokomurahinventory.models.CountModel
 import com.example.tokomurahinventory.models.DetailWarnaTable
 import com.example.tokomurahinventory.models.LogTable
+import com.example.tokomurahinventory.utils.SingleLiveEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -53,6 +54,9 @@ class LogViewModel (
     //Live Data List for Barang Log
     private val _countModelList = MutableLiveData<List<CountModel>?>()
     val countModelList :LiveData<List<CountModel>?> get() = _countModelList
+
+   // val codeWarnaByMerk = SingleLiveEvent<List<String>>()
+   // val isiByWarnaAndMerk = SingleLiveEvent<List<String>>()
 
     //Untuk Update Log
 
@@ -177,6 +181,7 @@ class LogViewModel (
             val refMerk = withContext(Dispatchers.IO){dataSourceMerk.getMerkRefByName(merk)}
             val stringWarnaList=withContext(Dispatchers.IO){dataSourceWarna.selectStringWarnaByMerk(refMerk)}
             _codeWarnaByMerk.value = stringWarnaList
+            //codeWarnaByMerk.setValue(stringWarnaList)
         }
     }
     //get list isi for sugestion
@@ -186,6 +191,7 @@ class LogViewModel (
             val refWarna = withContext(Dispatchers.IO){dataSourceWarna.getWarnaRefByName(warna,refMerk)}
             val stringWarnaList=withContext(Dispatchers.IO){dataSourceDetailWarna.getIsiDetailWarnaByWarna(refWarna)}
             _isiByWarnaAndMerk.value = stringWarnaList
+           // isiByWarnaAndMerk.setValue(stringWarnaList.map { it.toString() })
         }
     }
     /////////////////////////////////Insert and Update/////////////////////////////////////
