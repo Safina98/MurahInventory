@@ -2,6 +2,8 @@ package com.example.tokomurahinventory.fragments
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.text.InputType
+import android.text.method.DigitsKeyListener
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -66,9 +68,14 @@ class InputLogFragment : AuthFragment() {
 
         val adapter = CountAdapter(
             AddNetClickListener { countModel, position -> },
-            DeleteNetClickListener { countModel, position -> viewModel.deleteCountModel(countModel, position) },
-            BarangLogMerkClickListener { countModel, position -> showPopUpDialog(countModel, position, "Merk") },
+            DeleteNetClickListener { countModel, position ->
+                clearEditText()
+                viewModel.deleteCountModel(countModel, position) },
+            BarangLogMerkClickListener { countModel, position ->
+                clearEditText()
+                showPopUpDialog(countModel, position, "Merk") },
             BarangLogKodeClickListener { countModel, position ->
+                clearEditText()
                 if (countModel.merkBarang!=null){
                     isDialogShowing = true
                     viewModel.getWarnaByMerk(countModel.merkBarang!!)
@@ -80,8 +87,8 @@ class InputLogFragment : AuthFragment() {
                 }else Toast.makeText(application,"Masukkan Merk",Toast.LENGTH_SHORT).show()
 
             }, BarangLogIsiClickListener{countModel, position ->
+                clearEditText()
                 if (countModel.merkBarang!=null && countModel.kodeBarang!=null) {
-
                     viewModel.getIsiByWarnaAndMerk(countModel.merkBarang!!,countModel.kodeBarang!!)
                     viewModel.isiByWarnaAndMerk.observe(viewLifecycleOwner) { it ->
                         if(it!=null){
@@ -89,13 +96,14 @@ class InputLogFragment : AuthFragment() {
                         }
                     }
                 }else Toast.makeText(application,"Masukkan Merk dan warna",Toast.LENGTH_SHORT).show()
-
             },
             BarangLogPcsClickListener{countModel, position ->
+                clearEditText()
                 showPopUpDialog(countModel, position, "Pcs")
             },
             viewModel, this
         )
+
 
         binding.rvAddBarang.adapter = adapter
         viewModel.countModelList.observe(viewLifecycleOwner) { it?.let {
@@ -149,6 +157,15 @@ class InputLogFragment : AuthFragment() {
                 autoCompleteTextView.showDropDown()
             }
         }
+        when (code) {
+            "Isi", "Pcs" -> {
+                autoCompleteTextView.inputType = InputType.TYPE_CLASS_NUMBER
+
+            }
+            else -> {
+                autoCompleteTextView.inputType = InputType.TYPE_CLASS_TEXT
+            }
+        }
 
         // Set the custom view to the AlertDialog
         builder.setView(binding.root)
@@ -168,7 +185,7 @@ class InputLogFragment : AuthFragment() {
                     viewModel.updateIsi(position,name.toDouble())
                 }
                 "Pcs" -> {
-                    // Convert the list of Double to a list of String and then to an array
+                    // Conve    rt the list of Double to a list of String and then to an array
                     viewModel.updatePcs(position,name.toInt())
                 }
             }
@@ -186,6 +203,10 @@ class InputLogFragment : AuthFragment() {
         dialog?.show()
     }
 
+    fun clearEditText(){
+        binding.inputPembeli.clearFocus()
+        binding.inputKet.clearFocus()
+    }
 
 
 
