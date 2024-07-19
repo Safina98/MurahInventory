@@ -42,6 +42,12 @@
                     app:logDate="@{viewModel.mutableLog.logCreatedDate}"
                     style="@style/rv_item_text_style"
                     />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{viewModel.user}"
+                    style="@style/rv_item_text_style"
+                    />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/layout_pembeli_"
@@ -59,21 +65,6 @@
                         android:text="@={viewModel.namaToko}" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/layout_user_"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/layout_pembeli_">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/input_user"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Nama"
-                        android:text="@={viewModel.user}" />
-                </com.google.android.material.textfield.TextInputLayout>
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/layout_ket_"
                     android:layout_width="match_parent"

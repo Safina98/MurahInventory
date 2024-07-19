@@ -17,7 +17,7 @@
 
         <TextView
             android:id="@+id/export_header"
-            style="@style/rv_input_Log_big_text_style"
+            style="@style/export_import_txt_header_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Export Data"
@@ -62,7 +62,7 @@
 
         <TextView
             android:id="@+id/import_header"
-            style="@style/rv_input_Log_big_text_style"
+            style="@style/export_import_txt_header_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Import Data"

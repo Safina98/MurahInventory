@@ -75,7 +75,7 @@ class LogViewModel (
     val _dateRangeString = MutableLiveData<String>()
     //two way binding edit text for input purpose
     val namaToko = MutableLiveData("")
-    val user = MutableLiveData("")
+    val user = MutableLiveData<String?>("")
     val subKeterangan = MutableLiveData("")
     val merkMutable=MutableLiveData<String?>(null)
 
@@ -101,6 +101,7 @@ class LogViewModel (
 
     init {
         getAllLogTable()
+        user.value = loggedInUser
         updateDateRangeString(_selectedStartDate.value, _selectedEndDate.value)
     }
 
@@ -235,7 +236,7 @@ class LogViewModel (
                     userName = loggedInUser,
                     password = "",
                     namaToko = namaToko.value ?: "Failed",
-                    logCreatedDate = constructYesterdayDate(7)!!, // assuming you have a date field
+                    logCreatedDate = Date(), // assuming you have a date field
                     keterangan = subKeterangan.value ?: "Failed",
                     merk = s,
                     kodeWarna = "",
@@ -300,10 +301,7 @@ class LogViewModel (
         viewModelScope.launch {
             //get barangLog
             var barangLogList = getBarangLogFromDao(log.refLog)
-            //update detail warna
             updateDetailWarna(barangLogList)
-            //delete barangLog
-            //delete log
             deleteLogToDao(log)
             getAllLogTable()
         }
@@ -584,7 +582,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
     fun getStringS():String{
         var s =""
         for (i in countModelList.value!!){
-            s = s+"${i.kodeBarang}; ${i.isi} meter; ${i.psc} pcs\n"
+            s = s+"${i.merkBarang} ${i.kodeBarang}; ${i.isi} meter; ${i.psc} pcs\n"
         }
         return s
     }
@@ -600,7 +598,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
     fun resetTwoWayBindingSub(){
         viewModelScope.launch {
             namaToko.value  = null
-            user.value=null
+            user.value=loggedInUser
             subKeterangan.value =null
             mutableLog.value=null
             mutableLogBarang.value=null

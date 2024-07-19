@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkAuthentication() {
         authViewModel.authenticationState.observe(this) { isAuthenticated ->
-            if (isAuthenticated==null || isAuthenticated==false) {
+            if (isAuthenticated!=true) {
                 showLoginDialog()
             }
         }
