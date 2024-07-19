@@ -15,7 +15,7 @@ interface UsersDao {
     @Insert
     fun insert(usersTable: UsersTable)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertUsersTable(user: UsersTable)
 
     @Update

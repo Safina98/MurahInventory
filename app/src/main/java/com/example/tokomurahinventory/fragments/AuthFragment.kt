@@ -1,16 +1,16 @@
 package com.example.tokomurahinventory.fragments
 
 
-import com.example.tokomurahinventory.viewmodels.AuthViewModel
+
 import android.os.Bundle
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.example.tokomurahinventory.viewmodels.AuthViewModel
 
 abstract class AuthFragment : Fragment() {
 
     private val authViewModel: AuthViewModel by activityViewModels()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

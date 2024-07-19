@@ -149,8 +149,7 @@ class ExportImportViewModel(
         Log.i("INSERTCSVPROB","log table ${inputLogTable}")
         val dtw =dataSourceDetailWarna.selectAll()
         Log.i("INSERTCSVPROB","log table ${dtw}")
-
-    //dataSourceInputLog.insertInputLogTable(inputLogTable)
+        dataSourceInputLog.insertInputLogTable(inputLogTable)
     }
 
     private suspend fun importLog(tokens: List<String>){
@@ -184,7 +183,7 @@ class ExportImportViewModel(
         Log.i("INSERTCSVPROB","log table ${logTable}")
         Log.i("INSERTCSVPROB","log barang ${logTable}")
         dataSourceLog.insertLogTable(logTable)
-        //dataSourceBarangLog.insertBarangLogTable(barangLog)
+        dataSourceBarangLog.insertBarangLogTable(barangLog)
     }
     private suspend fun importUsers(tokens: List<String>){
         val users=UsersTable().apply {
@@ -207,7 +206,6 @@ class ExportImportViewModel(
         }
 
         val warnaTable = WarnaTable().apply {
-
             kodeWarna = tokens[8].trim()
             totalPcs = tokens[9].trim().toIntOrNull() ?: 0
             satuanTotal = tokens[10].trim().toDoubleOrNull() ?: 0.0

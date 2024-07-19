@@ -11,7 +11,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.MerkDao
 import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.models.UsersTable
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -25,8 +27,9 @@ class MerkViewModel(
     application: Application
 
 ): AndroidViewModel(application) {
-
-
+    private var viewModelJob = Job()
+    //ui scope for coroutines
+    private val uiScope = CoroutineScope(Dispatchers.Main +  viewModelJob)
     //all merkTable from db
     //var allMerkTable= dataSource1.selectAllMerk()
     private var _allMerkTable = MutableLiveData<List<MerkTable>>()
@@ -48,7 +51,7 @@ class MerkViewModel(
     }
 
     fun getAllMerkTable(){
-        viewModelScope.launch {
+        uiScope.launch {
             var list = withContext(Dispatchers.IO){
                 dataSource1.selectAllMerkList()
             }
@@ -70,7 +73,7 @@ class MerkViewModel(
         _allMerkTable.value =list
     }
     fun insertMerk(namaMerk:String){
-        viewModelScope.launch {
+        uiScope.launch {
             var merk= MerkTable()
             merk.namaMerk = namaMerk
             merk.lastEditedBy = loggedInUser
@@ -83,7 +86,7 @@ class MerkViewModel(
         }
     }
     fun updateMerk(merkTable:MerkTable){
-        viewModelScope.launch {
+        uiScope.launch {
             merkTable.lastEditedBy = loggedInUser
             merkTable.merkLastEditedDate = Date()
             updateMerkToDao(merkTable)
@@ -91,7 +94,7 @@ class MerkViewModel(
         }
     }
     fun deleteMerk(merkTable: MerkTable){
-        viewModelScope.launch {
+        uiScope.launch {
             deleteMerkToDao(merkTable)
             getAllMerkTable()
         }
@@ -122,4 +125,8 @@ class MerkViewModel(
     fun onNavigateToWarna(refMerk:String){ navigateToWarnaM.value = refMerk }
     @SuppressLint("NullSafeMutableLiveData")
     fun onNavigatetedToWarna(){ navigateToWarnaM.value = null }
+    override fun onCleared() {
+        super.onCleared()
+        viewModelJob.cancel()
+    }
 }

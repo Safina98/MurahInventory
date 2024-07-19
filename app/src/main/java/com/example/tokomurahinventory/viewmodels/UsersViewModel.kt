@@ -9,7 +9,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.UsersDao
 import com.example.tokomurahinventory.models.UsersTable
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.mindrot.jbcrypt.BCrypt
@@ -25,6 +27,10 @@ class UsersViewModel(
     val addUserFab: LiveData<Boolean> get() = _addUserFab
     var dummyModel = mutableListOf<UsersTable>()
 
+    private var viewModelJob = Job()
+    //ui scope for coroutines
+    private val uiScope = CoroutineScope(Dispatchers.Main +  viewModelJob)
+
     private var _usersList = MutableLiveData<List<UsersTable>>()
     val usersList :LiveData<List<UsersTable>> get() = _usersList
 
@@ -34,7 +40,7 @@ class UsersViewModel(
     }
 
     fun getAllUserTable(){
-        viewModelScope.launch {
+        uiScope.launch {
             var list = withContext(Dispatchers.IO){
                 dataSourceUsers.selectAllUsersList()
             }
@@ -56,7 +62,7 @@ class UsersViewModel(
         _usersList.value =list
     }
     fun insertUser(nama: String, password: String) {
-        viewModelScope.launch {
+        uiScope.launch {
             val userExists = withContext(Dispatchers.IO) {
                 dataSourceUsers.checkUserExists(nama) > 0
             }
@@ -82,14 +88,14 @@ class UsersViewModel(
         return BCrypt.hashpw(password, BCrypt.gensalt())
     }
     fun updateUser(usersTable: UsersTable){
-        viewModelScope.launch {
+        uiScope.launch {
             usersTable.password = hashPassword(usersTable.password)
             updateUsersToDao(usersTable)
             getAllUserTable()
         }
     }
     fun deleteUser(usersTable: UsersTable){
-        viewModelScope.launch {
+        uiScope.launch {
             deleteUsersToDao(usersTable)
             getAllUserTable()
         }
@@ -114,5 +120,8 @@ class UsersViewModel(
     fun onAddUserFabClick() { _addUserFab.value = true }
     fun onAddUserFabClicked() { _addUserFab.value = false }
     fun onLongClick(v: View): Boolean { return true }
-
+    override fun onCleared() {
+        super.onCleared()
+        viewModelJob.cancel()
+    }
 }

@@ -472,10 +472,8 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
         }
     }
 
-
     fun updateLogBarang(logRef: String){
         viewModelScope.launch {
-
             for (i in countModelList.value!!){
                 getBarangLogUpdate(i.merkBarang!!,i.kodeBarang!!,i.isi!!,i.psc,logRef,i.barangLogRef)
             }
@@ -484,22 +482,16 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
     fun compare(logRef:String,cmList:List<CountModel>){
         viewModelScope.launch {
             var a = withContext(Dispatchers.IO){dataSourceBarangLog.selectBarangLogByLogRef(logRef)}
-// Find items in 'a' that are not in 'cmList' based on 'barangLogRef'
             val itemsNotInCmList = a.filter { dbItem ->
                 cmList.none { cmItem -> cmItem.barangLogRef == dbItem.barangLogRef }
             }
-
-            // Process the items not in cmList
             itemsNotInCmList.forEach { item ->
                 Log.i("InsertLogTry", "Item ${item.isi} - ${item.isi} not found in cmList")
-                // Perform your action here, for example:
-                // showToast("Item ${item.merkBarang} - ${item.kodeBarang} not found in cmList")
                 updateDetailWarnaTODao(item.warnaRef,item.isi,-item.pcs)
                 deleteBarangLogToDao(item.id)
 
             }
         }
-
     }
     fun getBarangLogUpdate(namaMerk:String,kodeWarna:String,isi:Double,pcs:Int,refLog:String,barangLogRef:String){
         viewModelScope.launch{
@@ -516,7 +508,6 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
                 refLog = refLog,
                 barangLogRef = barangLogRef
             )
-
             if (doesBarangLogExist(barangLogRef)) {
                 updateDetailWarna(barangLog)
                 updateBarangLogToDao(barangLog)
@@ -524,7 +515,6 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
                 insertBarangLogToDao(barangLog)
                 updateDetailWarnaTODao(barangLog.warnaRef,barangLog.isi,barangLog.pcs)
             }
-
         }
     }
 

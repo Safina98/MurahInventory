@@ -1,7 +1,10 @@
 package com.example.tokomurahinventory
 
+
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -14,6 +17,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.example.tokomurahinventory.databinding.ActivityMainBinding
+import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.AuthViewModel
 
 
@@ -44,6 +48,21 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_logout -> {
+                logout()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     private fun checkAuthentication() {
         authViewModel.authenticationState.observe(this) { isAuthenticated ->
             if (!isAuthenticated) {
@@ -72,7 +91,7 @@ class MainActivity : AppCompatActivity() {
                 authViewModel.authenticationState.observe(this) { isAuthenticated ->
                     if (isAuthenticated) {
                         Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
-                        dialog.dismiss()
+                        dialog.dismiss() // Dismiss the dialog after successful login
                     } else {
                         Toast.makeText(this, "Invalid username or password", Toast.LENGTH_SHORT).show()
                     }
@@ -83,5 +102,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         dialog.show()
+    }
+
+    fun logout() {
+        // Navigate to start destination and clear back stack
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.myNavHostFragment) as NavHostFragment
+        val navController = navHostFragment.navController
+        navController.popBackStack(navController.graph.startDestinationId, false)
+        navController.navigate(navController.graph.startDestinationId)
+
+        SharedPreferencesHelper.clearUsername(this)
+        authViewModel.setAuthenticationState(false)
+
+
     }
 }

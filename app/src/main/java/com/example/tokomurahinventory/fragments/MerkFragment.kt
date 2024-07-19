@@ -73,7 +73,6 @@ class MerkFragment : AuthFragment() {
             it.let {
                 adapter.submitList(it)
                 adapter.notifyDataSetChanged()
-
             }
         })
 
@@ -149,6 +148,8 @@ class MerkFragment : AuthFragment() {
         val alert = builder.create()
         alert.show()
     }
-
-
+    override fun onStart() {
+        super.onStart()
+        viewModel.getAllMerkTable()
+    }
 }
