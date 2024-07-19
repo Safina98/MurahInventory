@@ -13,11 +13,11 @@ import org.mindrot.jbcrypt.BCrypt
 
 class AuthViewModel : ViewModel() {
 
-    private val _authenticationState = MutableLiveData<Boolean>()
-    val authenticationState: LiveData<Boolean> get() = _authenticationState
+    private val _authenticationState = MutableLiveData<Boolean?>()
+    val authenticationState: LiveData<Boolean?> get() = _authenticationState
 
     init {
-        _authenticationState.value = false
+        _authenticationState.value = null
     }
 
     fun authenticate(username: String, password: String, context: Context) {
@@ -50,5 +50,9 @@ class AuthViewModel : ViewModel() {
 
     private fun hashPassword(password: String): String {
         return BCrypt.hashpw(password, BCrypt.gensalt())
+    }
+    fun isAuthenticated(): Boolean {
+        // Return the current authentication state
+        return authenticationState.value == authenticationState.value
     }
 }

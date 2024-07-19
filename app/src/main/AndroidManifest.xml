@@ -13,12 +13,14 @@
 
 
     <application
+
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TokoMurahInventory">
+        <receiver android:name=".utils.LogoutReceiver" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -37,7 +39,5 @@
             </intent-filter>
         </activity>
     </application>
-
-
 
 </manifest>

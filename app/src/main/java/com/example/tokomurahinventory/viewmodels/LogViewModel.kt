@@ -219,6 +219,7 @@ class LogViewModel (
             val cmList = countModelList.value!!
             updateLogToDao(updatedLog)
             updateLogBarang(updatedLog.refLog)
+            //compare old countModel with the current one for delete purpose
             compare(updatedLog.refLog,cmList)
             getAllLogTable()
             onNavigateToLog()
@@ -475,7 +476,14 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
     fun updateLogBarang(logRef: String){
         viewModelScope.launch {
             for (i in countModelList.value!!){
-                getBarangLogUpdate(i.merkBarang!!,i.kodeBarang!!,i.isi!!,i.psc,logRef,i.barangLogRef)
+                Log.i("InsertLogTry","merk: ${i.merkBarang}, kode = ${i.kodeBarang}, detail: ${i.isi}")
+                if(doesBarangLogExist(i.barangLogRef)) {
+                    Log.i("InsertLogTry","Exist in database merk: ${i.merkBarang}, kode = ${i.kodeBarang}, detail: ${i.isi}")
+                    getBarangLogUpdate(i.merkBarang!!, i.kodeBarang!!, i.isi!!, i.psc, logRef, i.barangLogRef)
+                }else{
+                    Log.i("InsertLogTry","Not in database merk: ${i.merkBarang}, kode = ${i.kodeBarang}, detail: ${i.isi}")
+                    getBarangLog(i.merkBarang!!,i.kodeBarang!!,i.isi!!,i.psc,logRef)
+                }
             }
         }
     }
@@ -489,7 +497,6 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
                 Log.i("InsertLogTry", "Item ${item.isi} - ${item.isi} not found in cmList")
                 updateDetailWarnaTODao(item.warnaRef,item.isi,-item.pcs)
                 deleteBarangLogToDao(item.id)
-
             }
         }
     }
@@ -508,13 +515,18 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
                 refLog = refLog,
                 barangLogRef = barangLogRef
             )
+            updateDetailWarna(barangLog)
+            updateBarangLogToDao(barangLog)
+            /*
             if (doesBarangLogExist(barangLogRef)) {
-                updateDetailWarna(barangLog)
+
                 updateBarangLogToDao(barangLog)
             }else{
                 insertBarangLogToDao(barangLog)
                 updateDetailWarnaTODao(barangLog.warnaRef,barangLog.isi,barangLog.pcs)
             }
+
+             */
         }
     }
 
