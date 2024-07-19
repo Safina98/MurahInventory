@@ -14,10 +14,12 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.example.tokomurahinventory.databinding.ActivityMainBinding
+import com.example.tokomurahinventory.utils.AppLifecycleObserver
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.AuthViewModel
 
@@ -27,7 +29,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private val authViewModel: AuthViewModel by viewModels()
     private lateinit var dialog:AlertDialog
-
+    private lateinit var appLifecycleObserver: AppLifecycleObserver
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
@@ -38,7 +40,8 @@ class MainActivity : AppCompatActivity() {
         NavigationUI.setupActionBarWithNavController(this, navController, drawerLayout)
         appBarConfiguration = AppBarConfiguration(navController.graph, drawerLayout)
         NavigationUI.setupWithNavController(binding.navView, navController)
-
+        appLifecycleObserver = AppLifecycleObserver(this)
+        ProcessLifecycleOwner.get().lifecycle.addObserver(appLifecycleObserver)
         // Check if the table is empty and insert a default user if needed
         authViewModel.checkAndInsertDefaultUser(applicationContext)
         checkAuthentication()

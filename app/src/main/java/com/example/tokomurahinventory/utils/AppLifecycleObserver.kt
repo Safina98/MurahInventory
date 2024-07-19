@@ -1,30 +1,30 @@
 package com.example.tokomurahinventory.utils
 
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 
-class AppLifecycleObserver(private val logout: () -> Unit) : DefaultLifecycleObserver {
+import android.os.Handler
+import android.os.Looper
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
+import com.example.tokomurahinventory.MainActivity
 
+class AppLifecycleObserver(private val mainActivity: MainActivity) : DefaultLifecycleObserver {
     private val handler = Handler(Looper.getMainLooper())
     private val logoutRunnable = Runnable {
-        Log.d("AppDebug", "App has been in background for $LOGOUT_DELAY ms, logging out.")
-        logout()
+        mainActivity.logout()
     }
+    private val logoutDelayMillis: Long = 5000 // Delay in milliseconds (5 seconds)
 
     override fun onStop(owner: LifecycleOwner) {
-        Log.d("AppDebug", "App is going to background.")
-        handler.postDelayed(logoutRunnable, LOGOUT_DELAY)
+        // Schedule the logout after the specified delay
+        handler.postDelayed(logoutRunnable, logoutDelayMillis)
     }
 
     override fun onStart(owner: LifecycleOwner) {
-        Log.d("AppDebug", "App is coming to foreground.")
+        // Cancel the logout if the app comes back to the foreground
         handler.removeCallbacks(logoutRunnable)
-    }
-
-    companion object {
-        const val LOGOUT_DELAY = 1 * 3 * 1000L // 5 minutes delay in milliseconds
     }
 }
