@@ -49,11 +49,16 @@ class InputStokViewModel (
     }
     fun filterLog(query: String?) {
         val list = mutableListOf<InputStokLogModel>()
-        if (!query.isNullOrEmpty()) {
-            list.addAll(_unFilteredLog.value!!.filter {
-                it.namaMerk.lowercase(Locale.getDefault()).contains(query.lowercase(Locale.getDefault())) ||
-                        it.kodeWarna.lowercase(Locale.getDefault()).contains(query.lowercase(Locale.getDefault()))||
-                        it.createdBy.lowercase(Locale.getDefault()).contains(query.lowercase(Locale.getDefault()))
+        val queryParts = query?.split("\\s+".toRegex())?.map { it.lowercase(Locale.getDefault()) } ?: emptyList()
+        if (queryParts.isNotEmpty()) {
+            list.addAll(_unFilteredLog.value!!.filter { log ->
+                // Check if any part of the query matches either namaMerk or kodeWarna
+                queryParts.all { part ->
+                    log.namaMerk.lowercase(Locale.getDefault()).contains(part) ||
+                            log.kodeWarna.lowercase(Locale.getDefault()).contains(part) ||
+                            log.createdBy.lowercase(Locale.getDefault()).contains(part)
+
+                }
             })
         } else {
             list.addAll(_unFilteredLog.value!!)
