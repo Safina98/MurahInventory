@@ -5,12 +5,15 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.tokomurahinventory.database.BarangLogDao
 import com.example.tokomurahinventory.database.DetailWarnaDao
 import com.example.tokomurahinventory.database.InputLogDao
 import com.example.tokomurahinventory.database.WarnaDao
+import com.example.tokomurahinventory.models.BarangLog
 import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.models.model.InputStokLogModel
+import com.example.tokomurahinventory.utils.MASUKKELUAR
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -19,7 +22,7 @@ import java.util.Date
 import java.util.Locale
 
 class InputStokViewModel (
-    val dataSourceInputLog: InputLogDao,
+    val dataSourceBarangLog: BarangLogDao,
     val loggedInUser:String,
     application: Application):AndroidViewModel(application) {
 
@@ -44,7 +47,7 @@ class InputStokViewModel (
     fun getAllInputLogModel(){
         viewModelScope.launch {
             var list = withContext(Dispatchers.IO){
-                dataSourceInputLog.getAllInputLogs()
+                dataSourceBarangLog.getAllLogMasuk(MASUKKELUAR.MASUK)
             }
             _inputLogModel.value=list
             _unFilteredLog.value = list
@@ -72,7 +75,7 @@ class InputStokViewModel (
     private fun performDataFiltering(startDate: Date?, endDate: Date?) {
         viewModelScope.launch {
             val filteredData = withContext(Dispatchers.IO) {
-                dataSourceInputLog.getLogsByDateRange(startDate,endDate)
+               dataSourceBarangLog.getLogMasukByDateRange(startDate,endDate)
             }
             _inputLogModel.value = filteredData
             _unFilteredLog.value = filteredData

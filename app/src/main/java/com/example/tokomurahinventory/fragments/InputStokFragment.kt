@@ -48,9 +48,9 @@ class InputStokFragment : AuthFragment() {
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_input_stok,container,false)
         val application = requireNotNull(this.activity).application
 
-        val dataSourceInputLog = DatabaseInventory.getInstance(application).inputLogDao
+        val dataSourceBarangLog = DatabaseInventory.getInstance(application).barangLogDao
         val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?: ""
-        val viewModelFactory = InputStokViewModelFactory(dataSourceInputLog,loggedInUser,application)
+        val viewModelFactory = InputStokViewModelFactory(dataSourceBarangLog,loggedInUser,application)
         binding.lifecycleOwner =this
         val viewModel = ViewModelProvider(this,viewModelFactory)
             .get(InputStokViewModel::class.java)

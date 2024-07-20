@@ -18,6 +18,7 @@ import com.example.tokomurahinventory.models.BarangLog
 import com.example.tokomurahinventory.models.CountModel
 import com.example.tokomurahinventory.models.DetailWarnaTable
 import com.example.tokomurahinventory.models.LogTable
+import com.example.tokomurahinventory.utils.MASUKKELUAR
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.utils.SingleLiveEvent
 import com.example.tokomurahinventory.utils.UserRoles
@@ -115,7 +116,7 @@ class LogViewModel (
     fun getAllLogTable(){
         viewModelScope.launch {
             var list = withContext(Dispatchers.IO){
-                dataSourceLog.selectAllLogList()
+                dataSourceLog.selectAllLogList(MASUKKELUAR.KELUAR)
             }
             _allLog.value = list
             _unFilteredLog.value = list
@@ -218,7 +219,8 @@ class LogViewModel (
                 refLog = mutableLog.value!!.refLog,
                 lastEditedBy = loggedInUser,
                 logLastEditedDate = Date(),
-                createdBy = mutableLog.value!!.createdBy
+                createdBy = mutableLog.value!!.createdBy,
+                logTipe = mutableLog.value!!.logTipe
             )
             val cmList = countModelList.value!!
             updateLogToDao(updatedLog)
@@ -249,7 +251,8 @@ class LogViewModel (
                     refLog = UUID.randomUUID().toString(),
                     logLastEditedDate=Date(),
                     createdBy=loggedInUser,
-                    lastEditedBy=loggedInUser
+                    lastEditedBy=loggedInUser,
+                    logTipe = MASUKKELUAR.KELUAR
                 )
                 insertLogToDao(newLog)
                 addLogBarang(newLog.refLog)
@@ -276,7 +279,9 @@ class LogViewModel (
                 pcs = pcs,
                 barangLogDate = Date(),
                 refLog = refLog,
-                barangLogRef = UUID.randomUUID().toString()
+                barangLogRef = UUID.randomUUID().toString(),
+                barangLogTipe = MASUKKELUAR.KELUAR
+
             )
             updateDetailWarnaTODao(refWarna,isi,pcs)
             insertBarangLogToDao(barangLog)
@@ -514,7 +519,8 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
                 pcs = pcs,
                 barangLogDate = Date(),
                 refLog = refLog,
-                barangLogRef = barangLogRef
+                barangLogRef = barangLogRef,
+                barangLogTipe = MASUKKELUAR.KELUAR
             )
             updateDetailWarna(barangLog)
             updateBarangLogToDao(barangLog)

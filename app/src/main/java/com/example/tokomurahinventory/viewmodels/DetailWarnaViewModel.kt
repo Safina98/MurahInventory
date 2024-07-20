@@ -76,10 +76,8 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
                 detailWarnaTable.detailWarnaDate = Date()
                 insertDetailWarnaToDao(detailWarnaTable)
                 insertInputLog(detailWarnaTable)
-
             }
 
-            detailWarnaList
         }
     }
     fun insertInputLog(detailWarnaTable: DetailWarnaTable){
@@ -98,6 +96,10 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
             barangLog.warnaRef = detailWarnaTable.warnaRef
             barangLog.isi = detailWarnaTable.detailWarnaIsi
             barangLog.pcs = detailWarnaTable.detailWarnaPcs
+            barangLog.barangLogTipe = MASUKKELUAR.MASUK
+            insertLogToDao(log)
+            insertBarangLogToDao(barangLog)
+            selectAllInputLog()
         }
 
     }
@@ -131,6 +133,16 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
     private suspend fun insertInputLogToDao(inputLogTable: InputLogTable){
         withContext(Dispatchers.IO){
             dataSourceInputLog.insert(inputLogTable)
+        }
+    }
+    private suspend fun insertBarangLogToDao(barangLog: BarangLog){
+        withContext(Dispatchers.IO){
+            dataSourceBarangLog.insert(barangLog)
+        }
+    }
+    private suspend fun insertLogToDao(log:LogTable){
+        withContext(Dispatchers.IO){
+            dataSourceLog.insert(log)
         }
     }
     private suspend fun getMerkRef():String{
