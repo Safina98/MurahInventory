@@ -62,7 +62,7 @@ class UsersViewModel(
         }
         _usersList.value =list
     }
-    fun insertUser(nama: String, password: String) {
+    fun insertUser(nama: String, password: String,userRole:String) {
         uiScope.launch {
             val userExists = withContext(Dispatchers.IO) {
                 dataSourceUsers.checkUserExists(nama) > 0
@@ -73,7 +73,7 @@ class UsersViewModel(
                     userName = nama,
                     password = hashPassword(password),
                     usersRef = UUID.randomUUID().toString(),
-                    usersRole = UserRoles.ADMIN
+                    usersRole = userRole
                 )
                 insertUsersToDao(newUser)
                 getAllUserTable()
@@ -92,10 +92,15 @@ class UsersViewModel(
     }
     fun updateUser(usersTable: UsersTable){
         uiScope.launch {
-            usersTable.password = hashPassword(usersTable.password)
+            if (!isPasswordHashed(usersTable.password)) {
+                usersTable.password = hashPassword(usersTable.password)
+            }
             updateUsersToDao(usersTable)
             getAllUserTable()
         }
+    }
+    fun isPasswordHashed(password: String): Boolean {
+        return password.startsWith("$2a$") || password.startsWith("$2b$") || password.startsWith("$2y$")
     }
     fun deleteUser(usersTable: UsersTable){
         uiScope.launch {
@@ -116,7 +121,10 @@ class UsersViewModel(
     }
     private suspend fun deleteUsersToDao(usersTable: UsersTable){
         withContext(Dispatchers.IO){
-            dataSourceUsers.deleteAnItemUser(usersTable.id)
+           // dataSourceUsers.updateCreatedByForDeletedUser(usersTable.userName,usersTable.userName)
+            //dataSourceUsers.updateLastEditedByForDeletedUser(usersTable.userName,usersTable.userName)
+            //dataSourceUsers.deleteAnItemUser(usersTable.id)
+            dataSourceUsers.deleteUserWithReferences(usersTable, usersTable.userName)
         }
     }
 
@@ -129,8 +137,8 @@ class UsersViewModel(
                 Toast.makeText(getApplication(), "You don't have permission to perform this action", Toast.LENGTH_SHORT).show()
             }
         }
-
     }
+
     fun onAddUserFabClicked() { _addUserFab.value = false }
     fun onLongClick(v: View): Boolean { return true }
     override fun onCleared() {

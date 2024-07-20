@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import com.example.tokomurahinventory.models.DetailWarnaTable
 import com.example.tokomurahinventory.models.MerkTable
@@ -43,4 +44,21 @@ interface UsersDao {
 
     @Query("SELECT * FROM users_table WHERE userName = :username")
     suspend fun getUserByUsername(username: String): UsersTable?
+
+    /////////////////////////Others table
+    @Query("UPDATE merk_table SET createdBy = :defaultUser WHERE createdBy IS NULL")
+    fun updateCreatedByForDeletedUser(defaultUser: String)
+
+
+    @Query("UPDATE merk_table SET lastEditedBy = :defaultUser WHERE lastEditedBy IS NULL")
+    fun updateLastEditedByForDeletedUser(defaultUser: String)
+    @Transaction
+    fun deleteUserWithReferences(user: UsersTable, defaultUser: String) {
+        deleteAnItemUser(user.id)
+        // Update references in merk_table
+        //updateCreatedByForDeletedUser( defaultUser)
+        //updateLastEditedByForDeletedUser( defaultUser)
+        // Delete the user
+
+    }
 }

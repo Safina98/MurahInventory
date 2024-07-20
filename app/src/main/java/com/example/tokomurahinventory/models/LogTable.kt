@@ -14,14 +14,14 @@ import java.util.Date
             entity = UsersTable::class,
             parentColumns = ["userName"],
             childColumns = ["createdBy"],
-            onDelete = ForeignKey.CASCADE,
+            onDelete = ForeignKey.SET_NULL,
             onUpdate = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = UsersTable::class,
             parentColumns = ["userName"],
             childColumns = ["lastEditedBy"],
-            onDelete = ForeignKey.CASCADE,
+            onDelete = ForeignKey.SET_NULL,
             onUpdate = ForeignKey.CASCADE
         )
     ],
@@ -30,7 +30,7 @@ data class LogTable(
     @PrimaryKey(autoGenerate = true)
     var id:Int = 0,
     @ColumnInfo(name="userName")
-    var userName:String="",
+    var userName:String?="",
     @ColumnInfo(name="password")
     var password:String="",
     @ColumnInfo(name="namaToko")
@@ -54,9 +54,9 @@ data class LogTable(
     @ColumnInfo(name = "logLastEditedDate")
     var logLastEditedDate: Date = Date(),
     @ColumnInfo(name = "createdBy")
-    var createdBy: String = "",
+    var createdBy: String? = "",
     @ColumnInfo(name = "lastEditedBy")
-    var lastEditedBy: String = "",
+    var lastEditedBy: String? = "",
     //added
     @ColumnInfo(name="logExtraBool")
     var logExtraBool: Boolean = false,

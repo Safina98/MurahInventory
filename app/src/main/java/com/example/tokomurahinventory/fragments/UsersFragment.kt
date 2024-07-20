@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
@@ -28,6 +29,7 @@ import com.example.tokomurahinventory.models.model.DetailWarnaModel
 import com.example.tokomurahinventory.utils.DialogUtils
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.DetailWarnaViewModel
+import com.example.tokomurahinventory.viewmodels.UserAction
 import com.example.tokomurahinventory.viewmodels.UsersViewModel
 import com.example.tokomurahinventory.viewmodels.UsersViewModelFactory
 import com.google.android.material.textfield.TextInputLayout
@@ -52,14 +54,22 @@ class UsersFragment : AuthFragment() {
             .get(UsersViewModel::class.java)
         binding.viewModel = viewModel
 
-
          adapter  = UsersAdapter(
             UsersClickListener {
             },
            UsersLongListener {
-
             },
             UpdateUsersClickListener {
+                viewModel.canUserPerformAction(requireContext(), UserAction.DELETE) { canPerformAction ->
+                    if (canPerformAction) {
+                        // Proceed with delete action
+                        showAddUserDialog(viewModel,it,1)
+                    } else {
+                        // Show error or deny access
+                        Toast.makeText(context, "You don't have permission to perform this action", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                /*
                 viewModel.canUserDeleteOrUpdate(requireContext()) { canDeleteOrUpdate ->
                     if (canDeleteOrUpdate) {
                         showAddUserDialog(viewModel,it,1)
@@ -67,6 +77,8 @@ class UsersFragment : AuthFragment() {
                         Toast.makeText(context, "You don't have permission to perform this action", Toast.LENGTH_SHORT).show()
                     }
                 }
+
+                 */
 
             },
             DeleteUsersClickListener {
@@ -119,26 +131,32 @@ class UsersFragment : AuthFragment() {
         val passwordInputLayout = view.findViewById<TextInputLayout>(R.id.tilPassword)
         val btn = view.findViewById<Button>(R.id.btnLogin)
         val txtLogin = view.findViewById<TextView>(R.id.tvLogin)
+        val spinnerRole = view.findViewById<Spinner>(R.id.spinner_role)
         btn.visibility = View.GONE
         txtLogin.visibility = View.GONE
         // Handle user data
         if (usersTable != null) {
             textNama.setText(usersTable.userName)
-            textPassword.setText(usersTable.password)
+            //textPassword.setText(usersTable.password)
+            val userRoleArray = resources.getStringArray(R.array.user_role)
+            val userRoleIndex = userRoleArray.indexOf(usersTable.usersRole)  // Assuming `role` is the property of `UsersTable`
+            if (userRoleIndex >= 0) {
+                spinnerRole.setSelection(userRoleIndex)
+            }
         }
-
         // Set up the password visibility toggle
         passwordInputLayout.endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
-
         builder.setView(view)
         builder.setPositiveButton("OK") { _, _ ->
-            val nama = textNama.text.toString().toUpperCase()
-            val password = textPassword.text.toString().toUpperCase()
+            val nama = textNama.text.toString().trim()
+            val password = textPassword.text.toString().trim()
+            val selectedRole = spinnerRole.selectedItem.toString()
             if (usersTable == null) {
-                viewModel.insertUser(nama, password)
+                viewModel.insertUser(nama, password,selectedRole)
             } else {
                 usersTable.userName = nama
                 usersTable.password = password
+                usersTable.usersRole = selectedRole
                 viewModel.updateUser(usersTable)
             }
             adapter.notifyDataSetChanged()

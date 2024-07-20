@@ -36,7 +36,7 @@ import java.util.Date
             entity = DetailWarnaTable::class,
             parentColumns = ["detailWarnaRef"],
             childColumns = ["detailWarnaRef"],
-            onDelete = ForeignKey.CASCADE,
+            onDelete = ForeignKey.SET_NULL,
             onUpdate = ForeignKey.CASCADE
         )
     ]
@@ -52,7 +52,7 @@ data class BarangLog(
     var warnaRef: String = "",
     // detail_warna_table,
     @ColumnInfo(name="detailWarnaRef")
-    var detailWarnaRef: String = "",
+    var detailWarnaRef: String? = "",
     @ColumnInfo(name="isi")
     var isi: Double = 0.0,
     // detail_warna_table

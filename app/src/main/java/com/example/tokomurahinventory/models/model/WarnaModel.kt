@@ -15,6 +15,6 @@ data class WarnaModel(
     var totalDetailPcs: Int,
     var warnaCreatedDate: Date,
     var warnaLastEditedDate: Date,
-    var createdBy: String,
-    var lastEditedBy: String
+    var createdBy: String?,
+    var lastEditedBy: String?
 )

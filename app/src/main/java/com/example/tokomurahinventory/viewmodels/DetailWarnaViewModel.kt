@@ -3,6 +3,7 @@ package com.example.tokomurahinventory.viewmodels
 import android.app.Application
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -16,6 +17,8 @@ import com.example.tokomurahinventory.models.DetailWarnaTable
 import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.models.model.DetailWarnaModel
 import com.example.tokomurahinventory.utils.MASUKKELUAR
+import com.example.tokomurahinventory.utils.SharedPreferencesHelper
+import com.example.tokomurahinventory.utils.userNullString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -53,40 +56,45 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
 
     fun insertDetailWarna(pcs: Int, isi: Double) {
         viewModelScope.launch {
-            var detailWarnaTable = DetailWarnaTable()
-            detailWarnaTable.warnaRef = refWarna
-            detailWarnaTable.lastEditedBy=loggedInUser
-            detailWarnaTable.detailWarnaLastEditedDate=Date()
-            detailWarnaTable.detailWarnaIsi = isi
-            detailWarnaTable.detailWarnaPcs = pcs
-            var detailWarnaTable1 = checkIfIsiExisted(isi,refWarna)
-            if (detailWarnaTable1!=null){
-                detailWarnaTable1.lastEditedBy=loggedInUser
-                detailWarnaTable1.detailWarnaIsi = isi
-                detailWarnaTable1.detailWarnaPcs = pcs
+            val detailWarnaTable = DetailWarnaTable()
+            val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
+            if (loggedInUsers != null) {
+                detailWarnaTable.warnaRef = refWarna
+                detailWarnaTable.lastEditedBy = loggedInUsers
                 detailWarnaTable.detailWarnaLastEditedDate = Date()
-                updateDetailWarnaToDao(detailWarnaTable1,isi)
-                insertInputLog(detailWarnaTable1)
+                detailWarnaTable.detailWarnaIsi = isi
+                detailWarnaTable.detailWarnaPcs = pcs
+                val detailWarnaTable1 = checkIfIsiExisted(isi, refWarna)
+                if (detailWarnaTable1 != null) {
+                    detailWarnaTable1.lastEditedBy = loggedInUsers
+                    detailWarnaTable1.detailWarnaIsi = isi
+                    detailWarnaTable1.detailWarnaPcs = pcs
+                    detailWarnaTable.detailWarnaLastEditedDate = Date()
+                    updateDetailWarnaToDao(detailWarnaTable1, isi)
+                    insertInputLog(detailWarnaTable1)
+                } else {
+                    detailWarnaTable.detailWarnaRef = UUID.randomUUID().toString()
+                    detailWarnaTable.createdBy = loggedInUsers
+                    detailWarnaTable.detailWarnaDate = Date()
+                    insertDetailWarnaToDao(detailWarnaTable)
+                    insertInputLog(detailWarnaTable)
+                }
             }else{
-                detailWarnaTable.detailWarnaRef = UUID.randomUUID().toString()
-                detailWarnaTable.createdBy = loggedInUser
-                detailWarnaTable.detailWarnaDate = Date()
-                insertDetailWarnaToDao(detailWarnaTable)
-                insertInputLog(detailWarnaTable)
+                Toast.makeText(getApplication(), userNullString, Toast.LENGTH_SHORT).show()
             }
 
         }
     }
     fun insertInputLog(detailWarnaTable: DetailWarnaTable){
         viewModelScope.launch {
-            var log=LogTable()
+            val log=LogTable()
             log.refLog = UUID.randomUUID().toString()
             log.logTipe = MASUKKELUAR.MASUK
             log.createdBy = loggedInUser
             log.lastEditedBy = loggedInUser
             log.logCreatedDate = Date()
             log.logLastEditedDate=Date()
-            var barangLog = BarangLog()
+            val barangLog = BarangLog()
             barangLog.refLog = log.refLog
             barangLog.detailWarnaRef = detailWarnaTable.detailWarnaRef
             barangLog.refMerk = getMerkRef()
@@ -153,7 +161,7 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
     }
     private suspend fun updateDetailWarnaToDao(detailWarnaTable:DetailWarnaTable,newIsi:Double){
         withContext(Dispatchers.IO){
-            dataSourceDetailWarna.updateDetailWarnaA(detailWarnaTable.warnaRef,newIsi,detailWarnaTable.detailWarnaPcs,detailWarnaTable.lastEditedBy,detailWarnaTable.detailWarnaDate)
+            dataSourceDetailWarna.updateDetailWarnaA(detailWarnaTable.warnaRef,newIsi,detailWarnaTable.detailWarnaPcs,detailWarnaTable.lastEditedBy?:"",detailWarnaTable.detailWarnaDate)
         }
     }
     private suspend fun deleteDetailWarnaToDao(isi:Double,warnaRef:String){

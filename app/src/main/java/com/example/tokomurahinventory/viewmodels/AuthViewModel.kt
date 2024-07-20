@@ -1,5 +1,6 @@
 package com.example.tokomurahinventory.viewmodels
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -25,6 +26,7 @@ class AuthViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             val userDao = DatabaseInventory.getInstance(context).usersDao
             val user = userDao.getUserByUsername(username)
+            Log.d("AppDebug", "user from view model: $user")
             if (user != null && BCrypt.checkpw(password, user.password)) {
                 _authenticationState.postValue(true)
                 SharedPreferencesHelper.saveUsername(context, username)
@@ -49,6 +51,7 @@ class AuthViewModel : ViewModel() {
             }
         }
     }
+
 
     private fun hashPassword(password: String): String {
         return BCrypt.hashpw(password, BCrypt.gensalt())

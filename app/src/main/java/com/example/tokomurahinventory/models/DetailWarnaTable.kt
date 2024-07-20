@@ -29,14 +29,14 @@ import com.example.tokomurahinventory.database.Converters
             entity = UsersTable::class,
             parentColumns = ["userName"],
             childColumns = ["createdBy"],
-            onDelete = ForeignKey.CASCADE,
+            onDelete = ForeignKey.SET_NULL,
             onUpdate = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = UsersTable::class,
             parentColumns = ["userName"],
             childColumns = ["lastEditedBy"],
-            onDelete = ForeignKey.CASCADE,
+            onDelete = ForeignKey.SET_NULL,
             onUpdate = ForeignKey.CASCADE
         )
     ]
@@ -58,7 +58,7 @@ data class DetailWarnaTable(
     @ColumnInfo(name = "detailWarnaLastEditedDate")
     var detailWarnaLastEditedDate: Date = Date(),
     @ColumnInfo(name = "createdBy")
-    var createdBy: String = "",
+    var createdBy: String? = "",
     @ColumnInfo(name = "lastEditedBy")
-    var lastEditedBy: String = ""
+    var lastEditedBy: String? = ""
 )

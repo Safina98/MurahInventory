@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,6 +13,8 @@ import com.example.tokomurahinventory.database.WarnaDao
 import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.models.WarnaTable
 import com.example.tokomurahinventory.models.model.WarnaModel
+import com.example.tokomurahinventory.utils.SharedPreferencesHelper
+import com.example.tokomurahinventory.utils.userNullString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -78,13 +81,18 @@ init {
     fun insertWarna(kodeWarna:String,satuan:String){
         uiScope.launch {
             var warna= WarnaTable()
-            warna.refMerk = refMerk
-            warna.kodeWarna = kodeWarna
-            warna.satuan = satuan
-            warna.warnaRef = UUID.randomUUID().toString()
-            warna.createdBy=loggedInUser
-            warna.lastEditedBy=loggedInUser
-            insertWarnaToDao(warna)
+            val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
+            if (loggedInUsers != null) {
+                warna.refMerk = refMerk
+                warna.kodeWarna = kodeWarna
+                warna.satuan = satuan
+                warna.warnaRef = UUID.randomUUID().toString()
+                warna.createdBy=loggedInUsers
+                warna.lastEditedBy=loggedInUsers
+                insertWarnaToDao(warna)
+            }else{
+                Toast.makeText(getApplication(), userNullString, Toast.LENGTH_SHORT).show()
+            }
             getWarnaByMerk()
         }
     }

@@ -53,6 +53,7 @@ class MerkFragment : AuthFragment() {
         val adapter  = MerkAdapter(
             MerkClickListener {
                     viewModel.onNavigateToWarna(it.refMerk)
+                    Log.i("AppDebug","${it.createdBy}")
                 },
             MerkLongListener {
                     // Handle item long click

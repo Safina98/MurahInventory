@@ -22,6 +22,7 @@ import com.example.tokomurahinventory.utils.MASUKKELUAR
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.utils.SingleLiveEvent
 import com.example.tokomurahinventory.utils.UserRoles
+import com.example.tokomurahinventory.utils.userNullString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -234,11 +235,13 @@ class LogViewModel (
     fun addLog(){
         viewModelScope.launch {
             val s = getStringS()
+            val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             val allDataPresent = areAllCountModelValuesNotNull(countModelList)
-            if (allDataPresent){
+           if (loggedInUsers!=null) {
+            if (allDataPresent) {
                 val newLog = LogTable(
                     id = 0,
-                    userName = loggedInUser,
+                    userName = loggedInUsers,
                     password = "",
                     namaToko = namaToko.value ?: "Failed",
                     logCreatedDate = Date(), // assuming you have a date field
@@ -249,9 +252,9 @@ class LogViewModel (
                     pcs = countModelList.value!!.sumOf { it.psc },
                     detailWarnaRef = "",
                     refLog = UUID.randomUUID().toString(),
-                    logLastEditedDate=Date(),
-                    createdBy=loggedInUser,
-                    lastEditedBy=loggedInUser,
+                    logLastEditedDate = Date(),
+                    createdBy = loggedInUsers,
+                    lastEditedBy = loggedInUsers,
                     logTipe = MASUKKELUAR.KELUAR
                 )
                 insertLogToDao(newLog)
@@ -259,9 +262,10 @@ class LogViewModel (
 
                 getAllLogTable()
                 onNavigateToLog()
+            }else Toast.makeText(getApplication(),"Insert Failed, please check the data",Toast.LENGTH_SHORT).show()
             }
             else{
-                Toast.makeText(getApplication(),"Insert Failed, please check the data",Toast.LENGTH_SHORT).show()
+               Toast.makeText(getApplication(), userNullString, Toast.LENGTH_SHORT).show()
             }
 
         }
@@ -420,7 +424,7 @@ class LogViewModel (
         if (!query.isNullOrEmpty()) {
             list.addAll(_unFilteredLog.value!!.filter {
                 it.namaToko.lowercase(Locale.getDefault()).contains(query.lowercase(Locale.getDefault())) ||
-                        it.userName.lowercase(Locale.getDefault()).contains(query.lowercase(Locale.getDefault()))||
+                        it.userName?.lowercase(Locale.getDefault())?.contains(query.lowercase(Locale.getDefault())) ?: false ||
                         it.merk.lowercase(Locale.getDefault()).contains(query.lowercase(Locale.getDefault()))
             })
         } else {
@@ -683,7 +687,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
         withContext(Dispatchers.IO) {
             if (doesBarangLogExist(log.barangLogRef)) {
                 // Update existing record if barangLogRef exists
-                dataSourceBarangLog.updateByBarangLogRef(log.refMerk, log.warnaRef, log.detailWarnaRef, log.isi, log.pcs, log.barangLogDate, log.refLog, log.barangLogRef)
+                dataSourceBarangLog.updateByBarangLogRef(log.refMerk, log.warnaRef, log.detailWarnaRef ?: "", log.isi, log.pcs, log.barangLogDate, log.refLog, log.barangLogRef)
             }
         }
     }

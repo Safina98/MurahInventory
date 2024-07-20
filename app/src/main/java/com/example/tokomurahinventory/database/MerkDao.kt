@@ -40,6 +40,8 @@ interface MerkDao  {
     @Query("SELECT EXISTS(SELECT 1 FROM merk_table WHERE namaMerk = :namaMerk)")
     fun isDataExists(namaMerk: String): Boolean
 
+
+
     @Transaction
     suspend fun performTransaction(block: suspend () -> Unit) {
         // Begin transaction

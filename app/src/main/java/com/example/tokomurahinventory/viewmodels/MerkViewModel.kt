@@ -2,15 +2,21 @@ package com.example.tokomurahinventory.viewmodels
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Context
+import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.MerkDao
 import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.models.UsersTable
+import com.example.tokomurahinventory.utils.SharedPreferencesHelper
+import com.example.tokomurahinventory.utils.userNullString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -26,7 +32,7 @@ class MerkViewModel(
     val loggedInUser:String,
     application: Application
 
-): AndroidViewModel(application) {
+): BaseAndroidViewModel(application) {
     private var viewModelJob = Job()
     //ui scope for coroutines
     private val uiScope = CoroutineScope(Dispatchers.Main +  viewModelJob)
@@ -45,6 +51,7 @@ class MerkViewModel(
     //Add navigation
     private val navigateToWarnaM = MutableLiveData<String>()
     val navigateToWarna: LiveData<String> get() = navigateToWarnaM
+
 
     init {
         getAllMerkTable()
@@ -75,14 +82,20 @@ class MerkViewModel(
     fun insertMerk(namaMerk:String){
         uiScope.launch {
             var merk= MerkTable()
+            var loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
+            Log.i("AppDebug","$loggedInUsers")
             merk.namaMerk = namaMerk
-            merk.lastEditedBy = loggedInUser
-            merk.createdBy=loggedInUser
-            merk.merkCreatedDate=Date()
-            merk.merkLastEditedDate=Date()
-            merk.refMerk = UUID.randomUUID().toString()
-            insertMerkToDao(merk)
-            getAllMerkTable()
+            if (loggedInUsers != null) {
+                merk.lastEditedBy = loggedInUsers
+                merk.createdBy=loggedInUsers
+                merk.merkCreatedDate=Date()
+                merk.merkLastEditedDate=Date()
+                merk.refMerk = UUID.randomUUID().toString()
+                insertMerkToDao(merk)
+                getAllMerkTable()
+            }else{
+                Toast.makeText(getApplication(), userNullString,Toast.LENGTH_SHORT).show()
+            }
         }
     }
     fun updateMerk(merkTable:MerkTable){
@@ -104,7 +117,6 @@ class MerkViewModel(
         withContext(Dispatchers.IO){
             dataSource1.insert(merkTable)
         }
-
     }
     private suspend fun updateMerkToDao(merkTable: MerkTable){
         withContext(Dispatchers.IO){
@@ -117,7 +129,17 @@ class MerkViewModel(
         }
     }
     //Navigation
-    fun onAddMerkFabClick(){ addMerkFabM.value = true }
+    //fun onAddMerkFabClick(){ addMerkFabM.value = true }
+    fun onAddMerkFabClick(context: Context) {
+        canUserPerformAction(context, UserAction.INSERT) { canPerform ->
+            if (canPerform) {
+                addMerkFabM.value = true
+            } else {
+                // Handle unauthorized action (e.g., show a toast or log a message)
+                Log.d("OtherViewModel", "User not authorized to add Merk.")
+            }
+        }
+    }
     fun onAddMerkFabClicked(){ addMerkFabM.value = false }
     fun onLongClick(v: View): Boolean { return true }
 

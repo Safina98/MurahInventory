@@ -6,8 +6,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -88,7 +90,8 @@ class MainActivity : AppCompatActivity() {
         val etUsername = dialogView.findViewById<EditText>(R.id.etUsername)
         val etPassword = dialogView.findViewById<EditText>(R.id.etPassword)
         val btnLogin = dialogView.findViewById<Button>(R.id.btnLogin)
-
+        val spinner = dialogView.findViewById<Spinner>(R.id.spinner_role)
+        spinner.visibility = View.GONE
         dialog = AlertDialog.Builder(this)
             .setView(dialogView)
             .setCancelable(false)
@@ -97,7 +100,8 @@ class MainActivity : AppCompatActivity() {
         btnLogin.setOnClickListener {
             val username = etUsername.text.toString()
             val password = etPassword.text.toString()
-
+            Log.d("AppDebug", "Attempting login with username: $username")
+            Log.d("AppDebug", "Attempting login with username: $password")
             if (username.isNotEmpty() && password.isNotEmpty()) {
                 Log.d("AppDebug", "Attempting login with username: $username")
                 authViewModel.authenticate(username, password, applicationContext)

@@ -56,8 +56,7 @@ class InputStokViewModel (
                 queryParts.all { part ->
                     log.namaMerk.lowercase(Locale.getDefault()).contains(part) ||
                             log.kodeWarna.lowercase(Locale.getDefault()).contains(part) ||
-                            log.createdBy.lowercase(Locale.getDefault()).contains(part)
-
+                            log.createdBy?.lowercase(Locale.getDefault())?.contains(part) ?: false
                 }
             })
         } else {

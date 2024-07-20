@@ -12,6 +12,6 @@ data class InputStokLogModel (
     var isi:Double=0.0,
     var barangLogInsertedDate: Date = Date(),
     // log_table
-    var createdBy: String = "",
+    var createdBy: String? = "",
     var inputBarangLogRef: String = ""
 )

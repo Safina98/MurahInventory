@@ -20,14 +20,14 @@ import java.util.Date
             entity = UsersTable::class,
             parentColumns = ["userName"],
             childColumns = ["createdBy"],
-            onDelete = ForeignKey.CASCADE,
+            onDelete = ForeignKey.SET_NULL,
             onUpdate = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = UsersTable::class,
             parentColumns = ["userName"],
             childColumns = ["lastEditedBy"],
-            onDelete = ForeignKey.CASCADE,
+            onDelete = ForeignKey.SET_NULL,
             onUpdate = ForeignKey.CASCADE
         )
 
@@ -52,7 +52,7 @@ data class WarnaTable (
     @ColumnInfo(name = "warnaLastEditedDate")
     var warnaLastEditedDate: Date = Date(),
     @ColumnInfo(name = "createdBy")
-    var createdBy: String = "",
+    var createdBy: String? = null,
     @ColumnInfo(name = "lastEditedBy")
-    var lastEditedBy: String = ""
+    var lastEditedBy: String? =null
 )

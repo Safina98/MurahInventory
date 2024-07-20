@@ -20,4 +20,22 @@ abstract class BaseAndroidViewModel(application: Application) : AndroidViewModel
             }
         }
     }
+    fun canUserPerformAction(context: Context, action: UserAction, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val userRole = SharedPreferencesHelper.getUserRole(context)
+            val hasAccess = when (userRole) {
+                UserRoles.ADMIN -> true  // Admins can perform all actions
+                UserRoles.EDITOR -> action in listOf(UserAction.VIEW, UserAction.INSERT)  // Editors can view and edit
+                UserRoles.VIEWER -> action == UserAction.VIEW  // Viewers can only view
+                else -> false  // No role or unknown role
+            }
+            onResult(hasAccess)
+        }
+    }
+}
+enum class UserAction {
+    VIEW,
+    EDIT,
+    DELETE,
+    INSERT
 }

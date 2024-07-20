@@ -17,6 +17,7 @@ object MASUKKELUAR {
     const val MASUK = "Masuk"
     const val KELUAR = "Keluar"
 }
+val userNullString = "User kosong, log out dan log in kembali"
 
 fun <T> LiveData<T>.observeOnce(lifecycleOwner: LifecycleOwner, observer: Observer<T>) {
     val wrappedObserver = object : Observer<T> {
