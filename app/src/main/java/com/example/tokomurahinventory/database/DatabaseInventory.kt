@@ -10,11 +10,10 @@ import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.models.WarnaTable
 import com.example.tokomurahinventory.database.Converters
 import com.example.tokomurahinventory.models.BarangLog
-import com.example.tokomurahinventory.models.InputLogTable
 import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.models.UsersTable
 
-@Database(entities = [MerkTable::class,WarnaTable::class,DetailWarnaTable::class,UsersTable::class,LogTable::class,BarangLog::class,InputLogTable::class],version=4, exportSchema = true)
+@Database(entities = [MerkTable::class,WarnaTable::class,DetailWarnaTable::class,UsersTable::class,LogTable::class,BarangLog::class],version=5, exportSchema = true)
 @TypeConverters(Converters::class)
 abstract class DatabaseInventory: RoomDatabase()  {
     abstract val merkDao :MerkDao
@@ -23,7 +22,7 @@ abstract class DatabaseInventory: RoomDatabase()  {
     abstract val usersDao : UsersDao
     abstract val logDao:LogDao
     abstract val barangLogDao:BarangLogDao
-    abstract val inputLogDao:InputLogDao
+
 
 
     companion object{

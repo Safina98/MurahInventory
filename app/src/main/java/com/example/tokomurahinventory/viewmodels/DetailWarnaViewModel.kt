@@ -9,12 +9,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.BarangLogDao
 import com.example.tokomurahinventory.database.DetailWarnaDao
-import com.example.tokomurahinventory.database.InputLogDao
 import com.example.tokomurahinventory.database.LogDao
 import com.example.tokomurahinventory.database.WarnaDao
 import com.example.tokomurahinventory.models.BarangLog
 import com.example.tokomurahinventory.models.DetailWarnaTable
-import com.example.tokomurahinventory.models.InputLogTable
 import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.models.model.DetailWarnaModel
 import com.example.tokomurahinventory.utils.MASUKKELUAR
@@ -29,7 +27,6 @@ import java.util.UUID
 
 class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
                            val dataSourceDetailWarna:DetailWarnaDao,
-                           val dataSourceInputLog:InputLogDao,
                            val dataSourceLog: LogDao,
                            val dataSourceBarangLog: BarangLogDao,
                            val refWarna:String,
@@ -96,45 +93,17 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
             barangLog.warnaRef = detailWarnaTable.warnaRef
             barangLog.isi = detailWarnaTable.detailWarnaIsi
             barangLog.pcs = detailWarnaTable.detailWarnaPcs
+            barangLog.barangLogRef = UUID.randomUUID().toString()
             barangLog.barangLogTipe = MASUKKELUAR.MASUK
             insertLogToDao(log)
             insertBarangLogToDao(barangLog)
-            selectAllInputLog()
         }
 
     }
-    fun insertInputLogOld(detailWarnaTable: DetailWarnaTable){
-        viewModelScope.launch {
-            var inputLogTable =InputLogTable()
-            inputLogTable.refMerk = getMerkRef()
-            inputLogTable.warnaRef = detailWarnaTable.warnaRef
-            inputLogTable.detailWarnaRef = detailWarnaTable.detailWarnaRef
-            inputLogTable.isi = detailWarnaTable.detailWarnaIsi
-            inputLogTable.pcs = detailWarnaTable.detailWarnaPcs
-            inputLogTable.createdBy = loggedInUser
-            inputLogTable.lastEditedBy = loggedInUser
-            inputLogTable.barangLogInsertedDate = Date()
-            inputLogTable.barangLogLastEditedDate=Date()
-            inputLogTable.inputBarangLogRef = UUID.randomUUID().toString()
-            insertInputLogToDao(inputLogTable)
-            selectAllInputLog()
-        }
-    }
 
-    fun selectAllInputLog(){
-        viewModelScope.launch {
-            var list = withContext(Dispatchers.IO){
-                dataSourceInputLog.selectAllTable()
-            }
-            Log.i("INPUTLOGTRY","$list")
-        }
-    }
 
-    private suspend fun insertInputLogToDao(inputLogTable: InputLogTable){
-        withContext(Dispatchers.IO){
-            dataSourceInputLog.insert(inputLogTable)
-        }
-    }
+
+
     private suspend fun insertBarangLogToDao(barangLog: BarangLog){
         withContext(Dispatchers.IO){
             dataSourceBarangLog.insert(barangLog)

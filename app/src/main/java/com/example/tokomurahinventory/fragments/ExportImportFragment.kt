@@ -79,11 +79,11 @@ class ExportImportFragment : AuthFragment() {
         val dataSourceMerk =  DatabaseInventory.getInstance(application).merkDao
         val dataSourceWarna =  DatabaseInventory.getInstance(application).warnaDao
         val dataSourceDetailWarna =  DatabaseInventory.getInstance(application).detailWarnaDao
-        val dataSourceInputLog =  DatabaseInventory.getInstance(application).inputLogDao
+
         val dataSourceUsers =  DatabaseInventory.getInstance(application).usersDao
 
         val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?: ""
-        val viewModelFactory = ExportImportViewModelFactory(dataSourceMerk,dataSourceWarna,dataSourceDetailWarna,dataSourceLog,dataSourcebarangLog,dataSourceInputLog,dataSourceUsers,loggedInUser,application)
+        val viewModelFactory = ExportImportViewModelFactory(dataSourceMerk,dataSourceWarna,dataSourceDetailWarna,dataSourceLog,dataSourcebarangLog,dataSourceUsers,loggedInUser,application)
         binding.lifecycleOwner =this
         viewModel = ViewModelProvider(this,viewModelFactory)
             .get(ExportImportViewModel::class.java)

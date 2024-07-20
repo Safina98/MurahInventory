@@ -10,14 +10,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.BarangLogDao
 import com.example.tokomurahinventory.database.DetailWarnaDao
-import com.example.tokomurahinventory.database.InputLogDao
 import com.example.tokomurahinventory.database.LogDao
 import com.example.tokomurahinventory.database.MerkDao
 import com.example.tokomurahinventory.database.UsersDao
 import com.example.tokomurahinventory.database.WarnaDao
 import com.example.tokomurahinventory.models.BarangLog
 import com.example.tokomurahinventory.models.DetailWarnaTable
-import com.example.tokomurahinventory.models.InputLogTable
 import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.models.UsersTable
@@ -41,7 +39,6 @@ class ExportImportViewModel(
     val dataSourceDetailWarna: DetailWarnaDao,
     val dataSourceLog: LogDao,
     val dataSourceBarangLog: BarangLogDao,
-    val dataSourceInputLog: InputLogDao,
     val dataSourceUsers: UsersDao,
     val loggedInUser:String,
     application: Application
@@ -84,11 +81,7 @@ class ExportImportViewModel(
             dataSourceUsers.selectAllUsersList()
         }
     }
-    suspend fun getAllInputLogData(): List<InputLogTable> {
-        return withContext(Dispatchers.IO){
-            dataSourceInputLog.selectAllTable()
-        }
-    }
+
     fun insertCSVBatch(tokensList: List<List<String>>) {
         viewModelScope.launch {
             try {
@@ -124,31 +117,11 @@ class ExportImportViewModel(
             importMerk(tokens)
         }else if (tokens.size ==4) {
             importUsers(tokens)
-        }else if(tokens.size ==11){
-            importInputLog(tokens)
         }else {
             importLog(tokens)
         }
         }
-    private suspend fun importInputLog(tokens: List<String>) {
-        val inputLogTable = InputLogTable(
-            refMerk = tokens[1],
-            warnaRef = tokens[2],
-            detailWarnaRef = tokens[3],
-            isi = tokens[4].toDouble(),
-            pcs = tokens[5].toInt(),
-            barangLogInsertedDate = parseDate(tokens[6]),
-            barangLogLastEditedDate = parseDate(tokens[7]),
-            createdBy = tokens[8],
-            lastEditedBy = tokens[9],
-            inputBarangLogRef = tokens[10]
-        )
-        Log.i("INSERTCSVPROB","token ${tokens}")
-        Log.i("INSERTCSVPROB","log table ${inputLogTable}")
-        val dtw =dataSourceDetailWarna.selectAll()
-        Log.i("INSERTCSVPROB","log table ${dtw}")
-        dataSourceInputLog.insertInputLogTable(inputLogTable)
-    }
+
 
     private suspend fun importLog(tokens: List<String>){
         Log.i("INSERTCSVPROB","token ${tokens}")
@@ -263,7 +236,6 @@ class ExportImportViewModel(
                     "MERK" -> getAllCombinedData()
                     "LOG" -> getAllCombinedLogData()
                     "USERS" -> getAllUsersData()
-                    "INPUT LOG" -> getAllInputLogData()
                     else -> listOf<Any>()
                 }
 
@@ -281,10 +253,7 @@ class ExportImportViewModel(
                             val userData = data as UsersTable
                             "${userData.id}, ${userData.userName}, ${userData.password}, ${userData.usersRef}"
                         }
-                        "INPUT LOG"->{
-                            val inputLogData = data as InputLogTable
-                            "${inputLogData.id},${inputLogData.refMerk}, ${inputLogData.warnaRef}, ${inputLogData.detailWarnaRef},${inputLogData.isi},${inputLogData.pcs},${formatDate(inputLogData.barangLogInsertedDate)},${formatDate(inputLogData.barangLogLastEditedDate)},${inputLogData.createdBy},${inputLogData.lastEditedBy},${inputLogData.inputBarangLogRef}"
-                        }
+
                         else -> ""
                     }
                     bw.write(content)

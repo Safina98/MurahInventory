@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.BarangLogDao
 import com.example.tokomurahinventory.database.DetailWarnaDao
-import com.example.tokomurahinventory.database.InputLogDao
 import com.example.tokomurahinventory.database.WarnaDao
 import com.example.tokomurahinventory.models.BarangLog
 import com.example.tokomurahinventory.models.LogTable
