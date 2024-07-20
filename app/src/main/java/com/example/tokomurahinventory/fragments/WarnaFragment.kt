@@ -22,8 +22,11 @@ import com.example.tokomurahinventory.adapters.WarnaClickListener
 import com.example.tokomurahinventory.adapters.WarnaLongListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentWarnaBinding
+import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.models.model.WarnaModel
+import com.example.tokomurahinventory.utils.DialogUtils
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
+import com.example.tokomurahinventory.viewmodels.MerkViewModel
 import com.example.tokomurahinventory.viewmodels.WarnaViewModel
 import com.example.tokomurahinventory.viewmodels.WarnaViewModelFactory
 
@@ -78,7 +81,7 @@ class WarnaFragment : AuthFragment() {
                 showAddWarnaDialog(viewModel, it, 1)
             },
             DeleteWarnaClickListener {
-                viewModel.deleteWarna(it)
+                DialogUtils.showDeleteDialog(this, viewModel, it, { vm, item -> (vm as WarnaViewModel).deleteWarna(item as WarnaModel) })
             }
         )
 

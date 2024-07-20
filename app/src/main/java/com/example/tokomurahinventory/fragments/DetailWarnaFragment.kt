@@ -23,10 +23,13 @@ import com.example.tokomurahinventory.adapters.UpdateDetailWarnaClickListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentDetailWarnaBinding
 import com.example.tokomurahinventory.models.model.DetailWarnaModel
+import com.example.tokomurahinventory.models.model.WarnaModel
+import com.example.tokomurahinventory.utils.DialogUtils
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.DetailWarnaViewModel
 import com.example.tokomurahinventory.viewmodels.DetailWarnaViewModelFactory
 import com.example.tokomurahinventory.viewmodels.MerkViewModel
+import com.example.tokomurahinventory.viewmodels.WarnaViewModel
 
 
 class DetailWarnaFragment : AuthFragment() {
@@ -83,9 +86,7 @@ class DetailWarnaFragment : AuthFragment() {
             }, UpdateDetailWarnaClickListener {
                 showAddDetailWarnaDialog(viewModel,it,-1)
             }, DeleteDetailWarnaClickListener {
-                viewModel.deleteDetailWarna(it)
-                Log.i("DETAILWARNAPROB","Adapter $it")
-
+                DialogUtils.showDeleteDialog(this, viewModel, it, { vm, item -> (vm as DetailWarnaViewModel).deleteDetailWarna(item as DetailWarnaModel) })
             }
         )
 

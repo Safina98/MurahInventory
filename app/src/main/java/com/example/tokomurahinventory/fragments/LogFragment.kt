@@ -23,9 +23,13 @@ import com.example.tokomurahinventory.adapters.LogDeleteListener
 import com.example.tokomurahinventory.adapters.LogLongListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentLogBinding
+import com.example.tokomurahinventory.models.LogTable
+import com.example.tokomurahinventory.models.UsersTable
+import com.example.tokomurahinventory.utils.DialogUtils
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.LogViewModel
 import com.example.tokomurahinventory.viewmodels.LogViewModelFactory
+import com.example.tokomurahinventory.viewmodels.UsersViewModel
 import java.util.Calendar
 
 
@@ -62,7 +66,7 @@ class LogFragment : AuthFragment(){
             LogLongListener {
                 // Handle item long click
             }, LogDeleteListener {
-                viewModel.deleteLog(it)
+                DialogUtils.showDeleteDialog(this, viewModel, it, { vm, item -> (vm as LogViewModel).deleteLog(item as LogTable) })
             }
         )
         binding.rvLog.adapter = adapter

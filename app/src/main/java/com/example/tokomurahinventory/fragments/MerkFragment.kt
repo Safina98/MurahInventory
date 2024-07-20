@@ -24,6 +24,7 @@ import com.example.tokomurahinventory.adapters.UpdateMerkClickListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentMerkBinding
 import com.example.tokomurahinventory.models.MerkTable
+import com.example.tokomurahinventory.utils.DialogUtils
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.MerkViewModel
 import com.example.tokomurahinventory.viewmodels.MerkViewModelFactory
@@ -60,7 +61,7 @@ class MerkFragment : AuthFragment() {
                 showAddDialog(viewModel,it,1)
             },
             DeleteMerkClickListener{
-                viewModel.deleteMerk(it)
+                DialogUtils.showDeleteDialog(this, viewModel, it, { vm, item -> (vm as MerkViewModel).deleteMerk(item as MerkTable) })
             }
             )
 
@@ -129,25 +130,7 @@ class MerkFragment : AuthFragment() {
         val alert = builder.create()
         alert.show()
     }
-    fun showLoginDialog(){
-        val builder = AlertDialog.Builder(context)
-        builder.setTitle("Tambah Merk Barang")
-        val inflater = LayoutInflater.from(context)
-        val view = inflater.inflate(R.layout.pop_up_login, null)
-        val textUserName = view.findViewById<EditText>(R.id.etUsername)
-        val textUserPassword = view.findViewById<EditText>(R.id.etPassword)
 
-        builder.setView(view)
-        builder.setPositiveButton("OK") { dialog, which ->
-            val user = textUserName.text.toString().toUpperCase()
-            val password = textUserPassword.text.toString().toUpperCase()
-        }
-
-        builder.setNegativeButton("No") { dialog, which ->
-        }
-        val alert = builder.create()
-        alert.show()
-    }
     override fun onStart() {
         super.onStart()
         viewModel.getAllMerkTable()

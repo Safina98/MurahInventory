@@ -10,15 +10,16 @@
         android:layout_width="match_parent"
         android:orientation="vertical"
         android:layout_height="200dp">
+
         <EditText
             android:id="@+id/txt_warna"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/small_margin"/>
-        <EditText
+        <AutoCompleteTextView
             android:id="@+id/txt_satuan"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/small_margin"/>
+            android:inputType="text" />
     </LinearLayout>
 </layout>

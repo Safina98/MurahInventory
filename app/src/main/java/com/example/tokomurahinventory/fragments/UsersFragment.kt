@@ -24,7 +24,10 @@ import com.example.tokomurahinventory.adapters.UsersLongListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentUsersBinding
 import com.example.tokomurahinventory.models.UsersTable
+import com.example.tokomurahinventory.models.model.DetailWarnaModel
+import com.example.tokomurahinventory.utils.DialogUtils
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
+import com.example.tokomurahinventory.viewmodels.DetailWarnaViewModel
 import com.example.tokomurahinventory.viewmodels.UsersViewModel
 import com.example.tokomurahinventory.viewmodels.UsersViewModelFactory
 import com.google.android.material.textfield.TextInputLayout
@@ -69,7 +72,8 @@ class UsersFragment : AuthFragment() {
             DeleteUsersClickListener {
                 viewModel.canUserDeleteOrUpdate(requireContext()) { canDeleteOrUpdate ->
                     if (canDeleteOrUpdate) {
-                        viewModel.deleteUser(it)
+                        //viewModel.deleteUser(it)
+                        DialogUtils.showDeleteDialog(this, viewModel, it, { vm, item -> (vm as UsersViewModel).deleteUser(item as UsersTable) })
                     } else {
                         Toast.makeText(context, "You don't have permission to perform this action", Toast.LENGTH_SHORT).show()
                     }
