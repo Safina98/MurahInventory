@@ -1,14 +1,11 @@
 package com.example.tokomurahinventory.utils
 
-import android.util.Log
+
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 
 import android.os.Handler
 import android.os.Looper
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
 import com.example.tokomurahinventory.MainActivity
 
 class AppLifecycleObserver(private val mainActivity: MainActivity) : DefaultLifecycleObserver {

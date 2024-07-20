@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="user_role">
+        <item>Admin</item>
+        <item>Editor</item>
+        <item>Viewer</item>
+    </array>
+
+    <array name="satuan">
+        <item>Admin</item>
+        <item>Editor</item>
+        <item>Viewer</item>
+    </array>
+
+</resources>

@@ -54,13 +54,21 @@ interface LogDao {
             l.logLastEditedDate,
             l.createdBy,
             l.lastEditedBy,
+            l.logExtraBool,
+            l.logExtraDouble,
+            l.logExtraString,
+            l.logTipe,
             b.id AS barangLogId,
             b.refMerk,
             b.warnaRef,
             b.isi AS barangLogIsi,
             b.pcs AS barangLogPcs,
             b.barangLogDate,
-            b.barangLogRef
+            b.barangLogRef,
+            b.barangLogExtraBool,
+            b.barangLogExtraDouble,
+            b.barangLogExtraString,
+            b.barangLogTipe
         FROM log_table AS l
         JOIN barang_log AS b ON l.refLog = b.refLog
     """)

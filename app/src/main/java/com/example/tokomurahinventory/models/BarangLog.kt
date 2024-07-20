@@ -64,5 +64,14 @@ data class BarangLog(
     @ColumnInfo(name="refLog")
     var refLog: String = "",
     @ColumnInfo(name="barangLogRef")
-    var barangLogRef: String = ""
+    var barangLogRef: String = "",
+    //added column
+    @ColumnInfo(name="barangLogExtraBool")
+    var barangLogExtraBool: Boolean = false,
+    @ColumnInfo(name="barangLogExtraDouble")
+    var barangLogExtraDouble: Double= 0.0,
+    @ColumnInfo(name="barangLogExtraString")
+    var barangLogExtraString: String = "",
+    @ColumnInfo(name="barangLogTipe")
+    var barangLogTipe: String = ""
 )

@@ -4,6 +4,19 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 
+object UserRoles {
+    const val ADMIN = "Admin"
+    const val EDITOR = "Editor"
+    const val VIEWER = "Viewer"
+}
+object Satuan {
+    const val METER = "Meter"
+    const val YARD = "Yard"
+}
+object MASUKKELUAR {
+    const val MASUK = "Masuk"
+    const val KELUAR = "Keluar"
+}
 
 fun <T> LiveData<T>.observeOnce(lifecycleOwner: LifecycleOwner, observer: Observer<T>) {
     val wrappedObserver = object : Observer<T> {

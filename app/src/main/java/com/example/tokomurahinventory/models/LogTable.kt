@@ -56,6 +56,14 @@ data class LogTable(
     @ColumnInfo(name = "createdBy")
     var createdBy: String = "",
     @ColumnInfo(name = "lastEditedBy")
-    var lastEditedBy: String = ""
-
+    var lastEditedBy: String = "",
+    //added
+    @ColumnInfo(name="logExtraBool")
+    var logExtraBool: Boolean = false,
+    @ColumnInfo(name="logExtraDouble")
+    var logExtraDouble: Double= 0.0,
+    @ColumnInfo(name="logExtraString")
+    var logExtraString: String = "",
+    @ColumnInfo(name="logTipe")
+    var logTipe: String = ""
 )

@@ -19,6 +19,11 @@
         val logLastEditedDate: Date,
         val createdBy: String,
         val lastEditedBy: String,
+        var logExtraBool: Boolean = false,
+        var logExtraDouble: Double= 0.0,
+        var logExtraString: String = "",
+        var logTipe:String="",
+
         //barang log
         val barangLogId: Int,
         val refMerk: String,
@@ -26,5 +31,9 @@
         val barangLogIsi: Double,
         val barangLogPcs: Int,
         val barangLogDate: Date,
-        val barangLogRef: String
+        val barangLogRef: String,
+        var barangLogExtraBool: Boolean = false,
+        var barangLogExtraDouble: Double= 0.0,
+        var barangLogExtraString: String = "",
+        var barangLogTipe: String = ""
     )

@@ -7,12 +7,17 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.tokomurahinventory.database.BarangLogDao
 import com.example.tokomurahinventory.database.DetailWarnaDao
 import com.example.tokomurahinventory.database.InputLogDao
+import com.example.tokomurahinventory.database.LogDao
 import com.example.tokomurahinventory.database.WarnaDao
+import com.example.tokomurahinventory.models.BarangLog
 import com.example.tokomurahinventory.models.DetailWarnaTable
 import com.example.tokomurahinventory.models.InputLogTable
+import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.models.model.DetailWarnaModel
+import com.example.tokomurahinventory.utils.MASUKKELUAR
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -25,6 +30,8 @@ import java.util.UUID
 class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
                            val dataSourceDetailWarna:DetailWarnaDao,
                            val dataSourceInputLog:InputLogDao,
+                           val dataSourceLog: LogDao,
+                           val dataSourceBarangLog: BarangLogDao,
                            val refWarna:String,
                            val loggedInUser:String,
                            application: Application
@@ -76,6 +83,25 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
         }
     }
     fun insertInputLog(detailWarnaTable: DetailWarnaTable){
+        viewModelScope.launch {
+            var log=LogTable()
+            log.refLog = UUID.randomUUID().toString()
+            log.logTipe = MASUKKELUAR.MASUK
+            log.createdBy = loggedInUser
+            log.lastEditedBy = loggedInUser
+            log.logCreatedDate = Date()
+            log.logLastEditedDate=Date()
+            var barangLog = BarangLog()
+            barangLog.refLog = log.refLog
+            barangLog.detailWarnaRef = detailWarnaTable.detailWarnaRef
+            barangLog.refMerk = getMerkRef()
+            barangLog.warnaRef = detailWarnaTable.warnaRef
+            barangLog.isi = detailWarnaTable.detailWarnaIsi
+            barangLog.pcs = detailWarnaTable.detailWarnaPcs
+        }
+
+    }
+    fun insertInputLogOld(detailWarnaTable: DetailWarnaTable){
         viewModelScope.launch {
             var inputLogTable =InputLogTable()
             inputLogTable.refMerk = getMerkRef()

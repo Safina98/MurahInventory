@@ -17,5 +17,7 @@ data class UsersTable(
     @ColumnInfo(name="password")
     var password:String="",
     @ColumnInfo(name="userRef")
-    var usersRef:String=""
+    var usersRef:String="",
+    @ColumnInfo(name="userRole")
+    var usersRole:String=""
 )

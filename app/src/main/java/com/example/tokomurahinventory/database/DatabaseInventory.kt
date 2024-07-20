@@ -14,7 +14,7 @@ import com.example.tokomurahinventory.models.InputLogTable
 import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.models.UsersTable
 
-@Database(entities = [MerkTable::class,WarnaTable::class,DetailWarnaTable::class,UsersTable::class,LogTable::class,BarangLog::class,InputLogTable::class],version=1, exportSchema = true)
+@Database(entities = [MerkTable::class,WarnaTable::class,DetailWarnaTable::class,UsersTable::class,LogTable::class,BarangLog::class,InputLogTable::class],version=4, exportSchema = true)
 @TypeConverters(Converters::class)
 abstract class DatabaseInventory: RoomDatabase()  {
     abstract val merkDao :MerkDao

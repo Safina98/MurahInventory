@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.UsersDao
 import com.example.tokomurahinventory.models.UsersTable
+import com.example.tokomurahinventory.utils.UserRoles
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -21,7 +22,7 @@ import java.util.UUID
 class UsersViewModel(
     val dataSourceUsers:UsersDao,
     val loggedInUser:String,
-    application: Application): AndroidViewModel(application){
+    application: Application): BaseAndroidViewModel(application){
     //val usersList = dataSourceUsers.selectAllUsers()
     private val _addUserFab = MutableLiveData<Boolean>()
     val addUserFab: LiveData<Boolean> get() = _addUserFab
@@ -66,11 +67,13 @@ class UsersViewModel(
             val userExists = withContext(Dispatchers.IO) {
                 dataSourceUsers.checkUserExists(nama) > 0
             }
+
             if (!userExists) {
                 val newUser = UsersTable(
                     userName = nama,
                     password = hashPassword(password),
-                    usersRef = UUID.randomUUID().toString()
+                    usersRef = UUID.randomUUID().toString(),
+                    usersRole = UserRoles.ADMIN
                 )
                 insertUsersToDao(newUser)
                 getAllUserTable()
@@ -117,7 +120,17 @@ class UsersViewModel(
         }
     }
 
-    fun onAddUserFabClick() { _addUserFab.value = true }
+    fun onAddUserFabClick() {
+        canUserDeleteOrUpdate(getApplication()){canDeleteOrUpdate ->
+            if (canDeleteOrUpdate) {
+                // Allow delete/update operation
+                _addUserFab.value = true
+            } else {
+                Toast.makeText(getApplication(), "You don't have permission to perform this action", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+    }
     fun onAddUserFabClicked() { _addUserFab.value = false }
     fun onLongClick(v: View): Boolean { return true }
     override fun onCleared() {

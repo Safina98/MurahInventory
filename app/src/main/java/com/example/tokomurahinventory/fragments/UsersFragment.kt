@@ -57,10 +57,24 @@ class UsersFragment : AuthFragment() {
 
             },
             UpdateUsersClickListener {
-                showAddUserDialog(viewModel,it,1)
+                viewModel.canUserDeleteOrUpdate(requireContext()) { canDeleteOrUpdate ->
+                    if (canDeleteOrUpdate) {
+                        showAddUserDialog(viewModel,it,1)
+                    } else {
+                        Toast.makeText(context, "You don't have permission to perform this action", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
             },
             DeleteUsersClickListener {
-                viewModel.deleteUser(it)
+                viewModel.canUserDeleteOrUpdate(requireContext()) { canDeleteOrUpdate ->
+                    if (canDeleteOrUpdate) {
+                        viewModel.deleteUser(it)
+                    } else {
+                        Toast.makeText(context, "You don't have permission to perform this action", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
             }
         )
         binding.rvUsers.adapter = adapter

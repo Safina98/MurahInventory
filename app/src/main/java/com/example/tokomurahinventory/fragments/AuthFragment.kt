@@ -27,6 +27,4 @@ abstract class AuthFragment : Fragment() {
         }
         //checkAuthentication()
     }
-
-
 }

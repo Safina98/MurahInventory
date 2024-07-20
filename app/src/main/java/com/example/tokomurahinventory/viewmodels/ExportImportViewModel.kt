@@ -7,10 +7,8 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.BarangLogDao
-import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.database.DetailWarnaDao
 import com.example.tokomurahinventory.database.InputLogDao
 import com.example.tokomurahinventory.database.LogDao
@@ -153,6 +151,7 @@ class ExportImportViewModel(
     }
 
     private suspend fun importLog(tokens: List<String>){
+        Log.i("INSERTCSVPROB","token ${tokens}")
         val logTable = LogTable().apply {
             userName = tokens[1].trim()
             password = tokens[2].trim()
@@ -168,21 +167,31 @@ class ExportImportViewModel(
             logLastEditedDate = parseDate(tokens[12].trim())
             createdBy = tokens[13].trim()
             lastEditedBy = tokens[14].trim()
+            logExtraBool = tokens[15].trim().toBoolean()
+            logExtraDouble = tokens[16].trim().toDouble()
+            logExtraString = tokens[17].trim()
+            logTipe = tokens[18].trim()
         }
 
         val barangLog = BarangLog().apply {
-            refMerk = tokens[16].trim()
-            warnaRef = tokens[17].trim()
+            refMerk = tokens[20].trim()
+            warnaRef = tokens[21].trim()
             detailWarnaRef = tokens[10].trim()  // Matches `LogTable`
-            isi = tokens[18].trim().toDouble()
-            pcs = tokens[19].trim().toInt()
-            barangLogDate = parseDate(tokens[20].trim())
-            barangLogRef = tokens[21].trim()
+            isi = tokens[22].trim().toDouble()
+            pcs = tokens[23].trim().toInt()
+            barangLogDate = parseDate(tokens[24].trim())
+            barangLogRef = tokens[25].trim()
+            refLog = tokens[11].trim()
+            barangLogExtraBool = tokens[26].trim().toBoolean()
+            barangLogExtraDouble = tokens[27].trim().toDouble()
+            barangLogExtraString = tokens[28].trim()
+            barangLogTipe = tokens[29].trim()
         }
-        Log.i("INSERTCSVPROB","token ${tokens}")
+
         Log.i("INSERTCSVPROB","log table ${logTable}")
-        Log.i("INSERTCSVPROB","log barang ${logTable}")
         dataSourceLog.insertLogTable(logTable)
+        Log.i("INSERTCSVPROB","log barang ${barangLog}")
+
         dataSourceBarangLog.insertBarangLogTable(barangLog)
     }
     private suspend fun importUsers(tokens: List<String>){
@@ -196,6 +205,7 @@ class ExportImportViewModel(
         dataSourceUsers.insertUsersTable(users)
     }
     fun importMerk(tokens: List<String>){
+        Log.i("INSERTCSVPROB","token ${tokens}")
         val merkTable = MerkTable().apply {
             namaMerk = tokens[1].trim()
             refMerk = tokens[2].trim()
@@ -265,7 +275,7 @@ class ExportImportViewModel(
                         }
                         "LOG" -> {
                             val logData = data as CombinedLogData
-                            "${escapeCSVField(logData.logId.toString())}, ${escapeCSVField(logData.userName)}, ${escapeCSVField(logData.password)}, ${escapeCSVField(logData.namaToko)}, ${escapeCSVField(formatDate(logData.logDate))}, ${escapeCSVField(logData.keterangan)}, ${escapeCSVField(logData.merk)}, ${escapeCSVField(logData.kodeWarna)}, ${escapeCSVField(logData.logIsi.toString())}, ${escapeCSVField(logData.logPcs.toString())}, ${escapeCSVField(logData.detailWarnaRef)}, ${escapeCSVField(logData.refLog)}, ${escapeCSVField(formatDate(logData.logLastEditedDate))}, ${escapeCSVField(logData.createdBy)}, ${escapeCSVField(logData.lastEditedBy)}, ${escapeCSVField(logData.barangLogId.toString())}, ${escapeCSVField(logData.refMerk)}, ${escapeCSVField(logData.warnaRef)}, ${escapeCSVField(logData.barangLogIsi.toString())}, ${escapeCSVField(logData.barangLogPcs.toString())}, ${escapeCSVField(formatDate(logData.barangLogDate))}, ${escapeCSVField(logData.barangLogRef)}"
+                            "${escapeCSVField(logData.logId.toString())}, ${escapeCSVField(logData.userName)}, ${escapeCSVField(logData.password)}, ${escapeCSVField(logData.namaToko)}, ${escapeCSVField(formatDate(logData.logDate))}, ${escapeCSVField(logData.keterangan)}, ${escapeCSVField(logData.merk)}, ${escapeCSVField(logData.kodeWarna)}, ${escapeCSVField(logData.logIsi.toString())}, ${escapeCSVField(logData.logPcs.toString())}, ${escapeCSVField(logData.detailWarnaRef)}, ${escapeCSVField(logData.refLog)}, ${escapeCSVField(formatDate(logData.logLastEditedDate))}, ${escapeCSVField(logData.createdBy)}, ${escapeCSVField(logData.lastEditedBy)}, ${escapeCSVField(logData.logExtraBool.toString())}, ${escapeCSVField(logData.logExtraDouble.toString())}, ${escapeCSVField(logData.logExtraString)},${escapeCSVField(logData.logTipe)}, ${escapeCSVField(logData.barangLogId.toString())}, ${escapeCSVField(logData.refMerk)}, ${escapeCSVField(logData.warnaRef)}, ${escapeCSVField(logData.barangLogIsi.toString())}, ${escapeCSVField(logData.barangLogPcs.toString())}, ${escapeCSVField(formatDate(logData.barangLogDate))}, ${escapeCSVField(logData.barangLogRef)}, ${escapeCSVField(logData.barangLogExtraBool.toString())}, ${escapeCSVField(logData.barangLogExtraDouble.toString())}, ${escapeCSVField(logData.barangLogExtraString)},${escapeCSVField(logData.barangLogTipe)}"
                         }
                         "USERS"->{
                             val userData = data as UsersTable
@@ -301,7 +311,7 @@ class ExportImportViewModel(
         return  when (code){
             "MERK"-> "merkId, namaMerk, refMerk, merkCreatedDate, merkLastEditedDate, merkCreatedBy, merkLastEditedBy, warnaId, kodeWarna, totalPcs, satuanTotal, satuan, warnaRef, warnaCreatedDate, warnaLastEditedDate, warnaCreatedBy, warnaLastEditedBy, detailWarnaId, detailWarnaIsi, detailWarnaPcs, detailWarnaDate, detailWarnaLastEditedDate, detailWarnaCreatedBy, detailWarnaLastEditedBy,detailWarnaRef"
             "USERS" -> "id, userName, password, usersRef"
-            "LOG" ->"logId, userName, password, namaToko, logDate, keterangan, merk, kodeWarna, logIsi, logPcs, detailWarnaRef, refLog, logLastEditedDate, createdBy, lastEditedBy, barangLogId, refMerk, warnaRef, barangLogIsi, barangLogPcs, barangLogDate, barangLogRef"
+            "LOG" -> "logId, userName, password, namaToko, logDate, keterangan, merk, kodeWarna, logIsi, logPcs, detailWarnaRef, refLog, logLastEditedDate, createdBy, lastEditedBy, logExtraBool, logExtraDouble, logExtraString, barangLogId, refMerk, warnaRef, barangLogIsi, barangLogPcs, barangLogDate, barangLogRef, barangLogExtraBool, barangLogExtraDouble, barangLogExtraString,barangLogTipe"
             "INPUT LOG" ->"id, refMerk, warnaRef, detailWarnaRef, isi, pcs, barangLogInsertedDate, barangLogLastEditedDate, createdBy, lastEditedBy, inputBarangLogRef"
             else ->""
         }

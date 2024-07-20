@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.models.UsersTable
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
+import com.example.tokomurahinventory.utils.UserRoles
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.mindrot.jbcrypt.BCrypt
@@ -27,6 +28,7 @@ class AuthViewModel : ViewModel() {
             if (user != null && BCrypt.checkpw(password, user.password)) {
                 _authenticationState.postValue(true)
                 SharedPreferencesHelper.saveUsername(context, username)
+                SharedPreferencesHelper.saveUserRole(context, user.usersRole)
             } else {
                 _authenticationState.postValue(false)
             }
@@ -42,7 +44,7 @@ class AuthViewModel : ViewModel() {
             val userDao = DatabaseInventory.getInstance(context).usersDao
             val userCount = userDao.getUserCount()
             if (userCount == 0) {
-                val defaultUser = UsersTable(userName = "admin", password = hashPassword("1111"), usersRef = "adminRef")
+                val defaultUser = UsersTable(userName = "admin", password = hashPassword("1111"), usersRef = "adminRef", usersRole = UserRoles.ADMIN)
                 userDao.insertUser(defaultUser)
             }
         }
@@ -51,8 +53,8 @@ class AuthViewModel : ViewModel() {
     private fun hashPassword(password: String): String {
         return BCrypt.hashpw(password, BCrypt.gensalt())
     }
+
     fun isAuthenticated(): Boolean {
-        // Return the current authentication state
-        return authenticationState.value == authenticationState.value
+        return authenticationState.value == true
     }
 }
