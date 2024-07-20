@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AutoCompleteTextView
 import android.widget.EditText
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
@@ -30,6 +31,7 @@ import com.example.tokomurahinventory.viewmodels.DetailWarnaViewModel
 import com.example.tokomurahinventory.viewmodels.DetailWarnaViewModelFactory
 import com.example.tokomurahinventory.viewmodels.MerkViewModel
 import com.example.tokomurahinventory.viewmodels.WarnaViewModel
+import com.google.android.material.textfield.TextInputLayout
 
 
 class DetailWarnaFragment : AuthFragment() {
@@ -121,20 +123,22 @@ class DetailWarnaFragment : AuthFragment() {
         builder.setTitle("Tambah Barang")
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.pop_up_add_warna, null)
-        val textWarna = view.findViewById<EditText>(R.id.txt_warna)
-        val textSatuan = view.findViewById<EditText>(R.id.txt_satuan)
+        val textIsi = view.findViewById<EditText>(R.id.txt_warna)
+        val textPcs = view.findViewById<AutoCompleteTextView>(R.id.txt_satuan)
+        val input1 = view.findViewById<TextInputLayout>(R.id.layout_satu)
+        val input2 = view.findViewById<TextInputLayout>(R.id.layout_dua)
         if (detailWarnaModel!=null){
-            textWarna.setText(detailWarnaModel.detailWarnaPcs.toString())
-            textSatuan.setText(detailWarnaModel.detailWarnaIsi.toString())
+            textPcs.setText(detailWarnaModel.detailWarnaPcs.toString())
+            textIsi.setText(detailWarnaModel.detailWarnaIsi.toString())
         }
-        textWarna.inputType = InputType.TYPE_CLASS_NUMBER
-        textSatuan.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-        textWarna.setHint("pcs")
-        textSatuan.setHint("isi")
+        textPcs.inputType = InputType.TYPE_CLASS_NUMBER
+        textIsi.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+        input1.setHint("isi")
+        input2.setHint("pcs")
         builder.setView(view)
         builder.setPositiveButton("OK") { dialog, which ->
-            val pcs = textWarna.text.toString().toUpperCase().trim().toIntOrNull()
-            val isi = textSatuan.text.toString().toUpperCase().trim().toDoubleOrNull()
+            val pcs = textPcs.text.toString().toUpperCase().trim().toIntOrNull()
+            val isi = textIsi.text.toString().toUpperCase().trim().toDoubleOrNull()
             if (pcs!=null && isi!=null)
             {
                 if (detailWarnaModel==null)

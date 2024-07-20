@@ -7,6 +7,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.EditText
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
@@ -29,6 +31,7 @@ import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.MerkViewModel
 import com.example.tokomurahinventory.viewmodels.WarnaViewModel
 import com.example.tokomurahinventory.viewmodels.WarnaViewModelFactory
+import com.google.android.material.textfield.TextInputLayout
 
 class WarnaFragment : AuthFragment() {
 
@@ -129,17 +132,30 @@ class WarnaFragment : AuthFragment() {
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.pop_up_add_warna, null)
         val textWarna = view.findViewById<EditText>(R.id.txt_warna)
-        val textSatuan = view.findViewById<EditText>(R.id.txt_satuan)
-
+        val textSatuan = view.findViewById<AutoCompleteTextView>(R.id.txt_satuan)
+        val input1 = view.findViewById<TextInputLayout>(R.id.layout_satu)
+        val input2 = view.findViewById<TextInputLayout>(R.id.layout_dua)
         if (warnaTable != null) {
             textWarna.setText(warnaTable.kodeWarna)
             textSatuan.setText(warnaTable.satuan)
         }
 
-        textWarna.setHint("Kode warna")
-        textSatuan.setHint("Satuan (meter/yard/dll)")
+        input1.setHint("Kode warna")
+        input2.setHint("Satuan (meter/yard/dll)")
         builder.setView(view)
+        val suggestions =resources.getStringArray(R.array.satuan)
+        val adapter: ArrayAdapter<String> = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, suggestions)
+        textSatuan.setAdapter(adapter)
+        textSatuan.setOnClickListener {
+            textSatuan.showDropDown()
+        }
 
+        // Show dropdown when AutoCompleteTextView is focused
+        textSatuan.setOnFocusChangeListener { view, hasFocus ->
+            if (hasFocus) {
+                textSatuan.showDropDown()
+            }
+        }
         builder.setPositiveButton("OK") { dialog, which ->
             val kodeWarna = textWarna.text.toString().toUpperCase()
             val kodeSatuan = textSatuan.text.toString().toUpperCase()

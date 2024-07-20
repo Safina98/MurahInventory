@@ -1,22 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
         <variable
             name="viewModel"
             type="com.example.tokomurahinventory.viewmodels.LogViewModel"
             />
-
     </data>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <AutoCompleteTextView
-            android:id="@+id/autocomplete_text"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_dua"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text" />
+            android:padding="@dimen/small_margin"
+            app:boxBackgroundColor="@color/light_grey"
+            >
+            <AutoCompleteTextView
+                android:id="@+id/autocomplete_text"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
 
     </LinearLayout>
 </layout>

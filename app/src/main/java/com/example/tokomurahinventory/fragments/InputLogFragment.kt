@@ -125,7 +125,12 @@ class InputLogFragment : AuthFragment() {
         dialog?.dismiss()
 
         val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("Tambah Merk Barang")
+        builder.setTitle( when (code) {
+            "Merk" -> "Merk"
+            "Warna" -> "Kode Warna"
+            "Isi" -> "Isi"
+            else -> "Pcs"
+        })
 
         val binding: PopUpAutocompleteTextviewBinding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.pop_up_autocomplete_textview, null, false)
         binding.viewModel = viewModel

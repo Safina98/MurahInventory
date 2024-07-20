@@ -47,18 +47,9 @@
             android:id="@+id/btn_export_log"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Export Log Barang Keluar"
+            android:text="Export Log Barang"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btn_export_users" />
-
-        <TextView
-            style="@style/rv_input_Log_big_text_style"
-            android:id="@+id/btn_export_log_barang_masuk"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Export Log Barang Masuk"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btn_export_log" />
 
         <TextView
             android:id="@+id/import_header"
@@ -68,7 +59,7 @@
             android:text="Import Data"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btn_export_log_barang_masuk" />
+            app:layout_constraintTop_toBottomOf="@id/btn_export_log" />
 
         <TextView
             style="@style/rv_input_Log_big_text_style"

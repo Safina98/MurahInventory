@@ -104,9 +104,6 @@ class ExportImportFragment : AuthFragment() {
         binding.btnExportLog.setOnClickListener {
             exportStockCSV("Daftar Log Toko Murah","LOG")
         }
-        binding.btnExportLogBarangMasuk.setOnClickListener {
-            exportStockCSV("Daftar Input Log Toko Murah","INPUT LOG")
-        }
         binding.btnImportMerk.setOnClickListener {
             importCSVStock()
         }

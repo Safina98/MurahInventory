@@ -7,9 +7,8 @@
     </array>
 
     <array name="satuan">
-        <item>Admin</item>
-        <item>Editor</item>
-        <item>Viewer</item>
+        <item>Meter</item>
+        <item>Yard</item>
     </array>
 
 </resources>

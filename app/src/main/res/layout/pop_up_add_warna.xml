@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -10,16 +11,31 @@
         android:layout_width="match_parent"
         android:orientation="vertical"
         android:layout_height="200dp">
-
-        <EditText
-            android:id="@+id/txt_warna"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_satu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/small_margin"/>
-        <AutoCompleteTextView
-            android:id="@+id/txt_satuan"
+            app:boxBackgroundColor="@color/light_grey"
+            >
+            <EditText
+                android:id="@+id/txt_warna"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/small_margin"/>
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_dua"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text" />
+            android:padding="@dimen/small_margin"
+            app:boxBackgroundColor="@color/light_grey"
+            >
+            <AutoCompleteTextView
+                android:id="@+id/txt_satuan"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_margin="@dimen/small_margin"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 </layout>
