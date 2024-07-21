@@ -105,6 +105,7 @@ interface DetailWarnaDao {
             m.refMerk,
             m.merkCreatedDate,
             m.merkLastEditedDate,
+            m.user AS merkUser,
             m.createdBy AS merkCreatedBy,
             m.lastEditedBy AS merkLastEditedBy,
             w.idWarna AS warnaId,
@@ -113,6 +114,7 @@ interface DetailWarnaDao {
             w.satuanTotal,
             w.satuan,
             w.warnaRef,
+            w.user AS warnaUser,
             w.warnaCreatedDate,
             w.warnaLastEditedDate,
             w.createdBy AS warnaCreatedBy,
@@ -122,6 +124,7 @@ interface DetailWarnaDao {
             d.detailWarnaPcs,
             d.detailWarnaDate,
             d.detailWarnaLastEditedDate,
+            d.user AS detailWarnaUser,
             d.createdBy AS detailWarnaCreatedBy,
             d.lastEditedBy AS detailWarnaLastEditedBy,
             d.detailWarnaRef

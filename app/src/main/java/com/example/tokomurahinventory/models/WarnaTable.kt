@@ -51,6 +51,8 @@ data class WarnaTable (
     var warnaCreatedDate: Date = Date(),
     @ColumnInfo(name = "warnaLastEditedDate")
     var warnaLastEditedDate: Date = Date(),
+    @ColumnInfo(name = "user")
+    var user: String? = "",
     @ColumnInfo(name = "createdBy")
     var createdBy: String? = null,
     @ColumnInfo(name = "lastEditedBy")

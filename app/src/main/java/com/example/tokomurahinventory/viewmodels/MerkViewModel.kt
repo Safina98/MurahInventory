@@ -17,6 +17,7 @@ import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.models.UsersTable
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.utils.userNullString
+import com.example.tokomurahinventory.utils.viewerNotAuthorized
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -91,6 +92,7 @@ class MerkViewModel(
                 merk.merkCreatedDate=Date()
                 merk.merkLastEditedDate=Date()
                 merk.refMerk = UUID.randomUUID().toString()
+                merk.user = loggedInUsers
                 insertMerkToDao(merk)
                 getAllMerkTable()
             }else{
@@ -135,8 +137,7 @@ class MerkViewModel(
             if (canPerform) {
                 addMerkFabM.value = true
             } else {
-                // Handle unauthorized action (e.g., show a toast or log a message)
-                Log.d("OtherViewModel", "User not authorized to add Merk.")
+               Toast.makeText(context, viewerNotAuthorized,Toast.LENGTH_SHORT).show()
             }
         }
     }

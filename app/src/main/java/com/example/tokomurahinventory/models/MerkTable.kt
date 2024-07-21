@@ -36,8 +36,12 @@ data class MerkTable (
     var merkCreatedDate: Date = Date(),
     @ColumnInfo(name = "merkLastEditedDate")
     var merkLastEditedDate: Date = Date(),
+    @ColumnInfo(name = "user")
+    var user: String? = "",
     @ColumnInfo(name = "createdBy")
     var createdBy: String? = "justDeleted",
     @ColumnInfo(name = "lastEditedBy")
     var lastEditedBy: String? = "justDeleted"
+
+
 )

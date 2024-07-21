@@ -26,8 +26,11 @@ import com.example.tokomurahinventory.databinding.FragmentMerkBinding
 import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.utils.DialogUtils
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
+import com.example.tokomurahinventory.utils.viewerAndEditorNotAuthorized
+import com.example.tokomurahinventory.utils.viewerNotAuthorized
 import com.example.tokomurahinventory.viewmodels.MerkViewModel
 import com.example.tokomurahinventory.viewmodels.MerkViewModelFactory
+import com.example.tokomurahinventory.viewmodels.UserAction
 
 
 class MerkFragment : AuthFragment() {
@@ -53,16 +56,28 @@ class MerkFragment : AuthFragment() {
         val adapter  = MerkAdapter(
             MerkClickListener {
                     viewModel.onNavigateToWarna(it.refMerk)
-                    Log.i("AppDebug","${it.createdBy}")
                 },
             MerkLongListener {
                     // Handle item long click
                 },
             UpdateMerkClickListener{
-                showAddDialog(viewModel,it,1)
+                viewModel.canUserPerformAction(requireContext(), UserAction.EDIT) { canPerform ->
+                    if (canPerform) {
+                        showAddDialog(viewModel,it,1)
+                    } else {
+                        Toast.makeText(context, viewerAndEditorNotAuthorized,Toast.LENGTH_SHORT).show()
+                    }
+                }
+
             },
             DeleteMerkClickListener{
-                DialogUtils.showDeleteDialog(this, viewModel, it, { vm, item -> (vm as MerkViewModel).deleteMerk(item as MerkTable) })
+                viewModel.canUserPerformAction(requireContext(), UserAction.DELETE) { canPerform ->
+                    if (canPerform) {
+                        DialogUtils.showDeleteDialog(this, viewModel, it, { vm, item -> (vm as MerkViewModel).deleteMerk(item as MerkTable) })
+                    } else {
+                        Toast.makeText(context, viewerAndEditorNotAuthorized,Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
             )
 

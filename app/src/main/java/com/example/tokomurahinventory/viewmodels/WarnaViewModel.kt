@@ -89,6 +89,7 @@ init {
                 warna.warnaRef = UUID.randomUUID().toString()
                 warna.createdBy=loggedInUsers
                 warna.lastEditedBy=loggedInUsers
+                warna.user = loggedInUsers
                 insertWarnaToDao(warna)
             }else{
                 Toast.makeText(getApplication(), userNullString, Toast.LENGTH_SHORT).show()

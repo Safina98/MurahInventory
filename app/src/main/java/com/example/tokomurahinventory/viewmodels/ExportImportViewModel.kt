@@ -113,9 +113,10 @@ class ExportImportViewModel(
     }
     private suspend fun insertCSVN(tokens: List<String>) {
         // Log.i("INSERTCSVPROB","brand token: $token")
-        if (tokens.size == 25) {  // Ensure there are 24 fields
+        if (tokens.size == 30) {
+            // Ensure there are 24 fields
             importMerk(tokens)
-        }else if (tokens.size ==4) {
+        }else if (tokens.size ==5) {
             importUsers(tokens)
         }else {
             importLog(tokens)
@@ -184,32 +185,35 @@ class ExportImportViewModel(
             refMerk = tokens[2].trim()
             merkCreatedDate = parseDate(tokens[3].trim()) ?: Date()
             merkLastEditedDate = parseDate(tokens[4].trim()) ?: Date()
-            createdBy = tokens[5].trim()
-            lastEditedBy = tokens[6].trim()
+            user = tokens[5]
+            createdBy = tokens[6].trim()
+            lastEditedBy = tokens[7].trim()
         }
 
         val warnaTable = WarnaTable().apply {
-            kodeWarna = tokens[8].trim()
-            totalPcs = tokens[9].trim().toIntOrNull() ?: 0
-            satuanTotal = tokens[10].trim().toDoubleOrNull() ?: 0.0
-            satuan = tokens[11].trim()
-            warnaRef = tokens[12].trim()
-            warnaCreatedDate = parseDate(tokens[13].trim()) ?: Date()
-            warnaLastEditedDate = parseDate(tokens[14].trim()) ?: Date()
-            createdBy = tokens[15].trim()
-            lastEditedBy = tokens[16].trim()
+            kodeWarna = tokens[9].trim()
+            totalPcs = tokens[10].trim().toIntOrNull() ?: 0
+            satuanTotal = tokens[11].trim().toDoubleOrNull() ?: 0.0
+            satuan = tokens[12].trim()
+            warnaRef = tokens[13].trim()
+            warnaCreatedDate = parseDate(tokens[14].trim()) ?: Date()
+            warnaLastEditedDate = parseDate(tokens[15].trim()) ?: Date()
+            user = tokens[16].trim()
+            createdBy = tokens[17].trim()
+            lastEditedBy = tokens[18].trim()
             refMerk = tokens[2].trim()
         }
 
         val detailWarnaTable = DetailWarnaTable().apply {
-            detailWarnaIsi = tokens[18].trim().toDoubleOrNull() ?: 0.0
-            detailWarnaPcs = tokens[19].trim().toIntOrNull() ?: 0
-            detailWarnaDate = parseDate(tokens[20].trim()) ?: Date()
-            detailWarnaLastEditedDate = parseDate(tokens[21].trim()) ?: Date()
-            createdBy = tokens[22].trim()
-            lastEditedBy = tokens[23].trim()
-            warnaRef = tokens[12].trim()
-            detailWarnaRef = tokens[24]
+            detailWarnaIsi = tokens[20].trim().toDoubleOrNull() ?: 0.0
+            detailWarnaPcs = tokens[21].trim().toIntOrNull() ?: 0
+            detailWarnaDate = parseDate(tokens[22].trim()) ?: Date()
+            detailWarnaLastEditedDate = parseDate(tokens[23].trim()) ?: Date()
+            user = tokens[24].trim()
+            createdBy = tokens[25].trim()
+            lastEditedBy = tokens[26].trim()
+            warnaRef = tokens[13].trim()
+            detailWarnaRef = tokens[26]
         }
         Log.i("INSERTCSVPROB","token ${tokens}")
         Log.i("INSERTCSVPROB","merk table ${merkTable}")
@@ -243,7 +247,7 @@ class ExportImportViewModel(
                     val content = when (code.toUpperCase()) {
                         "MERK" -> {
                             val merkData = data as CombinedDataModel
-                            "${escapeCSVField(merkData.merkId.toString())}, ${escapeCSVField(merkData.namaMerk)}, ${escapeCSVField(merkData.refMerk)}, ${escapeCSVField(formatDate(merkData.merkCreatedDate))}, ${escapeCSVField(formatDate(merkData.merkLastEditedDate))}, ${escapeCSVField(merkData.merkCreatedBy)}, ${escapeCSVField(merkData.merkLastEditedBy)}, ${escapeCSVField(merkData.warnaId.toString())}, ${escapeCSVField(merkData.kodeWarna)}, ${escapeCSVField(merkData.totalPcs.toString())}, ${escapeCSVField(merkData.satuanTotal.toString())}, ${escapeCSVField(merkData.satuan)}, ${escapeCSVField(merkData.warnaRef)}, ${escapeCSVField(formatDate(merkData.warnaCreatedDate))}, ${escapeCSVField(formatDate(merkData.warnaLastEditedDate))}, ${escapeCSVField(merkData.warnaCreatedBy)}, ${escapeCSVField(merkData.warnaLastEditedBy)}, ${escapeCSVField(merkData.detailWarnaId.toString())}, ${escapeCSVField(merkData.detailWarnaIsi.toString())}, ${escapeCSVField(merkData.detailWarnaPcs.toString())}, ${escapeCSVField(formatDate(merkData.detailWarnaDate))}, ${escapeCSVField(formatDate(merkData.detailWarnaLastEditedDate))}, ${escapeCSVField(merkData.detailWarnaCreatedBy)}, ${escapeCSVField(merkData.detailWarnaLastEditedBy)},${escapeCSVField(merkData.detailWarnaRef)}"
+                            "${escapeCSVField(merkData.merkId.toString())}, ${escapeCSVField(merkData.namaMerk)}, ${escapeCSVField(merkData.refMerk)}, ${escapeCSVField(formatDate(merkData.merkCreatedDate))}, ${escapeCSVField(formatDate(merkData.merkLastEditedDate))}, ${escapeCSVField(merkData.merkUser)}${escapeCSVField(merkData.merkCreatedBy?:"")}, ${escapeCSVField(merkData.merkLastEditedBy?:"")}, ${escapeCSVField(merkData.warnaId.toString())}, ${escapeCSVField(merkData.kodeWarna)}, ${escapeCSVField(merkData.totalPcs.toString())}, ${escapeCSVField(merkData.satuanTotal.toString())}, ${escapeCSVField(merkData.satuan)}, ${escapeCSVField(merkData.warnaRef)}, ${escapeCSVField(formatDate(merkData.warnaCreatedDate))}, ${escapeCSVField(formatDate(merkData.warnaLastEditedDate))},${escapeCSVField(merkData.warnaUser)}, ${escapeCSVField(merkData.warnaCreatedBy?:"")}, ${escapeCSVField(merkData.warnaLastEditedBy?:"")}, ${escapeCSVField(merkData.detailWarnaId.toString())}, ${escapeCSVField(merkData.detailWarnaIsi.toString())}, ${escapeCSVField(merkData.detailWarnaPcs.toString())}, ${escapeCSVField(formatDate(merkData.detailWarnaDate))}, ${escapeCSVField(formatDate(merkData.detailWarnaLastEditedDate))}, ${escapeCSVField(merkData.detailWarnaUser)},${escapeCSVField(merkData.detailWarnaCreatedBy?:"")}, ${escapeCSVField(merkData.detailWarnaLastEditedBy?:"")},${escapeCSVField(merkData.detailWarnaRef)},${merkData.a}"
                         }
                         "LOG" -> {
                             val logData = data as CombinedLogData
@@ -251,7 +255,7 @@ class ExportImportViewModel(
                         }
                         "USERS"->{
                             val userData = data as UsersTable
-                            "${userData.id}, ${userData.userName}, ${userData.password}, ${userData.usersRef}"
+                            "${userData.id}, ${userData.userName}, ${userData.password}, ${userData.usersRef},${userData.usersRole}"
                         }
 
                         else -> ""
@@ -278,7 +282,7 @@ class ExportImportViewModel(
 
     fun getMerkHeader(code:String):String{
         return  when (code){
-            "MERK"-> "merkId, namaMerk, refMerk, merkCreatedDate, merkLastEditedDate, merkCreatedBy, merkLastEditedBy, warnaId, kodeWarna, totalPcs, satuanTotal, satuan, warnaRef, warnaCreatedDate, warnaLastEditedDate, warnaCreatedBy, warnaLastEditedBy, detailWarnaId, detailWarnaIsi, detailWarnaPcs, detailWarnaDate, detailWarnaLastEditedDate, detailWarnaCreatedBy, detailWarnaLastEditedBy,detailWarnaRef"
+            "MERK"-> "merkId, namaMerk, refMerk, merkCreatedDate, merkLastEditedDate, merkUser,merkCreatedBy, merkLastEditedBy, warnaId, kodeWarna, totalPcs, satuanTotal, satuan, warnaRef, warnaCreatedDate, warnaLastEditedDate, warnaUser,warnaCreatedBy, warnaLastEditedBy, detailWarnaId, detailWarnaIsi, detailWarnaPcs, detailWarnaDate, detailWarnaLastEditedDate, detailWarnaUser,detailWarnaCreatedBy, detailWarnaLastEditedBy,detailWarnaRef,a"
             "USERS" -> "id, userName, password, usersRef"
             "LOG" -> "logId, userName, password, namaToko, logDate, keterangan, merk, kodeWarna, logIsi, logPcs, detailWarnaRef, refLog, logLastEditedDate, createdBy, lastEditedBy, logExtraBool, logExtraDouble, logExtraString, barangLogId, refMerk, warnaRef, barangLogIsi, barangLogPcs, barangLogDate, barangLogRef, barangLogExtraBool, barangLogExtraDouble, barangLogExtraString,barangLogTipe"
             "INPUT LOG" ->"id, refMerk, warnaRef, detailWarnaRef, isi, pcs, barangLogInsertedDate, barangLogLastEditedDate, createdBy, lastEditedBy, inputBarangLogRef"

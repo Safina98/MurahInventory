@@ -57,6 +57,8 @@ data class DetailWarnaTable(
     var detailWarnaDate: Date = Date(),
     @ColumnInfo(name = "detailWarnaLastEditedDate")
     var detailWarnaLastEditedDate: Date = Date(),
+    @ColumnInfo(name = "user")
+    var user: String? = "",
     @ColumnInfo(name = "createdBy")
     var createdBy: String? = "",
     @ColumnInfo(name = "lastEditedBy")

@@ -64,6 +64,7 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
                 detailWarnaTable.detailWarnaLastEditedDate = Date()
                 detailWarnaTable.detailWarnaIsi = isi
                 detailWarnaTable.detailWarnaPcs = pcs
+
                 val detailWarnaTable1 = checkIfIsiExisted(isi, refWarna)
                 if (detailWarnaTable1 != null) {
                     detailWarnaTable1.lastEditedBy = loggedInUsers
@@ -77,6 +78,7 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
                     detailWarnaTable.createdBy = loggedInUsers
                     detailWarnaTable.detailWarnaDate = Date()
                     insertDetailWarnaToDao(detailWarnaTable)
+                    detailWarnaTable.user = loggedInUsers
                     insertInputLog(detailWarnaTable)
                 }
             }else{
@@ -92,6 +94,7 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
             log.logTipe = MASUKKELUAR.MASUK
             log.createdBy = loggedInUser
             log.lastEditedBy = loggedInUser
+            log.userName = loggedInUser
             log.logCreatedDate = Date()
             log.logLastEditedDate=Date()
             val barangLog = BarangLog()
