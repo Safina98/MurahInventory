@@ -205,6 +205,7 @@ class LogViewModel (
     fun updateLog(){
         viewModelScope.launch {
             val s = getStringS()
+            val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             val updatedLog = LogTable(
                 id = mutableLog.value!!.id,
                 userName = loggedInUser,
@@ -218,7 +219,7 @@ class LogViewModel (
                 pcs = countModelList.value!!.sumOf { it.psc },
                 detailWarnaRef = "",
                 refLog = mutableLog.value!!.refLog,
-                lastEditedBy = loggedInUser,
+                lastEditedBy = loggedInUsers,
                 logLastEditedDate = Date(),
                 createdBy = mutableLog.value!!.createdBy,
                 logTipe = mutableLog.value!!.logTipe
@@ -275,6 +276,7 @@ class LogViewModel (
             val refMerk = getrefMerkByName(namaMerk.toUpperCase())
             val refWarna = getrefWanraByName(kodeWarna.toUpperCase(),refMerk)
             var refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna,isi)
+            val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             val barangLog = BarangLog(
                 refMerk = refMerk,
                 warnaRef =  refWarna,
@@ -287,7 +289,7 @@ class LogViewModel (
                 barangLogTipe = MASUKKELUAR.KELUAR
 
             )
-            updateDetailWarnaTODao(refWarna,isi,pcs)
+            updateDetailWarnaTODao(refWarna,isi,pcs,loggedInUsers)
             insertBarangLogToDao(barangLog)
         }
     }
@@ -320,9 +322,10 @@ class LogViewModel (
     }
     fun updateDetailWarna(barangLogList:List<BarangLog>){
         viewModelScope.launch {
+            val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             for(i in barangLogList){
                 //update detail warna, add pcs detail warna  where ref = detail warna ref and isi = isi
-                updateDetailWarnaTODao(i.warnaRef,i.isi,i.pcs*-1)
+                updateDetailWarnaTODao(i.warnaRef,i.isi,i.pcs*-1,loggedInUsers)
             }
         }
     }
@@ -499,13 +502,14 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
     }
     fun compare(logRef:String,cmList:List<CountModel>){
         viewModelScope.launch {
+            val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             var a = withContext(Dispatchers.IO){dataSourceBarangLog.selectBarangLogByLogRef(logRef)}
             val itemsNotInCmList = a.filter { dbItem ->
                 cmList.none { cmItem -> cmItem.barangLogRef == dbItem.barangLogRef }
             }
             itemsNotInCmList.forEach { item ->
                 Log.i("InsertLogTry", "Item ${item.isi} - ${item.isi} not found in cmList")
-                updateDetailWarnaTODao(item.warnaRef,item.isi,-item.pcs)
+                updateDetailWarnaTODao(item.warnaRef,item.isi,-item.pcs,loggedInUsers)
                 deleteBarangLogToDao(item.id)
             }
         }
@@ -541,8 +545,10 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
         }
     }
 
+
         fun updateDetailWarna(newBarangLog: BarangLog) {
             viewModelScope.launch {
+                val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
                 try {
                     val oldBarangLog = withContext(Dispatchers.IO) {
                         dataSourceBarangLog.selectBarangLogByRef(newBarangLog.barangLogRef)
@@ -555,25 +561,25 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
                         if (oldBarangLog.warnaRef == newBarangLog.warnaRef) {
                             if (oldBarangLog.isi == newBarangLog.isi) {
                                 selisihPcs = newBarangLog.pcs - oldBarangLog.pcs
-                                updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, selisihPcs)
+                                updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, selisihPcs,loggedInUsers)
                             } else {
                                 val oldDetailWarna = getDetailWarna(oldBarangLog.warnaRef, oldBarangLog.isi)
                                 val newDetailWarnaTable = getDetailWarna(newBarangLog.warnaRef, newBarangLog.isi)
                                 selisihPcs = -oldBarangLog.pcs
                                 Log.i("InsertLogTry", "old detail warna pcs - selisih pcs=${oldDetailWarna.detailWarnaIsi} -> ${oldDetailWarna.detailWarnaPcs - selisihPcs}")
                                 Log.i("InsertLogTry", "new detail warna - selisih pcs:${newDetailWarnaTable.detailWarnaIsi} -> ${newDetailWarnaTable.detailWarnaPcs - newBarangLog.pcs}")
-                                updateDetailWarnaTODao(oldBarangLog.warnaRef, oldBarangLog.isi, selisihPcs)
-                                updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, newBarangLog.pcs)
+                                updateDetailWarnaTODao(oldBarangLog.warnaRef, oldBarangLog.isi, selisihPcs,loggedInUsers)
+                                updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, newBarangLog.pcs,loggedInUsers)
                             }
                         } else {
                             Log.i("InsertLogTry", "old ref != new ref")
                             selisihPcs = -oldBarangLog.pcs
-                            updateDetailWarnaTODao(oldBarangLog.warnaRef, oldBarangLog.isi, selisihPcs)
-                            updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, newBarangLog.pcs)
+                            updateDetailWarnaTODao(oldBarangLog.warnaRef, oldBarangLog.isi, selisihPcs,loggedInUsers)
+                            updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, newBarangLog.pcs,loggedInUsers)
                         }
                     } else {
                         Log.e("InsertLogTry", "oldBarangLog is null")
-                        updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, newBarangLog.pcs)
+                        updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, newBarangLog.pcs,loggedInUsers)
                     }
                 } catch (e: Exception) {
                     Log.e("InsertLogTry", "Error updating detail warna: ${e.message}", e)
@@ -666,10 +672,10 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
             dataSourceDetailWarna.updateOldDetailWarna(refDetailWarna,isi,pcs)
         }
     }
-    private suspend fun updateDetailWarnaTODao(refWarna: String, isi: Double, pcs: Int) {
+    private suspend fun updateDetailWarnaTODao(refWarna: String, isi: Double, pcs: Int,loggedInUsers: String?) {
         withContext(Dispatchers.IO) {
             try {
-                val result = dataSourceDetailWarna.updateDetailWarna(refWarna, isi, pcs)
+                val result = dataSourceDetailWarna.updateDetailWarna(refWarna, isi, pcs,loggedInUsers)
                 val resultt = dataSourceDetailWarna.selecttTry(refWarna)
                 //Log.i("InsertLogTry", "Updated $resultt rows for refDetailWarna=$refWarna, isi=$isi, pcs=$pcs")
             } catch (e: Exception) {

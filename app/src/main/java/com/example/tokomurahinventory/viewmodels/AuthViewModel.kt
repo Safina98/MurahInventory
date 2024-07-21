@@ -11,6 +11,7 @@ import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.utils.UserRoles
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.mindrot.jbcrypt.BCrypt
 
 class AuthViewModel : ViewModel() {
@@ -22,22 +23,24 @@ class AuthViewModel : ViewModel() {
         _authenticationState.value = null
     }
 
-    fun authenticate(username: String, password: String, context: Context) {
+    fun authenticate(username: String, password: String, context: Context, callback: (Boolean) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             val userDao = DatabaseInventory.getInstance(context).usersDao
             val user = userDao.getUserByUsername(username)
             Log.d("AppDebug", "user from view model: $user")
-            if (user != null && BCrypt.checkpw(password, user.password)) {
-                _authenticationState.postValue(true)
-                SharedPreferencesHelper.saveUsername(context, username)
-                SharedPreferencesHelper.saveUserRole(context, user.usersRole)
-            } else {
-                _authenticationState.postValue(false)
+            val isAuthenticated = user != null && BCrypt.checkpw(password, user.password)
+            withContext(Dispatchers.Main) {
+                callback(isAuthenticated)
+                if (isAuthenticated) {
+                    SharedPreferencesHelper.saveUsername(context, username)
+                    SharedPreferencesHelper.saveUserRole(context, user!!.usersRole)
+                }
             }
         }
     }
 
-    fun setAuthenticationState(isAuthenticated: Boolean) {
+
+    fun setAuthenticationState(isAuthenticated: Boolean?) {
         _authenticationState.value = isAuthenticated
     }
 

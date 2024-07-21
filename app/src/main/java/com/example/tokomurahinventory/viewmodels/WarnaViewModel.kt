@@ -115,9 +115,11 @@ init {
 
     fun updateWarna(warnaTable:WarnaModel){
         uiScope.launch {
+            val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
+            warnaTable.lastEditedBy = loggedInUsers
+            warnaTable.warnaLastEditedDate =Date()
             updateWarnaToDao(warnaTable.toWarnaTable())
             getWarnaByMerk()
-
         }
     }
     fun deleteWarna(warnaTable:WarnaModel){

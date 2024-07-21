@@ -33,7 +33,7 @@ interface DetailWarnaDao {
 
 
     @Query("""SELECT * FROM detail_warna_table WHERE detailWarnaIsi = :detailWarnaIsi AND detailWarnaRef = :warnaRef LIMIT :pcs""")
-    fun getFirstDetailWarna(detailWarnaIsi: Double, warnaRef: String,pcs:Int): List<DetailWarnaTable>
+    fun getFirstDetailWarna(detailWarnaIsi: Double, warnaRef: String,pcs:Int):DetailWarnaTable
 
     @Query("""SELECT * FROM detail_warna_table """)
     fun getAllDetailWarnas(): List<DetailWarnaTable>
@@ -51,8 +51,8 @@ interface DetailWarnaDao {
     """)
     fun getDetailWarnaSummary(warnaRef: String): LiveData<List<DetailWarnaModel>>
 
-    @Query(" UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs-:detailWarnaPcs WHERE warnaRef = :refWarna AND detailWarnaIsi = :detailWarnaIsi")
-    fun updateDetailWarna(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int): Int
+    @Query(" UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs-:detailWarnaPcs,lastEditedBy =:loggedInUsers WHERE warnaRef = :refWarna AND detailWarnaIsi = :detailWarnaIsi")
+    fun updateDetailWarna(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,loggedInUsers:String?): Int
 
     @Query("""
         UPDATE detail_warna_table 

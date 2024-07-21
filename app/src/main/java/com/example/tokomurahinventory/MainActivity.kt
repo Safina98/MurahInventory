@@ -16,6 +16,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -75,11 +76,21 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkAuthentication() {
         authViewModel.authenticationState.observe(this) { isAuthenticated ->
-            if (isAuthenticated!=true) {
+            if (isAuthenticated != null) {
+                if (isAuthenticated) {
+                    Log.d("AppDebug", "Login successful.")
+                    Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
+                    dialog?.dismiss() // Dismiss the dialog if it's showing
+                } else {
+                    Log.d("AppDebug", "Login failed. Invalid username or password.")
+                    Toast.makeText(this, "Invalid username or password", Toast.LENGTH_SHORT).show()
+                }
+            } else {
                 showLoginDialog()
             }
         }
     }
+
     private fun showLoginDialog() {
         if (isFinishing || isDestroyed) {
             Log.d("AppDebug", "Activity is finishing or destroyed. Not showing login dialog.")
@@ -101,20 +112,15 @@ class MainActivity : AppCompatActivity() {
             val username = etUsername.text.toString()
             val password = etPassword.text.toString()
             Log.d("AppDebug", "Attempting login with username: $username")
-            Log.d("AppDebug", "Attempting login with username: $password")
             if (username.isNotEmpty() && password.isNotEmpty()) {
-                Log.d("AppDebug", "Attempting login with username: $username")
-                authViewModel.authenticate(username, password, applicationContext)
-                authViewModel.authenticationState.observe(this) { isAuthenticated ->
-                    if (isAuthenticated!=null){
-                        if (isAuthenticated) {
-                            Log.d("AppDebug", "Login successful.")
-                            Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
-                            dialog.dismiss() // Dismiss the dialog after successful login
-                        } else {
-                            Log.d("AppDebug", "Login failed. Invalid username or password.")
-                            Toast.makeText(this, "Invalid username or password", Toast.LENGTH_SHORT).show()
-                        }
+                authViewModel.authenticate(username, password, applicationContext) { isAuthenticated ->
+                    if (isAuthenticated) {
+                        Log.d("AppDebug", "Login successful.")
+                        Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss() // Dismiss the dialog after successful login
+                    } else {
+                        Log.d("AppDebug", "Login failed. Invalid username or password.")
+                        Toast.makeText(this, "Invalid username or password", Toast.LENGTH_SHORT).show()
                     }
                 }
             } else {
@@ -125,9 +131,13 @@ class MainActivity : AppCompatActivity() {
 
         dialog.show()
     }
+
+
+
+
     override fun onResume() {
         super.onResume()
-        Log.d("AppDebug", "Activity resumed. Checking authentication.")
+        //Log.d("AppDebug", "Activity resumed. Checking authentication.")
 
     }
 
@@ -140,7 +150,7 @@ class MainActivity : AppCompatActivity() {
         navController.navigate(navController.graph.startDestinationId)
 
         SharedPreferencesHelper.clearUsername(this)
-        authViewModel.setAuthenticationState(false)
+        authViewModel.setAuthenticationState(null)
 
 
     }

@@ -149,11 +149,11 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
     fun updateDetailWarna(oldDetailWarnaModel:DetailWarnaModel,pcs:Int,isi:Double){
         viewModelScope.launch {
             //for i in pcs, update isi from detail warna where isi = old isi and ref = warna ref
-        var list = withContext(Dispatchers.IO){ dataSourceDetailWarna.getFirstDetailWarna(isi,oldDetailWarnaModel.warnaRef,pcs) }
-            for (i in list){
-                //i.detailWarnaIsi = isi
-                updateDetailWarnaToDao(i,isi)
-            }
+            val detailWarnaTable = withContext(Dispatchers.IO){ dataSourceDetailWarna.getFirstDetailWarna(isi,oldDetailWarnaModel.warnaRef,pcs) }
+            val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
+            detailWarnaTable.lastEditedBy =loggedInUsers
+            updateDetailWarnaToDao(detailWarnaTable,isi)
+
         //updateDetailWarnaToDao(detailWarnaModel.toDetailWarnaTable())
         }
     }

@@ -83,7 +83,7 @@ class MerkViewModel(
     fun insertMerk(namaMerk:String){
         uiScope.launch {
             var merk= MerkTable()
-            var loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
+            val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             Log.i("AppDebug","$loggedInUsers")
             merk.namaMerk = namaMerk
             if (loggedInUsers != null) {
@@ -102,7 +102,8 @@ class MerkViewModel(
     }
     fun updateMerk(merkTable:MerkTable){
         uiScope.launch {
-            merkTable.lastEditedBy = loggedInUser
+            var loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
+            merkTable.lastEditedBy = loggedInUsers
             merkTable.merkLastEditedDate = Date()
             updateMerkToDao(merkTable)
             getAllMerkTable()
