@@ -22,8 +22,8 @@ class InputStokLogAdapter(
         fun bind(item: InputStokLogModel, clickListener: InputStokLogClickListener, longListener: InputStokLogLongListener, updateInputStokLogClickListener: UpdateInputStokLogClickListener, deleteInputStokLogClickListener: DeleteInputStokLogClickListener) {
             binding.inputStokLog = item
             //binding.clickListemer = clickListener
-            //binding.updateCLickListemer = updateInputStokLogClickListener
-            //binding.deleteClickListemer= deleteInputStokLogClickListener
+            binding.updateListener = updateInputStokLogClickListener
+            binding.deleteListener= deleteInputStokLogClickListener
             binding.executePendingBindings()
         }
 

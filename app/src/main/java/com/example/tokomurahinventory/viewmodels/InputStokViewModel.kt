@@ -1,14 +1,20 @@
 package com.example.tokomurahinventory.viewmodels
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.BarangLogDao
+import com.example.tokomurahinventory.database.DetailWarnaDao
+import com.example.tokomurahinventory.models.BarangLog
 import com.example.tokomurahinventory.models.model.InputStokLogModel
 import com.example.tokomurahinventory.utils.MASUKKELUAR
+import com.example.tokomurahinventory.utils.SharedPreferencesHelper
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
@@ -17,8 +23,13 @@ import java.util.Locale
 
 class InputStokViewModel (
     val dataSourceBarangLog: BarangLogDao,
+    val dataSourceDetailWarna:DetailWarnaDao,
     val loggedInUser:String,
     application: Application):AndroidViewModel(application) {
+
+    private var viewModelJob = Job()
+    //ui scope for coroutines
+    private val uiScope = CoroutineScope(Dispatchers.Main +  viewModelJob)
 
     //show or hide start date picker dialog
     private var _isStartDatePickerClicked = MutableLiveData<Boolean>()
@@ -39,7 +50,7 @@ class InputStokViewModel (
     }
 
     fun getAllInputLogModel(){
-        viewModelScope.launch {
+        uiScope.launch {
             var list = withContext(Dispatchers.IO){
                 dataSourceBarangLog.getAllLogMasuk(MASUKKELUAR.MASUK)
             }
@@ -65,13 +76,13 @@ class InputStokViewModel (
         _inputLogModel.value = list
     }
     fun updateRv4(){
-        viewModelScope.launch {
+        uiScope.launch {
             performDataFiltering(selectedStartDate.value, selectedEndDate.value)
         }
     }
     //filter data from database by date
     private fun performDataFiltering(startDate: Date?, endDate: Date?) {
-        viewModelScope.launch {
+        uiScope.launch {
             val filteredData = withContext(Dispatchers.IO) {
                dataSourceBarangLog.getLogMasukByDateRange(startDate,endDate)
             }
@@ -80,12 +91,12 @@ class InputStokViewModel (
         }
     }
     fun setStartDateRange(startDate: Date?){
-        viewModelScope.launch {
+        uiScope.launch {
             _selectedStartDate.value = startDate
         }
     }
     fun setEndDateRange(endDate: Date?){
-        viewModelScope.launch {
+        uiScope.launch {
             _selectedEndDate.value=endDate
         }
     }
@@ -108,8 +119,45 @@ class InputStokViewModel (
         updateDateRangeString(null,null)
     }
 
+    fun deleteInputStok(inputStokLogModel: InputStokLogModel){
+        uiScope.launch {
+            val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
+            val item = getBarangLogFromDB(inputStokLogModel.inputBarangLogRef)
+            if (item!=null){
+            updateDetailWarnaTODao(item.warnaRef,item.isi,item.pcs,loggedInUsers)
+            deleteBarangLogToDao(item.id)
+                getAllInputLogModel()
+        }
+        }
+    }
+    private suspend fun getBarangLogFromDB(barangLogRef:String):BarangLog?{
+       return withContext(Dispatchers.IO){
+            dataSourceBarangLog.findByBarangLogRef(barangLogRef)
+        }
+    }
+    private suspend fun updateDetailWarnaTODao(refWarna: String, isi: Double, pcs: Int,loggedInUsers: String?) {
+        withContext(Dispatchers.IO) {
+            try {
+                dataSourceDetailWarna.updateDetailWarna(refWarna, isi, pcs,loggedInUsers)
+                dataSourceDetailWarna.selecttTry(refWarna)
+                //Log.i("InsertLogTry", "Updated $resultt rows for refDetailWarna=$refWarna, isi=$isi, pcs=$pcs")
+            } catch (e: Exception) {
+                Log.e("InsertLogTry", "Error updating detail warna: ${e.message}", e)
+            }
+        }
+    }
+    private suspend fun deleteBarangLogToDao(barangLogId:Int){
+        withContext(Dispatchers.IO){
+            dataSourceBarangLog.delete(barangLogId)
+        }
+    }
+
+
     //Navigation
     fun onStartDatePickerClick(){ _isStartDatePickerClicked.value = true }
     fun onStartDatePickerClicked(){ _isStartDatePickerClicked.value = false }
-
+    override fun onCleared() {
+        super.onCleared()
+        viewModelJob.cancel()
+    }
 }

@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:text="@{String.valueOf(detailWarna.detailWarnaPcs)}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/img_update"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -51,27 +51,6 @@
             app:layout_constraintStart_toEndOf="@id/textView4"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/img_update"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/small_margin"
-            android:background="@drawable/baseline_edit_24"
-            android:onClick="@{()->updateClickListemer.onClick(detailWarna)}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/img_delete"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/img_delete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/small_margin"
-            android:background="@drawable/baseline_delete_forever_24"
-            android:onClick="@{()->deleteClickListemer.onClick(detailWarna)}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

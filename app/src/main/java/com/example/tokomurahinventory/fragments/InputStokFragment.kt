@@ -26,6 +26,9 @@ import com.example.tokomurahinventory.adapters.UpdateInputStokLogClickListener
 import com.example.tokomurahinventory.adapters.UpdateMerkClickListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentInputStokBinding
+import com.example.tokomurahinventory.models.MerkTable
+import com.example.tokomurahinventory.models.model.InputStokLogModel
+import com.example.tokomurahinventory.utils.DialogUtils
 
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.DetailWarnaViewModel
@@ -49,8 +52,9 @@ class InputStokFragment : AuthFragment() {
         val application = requireNotNull(this.activity).application
 
         val dataSourceBarangLog = DatabaseInventory.getInstance(application).barangLogDao
+        val dataSourceDetailWarna = DatabaseInventory.getInstance(application).detailWarnaDao
         val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?: ""
-        val viewModelFactory = InputStokViewModelFactory(dataSourceBarangLog,loggedInUser,application)
+        val viewModelFactory = InputStokViewModelFactory(dataSourceBarangLog,dataSourceDetailWarna,loggedInUser,application)
         binding.lifecycleOwner =this
         val viewModel = ViewModelProvider(this,viewModelFactory)
             .get(InputStokViewModel::class.java)
@@ -63,13 +67,14 @@ class InputStokFragment : AuthFragment() {
             }, UpdateInputStokLogClickListener{
 
             }, DeleteInputStokLogClickListener {
-
+                DialogUtils.showDeleteDialog(this, viewModel, it, { vm, item -> (vm as InputStokViewModel).deleteInputStok(item as InputStokLogModel) })
             }
 
         )
         binding.rvInputStokLog.adapter=adapter
         viewModel.inputLogModel.observe(viewLifecycleOwner, Observer {
             adapter.submitList(it)
+            adapter.notifyDataSetChanged()
             Log.i("INPUTLOGTRY","$it")
         })
         binding.searchBarLog.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
