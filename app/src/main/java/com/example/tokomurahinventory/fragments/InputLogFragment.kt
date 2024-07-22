@@ -3,15 +3,12 @@ package com.example.tokomurahinventory.fragments
 import android.app.AlertDialog
 import android.os.Bundle
 import android.text.InputType
-import android.text.method.DigitsKeyListener
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
-import android.widget.EditText
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -29,11 +26,9 @@ import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentInputLogBinding
 import com.example.tokomurahinventory.databinding.PopUpAutocompleteTextviewBinding
 import com.example.tokomurahinventory.models.CountModel
-import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.LogViewModel
 import com.example.tokomurahinventory.viewmodels.LogViewModelFactory
-import com.example.tokomurahinventory.viewmodels.MerkViewModel
 
 
 class InputLogFragment : AuthFragment() {
@@ -42,11 +37,12 @@ class InputLogFragment : AuthFragment() {
     private lateinit var viewModel: LogViewModel
     private var isDialogShowing = false
     private var dialog: AlertDialog? = null
+    private lateinit var adapter: CountAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_input_log,container,false)
 
@@ -66,14 +62,16 @@ class InputLogFragment : AuthFragment() {
 
         binding.viewModel = viewModel
 
-        val adapter = CountAdapter(
+         adapter = CountAdapter(
             AddNetClickListener { countModel, position -> },
             DeleteNetClickListener { countModel, position ->
                 clearEditText()
-                viewModel.deleteCountModel(countModel, position) },
+                viewModel.deleteCountModel(countModel.id)
+                notifyAnItemDeleted(position)
+                                   },
             BarangLogMerkClickListener { countModel, position ->
                 clearEditText()
-                showPopUpDialog(countModel, position, "Merk") },
+                showPopUpDialog(countModel.id, "Merk") },
             BarangLogKodeClickListener { countModel, position ->
                 clearEditText()
                 if (countModel.merkBarang!=null){
@@ -81,7 +79,7 @@ class InputLogFragment : AuthFragment() {
                     viewModel.getWarnaByMerk(countModel.merkBarang!!)
                     viewModel.codeWarnaByMerk.observe(viewLifecycleOwner) { it ->
                         if(it!=null){
-                            showPopUpDialog(countModel, position, "Warna")
+                            showPopUpDialog(countModel.id, "Warna")
                         }
                     }
                 }else Toast.makeText(application,"Masukkan Merk",Toast.LENGTH_SHORT).show()
@@ -92,14 +90,14 @@ class InputLogFragment : AuthFragment() {
                     viewModel.getIsiByWarnaAndMerk(countModel.merkBarang!!,countModel.kodeBarang!!)
                     viewModel.isiByWarnaAndMerk.observe(viewLifecycleOwner) { it ->
                         if(it!=null){
-                            showPopUpDialog(countModel, position, "Isi")
+                            showPopUpDialog(countModel.id, "Isi")
                         }
                     }
                 }else Toast.makeText(application,"Masukkan Merk dan warna",Toast.LENGTH_SHORT).show()
             },
             BarangLogPcsClickListener{countModel, position ->
                 clearEditText()
-                showPopUpDialog(countModel, position, "Pcs")
+                showPopUpDialog(countModel.id, "Pcs")
             },
             viewModel, this
         )
@@ -120,7 +118,7 @@ class InputLogFragment : AuthFragment() {
 
         return binding.root
     }
-    fun showPopUpDialog(countModel: CountModel?, position: Int, code: String) {
+    fun showPopUpDialog(position: Int, code: String) {
         // Dismiss any existing dialog to ensure only one dialog is shown at a time
         dialog?.dismiss()
 
@@ -212,7 +210,9 @@ class InputLogFragment : AuthFragment() {
         binding.inputPembeli.clearFocus()
         binding.inputKet.clearFocus()
     }
-
+    private fun notifyAnItemDeleted(position: Int) {
+            adapter.notifyItemRemoved(position)
+    }
 
 
 }

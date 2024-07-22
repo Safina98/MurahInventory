@@ -12,7 +12,6 @@ import android.widget.AutoCompleteTextView
 import android.widget.EditText
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -24,11 +23,9 @@ import com.example.tokomurahinventory.adapters.WarnaClickListener
 import com.example.tokomurahinventory.adapters.WarnaLongListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentWarnaBinding
-import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.models.model.WarnaModel
 import com.example.tokomurahinventory.utils.DialogUtils
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
-import com.example.tokomurahinventory.viewmodels.MerkViewModel
 import com.example.tokomurahinventory.viewmodels.WarnaViewModel
 import com.example.tokomurahinventory.viewmodels.WarnaViewModelFactory
 import com.google.android.material.textfield.TextInputLayout
@@ -65,7 +62,7 @@ class WarnaFragment : AuthFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         Log.i("FRAGMENT LIFECYCLE", "onCreateView called")
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_warna, container, false)
@@ -157,8 +154,8 @@ class WarnaFragment : AuthFragment() {
             }
         }
         builder.setPositiveButton("OK") { dialog, which ->
-            val kodeWarna = textWarna.text.toString().toUpperCase()
-            val kodeSatuan = textSatuan.text.toString().toUpperCase()
+            val kodeWarna = textWarna.text.toString().uppercase()
+            val kodeSatuan = textSatuan.text.toString().uppercase()
             if (warnaTable == null) {
                 viewModel.insertWarna(kodeWarna, kodeSatuan)
             } else {

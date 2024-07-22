@@ -8,9 +8,7 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.WarnaDao
-import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.models.WarnaTable
 import com.example.tokomurahinventory.models.model.WarnaModel
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
@@ -58,7 +56,7 @@ init {
     fun getWarnaByMerk(){
         uiScope.launch {
             Log.i("FRAGMENT LIFECYCLE","ref merk $refMerk")
-            var list = withContext(Dispatchers.IO){
+            val list = withContext(Dispatchers.IO){
                 dataSourceWarna.getWarnaWithTotalPcsList(refMerk)
             }
             Log.i("FRAGMENT LIFECYCLE","list $list")
@@ -80,7 +78,7 @@ init {
     //Insert New Warna
     fun insertWarna(kodeWarna:String,satuan:String){
         uiScope.launch {
-            var warna= WarnaTable()
+            val warna= WarnaTable()
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             if (loggedInUsers != null) {
                 warna.refMerk = refMerk

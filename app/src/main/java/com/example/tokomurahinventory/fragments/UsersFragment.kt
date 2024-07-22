@@ -148,14 +148,16 @@ class UsersFragment : AuthFragment() {
         passwordInputLayout.endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
         builder.setView(view)
         builder.setPositiveButton("OK") { _, _ ->
+
             val nama = textNama.text.toString().trim()
             val password = textPassword.text.toString().trim()
             val selectedRole = spinnerRole.selectedItem.toString()
+
             if (usersTable == null) {
-                viewModel.insertUser(nama, password,selectedRole)
+                if (password!="" && nama !="") viewModel.insertUser(nama, password,selectedRole)
             } else {
-                usersTable.userName = nama
-                usersTable.password = password
+                if (nama!="") usersTable.userName = nama
+                if (password!="") usersTable.password = password
                 usersTable.usersRole = selectedRole
                 viewModel.updateUser(usersTable)
             }

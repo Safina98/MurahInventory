@@ -71,17 +71,17 @@ class CountAdapter(
         holder.bind(item, position, clickListener, deleteNetListener, barangLogMerkClickListener, barangLogKodeClickListener, barangLogIsiClickListener,barangLogPcsClickListener,viewModel, lifecycleOwner)
     }
 
-    class CountAdapterDiffCallback : DiffUtil.ItemCallback<CountModel>() {
-        override fun areItemsTheSame(oldItem: CountModel, newItem: CountModel): Boolean {
-            return oldItem.id == newItem.id
-        }
 
-        override fun areContentsTheSame(oldItem: CountModel, newItem: CountModel): Boolean {
-            return oldItem == newItem
-        }
+}
+class CountAdapterDiffCallback : DiffUtil.ItemCallback<CountModel>() {
+    override fun areItemsTheSame(oldItem: CountModel, newItem: CountModel): Boolean {
+        return oldItem.id == newItem.id
+    }
+
+    override fun areContentsTheSame(oldItem: CountModel, newItem: CountModel): Boolean {
+        return oldItem == newItem
     }
 }
-
 class AddNetClickListener(val clickListener: (countModel: CountModel, position: Int) -> Unit) {
     fun onAddNetClick(countModel: CountModel, position: Int) {
         clickListener(countModel, position)

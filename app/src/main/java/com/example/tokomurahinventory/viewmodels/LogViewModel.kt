@@ -1,7 +1,6 @@
 package com.example.tokomurahinventory.viewmodels
 
 import android.app.Application
-import android.content.Context
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -20,8 +19,6 @@ import com.example.tokomurahinventory.models.DetailWarnaTable
 import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.utils.MASUKKELUAR
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
-import com.example.tokomurahinventory.utils.SingleLiveEvent
-import com.example.tokomurahinventory.utils.UserRoles
 import com.example.tokomurahinventory.utils.userNullString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,11 +30,11 @@ import java.util.Locale
 import java.util.UUID
 
 class LogViewModel (
-    val dataSourceMerk:MerkDao,
+    private val dataSourceMerk:MerkDao,
     val dataSourceWarna:WarnaDao,
     val dataSourceDetailWarna:DetailWarnaDao,
-    val dataSourceLog:LogDao,
-    val dataSourceBarangLog:BarangLogDao,
+    private val dataSourceLog:LogDao,
+    private val dataSourceBarangLog:BarangLogDao,
     val loggedInUser:String,
     application: Application): AndroidViewModel(application){
 
@@ -47,8 +44,6 @@ class LogViewModel (
     val allLog :LiveData<List<LogTable>> get() = _allLog
 
     val allMerkFromDb = dataSourceMerk.selectAllNamaMerk()
-    private val _pendingDialog = MutableLiveData<Triple<CountModel, Int, String>?>()
-    val pendingDialog: LiveData<Triple<CountModel, Int, String>?> get() = _pendingDialog
 
     private val _codeWarnaByMerk = MutableLiveData<List<String>?>()
     val codeWarnaByMerk: LiveData<List<String>?> get() = _codeWarnaByMerk
@@ -97,7 +92,7 @@ class LogViewModel (
 
     //state
     private val _isWarnaClick = MutableLiveData<Boolean>()
-    val isWarnaClick: LiveData<Boolean> get() = isWarnaClick
+
 
 
     var mutableLog = MutableLiveData<LogTable?>()
@@ -116,7 +111,7 @@ class LogViewModel (
     //get list merk
     fun getAllLogTable(){
         viewModelScope.launch {
-            var list = withContext(Dispatchers.IO){
+            val list = withContext(Dispatchers.IO){
                 dataSourceLog.selectAllLogList(MASUKKELUAR.KELUAR)
             }
             _allLog.value = list
@@ -159,7 +154,7 @@ class LogViewModel (
             "Pilih Tanggal"
         }
     }
-    private fun constructYesterdayDate(month: Int): Date? {
+    private fun constructYesterdayDate(): Date? {
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DAY_OF_YEAR, -2)
         val date = calendar.time
@@ -273,9 +268,9 @@ class LogViewModel (
     }
     fun getBarangLog(namaMerk:String,kodeWarna:String,isi:Double,pcs:Int,refLog:String){
         viewModelScope.launch{
-            val refMerk = getrefMerkByName(namaMerk.toUpperCase())
-            val refWarna = getrefWanraByName(kodeWarna.toUpperCase(),refMerk)
-            var refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna,isi)
+            val refMerk = getrefMerkByName(namaMerk.uppercase())
+            val refWarna = getrefWanraByName(kodeWarna.uppercase(),refMerk)
+            val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna,isi)
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             val barangLog = BarangLog(
                 refMerk = refMerk,
@@ -314,7 +309,7 @@ class LogViewModel (
     fun deleteLog(log: LogTable){
         viewModelScope.launch {
             //get barangLog
-            var barangLogList = getBarangLogFromDao(log.refLog)
+            val barangLogList = getBarangLogFromDao(log.refLog)
             updateDetailWarna(barangLogList)
             deleteLogToDao(log)
             getAllLogTable()
@@ -332,69 +327,92 @@ class LogViewModel (
 
     ///////////////////////////////Count Adapter////////////////////////////////////////////
     //delete from adalter
-    fun deleteCountModel(countModel: CountModel,position: Int){
-        var list = countModelList.value?.toMutableList()
-        list?.removeAt(position)
-        if (countModel.logRef!=""){
-            deleteDSPNew(countModel.logRef)
+    fun deleteCountModel(id: Int) {
+        val list = _countModelList.value?.toMutableList() ?: return
+        val itemToRemove = list.find { it.id == id }
+        if (itemToRemove != null) {
+            list.remove(itemToRemove)
+            _countModelList.value = list
+        } else {
+            Log.e("DeleteError", "Item with ID $id not found.")
         }
-        _countModelList.value  = list?.toList()
     }
-    fun deleteDSPNew(id:String){ viewModelScope.launch {
-       //deleteBarangLogToDao()
-    } }
-
     // Function to update the merk value
-    fun updateMerk(position: Int, merk: String) {
+    fun updateMerk(id: Int, merk: String) {
         viewModelScope.launch {
-            if (checkMerkExisted(merk)==true) {
+            if (checkMerkExisted(merk)) {
                 val updatedList = _countModelList.value?.toMutableList()
-                if (updatedList != null && position in updatedList.indices) {
-                    updatedList[position].merkBarang = merk
-                    updatedList[position].kodeBarang = null
-                    updatedList[position].isi = null
+                val itemToUpdate = updatedList?.find { it.id == id }
+                if (itemToUpdate != null) {
+                    itemToUpdate.merkBarang = merk
+                    itemToUpdate.kodeBarang = null
+                    itemToUpdate.isi = null
                     merkMutable.value = merk
                     _countModelList.value = updatedList // Notify observers of the change
+                } else {
+                    Log.e("UpdateError", "Item with ID $id not found.")
                 }
-            }else{
-                Toast.makeText(getApplication(),"Data tidak ada di database, coba lagi",Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(getApplication(), "Data tidak ada di database, coba lagi", Toast.LENGTH_SHORT).show()
             }
         }
-
     }
+
     // Function to update the count value
-    fun updateIsi(position: Int, count: Double) {
-        val isPresent = isIsiInLiveData(isiByWarnaAndMerk, count) ?: false
-        if (isPresent==true) {
-            val updatedList = countModelList.value?.toMutableList()
-            updatedList?.get(position)?.isi = count
-            _countModelList.value = updatedList!!
-        }else{
-            Toast.makeText(getApplication(),"Data tidak ada di database, coba lagi",Toast.LENGTH_SHORT).show()
+    fun updateIsi(id: Int, count: Double) {
+        viewModelScope.launch {
+            val isPresent = isIsiInLiveData(isiByWarnaAndMerk, count)
+            if (isPresent) {
+                val updatedList = _countModelList.value?.toMutableList()
+                val itemToUpdate = updatedList?.find { it.id == id }
+                if (itemToUpdate != null) {
+                    itemToUpdate.isi = count
+                    _countModelList.value = updatedList // Notify observers of the change
+                } else {
+                    Log.e("UpdateError", "Item with ID $id not found.")
+                }
+            } else {
+                Toast.makeText(getApplication(), "Data tidak ada di database, coba lagi", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
-    fun updatePcs(position: Int, net: Int) {
-        val updatedList = countModelList.value?.toMutableList()
-        updatedList?.get(position)?.psc = net
-        _countModelList.value = updatedList!!
-    }
-
-
-    fun updateKode(position: Int, kode: String) {
-        val isPresent = isKodeWarnaInLiveData(codeWarnaByMerk, kode) ?: false
-        if (isPresent ==true){
-            val updatedList = countModelList.value?.toMutableList()
-            updatedList?.get(position)?.kodeBarang = kode
-            updatedList?.get(position)?.isi = null
-            _countModelList.value = updatedList!!
-        }else
-        {
-            Toast.makeText(getApplication(),"Data tidak ada di database, coba lagi",Toast.LENGTH_SHORT).show()
+    fun updatePcs(id: Int, net: Int) {
+        viewModelScope.launch {
+            val updatedList = _countModelList.value?.toMutableList()
+            val itemToUpdate = updatedList?.find { it.id == id }
+            if (itemToUpdate != null) {
+                itemToUpdate.psc = net
+                _countModelList.value = updatedList // Notify observers of the change
+            } else {
+                Log.e("UpdateError", "Item with ID $id not found.")
+            }
         }
-
-        // _codeWarnaByMerk.value =null
     }
+
+
+
+    fun updateKode(id: Int, kode: String) {
+        viewModelScope.launch {
+            val isPresent = isKodeWarnaInLiveData(codeWarnaByMerk, kode)
+            if (isPresent) {
+                val updatedList = _countModelList.value?.toMutableList()
+                val itemToUpdate = updatedList?.find { it.id == id }
+                if (itemToUpdate != null) {
+                    itemToUpdate.kodeBarang = kode
+                    itemToUpdate.isi = null
+                    _countModelList.value = updatedList // Notify observers of the change
+                } else {
+                    Log.e("UpdateError", "Item with ID $id not found.")
+                }
+            } else {
+                Toast.makeText(getApplication(), "Data tidak ada di database, coba lagi", Toast.LENGTH_SHORT).show()
+            }
+
+            // _codeWarnaByMerk.value = null
+        }
+    }
+
     fun addNewCountItemBtn(){
         val a = _countModelList.value?.toMutableList() ?: mutableListOf()
         a.add(CountModel(getAutoIncrementId(),null,null,null,1,"",""))
@@ -418,10 +436,7 @@ class LogViewModel (
     fun isIsiInLiveData(liveData: LiveData<List<Double>?>, value: Double): Boolean {
         return liveData.value?.contains(value) == true
     }
-    //untuk check merk ada di list
-    fun isMerkInLiveData(liveData: LiveData<List<String>>, value: String): Boolean {
-        return liveData.value?.contains(value) == true
-    }
+
     fun filterLog(query: String?) {
         val list = mutableListOf<LogTable>()
         if (!query.isNullOrEmpty()) {
@@ -454,7 +469,7 @@ class LogViewModel (
 /////////////////////////////////////Converter//////////////////////////////////////////////
 fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
     viewModelScope.launch{
-        var list = barangLogList.map { barangLog ->
+        val list = barangLogList.map { barangLog ->
             CountModel(
                 id = barangLog.id,
                 kodeBarang = withContext(Dispatchers.IO){dataSourceWarna.getKodeWarnaByRef(barangLog.warnaRef)}, // Assuming `kodeBarang` is equivalent to `detailWarnaRef`
@@ -480,7 +495,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
     }
     fun populateListOfLogBarang(logRef:String){
         viewModelScope.launch {
-            var list = getBarangLogFromDao(logRef)
+            val list = getBarangLogFromDao(logRef)
             mutableLogBarang.value = list
             updateBarangLogToCountModel(list)
         }
@@ -503,7 +518,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
     fun compare(logRef:String,cmList:List<CountModel>){
         viewModelScope.launch {
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
-            var a = withContext(Dispatchers.IO){dataSourceBarangLog.selectBarangLogByLogRef(logRef)}
+            val a = withContext(Dispatchers.IO){dataSourceBarangLog.selectBarangLogByLogRef(logRef)}
             val itemsNotInCmList = a.filter { dbItem ->
                 cmList.none { cmItem -> cmItem.barangLogRef == dbItem.barangLogRef }
             }
@@ -516,9 +531,9 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
     }
     fun getBarangLogUpdate(namaMerk:String,kodeWarna:String,isi:Double,pcs:Int,refLog:String,barangLogRef:String){
         viewModelScope.launch{
-            val refMerk = getrefMerkByName(namaMerk.toUpperCase())
-            val refWarna = getrefWanraByName(kodeWarna.toUpperCase(),refMerk)
-            var refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna,isi)
+            val refMerk = getrefMerkByName(namaMerk.uppercase())
+            val refWarna = getrefWanraByName(kodeWarna.uppercase(),refMerk)
+            val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna,isi)
             val barangLog = BarangLog(
                 refMerk = refMerk,
                 warnaRef =  refWarna,
@@ -553,7 +568,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
                     val oldBarangLog = withContext(Dispatchers.IO) {
                         dataSourceBarangLog.selectBarangLogByRef(newBarangLog.barangLogRef)
                     }
-                    var selisihPcs: Int
+                    val selisihPcs: Int
 
                     if (oldBarangLog != null) {
                         Log.i("InsertLogTry", "old log barang isi ${oldBarangLog.isi} new log barang isi=${newBarangLog.isi}")
@@ -667,16 +682,12 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
             dataSourceDetailWarna. getDetailWarnaByIsii(waraRef,isi)
         }
     }
-    private suspend fun updateOldDetailWarna(refDetailWarna:String,isi:Double,pcs:Int){
-        withContext(Dispatchers.IO){
-            dataSourceDetailWarna.updateOldDetailWarna(refDetailWarna,isi,pcs)
-        }
-    }
+
     private suspend fun updateDetailWarnaTODao(refWarna: String, isi: Double, pcs: Int,loggedInUsers: String?) {
         withContext(Dispatchers.IO) {
             try {
-                val result = dataSourceDetailWarna.updateDetailWarna(refWarna, isi, pcs,loggedInUsers)
-                val resultt = dataSourceDetailWarna.selecttTry(refWarna)
+                dataSourceDetailWarna.updateDetailWarna(refWarna, isi, pcs,loggedInUsers)
+                dataSourceDetailWarna.selecttTry(refWarna)
                 //Log.i("InsertLogTry", "Updated $resultt rows for refDetailWarna=$refWarna, isi=$isi, pcs=$pcs")
             } catch (e: Exception) {
                 Log.e("InsertLogTry", "Error updating detail warna: ${e.message}", e)
@@ -736,8 +747,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
     fun onNavigatedToLog(){ _navigateToLog.value = false }
     fun onLongClick(v: View): Boolean { return true }
 
-    fun onWarnaClick(){ _isWarnaClick.value = true }
-    fun onWarnaClickked(){ _isWarnaClick.value = false }
+
 
 
 }
