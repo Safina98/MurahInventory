@@ -2,11 +2,14 @@ package com.example.tokomurahinventory.fragments
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.DatePicker
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
@@ -26,6 +29,7 @@ import com.example.tokomurahinventory.adapters.UpdateInputStokLogClickListener
 import com.example.tokomurahinventory.adapters.UpdateMerkClickListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentInputStokBinding
+import com.example.tokomurahinventory.databinding.PopUpAddBarangLogBinding
 import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.models.model.InputStokLogModel
 import com.example.tokomurahinventory.utils.DialogUtils
@@ -53,8 +57,10 @@ class InputStokFragment : AuthFragment() {
 
         val dataSourceBarangLog = DatabaseInventory.getInstance(application).barangLogDao
         val dataSourceDetailWarna = DatabaseInventory.getInstance(application).detailWarnaDao
+        val dataSourceMerk = DatabaseInventory.getInstance(application).merkDao
+        val dataSourceWarna = DatabaseInventory.getInstance(application).warnaDao
         val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?: ""
-        val viewModelFactory = InputStokViewModelFactory(dataSourceBarangLog,dataSourceDetailWarna,loggedInUser,application)
+        val viewModelFactory = InputStokViewModelFactory(dataSourceBarangLog,dataSourceDetailWarna,dataSourceMerk,dataSourceWarna,loggedInUser,application)
         binding.lifecycleOwner =this
         val viewModel = ViewModelProvider(this,viewModelFactory)
             .get(InputStokViewModel::class.java)
@@ -65,6 +71,9 @@ class InputStokFragment : AuthFragment() {
             }, InputStokLogLongListener{
 
             }, UpdateInputStokLogClickListener{
+                 setupDialog(it)
+                //viewModel.updateInputStok(it)
+
 
             }, DeleteInputStokLogClickListener {
                 DialogUtils.showDeleteDialog(this, viewModel, it, { vm, item -> (vm as InputStokViewModel).deleteInputStok(item as InputStokLogModel) })
@@ -103,6 +112,93 @@ class InputStokFragment : AuthFragment() {
 
         return binding.root
     }
+    private fun setupDialog(inputStokLogModel: InputStokLogModel?) {
+        val dialogBinding = DataBindingUtil.inflate<PopUpAddBarangLogBinding>(
+            LayoutInflater.from(context),
+            R.layout.pop_up_add_barang_log,
+            null,
+            false
+        )
+
+        val autoCompleteMerk = dialogBinding.txtMerk
+        val autoCompleteWarna = dialogBinding.txtWarna
+        val autoCompleteIsi = dialogBinding.txtIsi
+        val etPcs = dialogBinding.txtPcs
+
+        // Initialize the adapter for the AutoCompleteTextView
+        val merkAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, emptyList())
+        autoCompleteMerk.setAdapter(merkAdapter)
+
+        val warnaAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, emptyList())
+        autoCompleteWarna.setAdapter(warnaAdapter)
+
+        if (inputStokLogModel!=null){
+            autoCompleteMerk.setText(inputStokLogModel.namaMerk)
+            autoCompleteWarna.setText(inputStokLogModel.kodeWarna)
+            Log.i("InsertLogTry", "old log barang warna ${inputStokLogModel.kodeWarna}")
+            autoCompleteIsi.setText(inputStokLogModel.isi.toString())
+            etPcs.setText(inputStokLogModel.pcs.toString())
+        }
+
+        // Fetch and observe data
+        viewModel.allMerkFromDb.observe(viewLifecycleOwner) { allMerk ->
+            merkAdapter.clear()
+            merkAdapter.addAll(allMerk)
+        }
+
+        autoCompleteMerk.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val merk = s.toString()
+                if (merk.isNotEmpty()) {
+                    viewModel.getWarnaByMerk(merk)
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        viewModel.codeWarnaByMerk.observe(viewLifecycleOwner) { warnaList ->
+            warnaAdapter.clear()
+            warnaAdapter.addAll(warnaList ?: emptyList())
+        }
+
+        autoCompleteWarna.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val warna = s.toString()
+                val merk = autoCompleteMerk.text.toString()
+                if (warna.isNotEmpty() && merk.isNotEmpty()) {
+                    viewModel.getIsiByWarnaAndMerk(merk, warna)
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        viewModel.isiByWarnaAndMerk.observe(viewLifecycleOwner) { isiList ->
+            // Update the UI or another adapter if needed
+        }
+
+        // Show dialog
+        AlertDialog.Builder(requireContext())
+            .setView(dialogBinding.root)
+            .setPositiveButton("OK") { dialog, _ ->
+                if (inputStokLogModel!=null){
+                    inputStokLogModel.namaMerk= autoCompleteMerk.text.toString().trim()
+                    inputStokLogModel.kodeWarna= autoCompleteWarna.text.toString().trim()
+                    inputStokLogModel.isi= autoCompleteIsi.text.toString().trim().toDouble()
+                    inputStokLogModel.pcs= etPcs.text.toString().trim().toInt()
+                    viewModel.updateInputStok(inputStokLogModel)
+                }
+
+
+                dialog.dismiss() }
+            .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
+            .show()
+    }
+
+
+
+
     private fun showDatePickerDialog(code:Int) {
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.pop_up_date_picker, null)
         val datePickerStart = dialogView.findViewById<DatePicker>(R.id.datePickerStart)
@@ -135,5 +231,10 @@ class InputStokFragment : AuthFragment() {
             .create()
 
         dialog.show()
+    }
+    override fun onResume() {
+        super.onResume()
+        Log.i("FRAGMENT LIFECYCLE", "onResume called")
+        viewModel.getAllInputLogModel()
     }
 }

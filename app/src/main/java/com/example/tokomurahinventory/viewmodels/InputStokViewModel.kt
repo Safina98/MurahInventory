@@ -8,7 +8,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.BarangLogDao
 import com.example.tokomurahinventory.database.DetailWarnaDao
+import com.example.tokomurahinventory.database.MerkDao
+import com.example.tokomurahinventory.database.WarnaDao
 import com.example.tokomurahinventory.models.BarangLog
+import com.example.tokomurahinventory.models.DetailWarnaTable
+import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.models.model.InputStokLogModel
 import com.example.tokomurahinventory.utils.MASUKKELUAR
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
@@ -20,10 +24,13 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 class InputStokViewModel (
     val dataSourceBarangLog: BarangLogDao,
     val dataSourceDetailWarna:DetailWarnaDao,
+    private val dataSourceMerk: MerkDao,
+    val dataSourceWarna: WarnaDao,
     val loggedInUser:String,
     application: Application):AndroidViewModel(application) {
 
@@ -44,6 +51,16 @@ class InputStokViewModel (
     private var _inputLogModel = MutableLiveData<List<InputStokLogModel>>()
     val inputLogModel : LiveData<List<InputStokLogModel>> get() = _inputLogModel
     private val _unFilteredLog = MutableLiveData<List<InputStokLogModel>>()
+
+    val allMerkFromDb = dataSourceMerk.selectAllNamaMerk()
+
+    private val _codeWarnaByMerk = MutableLiveData<List<String>?>()
+    val codeWarnaByMerk: LiveData<List<String>?> get() = _codeWarnaByMerk
+
+    private val _isiByWarnaAndMerk = MutableLiveData<List<Double>?>()
+    val isiByWarnaAndMerk: LiveData<List<Double>?> get() = _isiByWarnaAndMerk
+
+
     init {
         getAllInputLogModel()
         updateDateRangeString(_selectedStartDate.value, _selectedEndDate.value)
@@ -56,6 +73,24 @@ class InputStokViewModel (
             }
             _inputLogModel.value=list
             _unFilteredLog.value = list
+        }
+    }
+    fun getWarnaByMerk(merk:String){
+        viewModelScope.launch {
+            val refMerk = withContext(Dispatchers.IO){dataSourceMerk.getMerkRefByName(merk)}
+            val stringWarnaList=withContext(Dispatchers.IO){dataSourceWarna.selectStringWarnaByMerk(refMerk)}
+            _codeWarnaByMerk.value = stringWarnaList
+            //codeWarnaByMerk.setValue(stringWarnaList)
+        }
+    }
+    //get list isi for sugestion
+    fun getIsiByWarnaAndMerk(merk:String,warna:String){
+        viewModelScope.launch {
+            val refMerk = withContext(Dispatchers.IO){dataSourceMerk.getMerkRefByName(merk)}
+            val refWarna = withContext(Dispatchers.IO){dataSourceWarna.getWarnaRefByName(warna,refMerk)}
+            val stringWarnaList=withContext(Dispatchers.IO){dataSourceDetailWarna.getIsiDetailWarnaByWarna(refWarna)}
+            _isiByWarnaAndMerk.value = stringWarnaList
+            // isiByWarnaAndMerk.setValue(stringWarnaList.map { it.toString() })
         }
     }
     fun filterLog(query: String?) {
@@ -124,10 +159,89 @@ class InputStokViewModel (
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             val item = getBarangLogFromDB(inputStokLogModel.inputBarangLogRef)
             if (item!=null){
-            updateDetailWarnaTODao(item.warnaRef,item.isi,item.pcs,loggedInUsers)
-            deleteBarangLogToDao(item.id)
+                updateDetailWarnaTODao(item.warnaRef,item.isi,item.pcs,loggedInUsers)
+                deleteBarangLogToDao(item.id)
                 getAllInputLogModel()
         }
+        }
+    }
+    fun convertToBarangLog(input: InputStokLogModel,refMerk:String,refWarna:String,refDetailWarna:String,loggedInUsers:String?,logRef:String): BarangLog {
+
+        return BarangLog(
+            // Assuming id is auto-generated in BarangLog, so you can set it to 0 or handle accordingly.
+            id = 0, // Change this if id needs to be handled differently
+            refMerk = refMerk,
+            warnaRef = refWarna,
+            detailWarnaRef = refDetailWarna, // Set this if needed, or fetch from a different source
+            isi = input.isi,
+            pcs = input.pcs,
+            barangLogDate = input.barangLogInsertedDate,
+            refLog = logRef, // Handle null or default value
+            barangLogRef = input.inputBarangLogRef,
+            barangLogExtraBool = false, // Set default value or handle if required
+            barangLogExtraDouble = 0.0, // Set default value or handle if required
+            barangLogExtraString = "", // Set default value or handle if required
+            barangLogTipe = MASUKKELUAR.MASUK // Set default value or handle if required
+        )
+    }
+    fun updateInputStok(inputStokLogModel: InputStokLogModel){
+        uiScope.launch {
+            val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
+            val refMerk = getrefMerkByName(inputStokLogModel.namaMerk.uppercase())
+            val refWarna = getrefWanraByName(inputStokLogModel.kodeWarna.uppercase(),refMerk)
+            var refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna,inputStokLogModel.isi)
+            if (refDetailWarna==null) {
+                refDetailWarna = UUID.randomUUID().toString()
+                insertDetailWarnaToDao(refWarna,inputStokLogModel.isi,inputStokLogModel.pcs,loggedInUsers,refDetailWarna)
+            }
+            val item = getBarangLogFromDB(inputStokLogModel.inputBarangLogRef)
+            if (item!=null){
+                val barangNewLog = convertToBarangLog(inputStokLogModel,refMerk,refWarna,refDetailWarna,loggedInUsers,item.refLog)
+                updateDetailWarna(barangNewLog)
+                updateBarangLogToDao(barangNewLog)
+                getAllInputLogModel()
+            }
+        }
+    }
+    fun updateDetailWarna(newBarangLog: BarangLog) {
+        uiScope.launch {
+            val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
+            try {
+                val oldBarangLog = withContext(Dispatchers.IO) {
+                    dataSourceBarangLog.selectBarangLogByRef(newBarangLog.barangLogRef)
+                }
+                val selisihPcs: Int
+
+                if (oldBarangLog != null) {
+
+                    Log.i("InsertLogTry", "old log barang warna ${oldBarangLog.warnaRef} new log barang warna=${newBarangLog.warnaRef}")
+                    if (oldBarangLog.warnaRef == newBarangLog.warnaRef) {
+                        if (oldBarangLog.isi == newBarangLog.isi) {
+                            Log.i("InsertLogTry", "old log barang isi ${oldBarangLog.isi} new log barang isi=${newBarangLog.isi}")
+                            selisihPcs = newBarangLog.pcs - oldBarangLog.pcs
+                            updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, -selisihPcs,loggedInUsers)
+                        } else {
+                            val oldDetailWarna = getDetailWarna(oldBarangLog.warnaRef, oldBarangLog.isi)
+                            val newDetailWarnaTable = getDetailWarna(newBarangLog.warnaRef, newBarangLog.isi)
+                            selisihPcs = -oldBarangLog.pcs
+                            Log.i("InsertLogTry", "old detail warna pcs - selisih pcs=${oldDetailWarna.detailWarnaIsi} -> ${oldDetailWarna.detailWarnaPcs - selisihPcs}")
+                            Log.i("InsertLogTry", "new detail warna - selisih pcs:${newDetailWarnaTable.detailWarnaIsi} -> ${newDetailWarnaTable.detailWarnaPcs - newBarangLog.pcs}")
+                            updateDetailWarnaTODao(oldBarangLog.warnaRef, oldBarangLog.isi, -selisihPcs,loggedInUsers)
+                            updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, -newBarangLog.pcs,loggedInUsers)
+                        }
+                    } else {
+                        Log.i("InsertLogTry", "old ref != new ref")
+                        selisihPcs = -oldBarangLog.pcs
+                        updateDetailWarnaTODao(oldBarangLog.warnaRef, oldBarangLog.isi, -selisihPcs,loggedInUsers)
+                        updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, -newBarangLog.pcs,loggedInUsers)
+                    }
+                } else {
+                    Log.e("InsertLogTry", "oldBarangLog is null")
+                    updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, -newBarangLog.pcs,loggedInUsers)
+                }
+            } catch (e: Exception) {
+                Log.e("InsertLogTry", "Error updating detail warna: ${e.message}", e)
+            }
         }
     }
     private suspend fun getBarangLogFromDB(barangLogRef:String):BarangLog?{
@@ -135,23 +249,70 @@ class InputStokViewModel (
             dataSourceBarangLog.findByBarangLogRef(barangLogRef)
         }
     }
-    private suspend fun updateDetailWarnaTODao(refWarna: String, isi: Double, pcs: Int,loggedInUsers: String?) {
+    private suspend fun updateDetailWarnaTODao(refWarna: String, isi: Double, pcs: Int, loggedInUsers: String?) {
         withContext(Dispatchers.IO) {
             try {
-                dataSourceDetailWarna.updateDetailWarna(refWarna, isi, pcs,loggedInUsers)
-                dataSourceDetailWarna.selecttTry(refWarna)
-                //Log.i("InsertLogTry", "Updated $resultt rows for refDetailWarna=$refWarna, isi=$isi, pcs=$pcs")
+                dataSourceDetailWarna.updateDetailWarna(refWarna, isi, pcs, loggedInUsers)
             } catch (e: Exception) {
-                Log.e("InsertLogTry", "Error updating detail warna: ${e.message}", e)
+                Log.e("InsertLogTry", "Error updating or inserting detail warna: ${e.message}", e)
             }
         }
     }
+    private suspend fun insertDetailWarnaToDao(refWarna: String, isi: Double, pcs: Int, loggedInUsers: String?,refDetailWarna: String) {
+        withContext(Dispatchers.IO){
+            val newDetailWarna = DetailWarnaTable(
+                warnaRef = refWarna,
+                detailWarnaIsi = isi,
+                detailWarnaPcs = pcs,
+                detailWarnaRef = refDetailWarna,
+                user = loggedInUsers,
+                detailWarnaDate=Date(),
+                detailWarnaLastEditedDate=Date(),
+                createdBy=loggedInUsers,
+                lastEditedBy = loggedInUsers
+            )
+            dataSourceDetailWarna.insert(newDetailWarna)
+        }
+    }
+
     private suspend fun deleteBarangLogToDao(barangLogId:Int){
         withContext(Dispatchers.IO){
             dataSourceBarangLog.delete(barangLogId)
         }
     }
-
+    private suspend fun getDetailWarna(waraRef:String, isi:Double): DetailWarnaTable {
+        return withContext(Dispatchers.IO){
+            dataSourceDetailWarna. getDetailWarnaByIsii(waraRef,isi)
+        }
+    }
+    private suspend fun getrefMerkByName(name:String):String{
+        return withContext(Dispatchers.IO){
+            dataSourceMerk.getMerkRefByName(name)
+        }
+    }
+    private suspend fun getrefWanraByName(name:String,refMerk:String):String{
+        return withContext(Dispatchers.IO){
+            dataSourceWarna.getWarnaRefByName(name,refMerk)
+        }
+    }
+    private suspend fun getrefDetailWanraByWarnaRefndIsi(name:String,isi:Double):String?{
+        return withContext(Dispatchers.IO){
+            dataSourceDetailWarna.getDetailWarnaByIsi(name,isi)
+        }
+    }
+    private suspend fun doesBarangLogExist(barangLogRef: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            dataSourceBarangLog.findByBarangLogRef(barangLogRef) != null
+        }
+    }
+    private suspend fun updateBarangLogToDao(log: BarangLog) {
+        withContext(Dispatchers.IO) {
+            if (doesBarangLogExist(log.barangLogRef)) {
+                // Update existing record if barangLogRef exists
+                dataSourceBarangLog.updateByBarangLogRef(log.refMerk, log.warnaRef, log.detailWarnaRef ?: "", log.isi, log.pcs, log.barangLogDate, log.refLog, log.barangLogRef)
+            }
+        }
+    }
 
     //Navigation
     fun onStartDatePickerClick(){ _isStartDatePickerClicked.value = true }

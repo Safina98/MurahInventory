@@ -664,7 +664,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
             dataSourceWarna.getWarnaRefByName(name,refMerk)
         }
     }
-    private suspend fun getrefDetailWanraByWarnaRefndIsi(name:String,isi:Double):String{
+    private suspend fun getrefDetailWanraByWarnaRefndIsi(name:String,isi:Double):String?{
         return withContext(Dispatchers.IO){
             dataSourceDetailWarna.getDetailWarnaByIsi(name,isi)
         }

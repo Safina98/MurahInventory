@@ -54,6 +54,9 @@ interface DetailWarnaDao {
     @Query(" UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs-:detailWarnaPcs,lastEditedBy =:loggedInUsers WHERE warnaRef = :refWarna AND detailWarnaIsi = :detailWarnaIsi")
     fun updateDetailWarna(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,loggedInUsers:String?): Int
 
+    @Query("SELECT COUNT(*) FROM detail_warna_table WHERE warnaRef = :refWarna AND detailWarnaIsi = :detailWarnaIsi")
+    suspend fun exists(refWarna: String, detailWarnaIsi: Double): Int
+
     @Query("""
         UPDATE detail_warna_table 
         SET detailWarnaPcs = detailWarnaPcs + :detailWarnaPcs, 
@@ -83,7 +86,7 @@ interface DetailWarnaDao {
 
 
     @Query("SELECT detailWarnaRef FROM detail_warna_table WHERE warnaRef = :warnaRef and detailWarnaIsi =:isi")
-    fun getDetailWarnaByIsi(warnaRef: String,isi: Double):String
+    fun getDetailWarnaByIsi(warnaRef: String,isi: Double):String?
 
     @Query("SELECT * FROM detail_warna_table WHERE warnaRef = :warnaRef and detailWarnaIsi =:isi")
     fun getDetailWarnaByIsii(warnaRef: String,isi: Double):DetailWarnaTable

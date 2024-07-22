@@ -7,7 +7,6 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.BarangLogDao
 import com.example.tokomurahinventory.database.DetailWarnaDao
 import com.example.tokomurahinventory.database.LogDao
@@ -19,7 +18,9 @@ import com.example.tokomurahinventory.models.model.DetailWarnaModel
 import com.example.tokomurahinventory.utils.MASUKKELUAR
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.utils.userNullString
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
@@ -36,6 +37,10 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
                            val loggedInUser:String,
                            application: Application
 ): AndroidViewModel(application) {
+
+    private var viewModelJob = Job()
+    //ui scope for coroutines
+    private val uiScope = CoroutineScope(Dispatchers.Main +  viewModelJob)
     //Add detail warna fab
     private val _addDetailWarnaFab = MutableLiveData<Boolean>()
     val addDetailWarnaFab: LiveData<Boolean> get() = _addDetailWarnaFab
@@ -55,7 +60,7 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
     }
 
     fun insertDetailWarna(pcs: Int, isi: Double) {
-        viewModelScope.launch {
+        uiScope.launch {
             val detailWarnaTable = DetailWarnaTable()
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             if (loggedInUsers != null) {
@@ -87,30 +92,44 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
 
         }
     }
-    fun insertInputLog(detailWarnaTable: DetailWarnaTable){
-        viewModelScope.launch {
-            val log=LogTable()
-            log.refLog = UUID.randomUUID().toString()
-            log.logTipe = MASUKKELUAR.MASUK
-            log.createdBy = loggedInUser
-            log.lastEditedBy = loggedInUser
-            log.userName = loggedInUser
-            log.logCreatedDate = Date()
-            log.logLastEditedDate=Date()
-            val barangLog = BarangLog()
-            barangLog.refLog = log.refLog
-            barangLog.detailWarnaRef = detailWarnaTable.detailWarnaRef
-            barangLog.refMerk = getMerkRef()
-            barangLog.warnaRef = detailWarnaTable.warnaRef
-            barangLog.isi = detailWarnaTable.detailWarnaIsi
-            barangLog.pcs = detailWarnaTable.detailWarnaPcs
-            barangLog.barangLogRef = UUID.randomUUID().toString()
-            barangLog.barangLogTipe = MASUKKELUAR.MASUK
-            insertLogToDao(log)
-            insertBarangLogToDao(barangLog)
-        }
+    fun insertInputLog(detailWarnaTable: DetailWarnaTable) {
+        uiScope.launch {
+            try {
+                Log.i("InsertLogTry","insert InputLog detailWarna: $detailWarnaTable")
 
+                val log = LogTable().apply {
+                    refLog = UUID.randomUUID().toString()
+                    logTipe = MASUKKELUAR.MASUK
+                    createdBy = loggedInUser
+                    lastEditedBy = loggedInUser
+                    userName = loggedInUser
+                    logCreatedDate = Date()
+                    logLastEditedDate = Date()
+                }
+
+                val barangLog = BarangLog().apply {
+                    refLog = log.refLog
+                    detailWarnaRef = detailWarnaTable.detailWarnaRef
+                    refMerk = getMerkRef() // Ensure getMerkRef() returns a valid value
+                    warnaRef = detailWarnaTable.warnaRef
+                    isi = detailWarnaTable.detailWarnaIsi
+                    pcs = detailWarnaTable.detailWarnaPcs
+                    barangLogRef = UUID.randomUUID().toString()
+                    barangLogTipe = MASUKKELUAR.MASUK
+                }
+
+                Log.i("InsertLogTry","insert InputLog log: $barangLog")
+
+                insertLogToDao(log)
+                insertBarangLogToDao(barangLog)
+
+                Log.i("InsertLogTry","Insertion completed successfully")
+            } catch (e: Exception) {
+                Log.e("InsertLogError", "Error inserting log and barang log", e)
+            }
+        }
     }
+
 
 
 
@@ -147,7 +166,7 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
 
 
     fun updateDetailWarna(oldDetailWarnaModel:DetailWarnaModel,pcs:Int,isi:Double){
-        viewModelScope.launch {
+        uiScope.launch {
             //for i in pcs, update isi from detail warna where isi = old isi and ref = warna ref
             val detailWarnaTable = withContext(Dispatchers.IO){ dataSourceDetailWarna.getFirstDetailWarna(isi,oldDetailWarnaModel.warnaRef,pcs) }
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
@@ -158,7 +177,7 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
         }
     }
     fun deleteDetailWarna(detailWarnaModel: DetailWarnaModel){
-        viewModelScope.launch{
+        uiScope.launch{
             deleteDetailWarnaToDao(detailWarnaModel.detailWarnaIsi,detailWarnaModel.warnaRef)
         }
     }
@@ -184,4 +203,8 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
     fun onAddWarnaFabClick() { _addDetailWarnaFab.value = true }
     fun onAddWarnaFabClicked() { _addDetailWarnaFab.value = false }
     fun onLongClick(v: View): Boolean { return false }
+    override fun onCleared() {
+        super.onCleared()
+        viewModelJob.cancel()
+    }
 }
