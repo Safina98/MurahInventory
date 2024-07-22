@@ -2,7 +2,9 @@ package com.example.tokomurahinventory.fragments
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.text.Editable
 import android.text.InputType
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -24,8 +26,10 @@ import com.example.tokomurahinventory.adapters.CountAdapter
 import com.example.tokomurahinventory.adapters.DeleteNetClickListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentInputLogBinding
+import com.example.tokomurahinventory.databinding.PopUpAddBarangLogBinding
 import com.example.tokomurahinventory.databinding.PopUpAutocompleteTextviewBinding
 import com.example.tokomurahinventory.models.CountModel
+import com.example.tokomurahinventory.models.model.InputStokLogModel
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.LogViewModel
 import com.example.tokomurahinventory.viewmodels.LogViewModelFactory
@@ -71,10 +75,14 @@ class InputLogFragment : AuthFragment() {
                                    },
             BarangLogMerkClickListener { countModel, position ->
                 clearEditText()
-                showPopUpDialog(countModel.id, "Merk") },
+                //setupDialog(countModel)
+                showPopUpDialog(countModel.id, "Merk")
+                },
             BarangLogKodeClickListener { countModel, position ->
                 clearEditText()
+
                 if (countModel.merkBarang!=null){
+                    //setupDialog(countModel)
                     isDialogShowing = true
                     viewModel.getWarnaByMerk(countModel.merkBarang!!)
                     viewModel.codeWarnaByMerk.observe(viewLifecycleOwner) { it ->
@@ -118,6 +126,110 @@ class InputLogFragment : AuthFragment() {
 
         return binding.root
     }
+
+    private fun setupDialog(countModel: CountModel?) {
+        val dialogBinding = DataBindingUtil.inflate<PopUpAddBarangLogBinding>(
+            LayoutInflater.from(context),
+            R.layout.pop_up_add_barang_log,
+            null,
+            false
+        )
+
+        val autoCompleteMerk = dialogBinding.txtMerk
+        val autoCompleteWarna = dialogBinding.txtWarna
+        val autoCompleteIsi = dialogBinding.txtIsi
+        val etPcs = dialogBinding.txtPcs
+
+        // Use mutable lists for adapters
+        val merkAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, mutableListOf())
+        autoCompleteMerk.setAdapter(merkAdapter)
+
+        val warnaAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, mutableListOf())
+        autoCompleteWarna.setAdapter(warnaAdapter)
+
+        val isiAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, mutableListOf())
+        autoCompleteIsi.setAdapter(isiAdapter)
+
+        if (countModel != null) {
+            autoCompleteMerk.setText(countModel.merkBarang)
+            autoCompleteWarna.setText(countModel.kodeBarang)
+            if (countModel.isi!=null)autoCompleteIsi.setText(countModel.isi.toString())
+            etPcs.setText(countModel.psc.toString())
+        }
+
+        // Fetch and observe data
+        viewModel.allMerkFromDb.observe(viewLifecycleOwner) { allMerk ->
+            merkAdapter.clear()
+            merkAdapter.addAll(allMerk)
+        }
+
+        autoCompleteMerk.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val merk = s.toString()
+                if (merk.isNotEmpty()) {
+                    viewModel.getWarnaByMerk(merk)
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        viewModel.codeWarnaByMerk.observe(viewLifecycleOwner) { warnaList ->
+            warnaAdapter.clear()
+            warnaAdapter.addAll(warnaList ?: emptyList())
+        }
+
+        autoCompleteWarna.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val warna = s.toString()
+                val merk = autoCompleteMerk.text.toString()
+                if (warna.isNotEmpty() && merk.isNotEmpty()) {
+                    viewModel.getIsiByWarnaAndMerk(merk, warna)
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        viewModel.isiByWarnaAndMerk.observe(viewLifecycleOwner) { isiList ->
+            isiAdapter.clear()
+            isiAdapter.addAll(isiList?.map { it.toString() } ?: emptyList())
+        }
+
+        // Create and show the dialog
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogBinding.root)
+            .setPositiveButton("OK", null) // No action here
+            .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setOnClickListener {
+                if (countModel != null) {
+                    countModel.merkBarang = autoCompleteMerk.text.toString().trim()
+                    countModel.kodeBarang = autoCompleteWarna.text.toString().trim()
+                    if (countModel.isi!=null) countModel.isi = autoCompleteIsi.text.toString().trim().toDouble()
+                    countModel.psc = etPcs.text.toString().trim().toInt()
+                    Log.i("InsertLogTry", "pop up dialog countModel: $countModel")
+
+                    // Handle dialog dismissal based on update result
+                    viewModel.updateCountModel(countModel) { success ->
+                        if (success) {
+                            dialog.dismiss() // Dismiss only if update is successful
+                        } else {
+                            Toast.makeText(requireContext(), "Update failed, try again.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } else {
+                    dialog.dismiss()
+                }
+            }
+        }
+
+        dialog.show()
+    }
+
+
     fun showPopUpDialog(position: Int, code: String) {
         // Dismiss any existing dialog to ensure only one dialog is shown at a time
         dialog?.dismiss()

@@ -337,6 +337,116 @@ class LogViewModel (
             Log.e("DeleteError", "Item with ID $id not found.")
         }
     }
+
+    private suspend fun checkIfPcsReadyInStok(refDetailWarna:String,pcs_n:Int):Boolean{
+        return withContext(Dispatchers.IO){
+            dataSourceDetailWarna.isPcsReady(refDetailWarna,pcs_n)
+        }
+    }
+
+    fun isDataEdited():Boolean{
+        return true
+    }
+
+
+    // In LogViewModel
+    fun updateCountModel(countModel: CountModel, callback: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val isMerkPresent = checkMerkExisted(countModel.merkBarang!!)
+            val isWarnaPresent = isKodeWarnaInLiveData(codeWarnaByMerk, countModel.kodeBarang!!)
+            val isIsiPresent = isIsiInLiveData(isiByWarnaAndMerk, countModel.isi!!)
+
+            if (isMerkPresent && isWarnaPresent && isIsiPresent) {
+                val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
+                val refWarna = getrefWanraByName(countModel.kodeBarang!!.uppercase(), refMerk)
+                val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna, countModel.isi!!)
+
+                val isPcsReadyInStok = checkIfPcsReadyInStok(refDetailWarna!!, countModel.psc)
+
+                if (isPcsReadyInStok) {
+                    val updatedList = _countModelList.value?.toMutableList()
+                    val itemToUpdate = updatedList?.find { it.id == countModel.id }
+
+                    if (itemToUpdate != null) {
+                        itemToUpdate.merkBarang = countModel.merkBarang!!
+                        itemToUpdate.kodeBarang = countModel.kodeBarang
+                        itemToUpdate.isi = countModel.isi!!
+                        itemToUpdate.psc = countModel.psc
+
+                        merkMutable.value = countModel.merkBarang
+                        _countModelList.value = updatedList // Notify observers of the change
+                        callback(true) // Notify success
+                    } else {
+                        callback(false) // Notify failure
+                    }
+                } else {
+                    callback(false) // Notify failure
+                }
+            } else {
+                callback(false) // Notify failure
+            }
+        }
+    }
+
+
+    //try update count model
+    fun updateCountModelOld(countModel: CountModel): Boolean {
+        var success = false
+        viewModelScope.launch {
+            val isMerkPresent = checkMerkExisted(countModel.merkBarang!!)
+            val isWarnaPresent = isKodeWarnaInLiveData(codeWarnaByMerk, countModel.kodeBarang!!)
+            val isIsiPresent = isIsiInLiveData(isiByWarnaAndMerk, countModel.isi!!)
+
+            Log.i("InsertLogTry", "updateCountModel isMerkPresent: $isMerkPresent")
+            Log.i("InsertLogTry", "updateCountModel isWarnaPresent: $isWarnaPresent")
+            Log.i("InsertLogTry", "updateCountModel isIsiPresent: $isIsiPresent")
+
+            if (isMerkPresent && isWarnaPresent && isIsiPresent) {
+                val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
+                val refWarna = getrefWanraByName(countModel.kodeBarang!!.uppercase(), refMerk)
+                val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna, countModel.isi!!)
+
+                Log.i("InsertLogTry", "updateCountModel refMerk: $refMerk")
+                Log.i("InsertLogTry", "updateCountModel refWarna: $refWarna")
+                Log.i("InsertLogTry", "updateCountModel refDetailWarna: $refDetailWarna")
+
+                val isPcsReadyInStok = checkIfPcsReadyInStok(refDetailWarna!!, countModel.psc)
+
+                Log.i("InsertLogTry", "updateCountModel isPCsReadyInStock: $isPcsReadyInStok")
+
+                if (isPcsReadyInStok) {
+                    val updatedList = _countModelList.value?.toMutableList()
+                    val itemToUpdate = updatedList?.find { it.id == countModel.id }
+
+                    Log.i("InsertLogTry", "updateCountModel itemToUpdate: $itemToUpdate")
+
+                    if (itemToUpdate != null) {
+                        itemToUpdate.merkBarang = countModel.merkBarang!!
+                        itemToUpdate.kodeBarang = countModel.kodeBarang
+                        itemToUpdate.isi = countModel.isi!!
+                        itemToUpdate.psc = countModel.psc
+
+                        Log.i("InsertLogTry", "updateCountModel itemToUpdate: $itemToUpdate")
+
+                        merkMutable.value = countModel.merkBarang
+                        _countModelList.value = updatedList // Notify observers of the change
+                        success = true
+                    } else {
+                        Log.e("InsertLogTry", "Item with ID ${countModel.id} not found.")
+                        Toast.makeText(getApplication(), "Barang tidak tersedia", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Log.e("InsertLogTry", "PCS not ready in stock for ID ${countModel.id}.")
+                    Toast.makeText(getApplication(), "Item with ID ${countModel.id} not found.", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Toast.makeText(getApplication(), "Data tidak ada di database, coba lagi", Toast.LENGTH_SHORT).show()
+            }
+        }
+        return success
+    }
+
+
     // Function to update the merk value
     fun updateMerk(id: Int, merk: String) {
         viewModelScope.launch {
@@ -347,10 +457,12 @@ class LogViewModel (
                     itemToUpdate.merkBarang = merk
                     itemToUpdate.kodeBarang = null
                     itemToUpdate.isi = null
+                    itemToUpdate.psc = 0
                     merkMutable.value = merk
                     _countModelList.value = updatedList // Notify observers of the change
                 } else {
-                    Log.e("UpdateError", "Item with ID $id not found.")
+                    Log.e("InsertLogTry" +
+                            "", "Item with ID $id not found.")
                 }
             } else {
                 Toast.makeText(getApplication(), "Data tidak ada di database, coba lagi", Toast.LENGTH_SHORT).show()
@@ -367,6 +479,7 @@ class LogViewModel (
                 val itemToUpdate = updatedList?.find { it.id == id }
                 if (itemToUpdate != null) {
                     itemToUpdate.isi = count
+                    itemToUpdate.psc = 0
                     _countModelList.value = updatedList // Notify observers of the change
                 } else {
                     Log.e("UpdateError", "Item with ID $id not found.")
@@ -381,9 +494,18 @@ class LogViewModel (
         viewModelScope.launch {
             val updatedList = _countModelList.value?.toMutableList()
             val itemToUpdate = updatedList?.find { it.id == id }
+
             if (itemToUpdate != null) {
-                itemToUpdate.psc = net
-                _countModelList.value = updatedList // Notify observers of the change
+                val refMerk = getrefMerkByName(itemToUpdate!!.merkBarang!!.uppercase())
+                val refWarna = getrefWanraByName(itemToUpdate.kodeBarang!!.uppercase(), refMerk)
+                val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna, itemToUpdate.isi!!)
+                val isPcsReadyInStok = checkIfPcsReadyInStok(refDetailWarna!!, itemToUpdate.psc)
+                if (isPcsReadyInStok){
+                    itemToUpdate.psc = net
+                    _countModelList.value = updatedList // Notify observers of the change
+                }else
+                    Toast.makeText(getApplication(),"Stok barang tidak cukup",Toast.LENGTH_SHORT).show()
+
             } else {
                 Log.e("UpdateError", "Item with ID $id not found.")
             }
@@ -401,6 +523,7 @@ class LogViewModel (
                 if (itemToUpdate != null) {
                     itemToUpdate.kodeBarang = kode
                     itemToUpdate.isi = null
+                    itemToUpdate.psc = 0
                     _countModelList.value = updatedList // Notify observers of the change
                 } else {
                     Log.e("UpdateError", "Item with ID $id not found.")
@@ -415,7 +538,7 @@ class LogViewModel (
 
     fun addNewCountItemBtn(){
         val a = _countModelList.value?.toMutableList() ?: mutableListOf()
-        a.add(CountModel(getAutoIncrementId(),null,null,null,1,"",""))
+        a.add(CountModel(getAutoIncrementId(),null,null,null,0,"",""))
         _countModelList.value=a
 
     }
@@ -606,7 +729,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
     fun areAllCountModelValuesNotNull(countModelList: LiveData<List<CountModel>?>): Boolean {
         val countModelItems = countModelList.value ?: return false
         for (countModel in countModelItems) {
-            if (countModel.kodeBarang == null || countModel.merkBarang == null || countModel.isi == null) {
+            if (countModel.kodeBarang == null || countModel.merkBarang == null || countModel.isi == null ||countModel.psc==0) {
                 return false
             }
         }

@@ -101,6 +101,9 @@ interface DetailWarnaDao {
     @Query("SELECT * FROM detail_warna_table WHERE detailWarnaIsi = :detailWarnaIsi AND warnaRef = :warnaRef LIMIT 1")
     fun checkIfIsiExisted(detailWarnaIsi: Double, warnaRef: String): DetailWarnaTable?
 
+    @Query("SELECT EXISTS(SELECT 1 FROM detail_warna_table WHERE detailWarnaRef = :refDetailWarna AND detailWarnaPcs >= :pcs_n)")
+    fun isPcsReady(refDetailWarna: String, pcs_n: Int): Boolean
+
     @Query("""
         SELECT 
             m.id AS merkId,
