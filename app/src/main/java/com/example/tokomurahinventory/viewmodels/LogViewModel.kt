@@ -670,16 +670,6 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
             )
             updateDetailWarna(barangLog)
             updateBarangLogToDao(barangLog)
-            /*
-            if (doesBarangLogExist(barangLogRef)) {
-
-                updateBarangLogToDao(barangLog)
-            }else{
-                insertBarangLogToDao(barangLog)
-                updateDetailWarnaTODao(barangLog.warnaRef,barangLog.isi,barangLog.pcs)
-            }
-
-             */
         }
     }
 

@@ -1,12 +1,23 @@
 package com.example.tokomurahinventory.utils
 
+
+
 import android.content.Context
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 
 object SharedPreferencesHelper {
-
     private const val PREFS_NAME = "user_prefs"
     private const val KEY_USERNAME = "username"
     private const val KEY_USER_ROLE = "userRole"
+
+    private val _userRole = MutableLiveData<String?>()
+    val userRole: LiveData<String?> get() = _userRole
+
+    fun initialize(context: Context) {
+        val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        _userRole.value = sharedPreferences.getString(KEY_USER_ROLE, null)
+    }
 
     fun saveUsername(context: Context, username: String) {
         val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -22,6 +33,7 @@ object SharedPreferencesHelper {
             putString(KEY_USER_ROLE, userRole)
             apply()
         }
+        _userRole.value = userRole  // Update LiveData
     }
 
     fun getLoggedInUser(context: Context): String? {
@@ -30,8 +42,7 @@ object SharedPreferencesHelper {
     }
 
     fun getUserRole(context: Context): String? {
-        val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return sharedPreferences.getString(KEY_USER_ROLE, null)
+        return _userRole.value
     }
 
     fun clearUsername(context: Context) {
@@ -41,5 +52,6 @@ object SharedPreferencesHelper {
             remove(KEY_USER_ROLE)
             apply()
         }
+        _userRole.value = null  // Update LiveData
     }
 }
