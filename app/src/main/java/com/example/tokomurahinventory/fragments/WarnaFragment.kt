@@ -90,9 +90,7 @@ class WarnaFragment : AuthFragment() {
                 //viewModel.onNavigateToDetailWarna(it.warnaRef)
                 viewModel.setRefWarna(it.warnaRef)
                 viewModel.getStringWarna(it.warnaRef)
-              //  viewModel.getWarnaByMerk(it.warnaRef)
                 viewModel.getDetailWarnaByWarnaRef(it.warnaRef)
-
             },
             WarnaLongListener {
                 // Handle item long click

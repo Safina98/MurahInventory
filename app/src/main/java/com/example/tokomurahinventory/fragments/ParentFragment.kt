@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
@@ -21,7 +22,7 @@ class ParentFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-         binding = DataBindingUtil.inflate(
+        binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_parent,
             container,
@@ -32,58 +33,42 @@ class ParentFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        updateUI()
+    }
 
-        // Check if savedInstanceState is null to add fragments only once
+   fun updateUI() {
         val isPortrait = resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+        Log.d("ParentFragment", "Updating UI - Portrait: $isPortrait")
+
         val fragmentLeft = MerkFragment()
-        val fragmentMiddle=WarnaFragment()
+        val fragmentMiddle = WarnaFragment()
         val fragmentRight = DetailWarnaFragment()
         val fragmentSingle = MerkFragment()
-        val fragmentManager: FragmentManager = childFragmentManager
-        val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
+        val fragmentManager = childFragmentManager
+        val fragmentTransaction = fragmentManager.beginTransaction()
 
-        // Remove existing fragments
-        fragmentManager.fragments.forEach { fragment ->
-            fragmentTransaction.remove(fragment)
-        }
+        // Check if layout containers are available
+        val containerLeft = view?.findViewById<View>(R.id.fragment_container_left)
+        val containerMiddle = view?.findViewById<View>(R.id.fragment_container_middle)
+        val containerRight = view?.findViewById<View>(R.id.fragment_container_right)
+
         if (isPortrait) {
-            // Show single child fragment
-            fragmentTransaction.add(R.id.fragment_container, fragmentSingle)
+            if (containerLeft == null) {
+                Log.e("ParentFragment", "Portrait layout container not found")
+            }
+            fragmentTransaction.replace(R.id.fragment_container, fragmentSingle)
         } else {
-            // Show two child fragments
-            fragmentTransaction.add(R.id.fragment_container_left, fragmentLeft)
-            fragmentTransaction.add(R.id.fragment_container_middle,fragmentMiddle)
-            fragmentTransaction.add(R.id.fragment_container_right, fragmentRight)
+            if (containerLeft == null || containerMiddle == null || containerRight == null) {
+                Log.e("ParentFragment", "Landscape layout containers are not available")
+            } else {
+                fragmentTransaction.replace(R.id.fragment_container_left, fragmentLeft)
+                fragmentTransaction.replace(R.id.fragment_container_middle, fragmentMiddle)
+                fragmentTransaction.replace(R.id.fragment_container_right, fragmentRight)
+            }
         }
+
         fragmentTransaction.commit()
     }
 
 
-
-    private fun addFragmentsBasedOnOrientation() {
-        val orientation = resources.configuration.orientation
-        updateFragmentsForOrientation(orientation)
-    }
-
-    private fun updateFragmentsForOrientation(orientation: Int) {
-        val fragmentManager: FragmentManager = childFragmentManager
-        val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
-
-        // Remove existing fragments
-        fragmentManager.fragments.forEach { fragment ->
-            fragmentTransaction.remove(fragment)
-        }
-
-        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            val fragmentLeft = MerkFragment()
-            val fragmentRight = WarnaFragment()
-            fragmentTransaction.add(R.id.fragment_container_left, fragmentLeft)
-            fragmentTransaction.add(R.id.fragment_container_right, fragmentRight)
-        } else {
-            val fragmentSingle = MerkFragment()
-            fragmentTransaction.add(R.id.fragment_container, fragmentSingle)
-        }
-
-        fragmentTransaction.commit()
-    }
 }

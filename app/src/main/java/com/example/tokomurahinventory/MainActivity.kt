@@ -160,6 +160,13 @@ class MainActivity : AppCompatActivity() {
         authViewModel.setAuthenticationState(null)
 
     }
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // Find the ParentFragment and call updateUI
+        Log.d("ParentFragment", "activity configuration change")
+        val parentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as? ParentFragment
+        parentFragment?.updateUI()
+    }
 
 
     override fun onDestroy() {
