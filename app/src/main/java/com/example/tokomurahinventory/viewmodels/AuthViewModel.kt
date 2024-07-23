@@ -16,11 +16,12 @@ import org.mindrot.jbcrypt.BCrypt
 
 class AuthViewModel : ViewModel() {
 
-    private val _authenticationState = MutableLiveData<Boolean?>()
+    private val _authenticationState = MutableLiveData<Boolean?>(null)
     val authenticationState: LiveData<Boolean?> get() = _authenticationState
-
+    private val _showLoginDialog = MutableLiveData<Boolean>()
+    val showLoginDialog: LiveData<Boolean> get() = _showLoginDialog
     init {
-        _authenticationState.value = null
+        _authenticationState.value = _authenticationState.value
     }
 
     fun authenticate(username: String, password: String, context: Context, callback: (Boolean) -> Unit) {
@@ -34,6 +35,7 @@ class AuthViewModel : ViewModel() {
                 if (isAuthenticated) {
                     SharedPreferencesHelper.saveUsername(context, username)
                     SharedPreferencesHelper.saveUserRole(context, user!!.usersRole)
+                    setAuthenticationState(true)
                 }
             }
         }

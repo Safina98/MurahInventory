@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var drawerLayout: DrawerLayout
     private val authViewModel: AuthViewModel by viewModels()
-    private lateinit var dialog:AlertDialog
+    private var dialog: AlertDialog? = null
     private lateinit var appLifecycleObserver: AppLifecycleObserver
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +48,11 @@ class MainActivity : AppCompatActivity() {
         // Check if the table is empty and insert a default user if needed
         authViewModel.checkAndInsertDefaultUser(applicationContext)
         checkAuthentication()
+        authViewModel.showLoginDialog.observe(this) { shouldShow ->
+            if (shouldShow) {
+                showLoginDialog()
+            }
+        }
 
 
     }
@@ -77,15 +82,18 @@ class MainActivity : AppCompatActivity() {
     private fun checkAuthentication() {
         authViewModel.authenticationState.observe(this) { isAuthenticated ->
             if (isAuthenticated != null) {
+                Log.d("AppDebug", "Check authentication isAuthencicated. $isAuthenticated.")
                 if (isAuthenticated) {
-                    Log.d("AppDebug", "Login successful.")
+
+                    Log.d("AppDebug", "Check authentication Login successful.")
                     Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
                     dialog?.dismiss() // Dismiss the dialog if it's showing
                 } else {
-                    Log.d("AppDebug", "Login failed. Invalid username or password.")
+                    Log.d("AppDebug", "Check authentication Login failed. Invalid username or password.")
                     Toast.makeText(this, "Invalid username or password", Toast.LENGTH_SHORT).show()
                 }
             } else {
+                Log.d("AppDebug", "Check authentication isAuthenticaded ==null, show login dialog.")
                 showLoginDialog()
             }
         }
@@ -107,7 +115,6 @@ class MainActivity : AppCompatActivity() {
             .setView(dialogView)
             .setCancelable(false)
             .create()
-
         btnLogin.setOnClickListener {
             val username = etUsername.text.toString()
             val password = etPassword.text.toString()
@@ -117,7 +124,7 @@ class MainActivity : AppCompatActivity() {
                     if (isAuthenticated) {
                         Log.d("AppDebug", "Login successful.")
                         Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
-                        dialog.dismiss() // Dismiss the dialog after successful login
+                        dialog!!.dismiss() // Dismiss the dialog after successful login
                     } else {
                         Log.d("AppDebug", "Login failed. Invalid username or password.")
                         Toast.makeText(this, "Invalid username or password", Toast.LENGTH_SHORT).show()
@@ -129,7 +136,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        dialog.show()
+        dialog!!.show()
     }
 
 
@@ -152,13 +159,15 @@ class MainActivity : AppCompatActivity() {
         SharedPreferencesHelper.clearUsername(this)
         authViewModel.setAuthenticationState(null)
 
-
     }
     override fun onDestroy() {
         super.onDestroy()
-        if (this::dialog.isInitialized && dialog.isShowing) {
+        /*
+        if (this::dialog!!.isInitialized && dialog!!.isShowing) {
             Log.d("AppDebug", "Dismiss dialog in onDestroy.")
-            dialog.dismiss()
+            dialog!!.dismiss()
         }
+
+         */
     }
 }

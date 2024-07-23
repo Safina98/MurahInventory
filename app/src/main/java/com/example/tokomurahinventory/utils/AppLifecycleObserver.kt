@@ -13,7 +13,7 @@ class AppLifecycleObserver(private val mainActivity: MainActivity) : DefaultLife
     private val logoutRunnable = Runnable {
         mainActivity.logout()
     }
-    private val logoutDelayMillis: Long = 5000 // Delay in milliseconds (5 seconds)
+    private val logoutDelayMillis: Long = 10000 // Delay in milliseconds (10 seconds)
 
     override fun onStop(owner: LifecycleOwner) {
         // Schedule the logout after the specified delay
