@@ -61,13 +61,7 @@ class MerkFragment : AuthFragment() {
                     // Handle item long click
                 },
             UpdateMerkClickListener{
-                viewModel.canUserPerformAction(requireContext(), UserAction.EDIT) { canPerform ->
-                    if (canPerform) {
-                        showAddDialog(viewModel,it,1)
-                    } else {
-                        Toast.makeText(context, viewerAndEditorNotAuthorized,Toast.LENGTH_SHORT).show()
-                    }
-                }
+                showAddDialog(viewModel,it,1)
 
             },
             DeleteMerkClickListener{

@@ -1,10 +1,32 @@
 package com.example.tokomurahinventory.utils
 
+import android.content.Context
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
+import com.example.tokomurahinventory.models.UsersTable
+import com.example.tokomurahinventory.viewmodels.UsersViewModel
 
 object DialogUtils {
+    fun showConfirmationDialog(
+        context: Context,
+        viewModel: UsersViewModel,
+        item: UsersTable,
+        onConfirm: (UsersViewModel, UsersTable) -> Unit
+    ) {
+        val dialogBuilder = AlertDialog.Builder(context)
+        dialogBuilder.setTitle("Konfirmasi")
+        dialogBuilder.setMessage("Apakah Anda yakin ingin menghapus ${item.userName}?")
+        dialogBuilder.setPositiveButton("Hapus") { _, _ ->
+            onConfirm(viewModel, item)
+        }
+        dialogBuilder.setNegativeButton("Batal") { dialog, _ ->
+            dialog.dismiss()
+        }
+
+        val alertDialog = dialogBuilder.create()
+        alertDialog.show()
+    }
     fun showDeleteDialog(
         fragment: Fragment,
         viewModel: ViewModel,

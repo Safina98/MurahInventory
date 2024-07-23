@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.UsersDao
 import com.example.tokomurahinventory.models.UsersTable
+import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.utils.UserRoles
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -102,10 +103,31 @@ class UsersViewModel(
     fun isPasswordHashed(password: String): Boolean {
         return password.startsWith("$2a$") || password.startsWith("$2b$") || password.startsWith("$2y$")
     }
+
+    fun checkIfUserDeletingItSelf(userRole: String): Boolean {
+        var loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
+        return userRole.equals(loggedInUsers, ignoreCase = true)
+    }
+
     fun deleteUser(usersTable: UsersTable){
         uiScope.launch {
-            deleteUsersToDao(usersTable)
+            //check if deleted user if admin
+            //check if admin deleting it self
+            // if admin deleting it self, give warning
+            //check from database if there is mode than one admin in the database
+            if (isMoreThanOneAdminInDb()){
+                deleteUsersToDao(usersTable)
+            }else{
+             Toast.makeText(getApplication(),"Hanya ada 1 admin di database. Buat admin baru sebelum menghapus",Toast.LENGTH_SHORT).show()
+            }
             getAllUserTable()
+        }
+    }
+
+    private suspend fun isMoreThanOneAdminInDb():Boolean{
+        return  withContext(Dispatchers.IO){
+            val adminCount = dataSourceUsers.countAdmins("Admin")
+            adminCount > 1
         }
     }
 

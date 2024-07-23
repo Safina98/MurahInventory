@@ -145,7 +145,6 @@ class MerkViewModel(
     fun onAddMerkFabClicked(){ addMerkFabM.value = false }
     fun onLongClick(v: View): Boolean { return true }
 
-
     fun onNavigateToWarna(refMerk:String){ navigateToWarnaM.value = refMerk }
     @SuppressLint("NullSafeMutableLiveData")
     fun onNavigatetedToWarna(){ navigateToWarnaM.value = null }

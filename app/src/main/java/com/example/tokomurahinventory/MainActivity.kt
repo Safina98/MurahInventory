@@ -53,8 +53,6 @@ class MainActivity : AppCompatActivity() {
                 showLoginDialog()
             }
         }
-
-
     }
 
     override fun onSupportNavigateUp(): Boolean {

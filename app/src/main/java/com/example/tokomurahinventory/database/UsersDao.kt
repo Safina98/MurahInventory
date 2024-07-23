@@ -52,6 +52,9 @@ interface UsersDao {
 
     @Query("UPDATE merk_table SET lastEditedBy = :defaultUser WHERE lastEditedBy IS NULL")
     fun updateLastEditedByForDeletedUser(defaultUser: String)
+
+    @Query("SELECT COUNT(*) FROM users_table WHERE userRole = :role")
+    fun countAdmins(role: String): Int
     @Transaction
     fun deleteUserWithReferences(user: UsersTable, defaultUser: String) {
         deleteAnItemUser(user.id)

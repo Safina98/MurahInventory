@@ -82,16 +82,27 @@ class UsersFragment : AuthFragment() {
 
             },
             DeleteUsersClickListener {
-                viewModel.canUserDeleteOrUpdate(requireContext()) { canDeleteOrUpdate ->
-                    if (canDeleteOrUpdate) {
-                        //viewModel.deleteUser(it)
-                        DialogUtils.showDeleteDialog(this, viewModel, it, { vm, item -> (vm as UsersViewModel).deleteUser(item as UsersTable) })
-                    } else {
-                        Toast.makeText(context, "You don't have permission to perform this action", Toast.LENGTH_SHORT).show()
+                //viewModel.deleteUser(it)
+                        DialogUtils.showDeleteDialog(
+                            this,
+                            viewModel,
+                            it,
+                            { vm, item ->
+                                val a = item as UsersTable
+                                val isUserDeletingItSelf = (vm as UsersViewModel).checkIfUserDeletingItSelf(a.userName)
+                                if (isUserDeletingItSelf) {
+                                    DialogUtils.showConfirmationDialog(
+                                        requireContext(), vm, a, {  confirmedViewModel, confirmedItem ->
+                                                                    (confirmedViewModel as UsersViewModel).deleteUser(confirmedItem as UsersTable)
+                                        }
+                                    )
+                                } else {
+                                    (vm as UsersViewModel).deleteUser(item as UsersTable)
+                                }
+                            }
+                        )
                     }
-                }
 
-            }
         )
         binding.rvUsers.adapter = adapter
 
