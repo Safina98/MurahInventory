@@ -4,7 +4,6 @@ import android.app.AlertDialog
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,20 +23,21 @@ import com.example.tokomurahinventory.adapters.UpdateDetailWarnaClickListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentDetailWarnaBinding
 import com.example.tokomurahinventory.models.model.DetailWarnaModel
-import com.example.tokomurahinventory.models.model.WarnaModel
 import com.example.tokomurahinventory.utils.DialogUtils
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
+import com.example.tokomurahinventory.viewmodels.CombinedViewModel
+import com.example.tokomurahinventory.viewmodels.CombinedViewModelFactory
 import com.example.tokomurahinventory.viewmodels.DetailWarnaViewModel
 import com.example.tokomurahinventory.viewmodels.DetailWarnaViewModelFactory
 import com.example.tokomurahinventory.viewmodels.MerkViewModel
-import com.example.tokomurahinventory.viewmodels.WarnaViewModel
 import com.google.android.material.textfield.TextInputLayout
 
 
 class DetailWarnaFragment : AuthFragment() {
 
     private lateinit var binding:FragmentDetailWarnaBinding
-    private val viewModel: MerkViewModel by viewModels()
+    //private val viewModel: MerkViewModel by viewModels()
+    private lateinit var viewModel:CombinedViewModel
     /*
     val adapter by lazy {
         DetailWarnaAdapter(
@@ -65,7 +65,7 @@ class DetailWarnaFragment : AuthFragment() {
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_detail_warna,container,false)
         val application = requireNotNull(this.activity).application
         var refWarna = arguments?.let { DetailWarnaFragmentArgs.fromBundle(it).refWarna}
-
+/*
         val dataSourceWarna = DatabaseInventory.getInstance(application).warnaDao
         val dataSourceDetailWarna = DatabaseInventory.getInstance(application).detailWarnaDao
         val dataSourceLog = DatabaseInventory.getInstance(application).logDao
@@ -76,6 +76,18 @@ class DetailWarnaFragment : AuthFragment() {
         val viewModel = ViewModelProvider(this,viewModelFactory)
             .get(DetailWarnaViewModel::class.java)
         binding.viewModel = viewModel
+
+ */     val merkDao = DatabaseInventory.getInstance(application).merkDao
+        val warnaDao = DatabaseInventory.getInstance(application).warnaDao
+        val dataSourceDetailWarna = DatabaseInventory.getInstance(application).detailWarnaDao
+        val dataSourceLog = DatabaseInventory.getInstance(application).logDao
+        val dataSourceBarangLog = DatabaseInventory.getInstance(application).barangLogDao
+        val refMerk =""
+        val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?:""
+        binding.lifecycleOwner = this
+        //val factory = CombinedViewModelFactory(merkDao, warnaDao, refMerk, loggedInUser, requireActivity().application)
+        viewModel = ViewModelProvider(requireActivity(), CombinedViewModelFactory(merkDao, warnaDao, refMerk, loggedInUser,dataSourceDetailWarna,dataSourceLog,dataSourceBarangLog, application)).get(
+            CombinedViewModel::class.java)
 
 
         val adapter=DetailWarnaAdapter(
@@ -94,6 +106,16 @@ class DetailWarnaFragment : AuthFragment() {
 
         binding.rvDetailWarna.adapter = adapter
 
+        viewModel.refWarna.observe(viewLifecycleOwner, Observer {
+            Log.i("SplitFragmetProbs","refWarna ${it}")
+            it?.let {
+                viewModel.getDetailWarnaByWarnaRef(it)
+            }
+        })
+        viewModel.warna.observe(viewLifecycleOwner, Observer {
+            Log.i("SplitFragmetProbs","warna ${it}")
+        })
+
         //Obsert detail warna recycler view
         viewModel.detailWarnaList.observe(viewLifecycleOwner, Observer {
             it.let {
@@ -107,7 +129,7 @@ class DetailWarnaFragment : AuthFragment() {
         viewModel.addDetailWarnaFab.observe(viewLifecycleOwner, Observer {
             if (it==true){
                 showAddDetailWarnaDialog(viewModel,null,0)
-                viewModel.onAddWarnaFabClicked()
+                viewModel.onAddDetailWarnaFabClicked()
             }
 
         })
@@ -118,7 +140,7 @@ class DetailWarnaFragment : AuthFragment() {
 
         return binding.root
     }
-    fun showAddDetailWarnaDialog(viewModel: DetailWarnaViewModel, detailWarnaModel: DetailWarnaModel?, i:Int){
+    fun showAddDetailWarnaDialog(viewModel:CombinedViewModel, detailWarnaModel: DetailWarnaModel?, i:Int){
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Tambah Barang")
         val inflater = LayoutInflater.from(context)

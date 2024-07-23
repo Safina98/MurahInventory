@@ -1,6 +1,7 @@
 package com.example.tokomurahinventory
 
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -22,6 +23,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.example.tokomurahinventory.databinding.ActivityMainBinding
+import com.example.tokomurahinventory.fragments.ParentFragment
 import com.example.tokomurahinventory.utils.AppLifecycleObserver
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.AuthViewModel
@@ -158,6 +160,8 @@ class MainActivity : AppCompatActivity() {
         authViewModel.setAuthenticationState(null)
 
     }
+
+
     override fun onDestroy() {
         super.onDestroy()
         /*

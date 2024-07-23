@@ -200,8 +200,8 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
         }
     }
 
-    fun onAddWarnaFabClick() { _addDetailWarnaFab.value = true }
-    fun onAddWarnaFabClicked() { _addDetailWarnaFab.value = false }
+    fun onAddDetailWarnaFabClick() { _addDetailWarnaFab.value = true }
+    fun onAddDetailWarnaFabClicked() { _addDetailWarnaFab.value = false }
     fun onLongClick(v: View): Boolean { return false }
     override fun onCleared() {
         super.onCleared()

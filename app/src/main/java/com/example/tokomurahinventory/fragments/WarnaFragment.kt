@@ -57,11 +57,14 @@ class WarnaFragment : AuthFragment() {
         val application = requireNotNull(this.activity).application
         val merkDao = DatabaseInventory.getInstance(application).merkDao
         val warnaDao = DatabaseInventory.getInstance(application).warnaDao
+        val dataSourceDetailWarna = DatabaseInventory.getInstance(application).detailWarnaDao
+        val dataSourceLog = DatabaseInventory.getInstance(application).logDao
+        val dataSourceBarangLog = DatabaseInventory.getInstance(application).barangLogDao
         val refMerk =""
         val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?:""
-
+        binding.lifecycleOwner = this
         //val factory = CombinedViewModelFactory(merkDao, warnaDao, refMerk, loggedInUser, requireActivity().application)
-        viewModel = ViewModelProvider(requireActivity(), CombinedViewModelFactory(merkDao, warnaDao, refMerk, loggedInUser, requireActivity().application)).get(
+        viewModel = ViewModelProvider(requireActivity(), CombinedViewModelFactory(merkDao, warnaDao, refMerk, loggedInUser,dataSourceDetailWarna,dataSourceLog,dataSourceBarangLog, application)).get(
             CombinedViewModel::class.java)
 
         //viewModel = ViewModelProvider(this, factory).get(CombinedViewModel::class.java)
@@ -80,11 +83,16 @@ class WarnaFragment : AuthFragment() {
         binding.viewModel = viewModel
 
          */
-        viewModel.getWarnaByMerk(refMerk)
+        viewModel.getWarnaByMerk(null)
         val adapter = WarnaAdapter(
             WarnaClickListener {
                 Log.i("WarnaProb", "warna table : $it")
-                viewModel.onNavigateToDetailWarna(it.warnaRef)
+                //viewModel.onNavigateToDetailWarna(it.warnaRef)
+                viewModel.setRefWarna(it.warnaRef)
+                viewModel.getStringWarna(it.warnaRef)
+              //  viewModel.getWarnaByMerk(it.warnaRef)
+                viewModel.getDetailWarnaByWarnaRef(it.warnaRef)
+
             },
             WarnaLongListener {
                 // Handle item long click
@@ -93,7 +101,7 @@ class WarnaFragment : AuthFragment() {
                 showAddWarnaDialog(viewModel, it, 1)
             },
             DeleteWarnaClickListener {
-                DialogUtils.showDeleteDialog(this, viewModel, it, { vm, item -> (vm as WarnaViewModel).deleteWarna(item as WarnaModel) })
+                DialogUtils.showDeleteDialog(this, viewModel, it, { vm, item -> (vm as CombinedViewModel).deleteWarna(item as WarnaModel) })
             }
         )
 
@@ -105,6 +113,13 @@ class WarnaFragment : AuthFragment() {
                 adapter.notifyDataSetChanged()
             }
         })
+        viewModel.refMerkk.observe(viewLifecycleOwner, Observer {
+            Log.i("SplitFragmetProbs","refMerkk ${it}")
+            it?.let {
+                viewModel.getWarnaByMerk(it)
+            }
+        })
+
 /*
         viewModel.addWanraFab.observe(viewLifecycleOwner, Observer {
             if (it == true) {

@@ -50,11 +50,14 @@ class MerkFragment : AuthFragment() {
         val application = requireNotNull(this.activity).application
         val merkDao = DatabaseInventory.getInstance(application).merkDao
         val warnaDao = DatabaseInventory.getInstance(application).warnaDao
+       val dataSourceDetailWarna = DatabaseInventory.getInstance(application).detailWarnaDao
+       val dataSourceLog = DatabaseInventory.getInstance(application).logDao
+       val dataSourceBarangLog = DatabaseInventory.getInstance(application).barangLogDao
         val refMerk =""
         val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?:""
 
        // val factory = CombinedViewModelFactory(merkDao, warnaDao, refMerk, loggedInUser, requireActivity().application)
-       viewModel = ViewModelProvider(requireActivity(), CombinedViewModelFactory(merkDao, warnaDao, refMerk, loggedInUser, requireActivity().application)).get(
+       viewModel = ViewModelProvider(requireActivity(), CombinedViewModelFactory(merkDao, warnaDao, refMerk, loggedInUser, dataSourceDetailWarna,dataSourceLog,dataSourceBarangLog,requireActivity().application)).get(
             CombinedViewModel::class.java)
         //val viewModel = ViewModelProvider(this, factory).get(CombinedViewModel::class.java)
 
@@ -69,7 +72,8 @@ class MerkFragment : AuthFragment() {
         val adapter  = MerkAdapter(
             MerkClickListener {
                     //viewModel.onNavigateToWarna(it.refMerk)
-                              viewModel.getWarnaByMerk(it.refMerk)
+                viewModel.setRefMerk(it.refMerk)
+                viewModel.getWarnaByMerk(it.refMerk)
                 },
             MerkLongListener {
                     // Handle item long click
@@ -79,13 +83,7 @@ class MerkFragment : AuthFragment() {
 
             },
             DeleteMerkClickListener{
-                viewModel.canUserPerformAction(requireContext(), UserAction.DELETE) { canPerform ->
-                    if (canPerform) {
-                        DialogUtils.showDeleteDialog(this, viewModel, it, { vm, item -> (vm as MerkViewModel).deleteMerk(item as MerkTable) })
-                    } else {
-                        Toast.makeText(context, viewerAndEditorNotAuthorized,Toast.LENGTH_SHORT).show()
-                    }
-                }
+                DialogUtils.showDeleteDialog(this, viewModel, it, { vm, item -> (vm as CombinedViewModel).deleteMerk(item as MerkTable) })
             }
             )
 
