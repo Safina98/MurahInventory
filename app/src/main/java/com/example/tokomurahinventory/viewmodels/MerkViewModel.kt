@@ -68,7 +68,6 @@ class MerkViewModel(
         }
     }
 
-
     fun filterMerk(query: String?) {
         val list = mutableListOf<MerkTable>()
         if(!query.isNullOrEmpty()) {

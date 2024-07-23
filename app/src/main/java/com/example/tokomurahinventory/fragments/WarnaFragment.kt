@@ -26,6 +26,10 @@ import com.example.tokomurahinventory.databinding.FragmentWarnaBinding
 import com.example.tokomurahinventory.models.model.WarnaModel
 import com.example.tokomurahinventory.utils.DialogUtils
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
+import com.example.tokomurahinventory.viewmodels.CombinedViewModel
+import com.example.tokomurahinventory.viewmodels.CombinedViewModelFactory
+import com.example.tokomurahinventory.viewmodels.LogViewModel
+import com.example.tokomurahinventory.viewmodels.LogViewModelFactory
 import com.example.tokomurahinventory.viewmodels.WarnaViewModel
 import com.example.tokomurahinventory.viewmodels.WarnaViewModelFactory
 import com.google.android.material.textfield.TextInputLayout
@@ -33,28 +37,11 @@ import com.google.android.material.textfield.TextInputLayout
 class WarnaFragment : AuthFragment() {
 
     private lateinit var binding: FragmentWarnaBinding
-    private lateinit var viewModel: WarnaViewModel
-
+    //private lateinit var viewModel: WarnaViewModel
+    private lateinit var viewModel: CombinedViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Initialize ViewModel
-        Log.i("FRAGMENT LIFECYCLE", "onCreate called")
-        val application = requireNotNull(this.activity).application
-        val refMerk = arguments?.let { WarnaFragmentArgs.fromBundle(it).refMerk }
-        if (refMerk == null) {
-            Log.e("FRAGMENT LIFECYCLE", "refMerk is null in onCreate")
-            return
-        }
-        val dataSourceWarna = DatabaseInventory.getInstance(application).warnaDao
-        val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext())
-        if (loggedInUser == null) {
-            Log.e("FRAGMENT LIFECYCLE", "loggedInUser is null in onCreate")
-            return
-        }
-
-        val viewModelFactory = WarnaViewModelFactory(dataSourceWarna, refMerk, loggedInUser, application)
-        viewModel = ViewModelProvider(this, viewModelFactory).get(WarnaViewModel::class.java)
-        viewModel.getWarnaByMerk()
 
         Log.i("FRAGMENT LIFECYCLE", "ViewModel initialized in onCreate")
     }
@@ -66,9 +53,34 @@ class WarnaFragment : AuthFragment() {
         Log.i("FRAGMENT LIFECYCLE", "onCreateView called")
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_warna, container, false)
+        Log.i("FRAGMENT LIFECYCLE", "onCreate called")
+        val application = requireNotNull(this.activity).application
+        val merkDao = DatabaseInventory.getInstance(application).merkDao
+        val warnaDao = DatabaseInventory.getInstance(application).warnaDao
+        val refMerk =""
+        val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?:""
+
+        //val factory = CombinedViewModelFactory(merkDao, warnaDao, refMerk, loggedInUser, requireActivity().application)
+        viewModel = ViewModelProvider(requireActivity(), CombinedViewModelFactory(merkDao, warnaDao, refMerk, loggedInUser, requireActivity().application)).get(
+            CombinedViewModel::class.java)
+
+        //viewModel = ViewModelProvider(this, factory).get(CombinedViewModel::class.java)
+        /*
+        val application = requireNotNull(this.activity).application
+        val refMerk = arguments?.let { WarnaFragmentArgs.fromBundle(it).refMerk }
+
+        val dataSourceWarna = DatabaseInventory.getInstance(application).warnaDao
+        val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext())
+
+        val viewModelFactory = WarnaViewModelFactory(dataSourceWarna, refMerk?: "", loggedInUser?:"", application)
+        viewModel = ViewModelProvider(this, viewModelFactory).get(WarnaViewModel::class.java)
+        viewModel.getWarnaByMerk()
+
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        viewModel.getWarnaByMerk()
+
+         */
+        viewModel.getWarnaByMerk(refMerk)
         val adapter = WarnaAdapter(
             WarnaClickListener {
                 Log.i("WarnaProb", "warna table : $it")
@@ -93,13 +105,15 @@ class WarnaFragment : AuthFragment() {
                 adapter.notifyDataSetChanged()
             }
         })
-
+/*
         viewModel.addWanraFab.observe(viewLifecycleOwner, Observer {
             if (it == true) {
                 showAddWarnaDialog(viewModel, null, 0)
                 viewModel.onAddWarnaFabClicked()
             }
         })
+
+ */
 
         binding.searchBarWarna.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -115,15 +129,15 @@ class WarnaFragment : AuthFragment() {
         viewModel.navigateToDetailWarna.observe(viewLifecycleOwner, Observer {
             if (it != null) {
                 this.findNavController().navigate(WarnaFragmentDirections.actionWarnaFragmentToDetailWarnaFragment(it))
-                viewModel.onNavigatetedToDetailWarna()
-                viewModel.clearScope()
+                //viewModel.onNavigatetedToDetailWarna()
+                //viewModel.clearScope()
             }
         })
 
         return binding.root
     }
 
-    private fun showAddWarnaDialog(viewModel: WarnaViewModel, warnaTable: WarnaModel?, i: Int) {
+    private fun showAddWarnaDialog(viewModel: CombinedViewModel, warnaTable: WarnaModel?, i: Int) {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Tambah Warna")
         val inflater = LayoutInflater.from(context)
@@ -179,13 +193,13 @@ class WarnaFragment : AuthFragment() {
 
     override fun onStart() {
         super.onStart()
-        viewModel.getWarnaByMerk()
+        //viewModel.getWarnaByMerk()
         Log.i("FRAGMENT LIFECYCLE", "onStart called")
     }
 
     override fun onResume() {
         super.onResume()
         Log.i("FRAGMENT LIFECYCLE", "onResume called")
-        viewModel.getWarnaByMerk()
+        //viewModel.getWarnaByMerk()
     }
 }

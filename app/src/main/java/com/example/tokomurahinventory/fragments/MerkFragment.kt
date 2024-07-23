@@ -28,6 +28,8 @@ import com.example.tokomurahinventory.utils.DialogUtils
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.utils.viewerAndEditorNotAuthorized
 import com.example.tokomurahinventory.utils.viewerNotAuthorized
+import com.example.tokomurahinventory.viewmodels.CombinedViewModel
+import com.example.tokomurahinventory.viewmodels.CombinedViewModelFactory
 import com.example.tokomurahinventory.viewmodels.MerkViewModel
 import com.example.tokomurahinventory.viewmodels.MerkViewModelFactory
 import com.example.tokomurahinventory.viewmodels.UserAction
@@ -35,8 +37,9 @@ import com.example.tokomurahinventory.viewmodels.UserAction
 
 class MerkFragment : AuthFragment() {
     private lateinit var binding: FragmentMerkBinding
-    private val viewModel:MerkViewModel by viewModels()
-
+    private lateinit var viewModel: CombinedViewModel
+   // private val viewModel:MerkViewModel by viewModels()
+//   private val viewModel:CombinedViewModel by viewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -45,17 +48,28 @@ class MerkFragment : AuthFragment() {
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_merk,container,false)
 
         val application = requireNotNull(this.activity).application
-        val dataSource1 = DatabaseInventory.getInstance(application).merkDao
+        val merkDao = DatabaseInventory.getInstance(application).merkDao
+        val warnaDao = DatabaseInventory.getInstance(application).warnaDao
+        val refMerk =""
         val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?:""
-        val viewModelFactory = MerkViewModelFactory(dataSource1,loggedInUser,application)
-        binding.lifecycleOwner =this
-        val viewModel = ViewModelProvider(this,viewModelFactory)
-            .get(MerkViewModel::class.java)
-        binding.viewModel = viewModel
 
+       // val factory = CombinedViewModelFactory(merkDao, warnaDao, refMerk, loggedInUser, requireActivity().application)
+       viewModel = ViewModelProvider(requireActivity(), CombinedViewModelFactory(merkDao, warnaDao, refMerk, loggedInUser, requireActivity().application)).get(
+            CombinedViewModel::class.java)
+        //val viewModel = ViewModelProvider(this, factory).get(CombinedViewModel::class.java)
+
+        /*
+                val viewModelFactory = MerkViewModelFactory(dataSource1,loggedInUser,application)
+                binding.lifecycleOwner =this
+                val viewModel = ViewModelProvider(this,viewModelFactory)
+                    .get(MerkViewModel::class.java)
+                binding.viewModel = viewModel
+
+                 */
         val adapter  = MerkAdapter(
             MerkClickListener {
-                    viewModel.onNavigateToWarna(it.refMerk)
+                    //viewModel.onNavigateToWarna(it.refMerk)
+                              viewModel.getWarnaByMerk(it.refMerk)
                 },
             MerkLongListener {
                     // Handle item long click
@@ -107,7 +121,7 @@ class MerkFragment : AuthFragment() {
         //On rv click navigate to fragment warna
         viewModel.navigateToWarna.observe(viewLifecycleOwner, Observer {
             if (it!=null){
-               // this.findNavController().navigate(BrandStockFragmentDirections.actionBrandStockFragmentToProductStockFragment(id))
+
                 this.findNavController().navigate(MerkFragmentDirections.actionMerkFragmentToWarnaFragment(it))
                 viewModel.onNavigatetedToWarna()
         }
@@ -115,7 +129,7 @@ class MerkFragment : AuthFragment() {
         return binding.root
     }
 
-    fun showAddDialog(viewModel: MerkViewModel, merkTable:MerkTable?, i:Int){
+    fun showAddDialog(viewModel: CombinedViewModel, merkTable:MerkTable?, i:Int){
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Tambah Merk Barang")
         val inflater = LayoutInflater.from(context)
