@@ -177,7 +177,7 @@ class LogViewModel (
         }
     }
     //get list merk for suggestion
-    fun getWarnaByMerk(merk:String){
+    fun getWarnaByMerkOld(merk:String){
         viewModelScope.launch {
             val refMerk = withContext(Dispatchers.IO){dataSourceMerk.getMerkRefByName(merk)}
             val stringWarnaList=withContext(Dispatchers.IO){dataSourceWarna.selectStringWarnaByMerk(refMerk)}
@@ -185,6 +185,14 @@ class LogViewModel (
             //codeWarnaByMerk.setValue(stringWarnaList)
         }
     }
+    suspend fun getWarnaByMerk(merk: String): List<String> {
+        return withContext(Dispatchers.IO) {
+            val refMerk = dataSourceMerk.getMerkRefByName(merk)
+            dataSourceWarna.selectStringWarnaByMerk(refMerk)
+        }
+    }
+
+
     //get list isi for sugestion
     fun getIsiByWarnaAndMerk(merk:String,warna:String){
         viewModelScope.launch {
