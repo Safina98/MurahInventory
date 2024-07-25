@@ -66,6 +66,8 @@ class WarnaFragment : AuthFragment() {
         //val factory = CombinedViewModelFactory(merkDao, warnaDao, refMerk, loggedInUser, requireActivity().application)
         viewModel = ViewModelProvider(requireActivity(), CombinedViewModelFactory(merkDao, warnaDao, refMerk, loggedInUser,dataSourceDetailWarna,dataSourceLog,dataSourceBarangLog, application)).get(
             CombinedViewModel::class.java)
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
 
         //viewModel = ViewModelProvider(this, factory).get(CombinedViewModel::class.java)
         /*
@@ -83,10 +85,10 @@ class WarnaFragment : AuthFragment() {
         binding.viewModel = viewModel
 
          */
-        viewModel.getWarnaByMerk(null)
+
         val adapter = WarnaAdapter(
             WarnaClickListener {
-                Log.i("WarnaProb", "warna table : $it")
+               // Log.i("WarnaProb", "warna table : $it")
                 //viewModel.onNavigateToDetailWarna(it.warnaRef)
                 viewModel.setRefWarna(it.warnaRef)
                 viewModel.getStringWarna(it.warnaRef)
@@ -107,26 +109,26 @@ class WarnaFragment : AuthFragment() {
 
         viewModel.allWarnaByMerk.observe(viewLifecycleOwner, Observer {
             it?.let {
-                adapter.submitList(it)
+                adapter.submitList(it.sortedBy { it.kodeWarna })
                 adapter.notifyDataSetChanged()
             }
         })
         viewModel.refMerkk.observe(viewLifecycleOwner, Observer {
-            Log.i("SplitFragmetProbs","refMerkk ${it}")
+           // Log.i("SplitFragmetProbs","refMerkk ${it}")
             it?.let {
                 viewModel.getWarnaByMerk(it)
             }
         })
 
-/*
-        viewModel.addWanraFab.observe(viewLifecycleOwner, Observer {
+
+        viewModel.addWarnaFab.observe(viewLifecycleOwner, Observer {
             if (it == true) {
                 showAddWarnaDialog(viewModel, null, 0)
                 viewModel.onAddWarnaFabClicked()
             }
         })
 
- */
+
 
         binding.searchBarWarna.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -181,8 +183,8 @@ class WarnaFragment : AuthFragment() {
             }
         }
         builder.setPositiveButton("OK") { dialog, which ->
-            val kodeWarna = textWarna.text.toString().uppercase()
-            val kodeSatuan = textSatuan.text.toString().uppercase()
+            val kodeWarna = textWarna.text.toString()
+            val kodeSatuan = textSatuan.text.toString()
             if (warnaTable == null) {
                 viewModel.insertWarna(kodeWarna, kodeSatuan)
             } else {

@@ -92,11 +92,18 @@ class CombinedViewModel(
     val detailWarnaList :LiveData<List<DetailWarnaModel>> get() = _detailWarnaList
     //val detailWarnaList = dataSourceDetailWarna.getDetailWarnaSummary(refWarna)
 
+    val _orientationMode = MutableLiveData<Int>()
+    val orientationMode:LiveData<Int> get() =  _orientationMode
+
     init {
         if (_refMerk.value != null) {
-            getWarnaByMerk(null)
+            getWarnaByMerk(_refMerk.value)
         }
         getAllMerkTable()
+    }
+
+    fun setOrientationMode(orientationMode:Int){
+        _orientationMode.value = orientationMode
     }
 
     fun setRefMerk(ref:String){
@@ -112,7 +119,7 @@ class CombinedViewModel(
                 dataSourceDetailWarna.getDetailWarnaSummaryList(warnaRef)
             }
             _detailWarnaList.value = list
-            Log.i("SplitFragmetProbs","allWarnaDetailWarna ${list}")
+           // Log.i("SplitFragmetProbs","allWarnaDetailWarna ${list}")
         }
     }
     // Merk functions
@@ -194,6 +201,7 @@ class CombinedViewModel(
     }
 
     fun onAddMerkFabClick(context: Context) {
+        Log.i("SplitFragmetProbs","addWarnaFabClick ${addMerkFabM.value}")
         addMerkFabM.value = true
     }
 
@@ -251,7 +259,7 @@ class CombinedViewModel(
     fun insertWarna(kodeWarna: String, satuan: String) {
         uiScope.launch {
             val warna = WarnaTable().apply {
-                this.refMerk = refMerk
+                this.refMerk = refMerkk.value!!
                 this.kodeWarna = kodeWarna
                 this.satuan = satuan
                 this.warnaRef = UUID.randomUUID().toString()
@@ -260,7 +268,7 @@ class CombinedViewModel(
                 this.user = createdBy
             }
             insertWarnaToDao(warna)
-            //getWarnaByMerk()
+            getWarnaByMerk(refMerkk.value)
         }
     }
 
@@ -269,7 +277,8 @@ class CombinedViewModel(
             warnaTable.lastEditedBy = SharedPreferencesHelper.getLoggedInUser(getApplication())
             warnaTable.warnaLastEditedDate = Date()
             updateWarnaToDao(warnaTable.toWarnaTable())
-            //getWarnaByMerk()
+            Log.i("SplitFragmentProb"," update warna ${refWarna.value}")
+            getWarnaByMerk(refMerkk.value)
         }
     }
     fun WarnaModel.toWarnaTable(): WarnaTable {
@@ -324,7 +333,10 @@ class CombinedViewModel(
 
 
 
-    fun onMerkLongClick(v: View): Boolean { return true }
+    fun onMerkLongClick(v: View): Boolean {
+        Log.i("SplitFragmetProbs","addWarnaFabLongClick ")
+        return true
+    }
     fun onWarnaLongClick(v: View): Boolean { return true }
 
     @SuppressLint("NullSafeMutableLiveData")
@@ -368,7 +380,7 @@ class CombinedViewModel(
             }else{
                 Toast.makeText(getApplication(), userNullString, Toast.LENGTH_SHORT).show()
             }
-
+            getDetailWarnaByWarnaRef(refWarna.value!!)
         }
     }
     fun insertInputLog(detailWarnaTable: DetailWarnaTable) {

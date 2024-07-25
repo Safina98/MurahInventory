@@ -494,12 +494,13 @@ class LogViewModel (
         viewModelScope.launch {
             val updatedList = _countModelList.value?.toMutableList()
             val itemToUpdate = updatedList?.find { it.id == id }
-
             if (itemToUpdate != null) {
                 val refMerk = getrefMerkByName(itemToUpdate!!.merkBarang!!.uppercase())
                 val refWarna = getrefWanraByName(itemToUpdate.kodeBarang!!.uppercase(), refMerk)
                 val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna, itemToUpdate.isi!!)
+
                 val isPcsReadyInStok = checkIfPcsReadyInStok(refDetailWarna!!, itemToUpdate.psc)
+                Log.e("UpdateError", "osPcsReadyIn tok $isPcsReadyInStok.")
                 if (isPcsReadyInStok){
                     itemToUpdate.psc = net
                     _countModelList.value = updatedList // Notify observers of the change

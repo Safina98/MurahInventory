@@ -75,7 +75,7 @@
     <fragment
         android:id="@+id/parentFragment"
         android:name="com.example.tokomurahinventory.fragments.ParentFragment"
-        android:label="fragment_parent"
-        tools:layout="@layout/fragment_parent" />
+        android:label="Stok"
+        tools:layout="@layout/fragment_parent_potrait" />
 
 </navigation>

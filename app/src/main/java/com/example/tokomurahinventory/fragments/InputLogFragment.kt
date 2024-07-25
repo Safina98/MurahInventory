@@ -105,7 +105,7 @@ class InputLogFragment : AuthFragment() {
             },
             BarangLogPcsClickListener{countModel, position ->
                 clearEditText()
-                showPopUpDialog(countModel.id, "Pcs")
+                if (countModel.isi!=null) showPopUpDialog(countModel.id, "Pcs")
             },
             viewModel, this
         )

@@ -78,11 +78,10 @@ class InputStokFragment : AuthFragment() {
             }, DeleteInputStokLogClickListener {
                 DialogUtils.showDeleteDialog(this, viewModel, it, { vm, item -> (vm as InputStokViewModel).deleteInputStok(item as InputStokLogModel) })
             }
-
         )
         binding.rvInputStokLog.adapter=adapter
         viewModel.inputLogModel.observe(viewLifecycleOwner, Observer {
-            adapter.submitList(it)
+            adapter.submitList(it.sortedBy { it.barangLogInsertedDate })
             adapter.notifyDataSetChanged()
             Log.i("INPUTLOGTRY","$it")
         })

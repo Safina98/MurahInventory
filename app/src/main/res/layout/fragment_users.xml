@@ -39,6 +39,7 @@
             android:layout_margin="16dp"
             android:clickable="true"
             android:focusable="true"
+            android:layout_gravity="end|bottom"
             android:onClick="@{()->viewModel.onAddUserFabClick()}"
             android:onLongClick="@{(view) -> viewModel.onLongClick(view)}"
             android:src="@drawable/baseline_add_24"

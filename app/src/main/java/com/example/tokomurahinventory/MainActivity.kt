@@ -1,6 +1,7 @@
 package com.example.tokomurahinventory
 
 
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
@@ -35,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     private val authViewModel: AuthViewModel by viewModels()
     private var dialog: AlertDialog? = null
     private lateinit var appLifecycleObserver: AppLifecycleObserver
+    private var originalOrientation: Int = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
@@ -55,6 +57,7 @@ class MainActivity : AppCompatActivity() {
                 showLoginDialog()
             }
         }
+        originalOrientation = requestedOrientation
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -81,27 +84,21 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkAuthentication() {
         authViewModel.authenticationState.observe(this) { isAuthenticated ->
-            if (isAuthenticated != null) {
-                Log.d("AppDebug", "Check authentication isAuthencicated. $isAuthenticated.")
-                if (isAuthenticated) {
-
-                    Log.d("AppDebug", "Check authentication Login successful.")
-                    Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
-                    dialog?.dismiss() // Dismiss the dialog if it's showing
-                } else {
-                    Log.d("AppDebug", "Check authentication Login failed. Invalid username or password.")
-                    Toast.makeText(this, "Invalid username or password", Toast.LENGTH_SHORT).show()
-                }
+            if (isAuthenticated == true) {
+                Log.d("AppDebug", "Check authentication Login successful.")
+                Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
+                dialog?.dismiss() // Dismiss the dialog if it's showing
             } else {
-                Log.d("AppDebug", "Check authentication isAuthenticaded ==null, show login dialog.")
-                showLoginDialog()
+                Log.d("AppDebug", "Check authentication Login failed. Invalid username or password.")
+                Toast.makeText(this, "Invalid username or password", Toast.LENGTH_SHORT).show()
+                showLoginDialog() // Show dialog if authentication failed
             }
         }
     }
 
     private fun showLoginDialog() {
-        if (isFinishing || isDestroyed) {
-            Log.d("AppDebug", "Activity is finishing or destroyed. Not showing login dialog.")
+        if (isFinishing || isDestroyed || (dialog != null && dialog!!.isShowing)) {
+            Log.d("AppDebug", "Activity is finishing or destroyed, or dialog is already showing. Not showing login dialog.")
             return
         }
         Log.d("AppDebug", "Showing login dialog.")
@@ -160,13 +157,6 @@ class MainActivity : AppCompatActivity() {
         authViewModel.setAuthenticationState(null)
 
     }
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        // Find the ParentFragment and call updateUI
-        Log.d("ParentFragment", "activity configuration change")
-        val parentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as? ParentFragment
-        parentFragment?.updateUI()
-    }
 
 
     override fun onDestroy() {
@@ -178,5 +168,8 @@ class MainActivity : AppCompatActivity() {
         }
 
          */
+    }
+    fun resetOrientation() {
+        requestedOrientation = originalOrientation
     }
 }

@@ -45,4 +45,9 @@
         <item name="android:background">@color/white</item>
         <item name="android:textSize">10sp</item>
     </style>
+
+    <style name="NavigationDrawerTextAppearance">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">16dp</item>
+    </style>
 </resources>

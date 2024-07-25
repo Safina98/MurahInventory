@@ -88,6 +88,8 @@ class DetailWarnaFragment : AuthFragment() {
         //val factory = CombinedViewModelFactory(merkDao, warnaDao, refMerk, loggedInUser, requireActivity().application)
         viewModel = ViewModelProvider(requireActivity(), CombinedViewModelFactory(merkDao, warnaDao, refMerk, loggedInUser,dataSourceDetailWarna,dataSourceLog,dataSourceBarangLog, application)).get(
             CombinedViewModel::class.java)
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
 
 
         val adapter=DetailWarnaAdapter(
@@ -119,7 +121,7 @@ class DetailWarnaFragment : AuthFragment() {
         //Obsert detail warna recycler view
         viewModel.detailWarnaList.observe(viewLifecycleOwner, Observer {
             it.let {
-                adapter.submitList(it)
+                adapter.submitList(it.sortedBy { it.detailWarnaIsi })
                 adapter.notifyDataSetChanged()
 
             }

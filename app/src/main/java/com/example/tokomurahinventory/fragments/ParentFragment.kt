@@ -1,74 +1,81 @@
 package com.example.tokomurahinventory.fragments
 
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
-import androidx.databinding.DataBindingUtil
 import com.example.tokomurahinventory.R
-import com.example.tokomurahinventory.databinding.FragmentParentBinding
+import androidx.fragment.app.commit
+import com.example.tokomurahinventory.MainActivity
 
 class ParentFragment : Fragment() {
-
-    private lateinit var binding: FragmentParentBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = DataBindingUtil.inflate(
-            inflater,
-            R.layout.fragment_parent,
-            container,
-            false
-        )
-        return binding.root
+        // Inflate layout based on orientation
+        (activity as? AppCompatActivity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        val orientation = resources.configuration.orientation
+        val layoutId = R.layout.fragment_parent_landscape
+
+        return inflater.inflate(layoutId, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        updateUI()
+
+        // Load fragments based on orientation
+        loadFragments()
     }
 
-   fun updateUI() {
-        val isPortrait = resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
-        Log.d("ParentFragment", "Updating UI - Portrait: $isPortrait")
+    override fun onStart() {
+        super.onStart()
+        (activity as? AppCompatActivity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+    }
 
-        val fragmentLeft = MerkFragment()
-        val fragmentMiddle = WarnaFragment()
-        val fragmentRight = DetailWarnaFragment()
-        val fragmentSingle = MerkFragment()
-        val fragmentManager = childFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
+    private fun loadFragments() {
+        val orientation = resources.configuration.orientation
+        val fragmentManager = parentFragmentManager
+        val transaction = fragmentManager.beginTransaction()
 
-        // Check if layout containers are available
-        val containerLeft = view?.findViewById<View>(R.id.fragment_container_left)
-        val containerMiddle = view?.findViewById<View>(R.id.fragment_container_middle)
-        val containerRight = view?.findViewById<View>(R.id.fragment_container_right)
-
-        if (isPortrait) {
-            if (containerLeft == null) {
-                Log.e("ParentFragment", "Portrait layout container not found")
-            }
-            fragmentTransaction.replace(R.id.fragment_container, fragmentSingle)
+        transaction.replace(R.id.fragment_container_left, MerkFragment())
+        transaction.replace(R.id.fragment_container_center, WarnaFragment())
+        transaction.replace(R.id.fragment_container_right, DetailWarnaFragment())
+        /*
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            // Load three fragments in landscape mode
+            transaction.replace(R.id.fragment_container_left, MerkFragment())
+            transaction.replace(R.id.fragment_container_center, WarnaFragment())
+            transaction.replace(R.id.fragment_container_right, DetailWarnaFragment())
         } else {
-            if (containerLeft == null || containerMiddle == null || containerRight == null) {
-                Log.e("ParentFragment", "Landscape layout containers are not available")
-            } else {
-                fragmentTransaction.replace(R.id.fragment_container_left, fragmentLeft)
-                fragmentTransaction.replace(R.id.fragment_container_middle, fragmentMiddle)
-                fragmentTransaction.replace(R.id.fragment_container_right, fragmentRight)
-            }
+            // Load one fragment in portrait mode
+            transaction.replace(R.id.fragment_container, MerkFragment())
         }
 
-        fragmentTransaction.commit()
-    }
+         */
 
+        transaction.commit()
+    }
+    override fun onStop() {
+        super.onStop()
+        (activity as? MainActivity)?.resetOrientation()
+    }
+/*
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        Log.i("ParentFragment", "Configuration changed: ${newConfig.orientation}")
+        // Reload fragments based on new orientation
+        loadFragments()
+    }
+    */
+
+    // Method to handle navigation in portrait mode
 
 }

@@ -30,12 +30,14 @@
         android:orientation="horizontal"
         android:layout_margin="@dimen/small_margin"
         >
+
         <TextView
+            style="@style/rv_item_text_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@{merk.namaMerk}"
-            style="@style/rv_item_text_style" />
+            android:fontFamily="@font/playfair_display"
+            android:text="@{merk.namaMerk}" />
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">

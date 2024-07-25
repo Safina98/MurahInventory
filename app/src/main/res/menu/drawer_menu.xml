@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/merkFragment"
+        android:id="@+id/parentFragment"
+        android:icon="@drawable/baseline_home_24"
         android:title="Stok" />
     <item
         android:id="@+id/usersFragment"
+        android:icon="@drawable/baseline_people_alt_24"
         android:title="Pengguna" />
     <item
         android:id="@+id/logFragment"
+        android:icon="@drawable/baseline_storage_24"
         android:title="Log Barang Keluar" />
     <item
         android:id="@+id/inputStokFragment"
+        android:icon="@drawable/baseline_storage_24"
         android:title="Log Barang Masuk" />
     <item
         android:id="@+id/exportImportFragment"
+        android:icon="@drawable/baseline_import_export_24"
         android:title="Export import data" />
 </menu>

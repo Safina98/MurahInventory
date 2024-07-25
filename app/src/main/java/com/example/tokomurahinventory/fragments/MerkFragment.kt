@@ -25,6 +25,7 @@ import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentMerkBinding
 import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.utils.DialogUtils
+import com.example.tokomurahinventory.utils.DraggableFloatingActionButton
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.utils.viewerAndEditorNotAuthorized
 import com.example.tokomurahinventory.utils.viewerNotAuthorized
@@ -59,6 +60,7 @@ class MerkFragment : AuthFragment() {
        // val factory = CombinedViewModelFactory(merkDao, warnaDao, refMerk, loggedInUser, requireActivity().application)
        viewModel = ViewModelProvider(requireActivity(), CombinedViewModelFactory(merkDao, warnaDao, refMerk, loggedInUser, dataSourceDetailWarna,dataSourceLog,dataSourceBarangLog,requireActivity().application)).get(
             CombinedViewModel::class.java)
+
         //val viewModel = ViewModelProvider(this, factory).get(CombinedViewModel::class.java)
 
         /*
@@ -69,11 +71,15 @@ class MerkFragment : AuthFragment() {
                 binding.viewModel = viewModel
 
                  */
+       binding.viewModel = viewModel
+       binding.lifecycleOwner = viewLifecycleOwner
         val adapter  = MerkAdapter(
             MerkClickListener {
-                    //viewModel.onNavigateToWarna(it.refMerk)
+                //viewModel.onNavigateToWarna(it.refMerk)
                 viewModel.setRefMerk(it.refMerk)
                 viewModel.getWarnaByMerk(it.refMerk)
+                viewModel.setRefWarna("")
+                viewModel.getStringWarna("")
                 },
             MerkLongListener {
                     // Handle item long click
@@ -94,7 +100,7 @@ class MerkFragment : AuthFragment() {
         //Observe all merk from db
         viewModel.allMerkTable.observe(viewLifecycleOwner, Observer {
             it.let {
-                adapter.submitList(it)
+                adapter.submitList(it.sortedBy { it.namaMerk })
                 adapter.notifyDataSetChanged()
             }
         })
@@ -117,16 +123,29 @@ class MerkFragment : AuthFragment() {
         })
 
         //On rv click navigate to fragment warna
-        viewModel.navigateToWarna.observe(viewLifecycleOwner, Observer {
-            if (it!=null){
+       viewModel.navigateToWarna.observe(viewLifecycleOwner, Observer { shouldNavigate ->
+           if (shouldNavigate!=null) {
+               Log.d(":ParentFragment", "merk fragment shoundNavigate $shouldNavigate")
+               this.findNavController().navigate(MerkFragmentDirections.actionMerkFragmentToWarnaFragment(shouldNavigate))
+               viewModel.onNavigatedToWarna() // Reset the navigation state
+               try {
 
-                this.findNavController().navigate(MerkFragmentDirections.actionMerkFragmentToWarnaFragment(it))
-                viewModel.onNavigatetedToWarna()
-        }
-        })
+               }catch (e:Exception){
+                   Log.e("ParentFragment","$e")
+               }
+
+           }
+       })
+
         return binding.root
     }
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        Log.d(":SplitFragmetProbs", "View Created")
+        // Optionally find and log the button instance
+        val button: DraggableFloatingActionButton = view.findViewById(R.id.btn_add_new_merk)
+        Log.d(":SplitFragmetProbs", "Button: $button")
+    }
     fun showAddDialog(viewModel: CombinedViewModel, merkTable:MerkTable?, i:Int){
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Tambah Merk Barang")
