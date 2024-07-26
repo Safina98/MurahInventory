@@ -9,14 +9,20 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:padding="@dimen/small_margin"
         android:orientation="vertical">
-
+        <TextView
+            android:id="@+id/txt_title"
+            android:text="Barang"
+            android:layout_gravity="center"
+            style="@style/export_import_txt_header_style"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layout_satu"
+            android:hint="merk"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:boxBackgroundColor="@color/light_grey">
-
+            android:layout_height="wrap_content">
             <AutoCompleteTextView
                 android:id="@+id/txt_merk"
                 android:layout_width="match_parent"
@@ -27,9 +33,9 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layout_dua"
+            android:hint="warna"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:boxBackgroundColor="@color/light_grey">
+            android:layout_height="wrap_content">
 
             <AutoCompleteTextView
                 android:id="@+id/txt_warna"
@@ -41,9 +47,9 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layout_tiga"
+            android:hint="isi"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:boxBackgroundColor="@color/light_grey">
+            android:layout_height="wrap_content">
 
             <AutoCompleteTextView
                 android:id="@+id/txt_isi"
@@ -55,9 +61,9 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layout_empat"
+            android:hint="Pcs"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:boxBackgroundColor="@color/light_grey">
+            android:layout_height="wrap_content">
 
             <EditText
                 android:id="@+id/txt_pcs"

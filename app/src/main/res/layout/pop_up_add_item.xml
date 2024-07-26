@@ -12,7 +12,6 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:boxBackgroundColor="@color/light_grey"
             android:hint="Merk">
             <EditText
                 android:id="@+id/txt_merk"

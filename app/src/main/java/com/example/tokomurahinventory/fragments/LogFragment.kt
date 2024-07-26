@@ -109,6 +109,11 @@ class LogFragment : AuthFragment(){
         return binding.root
     }
 
+    override fun onStart() {
+        super.onStart()
+        viewModel.getAllLogTable()
+    }
+
     private fun showDatePickerDialog(code:Int) {
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.pop_up_date_picker, null)
         val datePickerStart = dialogView.findViewById<DatePicker>(R.id.datePickerStart)

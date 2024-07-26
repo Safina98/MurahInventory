@@ -18,9 +18,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:boxBackgroundColor="@color/light_grey"
         android:hint="Nama">
-
         <EditText
             android:id="@+id/etUsername"
             android:layout_width="match_parent"
@@ -34,7 +32,6 @@
         android:layout_height="wrap_content"
         android:hint="Password"
         app:endIconMode="password_toggle"
-        app:boxBackgroundColor="@color/light_grey"
         app:endIconDrawable="@drawable/ic_visibility_off">
 
         <EditText

@@ -179,7 +179,7 @@ class LogViewModel (
     //get list merk for suggestion
     fun getWarnaByMerkOld(merk:String){
         viewModelScope.launch {
-            val refMerk = withContext(Dispatchers.IO){dataSourceMerk.getMerkRefByName(merk)}
+            val refMerk = withContext(Dispatchers.IO){dataSourceMerk.getMerkRefByName(merk)!!}
             val stringWarnaList=withContext(Dispatchers.IO){dataSourceWarna.selectStringWarnaByMerk(refMerk)}
             _codeWarnaByMerk.value = stringWarnaList
             //codeWarnaByMerk.setValue(stringWarnaList)
@@ -187,7 +187,7 @@ class LogViewModel (
     }
     suspend fun getWarnaByMerk(merk: String): List<String> {
         return withContext(Dispatchers.IO) {
-            val refMerk = dataSourceMerk.getMerkRefByName(merk)
+            val refMerk = dataSourceMerk.getMerkRefByName(merk)!!
             dataSourceWarna.selectStringWarnaByMerk(refMerk)
         }
     }
@@ -196,10 +196,14 @@ class LogViewModel (
     //get list isi for sugestion
     fun getIsiByWarnaAndMerk(merk:String,warna:String){
         viewModelScope.launch {
-            val refMerk = withContext(Dispatchers.IO){dataSourceMerk.getMerkRefByName(merk)}
+            val refMerk = withContext(Dispatchers.IO){dataSourceMerk.getMerkRefByName(merk)!!}
             val refWarna = withContext(Dispatchers.IO){dataSourceWarna.getWarnaRefByName(warna,refMerk)}
-            val stringWarnaList=withContext(Dispatchers.IO){dataSourceDetailWarna.getIsiDetailWarnaByWarna(refWarna)}
-            _isiByWarnaAndMerk.value = stringWarnaList
+            if (refWarna!=null){
+                val stringWarnaList=withContext(Dispatchers.IO){dataSourceDetailWarna.getIsiDetailWarnaByWarna(refWarna)}
+                _isiByWarnaAndMerk.value = stringWarnaList
+            }
+
+
            // isiByWarnaAndMerk.setValue(stringWarnaList.map { it.toString() })
         }
     }
@@ -281,22 +285,25 @@ class LogViewModel (
         viewModelScope.launch{
             val refMerk = getrefMerkByName(namaMerk.uppercase())
             val refWarna = getrefWanraByName(kodeWarna.uppercase(),refMerk)
-            val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna,isi)
-            val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
-            val barangLog = BarangLog(
-                refMerk = refMerk,
-                warnaRef =  refWarna,
-                detailWarnaRef = refDetailWarna,
-                isi = isi,
-                pcs = pcs,
-                barangLogDate = Date(),
-                refLog = refLog,
-                barangLogRef = UUID.randomUUID().toString(),
-                barangLogTipe = MASUKKELUAR.KELUAR
+            if (refWarna!=null){
+                val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna,isi)
+                val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
+                val barangLog = BarangLog(
+                    refMerk = refMerk,
+                    warnaRef =  refWarna,
+                    detailWarnaRef = refDetailWarna,
+                    isi = isi,
+                    pcs = pcs,
+                    barangLogDate = Date(),
+                    refLog = refLog,
+                    barangLogRef = UUID.randomUUID().toString(),
+                    barangLogTipe = MASUKKELUAR.KELUAR
 
-            )
-            updateDetailWarnaTODao(refWarna,isi,pcs,loggedInUsers)
-            insertBarangLogToDao(barangLog)
+                )
+                updateDetailWarnaTODao(refWarna,isi,pcs,loggedInUsers)
+                insertBarangLogToDao(barangLog)
+            }
+
         }
     }
     fun addLogBarang(logRef:String){
@@ -370,7 +377,7 @@ class LogViewModel (
             if (isMerkPresent && isWarnaPresent && isIsiPresent) {
                 val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
                 val refWarna = getrefWanraByName(countModel.kodeBarang!!.uppercase(), refMerk)
-                val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna, countModel.isi!!)
+                val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna!!, countModel.isi!!)
 
                 val isPcsReadyInStok = checkIfPcsReadyInStok(refDetailWarna!!, countModel.psc)
 
@@ -415,7 +422,7 @@ class LogViewModel (
             if (isMerkPresent && isWarnaPresent && isIsiPresent) {
                 val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
                 val refWarna = getrefWanraByName(countModel.kodeBarang!!.uppercase(), refMerk)
-                val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna, countModel.isi!!)
+                val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna!!, countModel.isi!!)
 
                 Log.i("InsertLogTry", "updateCountModel refMerk: $refMerk")
                 Log.i("InsertLogTry", "updateCountModel refWarna: $refWarna")
@@ -508,7 +515,7 @@ class LogViewModel (
             if (itemToUpdate != null) {
                 val refMerk = getrefMerkByName(itemToUpdate!!.merkBarang!!.uppercase())
                 val refWarna = getrefWanraByName(itemToUpdate.kodeBarang!!.uppercase(), refMerk)
-                val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna, itemToUpdate.isi!!)
+                val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna!!, itemToUpdate.isi!!)
 
                 val isPcsReadyInStok = checkIfPcsReadyInStok(refDetailWarna!!, net)
                 val getDetailWarnaByDetailWarnaRef = withContext(Dispatchers.IO){dataSourceDetailWarna.getDetailWarnaByDetailWarnaRef(refDetailWarna)}
@@ -671,7 +678,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
         viewModelScope.launch{
             val refMerk = getrefMerkByName(namaMerk.uppercase())
             val refWarna = getrefWanraByName(kodeWarna.uppercase(),refMerk)
-            val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna,isi)
+            val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna!!,isi)
             val barangLog = BarangLog(
                 refMerk = refMerk,
                 warnaRef =  refWarna,
@@ -784,10 +791,10 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
     }
     private suspend fun getrefMerkByName(name:String):String{
         return withContext(Dispatchers.IO){
-            dataSourceMerk.getMerkRefByName(name)
+            dataSourceMerk.getMerkRefByName(name)!!
         }
     }
-    private suspend fun getrefWanraByName(name:String,refMerk:String):String{
+    private suspend fun getrefWanraByName(name:String,refMerk:String):String?{
         return withContext(Dispatchers.IO){
             dataSourceWarna.getWarnaRefByName(name,refMerk)
         }

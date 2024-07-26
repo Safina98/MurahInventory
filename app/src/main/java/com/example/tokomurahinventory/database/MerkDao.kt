@@ -33,7 +33,7 @@ interface MerkDao  {
     fun selectAllMerkList():List<MerkTable>
 
     @Query("SELECT refMerk FROM merk_table WHERE namaMerk = :namaMerk")
-    fun getMerkRefByName(namaMerk:String):String
+    fun getMerkRefByName(namaMerk:String):String?
 
     @Query("SELECT namaMerk FROM merk_table WHERE refMerk = :merkRef")
     fun getMerkNameByRef(merkRef:String):String

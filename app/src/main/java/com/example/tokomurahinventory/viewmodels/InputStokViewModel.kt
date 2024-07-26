@@ -2,6 +2,7 @@ package com.example.tokomurahinventory.viewmodels
 
 import android.app.Application
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -78,8 +79,14 @@ class InputStokViewModel (
     fun getWarnaByMerk(merk:String){
         viewModelScope.launch {
             val refMerk = withContext(Dispatchers.IO){dataSourceMerk.getMerkRefByName(merk)}
-            val stringWarnaList=withContext(Dispatchers.IO){dataSourceWarna.selectStringWarnaByMerk(refMerk)}
-            _codeWarnaByMerk.value = stringWarnaList
+            if (refMerk != null) {
+                val stringWarnaList = withContext(Dispatchers.IO) {
+
+                    dataSourceWarna.selectStringWarnaByMerk(refMerk)
+                }
+
+                _codeWarnaByMerk.value = stringWarnaList
+            }else Toast.makeText(getApplication(),"Merk Tidak ada di database",Toast.LENGTH_SHORT).show()
             //codeWarnaByMerk.setValue(stringWarnaList)
         }
     }
@@ -87,9 +94,14 @@ class InputStokViewModel (
     fun getIsiByWarnaAndMerk(merk:String,warna:String){
         viewModelScope.launch {
             val refMerk = withContext(Dispatchers.IO){dataSourceMerk.getMerkRefByName(merk)}
-            val refWarna = withContext(Dispatchers.IO){dataSourceWarna.getWarnaRefByName(warna,refMerk)}
-            val stringWarnaList=withContext(Dispatchers.IO){dataSourceDetailWarna.getIsiDetailWarnaByWarna(refWarna)}
-            _isiByWarnaAndMerk.value = stringWarnaList
+            if (refMerk != null) {
+                val refWarna = withContext(Dispatchers.IO){ dataSourceWarna.getWarnaRefByName(warna,refMerk) }
+                if (refWarna!=null){
+                    val stringWarnaList=withContext(Dispatchers.IO){dataSourceDetailWarna.getIsiDetailWarnaByWarna(refWarna)}
+                    _isiByWarnaAndMerk.value = stringWarnaList
+                }
+
+            }else Toast.makeText(getApplication(),"Merk atau warna tidak ada di database.",Toast.LENGTH_SHORT).show()
             // isiByWarnaAndMerk.setValue(stringWarnaList.map { it.toString() })
         }
     }
@@ -188,20 +200,28 @@ class InputStokViewModel (
         uiScope.launch {
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             val refMerk = getrefMerkByName(inputStokLogModel.namaMerk.uppercase())
-            val refWarna = getrefWanraByName(inputStokLogModel.kodeWarna.uppercase(),refMerk)
-            var refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna,inputStokLogModel.isi)
-            if (refDetailWarna==null) {
-                refDetailWarna = UUID.randomUUID().toString()
-                insertDetailWarnaToDao(refWarna,inputStokLogModel.isi,inputStokLogModel.pcs,loggedInUsers,refDetailWarna)
+            Log.i("InsertLogTry", "ref merk:$refMerk")
+            if (refMerk!=null){
+                val refWarna = getrefWanraByName(inputStokLogModel.kodeWarna.uppercase(),refMerk)
+                Log.i("InsertLogTry", "ref merk:$refWarna")
+                if (refWarna!=null){
+                    var refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna,inputStokLogModel.isi)
+                    if (refDetailWarna==null) {
+                        refDetailWarna = UUID.randomUUID().toString()
+                        insertDetailWarnaToDao(refWarna,inputStokLogModel.isi,inputStokLogModel.pcs,loggedInUsers,refDetailWarna)
+                    }
+                    val item = getBarangLogFromDB(inputStokLogModel.inputBarangLogRef)
+                    if (item!=null){
+                        val barangNewLog = convertToBarangLog(inputStokLogModel,refMerk,refWarna,refDetailWarna,loggedInUsers,item.refLog)
+                        updateDetailWarna(barangNewLog)
+                        updateBarangLogToDao(barangNewLog)
+                        getAllInputLogModel()
+                }
+
+                }else Toast.makeText(getApplication(),"Warna tidak ada di database. Input warna terlebih dulu",Toast.LENGTH_SHORT).show()
+            }else Toast.makeText(getApplication(),"Merk tidak ada di database. Input merk terlebih dulu",Toast.LENGTH_SHORT).show()
             }
-            val item = getBarangLogFromDB(inputStokLogModel.inputBarangLogRef)
-            if (item!=null){
-                val barangNewLog = convertToBarangLog(inputStokLogModel,refMerk,refWarna,refDetailWarna,loggedInUsers,item.refLog)
-                updateDetailWarna(barangNewLog)
-                updateBarangLogToDao(barangNewLog)
-                getAllInputLogModel()
-            }
-        }
+
     }
     fun updateDetailWarna(newBarangLog: BarangLog) {
         uiScope.launch {
@@ -285,12 +305,12 @@ class InputStokViewModel (
             dataSourceDetailWarna. getDetailWarnaByIsii(waraRef,isi)
         }
     }
-    private suspend fun getrefMerkByName(name:String):String{
+    private suspend fun getrefMerkByName(name:String):String?{
         return withContext(Dispatchers.IO){
             dataSourceMerk.getMerkRefByName(name)
         }
     }
-    private suspend fun getrefWanraByName(name:String,refMerk:String):String{
+    private suspend fun getrefWanraByName(name:String,refMerk:String):String?{
         return withContext(Dispatchers.IO){
             dataSourceWarna.getWarnaRefByName(name,refMerk)
         }

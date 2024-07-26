@@ -11,4 +11,6 @@
     <color name="colorAccent">#03DAC5</color>
     <color name="txtDayColor">#211F1F</color>
     <color name="txtNightColor">#FFFFFF</color>
+
+    <color name="box_background_color">#F5F5F5</color>
 </resources>

@@ -188,8 +188,6 @@ class InputStokFragment : AuthFragment() {
                     inputStokLogModel.pcs= etPcs.text.toString().trim().toInt()
                     viewModel.updateInputStok(inputStokLogModel)
                 }
-
-
                 dialog.dismiss() }
             .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
             .show()

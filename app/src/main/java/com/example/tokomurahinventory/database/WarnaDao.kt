@@ -40,7 +40,7 @@ interface WarnaDao {
     fun selectWarnaByWarnaRef(refWarna:String):LiveData<String>
 
     @Query("SELECT warnaRef FROM warna_table WHERE refMerk=:refMerk AND kodeWarna = :namaWarna")
-    fun getWarnaRefByName(namaWarna:String, refMerk: String):String
+    fun getWarnaRefByName(namaWarna:String, refMerk: String):String?
 
     @Query("SELECT refMerk FROM warna_table WHERE warnaRef=:warnaRef")
     fun getMerkRefByWarnaRef(warnaRef:String):String
