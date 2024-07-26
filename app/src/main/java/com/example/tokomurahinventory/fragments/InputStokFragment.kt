@@ -111,6 +111,11 @@ class InputStokFragment : AuthFragment() {
 
         return binding.root
     }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.getAllInputLogModel()
+    }
     private fun setupDialog(inputStokLogModel: InputStokLogModel?) {
         val dialogBinding = DataBindingUtil.inflate<PopUpAddBarangLogBinding>(
             LayoutInflater.from(context),
@@ -186,6 +191,7 @@ class InputStokFragment : AuthFragment() {
                     inputStokLogModel.kodeWarna= autoCompleteWarna.text.toString().trim()
                     inputStokLogModel.isi= autoCompleteIsi.text.toString().trim().toDouble()
                     inputStokLogModel.pcs= etPcs.text.toString().trim().toInt()
+                    Log.i("InsertLogTry","pop up dialog ${inputStokLogModel.pcs}")
                     viewModel.updateInputStok(inputStokLogModel)
                 }
                 dialog.dismiss() }

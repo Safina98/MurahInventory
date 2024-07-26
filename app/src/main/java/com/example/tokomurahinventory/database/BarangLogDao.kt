@@ -16,7 +16,7 @@ import java.util.Date
 @Dao
 interface BarangLogDao {
     @Insert
-    fun insert(barangLog: BarangLog)
+    fun insert(barangLog: BarangLog):Long
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertBarangLogTable(barangLog: BarangLog)

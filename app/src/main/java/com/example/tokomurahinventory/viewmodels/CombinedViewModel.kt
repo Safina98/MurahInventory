@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.BarangLogDao
 import com.example.tokomurahinventory.database.DetailWarnaDao
 import com.example.tokomurahinventory.database.LogDao
@@ -117,7 +118,7 @@ class CombinedViewModel(
         Log.i("SplitFragmetProbs","setRefWarna ${_refWarna.value}")
     }
     fun getDetailWarnaByWarnaRef(warnaRef: String){
-        uiScope.launch {
+        viewModelScope.launch {
           val  list = withContext(Dispatchers.IO){
                 dataSourceDetailWarna.getDetailWarnaSummaryList(warnaRef)
             }
@@ -127,7 +128,7 @@ class CombinedViewModel(
     }
     // Merk functions
     fun getAllMerkTable() {
-        uiScope.launch {
+        viewModelScope.launch {
             val list = withContext(Dispatchers.IO) {
                 merkDao.selectAllMerkList()
             }
@@ -149,7 +150,7 @@ class CombinedViewModel(
     }
 
     fun insertMerk(namaMerk: String) {
-        uiScope.launch {
+        viewModelScope.launch {
             val merk = MerkTable().apply {
                 this.namaMerk = namaMerk
                 val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
@@ -170,7 +171,7 @@ class CombinedViewModel(
     }
 
     fun updateMerk(merkTable: MerkTable) {
-        uiScope.launch {
+        viewModelScope.launch {
             merkTable.lastEditedBy = SharedPreferencesHelper.getLoggedInUser(getApplication())
             merkTable.merkLastEditedDate = Date()
             updateMerkToDao(merkTable)
@@ -179,9 +180,10 @@ class CombinedViewModel(
     }
 
     fun deleteMerk(merkTable: MerkTable) {
-        uiScope.launch {
+        viewModelScope.launch {
             deleteMerkToDao(merkTable)
             getAllMerkTable()
+            getWarnaByMerk(refMerkk.value)
         }
     }
 
@@ -219,7 +221,7 @@ class CombinedViewModel(
 
     // Warna functions
     fun getWarnaByMerk(refMerk: String?) {
-        uiScope.launch {
+        viewModelScope.launch {
             if (_refMerk.value!=null){
                 val list = withContext(Dispatchers.IO) {
                     if (refMerk==null){
@@ -238,7 +240,7 @@ class CombinedViewModel(
         }
     }
     fun getStringWarna(warnaRef:String){
-        uiScope.launch {
+        viewModelScope.launch {
             val warna = withContext(Dispatchers.IO){
                 warnaDao.getKodeWarnaByRef(warnaRef)
             }
@@ -247,7 +249,7 @@ class CombinedViewModel(
         }
     }
     fun getStringMerk(refMerk:String){
-        uiScope.launch {
+        viewModelScope.launch {
             val merk = withContext(Dispatchers.IO){
                 merkDao.getMerkNameByRef(refMerk)
             }
@@ -269,7 +271,7 @@ class CombinedViewModel(
     }
 
     fun insertWarna(kodeWarna: String, satuan: String) {
-        uiScope.launch {
+        viewModelScope.launch {
 
             val warna = WarnaTable().apply {
                 this.refMerk = refMerkk.value!!
@@ -286,7 +288,7 @@ class CombinedViewModel(
     }
 
     fun updateWarna(warnaTable: WarnaModel) {
-        uiScope.launch {
+        viewModelScope.launch {
             warnaTable.lastEditedBy = SharedPreferencesHelper.getLoggedInUser(getApplication())
             warnaTable.warnaLastEditedDate = Date()
             updateWarnaToDao(warnaTable.toWarnaTable())
@@ -311,9 +313,10 @@ class CombinedViewModel(
     }
 
     fun deleteWarna(warnaTable: WarnaModel) {
-        uiScope.launch {
+        viewModelScope.launch {
             deleteWarnaToDao(warnaTable.toWarnaTable())
-            //getWarnaByMerk()
+            getWarnaByMerk(refMerkk.value)
+            getDetailWarnaByWarnaRef(refWarna.value!!)
         }
     }
 
@@ -364,53 +367,57 @@ class CombinedViewModel(
     }
 
     fun insertDetailWarna(pcs: Int, isi: Double) {
-        uiScope.launch {
+        viewModelScope.launch {
             val detailWarnaTable = DetailWarnaTable()
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             if (loggedInUsers != null) {
-                detailWarnaTable.warnaRef = _refWarna.value!!
-                detailWarnaTable.lastEditedBy = loggedInUsers
-                detailWarnaTable.detailWarnaLastEditedDate = Date()
-                detailWarnaTable.detailWarnaIsi = isi
-                detailWarnaTable.detailWarnaPcs = pcs
-
-                val detailWarnaTable1 = checkIfIsiExisted(isi, _refWarna.value!!)
-                if (detailWarnaTable1 != null) {
-                    detailWarnaTable1.lastEditedBy = loggedInUsers
-                    detailWarnaTable1.detailWarnaIsi = isi
-                    detailWarnaTable1.detailWarnaPcs = pcs
+                if (_refWarna.value!=null){
+                    detailWarnaTable.warnaRef = _refWarna.value!!
+                    detailWarnaTable.lastEditedBy = loggedInUsers
                     detailWarnaTable.detailWarnaLastEditedDate = Date()
-                    updateDetailWarnaToDao(detailWarnaTable1, isi)
-                    insertInputLog(detailWarnaTable1)
-                } else {
-                    detailWarnaTable.detailWarnaRef = UUID.randomUUID().toString()
-                    detailWarnaTable.createdBy = loggedInUsers
-                    detailWarnaTable.detailWarnaDate = Date()
-                    insertDetailWarnaToDao(detailWarnaTable)
-                    detailWarnaTable.user = loggedInUsers
-                    insertInputLog(detailWarnaTable)
-                }
+                    detailWarnaTable.detailWarnaIsi = isi
+                    detailWarnaTable.detailWarnaPcs = pcs
+
+                    val detailWarnaTable1 = checkIfIsiExisted(isi, _refWarna.value!!)
+                    if (detailWarnaTable1 != null) {
+                        detailWarnaTable1.lastEditedBy = loggedInUsers
+                        detailWarnaTable1.detailWarnaIsi = isi
+                        detailWarnaTable1.detailWarnaPcs = pcs
+                        detailWarnaTable.detailWarnaLastEditedDate = Date()
+                        updateDetailWarnaToDao(detailWarnaTable1, isi)
+                        insertInputLog(detailWarnaTable1)
+                    } else {
+                        detailWarnaTable.detailWarnaRef = UUID.randomUUID().toString()
+                        detailWarnaTable.createdBy = loggedInUsers
+                        detailWarnaTable.detailWarnaDate = Date()
+                        insertDetailWarnaToDao(detailWarnaTable)
+                        detailWarnaTable.user = loggedInUsers
+                        insertInputLog(detailWarnaTable)
+                    }
+                } else Toast.makeText(getApplication(), "Pilih kode warna", Toast.LENGTH_SHORT).show()
+
             }else{
                 Toast.makeText(getApplication(), userNullString, Toast.LENGTH_SHORT).show()
             }
             getDetailWarnaByWarnaRef(refWarna.value!!)
+            getWarnaByMerk(refMerkk.value)
         }
     }
     fun insertInputLog(detailWarnaTable: DetailWarnaTable) {
-        uiScope.launch {
+        viewModelScope.launch {
             try {
                 Log.i("InsertLogTry","insert InputLog detailWarna: $detailWarnaTable")
-
+                val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
                 val log = LogTable().apply {
                     refLog = UUID.randomUUID().toString()
                     logTipe = MASUKKELUAR.MASUK
-                    createdBy = loggedInUser
-                    lastEditedBy = loggedInUser
-                    userName = loggedInUser
+                    createdBy = loggedInUsers
+                    lastEditedBy = loggedInUsers
+                    userName = loggedInUsers
                     logCreatedDate = Date()
                     logLastEditedDate = Date()
                 }
-
+                insertLogToDao(log)
                 val barangLog = BarangLog().apply {
                     refLog = log.refLog
                     detailWarnaRef = detailWarnaTable.detailWarnaRef
@@ -421,15 +428,13 @@ class CombinedViewModel(
                     barangLogRef = UUID.randomUUID().toString()
                     barangLogTipe = MASUKKELUAR.MASUK
                 }
-
                 Log.i("InsertLogTry","insert InputLog log: $barangLog")
 
-                insertLogToDao(log)
                 insertBarangLogToDao(barangLog)
-
                 Log.i("InsertLogTry","Insertion completed successfully")
             } catch (e: Exception) {
-                Log.e("InsertLogError", "Error inserting log and barang log", e)
+                Toast.makeText(getApplication(),e.toString(),Toast.LENGTH_SHORT).show()
+                Log.e("InsertLogTry", "Error inserting log and barang log", e)
             }
         }
     }
@@ -440,12 +445,20 @@ class CombinedViewModel(
 
     private suspend fun insertBarangLogToDao(barangLog: BarangLog){
         withContext(Dispatchers.IO){
-            dataSourceBarangLog.insert(barangLog)
+            Log.i("InsertLogTry","inserted baranglog: $barangLog")
+            val id = dataSourceBarangLog.insert(barangLog)
+            Log.i("InsertLogTry","inserted baranglog id: $id")
+            val barangLog = dataSourceBarangLog.selectBarangLogByRef(barangLog.barangLogRef)
+            Log.i("InsertLogTry","inserted baranglog id: $barangLog")
         }
     }
     private suspend fun insertLogToDao(log: LogTable){
         withContext(Dispatchers.IO){
+            Log.i("InsertLogTry","inserted log : $log")
             dataSourceLog.insert(log)
+            val logd = dataSourceLog.getLogById(log.refLog)
+            Log.i("InsertLogTry","inserted log : $logd")
+
         }
     }
     private suspend fun getMerkRef():String{
@@ -470,7 +483,7 @@ class CombinedViewModel(
 
 /*
     fun updateDetailWarna(oldDetailWarnaModel:DetailWarnaModel,pcs:Int,isi:Double){
-        uiScope.launch {
+        viewModelScope.launch {
             //for i in pcs, update isi from detail warna where isi = old isi and ref = warna ref
             val detailWarnaTable = withContext(Dispatchers.IO){ dataSourceDetailWarna.getFirstDetailWarna(isi,oldDetailWarnaModel.warnaRef,pcs) }
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
@@ -483,7 +496,7 @@ class CombinedViewModel(
 
  */
     fun deleteDetailWarna(detailWarnaModel: DetailWarnaModel){
-        uiScope.launch{
+        viewModelScope.launch{
             deleteDetailWarnaToDao(detailWarnaModel.detailWarnaIsi,detailWarnaModel.warnaRef)
         }
     }
@@ -510,8 +523,5 @@ class CombinedViewModel(
     fun onAddDetailWarnaFabClicked() { _addDetailWarnaFab.value = false }
     fun onLongClick(v: View): Boolean { return false }
 
-    override fun onCleared() {
-        super.onCleared()
-        viewModelJob.cancel()
-    }
+
 }
