@@ -15,12 +15,13 @@
             android:id="@+id/txt_title"
             android:text="Barang"
             android:layout_gravity="center"
-            style="@style/export_import_txt_header_style"
+            style="@style/rv_input_Log_big_text_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layout_satu"
             android:hint="merk"
+            android:padding="@dimen/small_margin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <AutoCompleteTextView
@@ -34,6 +35,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layout_dua"
             android:hint="warna"
+            android:padding="@dimen/small_margin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -48,6 +50,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layout_tiga"
             android:hint="isi"
+            android:padding="@dimen/small_margin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 

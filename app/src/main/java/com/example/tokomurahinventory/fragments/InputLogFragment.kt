@@ -16,6 +16,7 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.example.tokomurahinventory.R
 import com.example.tokomurahinventory.adapters.AddNetClickListener
@@ -91,11 +92,12 @@ class InputLogFragment : AuthFragment() {
         }}
         viewModel.allMerkFromDb.observe(viewLifecycleOwner){it?.let {}}
         viewModel.navigateToLog.observe(viewLifecycleOwner, Observer {
-            if (it==true){
+            if (it == true) {
                 this.findNavController().navigate(InputLogFragmentDirections.actionInputLogFragmentToLogFragment())
                 viewModel.onNavigatedToLog()
             }
         })
+
 
         return binding.root
     }

@@ -8,10 +8,12 @@
         android:id="@+id/usersFragment"
         android:icon="@drawable/baseline_people_alt_24"
         android:title="Pengguna" />
+
     <item
         android:id="@+id/logFragment"
         android:icon="@drawable/baseline_storage_24"
         android:title="Log Barang Keluar" />
+
     <item
         android:id="@+id/inputStokFragment"
         android:icon="@drawable/baseline_storage_24"

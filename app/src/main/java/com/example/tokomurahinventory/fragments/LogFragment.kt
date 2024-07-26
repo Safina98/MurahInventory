@@ -15,6 +15,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.example.tokomurahinventory.R
 import com.example.tokomurahinventory.adapters.LogAdapter
@@ -101,11 +102,12 @@ class LogFragment : AuthFragment(){
             }
         }
         viewModel.addLogFab.observe(viewLifecycleOwner, Observer {
-            if (it==true){
+            if (it == true) {
                 this.findNavController().navigate(LogFragmentDirections.actionLogFragmentToInputLogFragment())
                 viewModel.onAddLogFabClicked()
             }
         })
+
         return binding.root
     }
 
