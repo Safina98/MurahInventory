@@ -8,22 +8,18 @@
 
     <style name="rv_input_Log_big_text_style">
         <item name="android:textSize">22sp</item>
-        <item name="android:textColor">@color/black</item>
         <item name="android:layout_margin">@dimen/small_margin</item>
     </style>
     <style name="export_import_txt_style">
         <item name="android:textSize">24sp</item>
-        <item name="android:textColor">#211F1F</item>
         <item name="android:layout_margin">@dimen/big_margin</item>
     </style>
     <style name="export_import_txt_header_style">
         <item name="android:textSize">28sp</item>
-        <item name="android:textColor">#211F1F</item>
         <item name="android:layout_margin">@dimen/enormous_margin</item>
     </style>
     <style name="rv_input_Log_big_text_style_with_bigMargin">
         <item name="android:textSize">22sp</item>
-        <item name="android:textColor">@color/black</item>
         <item name="android:layout_marginEnd">@dimen/big_margin</item>
         <item name="android:layout_marginStart">@dimen/small_margin</item>
         <item name="android:layout_marginTop">@dimen/small_margin</item>
@@ -32,7 +28,7 @@
 
     <style name="txt_item_log_style">
         <item name="android:textSize">18sp</item>
-        <item name="android:textColor">@color/black</item>
+
         <item name="android:layout_margin">@dimen/small_margin</item>
     </style>
     <style name="plus_min_btn">

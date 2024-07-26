@@ -112,8 +112,8 @@ class ExportImportViewModel(
         return formatter.parse(dateStr) ?: Date()
     }
     private suspend fun insertCSVN(tokens: List<String>) {
-        // Log.i("INSERTCSVPROB","brand token: $token")
-        if (tokens.size == 30) {
+         Log.i("INSERTCSVPROB","size: ${tokens.size}")
+        if (tokens.size == 29) {
             // Ensure there are 24 fields
             importMerk(tokens)
         }else if (tokens.size ==5) {
@@ -173,6 +173,7 @@ class ExportImportViewModel(
             userName = tokens[1].trim()
             password = tokens[2].trim()
             usersRef = tokens[3].trim()
+            usersRole = tokens[4].trim()
         }
         Log.i("INSERTCSVPROB","token ${tokens}")
         Log.i("INSERTCSVPROB","users ${users}")
@@ -189,8 +190,9 @@ class ExportImportViewModel(
             createdBy = tokens[6].trim()
             lastEditedBy = tokens[7].trim()
         }
-
+        Log.i("INSERTCSVPROB","merk table ${merkTable}")
         val warnaTable = WarnaTable().apply {
+
             kodeWarna = tokens[9].trim()
             totalPcs = tokens[10].trim().toIntOrNull() ?: 0
             satuanTotal = tokens[11].trim().toDoubleOrNull() ?: 0.0
@@ -203,6 +205,7 @@ class ExportImportViewModel(
             lastEditedBy = tokens[18].trim()
             refMerk = tokens[2].trim()
         }
+        Log.i("INSERTCSVPROB","warna table ${warnaTable}")
 
         val detailWarnaTable = DetailWarnaTable().apply {
             detailWarnaIsi = tokens[20].trim().toDoubleOrNull() ?: 0.0
@@ -213,11 +216,11 @@ class ExportImportViewModel(
             createdBy = tokens[25].trim()
             lastEditedBy = tokens[26].trim()
             warnaRef = tokens[13].trim()
-            detailWarnaRef = tokens[26]
+            detailWarnaRef = tokens[27]
         }
-        Log.i("INSERTCSVPROB","token ${tokens}")
-        Log.i("INSERTCSVPROB","merk table ${merkTable}")
-        Log.i("INSERTCSVPROB","warna table ${warnaTable}")
+        //Log.i("INSERTCSVPROB","token ${tokens}")
+
+
         Log.i("INSERTCSVPROB","detail warna table${detailWarnaTable}")
         dataSourceMerk.insertMerkTable(merkTable)
         dataSourceWarna.insertWarnaTable(warnaTable)

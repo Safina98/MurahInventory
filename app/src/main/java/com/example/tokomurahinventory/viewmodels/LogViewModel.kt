@@ -209,31 +209,34 @@ class LogViewModel (
         viewModelScope.launch {
             val s = getStringS()
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
-            val updatedLog = LogTable(
-                id = mutableLog.value!!.id,
-                userName = loggedInUser,
-                password = "",
-                namaToko = namaToko.value ?: "Failed",
-                logCreatedDate = mutableLog.value!!.logCreatedDate, // assuming you have a date field
-                keterangan = subKeterangan.value ?: "Failed",
-                merk = s,
-                kodeWarna = "",
-                logIsi = 0.0,
-                pcs = countModelList.value!!.sumOf { it.psc },
-                detailWarnaRef = "",
-                refLog = mutableLog.value!!.refLog,
-                lastEditedBy = loggedInUsers,
-                logLastEditedDate = Date(),
-                createdBy = mutableLog.value!!.createdBy,
-                logTipe = mutableLog.value!!.logTipe
-            )
-            val cmList = countModelList.value!!
-            updateLogToDao(updatedLog)
-            updateLogBarang(updatedLog.refLog)
-            //compare old countModel with the current one for delete purpose
-            compare(updatedLog.refLog,cmList)
-            getAllLogTable()
-            onNavigateToLog()
+            val allDataPresent = areAllCountModelValuesNotNull(countModelList)
+            if (allDataPresent) {
+                val updatedLog = LogTable(
+                    id = mutableLog.value!!.id,
+                    userName = loggedInUser,
+                    password = "",
+                    namaToko = namaToko.value ?: "Failed",
+                    logCreatedDate = mutableLog.value!!.logCreatedDate, // assuming you have a date field
+                    keterangan = subKeterangan.value ?: "Failed",
+                    merk = s,
+                    kodeWarna = "",
+                    logIsi = 0.0,
+                    pcs = countModelList.value!!.sumOf { it.psc },
+                    detailWarnaRef = "",
+                    refLog = mutableLog.value!!.refLog,
+                    lastEditedBy = loggedInUsers,
+                    logLastEditedDate = Date(),
+                    createdBy = mutableLog.value!!.createdBy,
+                    logTipe = mutableLog.value!!.logTipe
+                )
+                val cmList = countModelList.value!!
+                updateLogToDao(updatedLog)
+                updateLogBarang(updatedLog.refLog)
+                //compare old countModel with the current one for delete purpose
+                compare(updatedLog.refLog, cmList)
+                getAllLogTable()
+                onNavigateToLog()
+            }else Toast.makeText(getApplication(),"Insert Failed, please check the data",Toast.LENGTH_SHORT).show()
         }
     }
     fun addLog(){
@@ -507,8 +510,11 @@ class LogViewModel (
                 val refWarna = getrefWanraByName(itemToUpdate.kodeBarang!!.uppercase(), refMerk)
                 val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna, itemToUpdate.isi!!)
 
-                val isPcsReadyInStok = checkIfPcsReadyInStok(refDetailWarna!!, itemToUpdate.psc)
-                Log.e("UpdateError", "osPcsReadyIn tok $isPcsReadyInStok.")
+                val isPcsReadyInStok = checkIfPcsReadyInStok(refDetailWarna!!, net)
+                val getDetailWarnaByDetailWarnaRef = withContext(Dispatchers.IO){dataSourceDetailWarna.getDetailWarnaByDetailWarnaRef(refDetailWarna)}
+                Log.e("UpdateError", "osPcsReadyInStok $isPcsReadyInStok.")
+                Log.e("UpdateError", "detailwarna isi ${getDetailWarnaByDetailWarnaRef.detailWarnaIsi}")
+                Log.e("UpdateError", "count.psc ${net}")
                 if (isPcsReadyInStok){
                     itemToUpdate.psc = net
                     _countModelList.value = updatedList // Notify observers of the change

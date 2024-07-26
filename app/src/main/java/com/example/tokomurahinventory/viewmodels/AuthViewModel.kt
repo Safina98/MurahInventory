@@ -34,6 +34,7 @@ class AuthViewModel : ViewModel() {
                 callback(isAuthenticated)
                 if (isAuthenticated) {
                     SharedPreferencesHelper.saveUsername(context, username)
+                    Log.d("AppDebug", "authenticate user: $user")
                     SharedPreferencesHelper.saveUserRole(context, user!!.usersRole)
                     setAuthenticationState(true)
                 }

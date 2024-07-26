@@ -78,6 +78,7 @@ class MerkFragment : AuthFragment() {
                 //viewModel.onNavigateToWarna(it.refMerk)
                 viewModel.setRefMerk(it.refMerk)
                 viewModel.getWarnaByMerk(it.refMerk)
+                viewModel.getStringMerk(it.refMerk)
                 viewModel.setRefWarna("")
                 viewModel.getStringWarna("")
                 },
@@ -96,7 +97,9 @@ class MerkFragment : AuthFragment() {
         binding.rvMerk.adapter = adapter
 
         //showLoginDialog()
-
+       viewModel.refMerkk.observe(viewLifecycleOwner, Observer {
+           // Log.i("SplitFragmetProbs","refMerkk ${it}")
+       })
         //Observe all merk from db
         viewModel.allMerkTable.observe(viewLifecycleOwner, Observer {
             it.let {

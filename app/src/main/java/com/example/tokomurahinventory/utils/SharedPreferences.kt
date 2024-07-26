@@ -3,6 +3,7 @@ package com.example.tokomurahinventory.utils
 
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 
@@ -30,10 +31,13 @@ object SharedPreferencesHelper {
     fun saveUserRole(context: Context, userRole: String) {
         val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         with(sharedPreferences.edit()) {
+            Log.d("AppDebug", "save user role : $userRole")
             putString(KEY_USER_ROLE, userRole)
+            Log.d("AppDebug", "KEY USER ROLE : $KEY_USER_ROLE")
             apply()
         }
         _userRole.value = userRole  // Update LiveData
+        Log.d("AppDebug", "_usetROle : ${_userRole.value}")
     }
 
     fun getLoggedInUser(context: Context): String? {

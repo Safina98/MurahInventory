@@ -164,7 +164,7 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
     }
 
 
-
+/*
     fun updateDetailWarna(oldDetailWarnaModel:DetailWarnaModel,pcs:Int,isi:Double){
         uiScope.launch {
             //for i in pcs, update isi from detail warna where isi = old isi and ref = warna ref
@@ -176,6 +176,8 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
         //updateDetailWarnaToDao(detailWarnaModel.toDetailWarnaTable())
         }
     }
+
+ */
     fun deleteDetailWarna(detailWarnaModel: DetailWarnaModel){
         uiScope.launch{
             deleteDetailWarnaToDao(detailWarnaModel.detailWarnaIsi,detailWarnaModel.warnaRef)

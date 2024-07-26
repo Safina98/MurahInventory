@@ -171,7 +171,7 @@ class DetailWarnaFragment : AuthFragment() {
                 }else{
                     //detailWarnaModel.detailWarnaPcs = pcs
                     //detailWarnaModel.detailWarnaIsi = isi
-                    viewModel.updateDetailWarna(detailWarnaModel,pcs,isi)
+                   // viewModel.updateDetailWarna(detailWarnaModel,pcs,isi)
                 }
 
             }else

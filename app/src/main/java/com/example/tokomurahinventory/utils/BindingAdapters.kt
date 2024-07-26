@@ -1,6 +1,7 @@
 package com.example.tokomurahinventory.utils
 
 import android.content.SharedPreferences
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
@@ -16,14 +17,22 @@ object BindingAdapters {
     @JvmStatic
     @BindingAdapter("app:showIfAdmin")
     fun bindVisibilityBasedOnRole(view: View, showIfAdmin: Boolean) {
-        SharedPreferencesHelper.userRole.observe(view.context as LifecycleOwner, Observer { role ->
-            view.visibility = if (showIfAdmin && (role == UserRoles.ADMIN )) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
-        })
+        val context = view.context
+        val lifecycleOwner = context as? LifecycleOwner
+        if (lifecycleOwner != null) {
+            SharedPreferencesHelper.userRole.observe(lifecycleOwner, Observer { role ->
+                Log.i("USERROLEPROB", "binding Adapter role $role")
+                view.visibility = if (showIfAdmin && (role == UserRoles.ADMIN)) {
+                    View.VISIBLE
+                } else {
+                    View.GONE
+                }
+            })
+        } else {
+            Log.e("USERROLEPROB", "Context is not a LifecycleOwner.")
+        }
     }
+
     @JvmStatic
     @BindingAdapter("app:showIfAdminOrEditor")
     fun bindVisibilityBasedOnRoleN(view: View, showIfAdminOrEditor: Boolean) {

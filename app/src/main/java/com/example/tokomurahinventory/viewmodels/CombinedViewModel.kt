@@ -85,6 +85,9 @@ class CombinedViewModel(
     //delete?
     val _warna = MutableLiveData<String>()
     val warna :LiveData<String>get() = _warna
+
+    val _merk = MutableLiveData<String>()
+    val merk :LiveData<String>get() = _merk
     //val warna = warnaDao.selectWarnaByWarnaRef(refWarna)
     //detail warna
     //val detailWarnaList = dataSourceDetailWarna.selectDetailWarnaByWarnaIdGroupByIsi(refWarna)
@@ -240,7 +243,16 @@ class CombinedViewModel(
                 warnaDao.getKodeWarnaByRef(warnaRef)
             }
             _warna.value = warna
-            Log.i("SplitFragmetProbs","allWarnaByMerk ${warna}")
+            Log.i("SplitFragmetProbs","warna ${warna}")
+        }
+    }
+    fun getStringMerk(refMerk:String){
+        uiScope.launch {
+            val merk = withContext(Dispatchers.IO){
+                merkDao.getMerkNameByRef(refMerk)
+            }
+            _merk.value = merk
+            Log.i("SplitFragmetProbs","merk ${merk}")
         }
     }
 
@@ -258,6 +270,7 @@ class CombinedViewModel(
 
     fun insertWarna(kodeWarna: String, satuan: String) {
         uiScope.launch {
+
             val warna = WarnaTable().apply {
                 this.refMerk = refMerkk.value!!
                 this.kodeWarna = kodeWarna
@@ -455,7 +468,7 @@ class CombinedViewModel(
     }
 
 
-
+/*
     fun updateDetailWarna(oldDetailWarnaModel:DetailWarnaModel,pcs:Int,isi:Double){
         uiScope.launch {
             //for i in pcs, update isi from detail warna where isi = old isi and ref = warna ref
@@ -467,6 +480,8 @@ class CombinedViewModel(
             //updateDetailWarnaToDao(detailWarnaModel.toDetailWarnaTable())
         }
     }
+
+ */
     fun deleteDetailWarna(detailWarnaModel: DetailWarnaModel){
         uiScope.launch{
             deleteDetailWarnaToDao(detailWarnaModel.detailWarnaIsi,detailWarnaModel.warnaRef)

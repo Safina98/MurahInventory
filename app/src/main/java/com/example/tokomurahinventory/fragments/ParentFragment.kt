@@ -21,7 +21,7 @@ class ParentFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate layout based on orientation
-        (activity as? AppCompatActivity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+       // (activity as? AppCompatActivity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         val orientation = resources.configuration.orientation
         val layoutId = R.layout.fragment_parent_landscape
 
@@ -37,7 +37,7 @@ class ParentFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        (activity as? AppCompatActivity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+       // (activity as? AppCompatActivity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
     }
 
     private fun loadFragments() {
@@ -65,7 +65,7 @@ class ParentFragment : Fragment() {
     }
     override fun onStop() {
         super.onStop()
-        (activity as? MainActivity)?.resetOrientation()
+       // (activity as? MainActivity)?.resetOrientation()
     }
 /*
     override fun onConfigurationChanged(newConfig: Configuration) {

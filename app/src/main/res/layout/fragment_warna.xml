@@ -29,6 +29,16 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             />
+        <TextView
+            android:id="@+id/txt_merk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.merk}"
+            style="@style/rv_item_text_style"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/search_bar_warna"
+            />
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_warna"
             android:layout_weight="1"
@@ -37,7 +47,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/search_bar_warna"
+            app:layout_constraintTop_toBottomOf="@id/txt_merk"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             />
         <com.example.tokomurahinventory.utils.DraggableFloatingActionButton

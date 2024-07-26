@@ -107,6 +107,10 @@ class WarnaFragment : AuthFragment() {
 
         binding.rvWarna.adapter = adapter
 
+        viewModel.merk.observe(viewLifecycleOwner, Observer {
+            Log.i("SplitFragmetProbs","merk ${it}")
+        })
+
         viewModel.allWarnaByMerk.observe(viewLifecycleOwner, Observer {
             it?.let {
                 adapter.submitList(it.sortedBy { it.kodeWarna })
@@ -119,7 +123,10 @@ class WarnaFragment : AuthFragment() {
                 viewModel.getWarnaByMerk(it)
             }
         })
-
+        viewModel.refWarna.observe(viewLifecycleOwner, Observer {})
+        viewModel.warna.observe(viewLifecycleOwner, Observer {
+            Log.i("SplitFragmetProbs","warna ${it}")
+        })
 
         viewModel.addWarnaFab.observe(viewLifecycleOwner, Observer {
             if (it == true) {

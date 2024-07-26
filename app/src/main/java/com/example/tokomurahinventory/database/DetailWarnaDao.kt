@@ -32,8 +32,8 @@ interface DetailWarnaDao {
     fun selectDetailWarnaByWarnaIdGroupByIsi(warnaRef:String):LiveData<List<DetailWarnaTable>>
 
 
-    @Query("""SELECT * FROM detail_warna_table WHERE detailWarnaIsi = :detailWarnaIsi AND detailWarnaRef = :warnaRef LIMIT :pcs""")
-    fun getFirstDetailWarna(detailWarnaIsi: Double, warnaRef: String,pcs:Int):DetailWarnaTable
+    @Query("""SELECT * FROM detail_warna_table WHERE detailWarnaRef = :detailWarnaRef""")
+    fun getDetailWarnaByDetailWarnaRef(detailWarnaRef: String):DetailWarnaTable
 
     @Query("""SELECT * FROM detail_warna_table """)
     fun getAllDetailWarnas(): List<DetailWarnaTable>
@@ -146,9 +146,9 @@ interface DetailWarnaDao {
             d.createdBy AS detailWarnaCreatedBy,
             d.lastEditedBy AS detailWarnaLastEditedBy,
             d.detailWarnaRef
-        FROM merk_table AS m
-        JOIN warna_table AS w ON m.refMerk = w.refMerk
-        JOIN detail_warna_table AS d ON w.warnaRef = d.warnaRef
+        FROM detail_warna_table AS d
+        JOIN warna_table AS w ON d.warnaRef = w.warnaRef
+        JOIN merk_table AS m ON w.refMerk = m.refMerk
     """)
     fun getAllCombinedData(): List<CombinedDataModel>
 }
