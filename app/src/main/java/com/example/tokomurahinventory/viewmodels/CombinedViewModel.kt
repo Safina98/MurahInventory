@@ -272,18 +272,20 @@ class CombinedViewModel(
 
     fun insertWarna(kodeWarna: String, satuan: String) {
         viewModelScope.launch {
+            if (refMerkk.value!=null){
+                val warna = WarnaTable().apply {
+                    this.refMerk = refMerkk.value!!
+                    this.kodeWarna = kodeWarna
+                    this.satuan = satuan
+                    this.warnaRef = UUID.randomUUID().toString()
+                    this.createdBy = SharedPreferencesHelper.getLoggedInUser(getApplication())
+                    this.lastEditedBy = createdBy
+                    this.user = createdBy
+                }
+                insertWarnaToDao(warna)
+                getWarnaByMerk(refMerkk.value)
+            }else Toast.makeText(getApplication(), "Pilih merk", Toast.LENGTH_SHORT).show()
 
-            val warna = WarnaTable().apply {
-                this.refMerk = refMerkk.value!!
-                this.kodeWarna = kodeWarna
-                this.satuan = satuan
-                this.warnaRef = UUID.randomUUID().toString()
-                this.createdBy = SharedPreferencesHelper.getLoggedInUser(getApplication())
-                this.lastEditedBy = createdBy
-                this.user = createdBy
-            }
-            insertWarnaToDao(warna)
-            getWarnaByMerk(refMerkk.value)
         }
     }
 

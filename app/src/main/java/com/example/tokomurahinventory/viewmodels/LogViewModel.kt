@@ -214,7 +214,9 @@ class LogViewModel (
             val s = getStringS()
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             val allDataPresent = areAllCountModelValuesNotNull(countModelList)
-            if (allDataPresent) {
+            val hasNotIdenticalItem = hasNotIdenticalItems(countModelList.value)
+            Log.i("InsertLogTry","$hasNotIdenticalItem")
+            if (allDataPresent&&hasNotIdenticalItem) {
                 val updatedLog = LogTable(
                     id = mutableLog.value!!.id,
                     userName = loggedInUser,
@@ -248,8 +250,9 @@ class LogViewModel (
             val s = getStringS()
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             val allDataPresent = areAllCountModelValuesNotNull(countModelList)
+            val hasNotIdenticalItem = hasNotIdenticalItems(countModelList.value)
            if (loggedInUsers!=null) {
-            if (allDataPresent) {
+            if (allDataPresent&&hasNotIdenticalItem) {
                 val newLog = LogTable(
                     id = 0,
                     userName = loggedInUsers,
@@ -746,6 +749,19 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
             }
         }
         return true
+    }
+    fun hasNotIdenticalItems(countList: List<CountModel>?): Boolean {
+        val countModelItems = countList?: return false
+        val seen = mutableSetOf<Triple<String?, String?, Double?>>()
+        for (item in countModelItems) {
+            val key = Triple(item.kodeBarang, item.merkBarang, item.isi)
+            if (key in seen) {
+                Log.i("InsertLogTry","$key")
+                return false // Identical item found
+            }
+            seen.add(key)
+        }
+        return true // No identical items found
     }
 
     fun getStringS():String{

@@ -92,6 +92,7 @@ class InputLogFragment : AuthFragment() {
         }}
         viewModel.allMerkFromDb.observe(viewLifecycleOwner){it?.let {}}
         viewModel.navigateToLog.observe(viewLifecycleOwner, Observer {
+            clearEditText()
             if (it == true) {
                 this.findNavController().navigate(InputLogFragmentDirections.actionInputLogFragmentToLogFragment())
                 viewModel.onNavigatedToLog()
