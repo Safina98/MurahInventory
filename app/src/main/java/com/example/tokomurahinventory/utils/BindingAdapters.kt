@@ -13,7 +13,7 @@ import java.util.Date
 import java.util.Locale
 
 object BindingAdapters {
-    private const val FULL_DATE_FORMAT = "EEEE, d MMMM yyyy"
+
     @JvmStatic
     @BindingAdapter("app:showIfAdmin")
     fun bindVisibilityBasedOnRole(view: View, showIfAdmin: Boolean) {

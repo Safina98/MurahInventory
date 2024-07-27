@@ -1,8 +1,12 @@
 package com.example.tokomurahinventory.utils
 
+import android.widget.TextView
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 object UserRoles {
     const val ADMIN = "Admin"
@@ -17,6 +21,7 @@ object MASUKKELUAR {
     const val MASUK = "Masuk"
     const val KELUAR = "Keluar"
 }
+const val FULL_DATE_FORMAT = "EEEE, d MMMM yyyy"
 val userNullString = "User kosong, log out dan log in kembali"
 val viewerNotAuthorized="Viewer not authorized to add Item, switch to editor or admin"
 val viewerAndEditorNotAuthorized="Viewer and Editor not authorized to edit or delete item, switch to admin"
@@ -29,4 +34,11 @@ fun <T> LiveData<T>.observeOnce(lifecycleOwner: LifecycleOwner, observer: Observ
         }
     }
     observe(lifecycleOwner, wrappedObserver)
+}
+fun formatDateToString(date: Date):String{
+
+        val sdf = SimpleDateFormat(FULL_DATE_FORMAT, Locale.getDefault())
+        val dateToDisplay = date ?: Date() // Use today's date if date is null
+        return sdf.format(dateToDisplay)
+
 }

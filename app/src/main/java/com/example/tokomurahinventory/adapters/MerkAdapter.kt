@@ -22,6 +22,7 @@ class MerkAdapter(
             binding.clickListemer = clickListener
             binding.updateCLickListemer = updateMerkClickListener
             binding.deleteClickListemer= deleteMerkClickListener
+            binding.longClickListemer = longListener
             binding.executePendingBindings()
         }
 

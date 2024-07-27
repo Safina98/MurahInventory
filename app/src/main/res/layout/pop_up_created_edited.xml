@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="160dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <TextView
+        android:id="@+id/labelCreatedBy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Dibuat oleh:"
+        style="@style/txt_item_log_style"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+    <TextView
+        android:id="@+id/textCreatedBy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/txt_item_log_style"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/labelCreatedBy"
+        />
+    <TextView
+        android:id="@+id/labelLastEditedBy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Terakhir diubah oleh: "
+        style="@style/txt_item_log_style"
+        app:layout_constraintTop_toBottomOf="@id/labelCreatedBy"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+    <TextView
+        android:id="@+id/textLastEditedBy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/txt_item_log_style"
+        app:layout_constraintTop_toBottomOf="@id/labelCreatedBy"
+        app:layout_constraintStart_toEndOf="@id/labelLastEditedBy"
+        />
+    <TextView
+        android:id="@+id/labelCreatedDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Dibuat pada: "
+        style="@style/txt_item_log_style"
+        app:layout_constraintTop_toBottomOf="@id/labelLastEditedBy"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+    <TextView
+        android:id="@+id/textCreatedDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/txt_item_log_style"
+        app:layout_constraintTop_toBottomOf="@id/labelLastEditedBy"
+        app:layout_constraintStart_toEndOf="@id/labelCreatedDate"
+        />
+    <TextView
+        android:id="@+id/labelLastEditedDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Terakhir diubah pada: "
+        style="@style/txt_item_log_style"
+        app:layout_constraintTop_toBottomOf="@id/labelCreatedDate"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+    <TextView
+        android:id="@+id/textLastEditedDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/txt_item_log_style"
+        app:layout_constraintTop_toBottomOf="@id/labelCreatedDate"
+        app:layout_constraintStart_toEndOf="@id/labelLastEditedDate"
+        />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

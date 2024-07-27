@@ -66,6 +66,7 @@ class LogFragment : AuthFragment(){
             },
             LogLongListener {
                 // Handle item long click
+                DialogUtils.showCreratedEdited(requireContext(),it.createdBy?: it.userName ?: "User has been deleted",it.lastEditedBy?: it.userName ?: "User has been deleted",it.logCreatedDate,it.logLastEditedDate)
             }, LogDeleteListener {
                 DialogUtils.showDeleteDialog(this, viewModel, it, { vm, item -> (vm as LogViewModel).deleteLog(item as LogTable) })
             }

@@ -1,11 +1,15 @@
 package com.example.tokomurahinventory.utils
 
 import android.content.Context
+import android.view.LayoutInflater
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
+import com.example.tokomurahinventory.R
 import com.example.tokomurahinventory.models.UsersTable
 import com.example.tokomurahinventory.viewmodels.UsersViewModel
+import java.util.Date
 
 object DialogUtils {
     fun showConfirmationDialog(
@@ -41,6 +45,26 @@ object DialogUtils {
             }
             .setNegativeButton("No") { dialog, id -> dialog.dismiss() }
             .setOnCancelListener { dialog -> dialog.dismiss() }
+        val alert = builder.create()
+        alert.show()
+    }
+    fun showCreratedEdited(context: Context,createdBy:String, lastEditedBy:String, createdDate: Date, lastEditedDate: Date){
+        val builder = android.app.AlertDialog.Builder(context)
+        val inflater = LayoutInflater.from(context)
+        val view = inflater.inflate(R.layout.pop_up_created_edited, null)
+        val textCreatedBy = view.findViewById<TextView>(R.id.textCreatedBy)
+        val textLastEditedBy = view.findViewById<TextView>(R.id.textLastEditedBy)
+        val textCreatedDate = view.findViewById<TextView>(R.id.textCreatedDate)
+        val textLastEditedDate = view.findViewById<TextView>(R.id.textLastEditedDate)
+
+        textCreatedBy.setText(createdBy)
+        textLastEditedBy.setText(lastEditedBy)
+        textCreatedDate.setText(formatDateToString(createdDate))
+        textLastEditedDate.setText(formatDateToString(lastEditedDate))
+
+        builder.setView(view)
+        builder.setPositiveButton("OK") { dialog, which ->
+        }
         val alert = builder.create()
         alert.show()
     }

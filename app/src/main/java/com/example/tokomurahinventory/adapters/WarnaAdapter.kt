@@ -21,6 +21,7 @@ class WarnaAdapter (private val warnaClickListener: WarnaClickListener,
             binding.clickListener = clickListener
             binding.updateClickListemer = updateWarnaClickListener
             binding.deleteClickListener = deleteWarnaClickListener
+            binding.longClickListener = longListener
             binding.executePendingBindings()
         }
 

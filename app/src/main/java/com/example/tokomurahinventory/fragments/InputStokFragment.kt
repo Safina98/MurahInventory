@@ -73,8 +73,6 @@ class InputStokFragment : AuthFragment() {
             }, UpdateInputStokLogClickListener{
                  setupDialog(it)
                 //viewModel.updateInputStok(it)
-
-
             }, DeleteInputStokLogClickListener {
                 DialogUtils.showDeleteDialog(this, viewModel, it, { vm, item -> (vm as InputStokViewModel).deleteInputStok(item as InputStokLogModel) })
             }

@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
@@ -27,6 +28,7 @@ import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.utils.DialogUtils
 import com.example.tokomurahinventory.utils.DraggableFloatingActionButton
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
+import com.example.tokomurahinventory.utils.formatDateToString
 import com.example.tokomurahinventory.utils.viewerAndEditorNotAuthorized
 import com.example.tokomurahinventory.utils.viewerNotAuthorized
 import com.example.tokomurahinventory.viewmodels.CombinedViewModel
@@ -34,6 +36,7 @@ import com.example.tokomurahinventory.viewmodels.CombinedViewModelFactory
 import com.example.tokomurahinventory.viewmodels.MerkViewModel
 import com.example.tokomurahinventory.viewmodels.MerkViewModelFactory
 import com.example.tokomurahinventory.viewmodels.UserAction
+import java.util.Date
 
 
 class MerkFragment : AuthFragment() {
@@ -84,6 +87,7 @@ class MerkFragment : AuthFragment() {
                 },
             MerkLongListener {
                     // Handle item long click
+                            DialogUtils.showCreratedEdited(requireContext(),it.createdBy ?: it.user!!,it.lastEditedBy ?: it.user!!, it.merkCreatedDate,it.merkLastEditedDate)
                 },
             UpdateMerkClickListener{
                 showAddDialog(viewModel,it,1)
@@ -174,6 +178,7 @@ class MerkFragment : AuthFragment() {
         val alert = builder.create()
         alert.show()
     }
+
 
     override fun onStart() {
         super.onStart()

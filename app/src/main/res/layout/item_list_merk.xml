@@ -15,6 +15,9 @@
         <variable
             name="deleteClickListemer"
             type="com.example.tokomurahinventory.adapters.DeleteMerkClickListener" />
+        <variable
+            name="longClickListemer"
+            type="com.example.tokomurahinventory.adapters.MerkLongListener" />
 
 
     </data>
@@ -22,6 +25,7 @@
     android:layout_width="match_parent"
     android:layout_height="80dp"
     android:onClick="@{()->clickListemer.onClick(merk)}"
+    android:onLongClick="@{(view)->longClickListemer.onLongClick(view,merk)}"
     android:layout_margin="@dimen/small_margin"
     >
     <LinearLayout
