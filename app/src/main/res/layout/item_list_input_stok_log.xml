@@ -13,12 +13,16 @@
         <variable
             name="updateListener"
             type="com.example.tokomurahinventory.adapters.UpdateInputStokLogClickListener" />
+        <variable
+            name="longListener"
+            type="com.example.tokomurahinventory.adapters.InputStokLogLongListener" />
 
     </data>
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:onLongClick="@{(view)->longListener.onLongClick(view,inputStokLog)}"
         android:layout_margin="@dimen/small_margin">
 
         <androidx.constraintlayout.widget.ConstraintLayout

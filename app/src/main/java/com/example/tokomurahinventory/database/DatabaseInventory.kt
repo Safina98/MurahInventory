@@ -8,7 +8,6 @@ import androidx.room.TypeConverters
 import com.example.tokomurahinventory.models.DetailWarnaTable
 import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.models.WarnaTable
-import com.example.tokomurahinventory.database.Converters
 import com.example.tokomurahinventory.models.BarangLog
 import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.models.UsersTable

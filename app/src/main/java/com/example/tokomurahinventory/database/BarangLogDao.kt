@@ -40,25 +40,11 @@ interface BarangLogDao {
     @Query("SELECT * FROM barang_log WHERE refLog = :refLog")
     fun selectBarangLogByLogRef(refLog:String): List<BarangLog>
 
-    @Query("SELECT * FROM barang_log WHERE barangLogRef = :ref")
-    fun selectBarangLogByRef(ref:String): BarangLog?
-
-
     @Query("UPDATE barang_log SET refMerk = :refMerk, warnaRef = :warnaRef, detailWarnaRef = :detailWarnaRef, isi = :isi, pcs = :pcs, barangLogDate = :barangLogDate, refLog = :refLog WHERE barangLogRef = :barangLogRef")
-    fun updateByBarangLogRef(
-        refMerk: String,
-        warnaRef: String,
-        detailWarnaRef: String,
-        isi: Double,
-        pcs: Int,
-        barangLogDate: Date,
-        refLog: String,
-        barangLogRef: String
-    )
+    fun updateByBarangLogRef(refMerk: String, warnaRef: String, detailWarnaRef: String, isi: Double, pcs: Int, barangLogDate: Date, refLog: String, barangLogRef: String)
 
     @Query("SELECT * FROM barang_log WHERE barangLogRef =:barangLogRef")
     fun findByBarangLogRef(barangLogRef:String):BarangLog?
-
 
     @Query("""
         SELECT 

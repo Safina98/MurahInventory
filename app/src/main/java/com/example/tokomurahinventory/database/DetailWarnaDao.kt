@@ -23,7 +23,7 @@ interface DetailWarnaDao {
     fun update(detailWarnaTable: DetailWarnaTable)
 
     @Query("DELETE FROM detail_warna_table WHERE id=:id")
-    fun deleteAnItemMerk(id:Int)
+    fun deleteAnItemDetailWarna(id:Int)
 
     @Query("DELETE FROM detail_warna_table WHERE warnaRef = :warnaRef and detailWarnaIsi =:isi")
     fun deteteDetailWarnaByIsi(warnaRef: String,isi: Double)
@@ -43,6 +43,11 @@ interface DetailWarnaDao {
             d.detailWarnaIsi,
             d.warnaRef,
             w.satuan,
+            d.createdBy,
+            d.lastEditedBy,
+            d.detailWarnaDate,
+            d.detailWarnaLastEditedDate,
+            d.user,
             SUM(d.detailWarnaPcs) as detailWarnaPcs
         FROM detail_warna_table d
         INNER JOIN warna_table w ON d.warnaRef = w.warnaRef
@@ -55,6 +60,11 @@ interface DetailWarnaDao {
             d.detailWarnaIsi,
             d.warnaRef,
             w.satuan,
+            d.createdBy,
+            d.lastEditedBy,
+            d.detailWarnaDate,
+            d.detailWarnaLastEditedDate,
+            d.user,
             SUM(d.detailWarnaPcs) as detailWarnaPcs
         FROM detail_warna_table d
         INNER JOIN warna_table w ON d.warnaRef = w.warnaRef
@@ -79,31 +89,22 @@ interface DetailWarnaDao {
     """)
     fun updateDetailWarnaA(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,lastEditedBy:String,lastEditedDate:Date): Int
 
-    @Query("""
-        UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs+:detailWarnaPcs WHERE detailWarnaRef = :refDetailWarna AND detailWarnaIsi = :detailWarnaIsi;
-""")
-    fun updateOldDetailWarna(refDetailWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int
-    )
 
-    @Query("SELECT * FROM detail_warna_table WHERE detailWarnaIsi = :isi AND detailWarnaRef = :warnaRef")
-    fun getDetailWarnaByIsiAndRef(isi: Double, warnaRef: String): List<DetailWarnaTable>
+    @Query("SELECT * FROM detail_warna_table WHERE detailWarnaIsi = :isi AND detailWarnaRef = :detailWarnaRef")
+    fun getDetailWarnaByIsiAndRef(isi: Double, detailWarnaRef: String): List<DetailWarnaTable>
 
-    @Query("""
-        SELECT 
-            d.detailWarnaIsi
-        FROM detail_warna_table d
-        WHERE d.warnaRef = :warnaRef
-    """)
+    @Query("""SELECT d.detailWarnaIsi FROM detail_warna_table d WHERE d.warnaRef = :warnaRef""")
     fun getIsiDetailWarnaByWarna(warnaRef: String): List<Double>
 
-
     @Query("SELECT detailWarnaRef FROM detail_warna_table WHERE warnaRef = :warnaRef and detailWarnaIsi =:isi")
-    fun getDetailWarnaByIsi(warnaRef: String,isi: Double):String?
+    fun getDetailWarnaRefByIsiAndWarnaRef(warnaRef: String, isi: Double):String?
 
     @Query("SELECT * FROM detail_warna_table WHERE warnaRef = :warnaRef and detailWarnaIsi =:isi")
     fun getDetailWarnaByIsii(warnaRef: String,isi: Double):DetailWarnaTable
+
     @Query("SELECT * from detail_warna_table WHERE warnaRef =:warnaRef")
     fun selecttTry(warnaRef:String):List<DetailWarnaTable>
+
     @Query("SELECT * from detail_warna_table")
     fun selectAll():List<DetailWarnaTable>
 

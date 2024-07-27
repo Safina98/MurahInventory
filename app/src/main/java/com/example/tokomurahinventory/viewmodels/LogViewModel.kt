@@ -272,6 +272,7 @@ class LogViewModel (
                     logTipe = MASUKKELUAR.KELUAR
                 )
                 insertLogToDao(newLog)
+                Log.i("InsertLogTry","addLog() Called")
                 addLogBarang(newLog.refLog)
 
                 getAllLogTable()
@@ -286,8 +287,10 @@ class LogViewModel (
     }
     fun getBarangLog(namaMerk:String,kodeWarna:String,isi:Double,pcs:Int,refLog:String){
         viewModelScope.launch{
+            Log.i("InsertLogTry","getBarangLog() called")
             val refMerk = getrefMerkByName(namaMerk.uppercase())
-            val refWarna = getrefWanraByName(kodeWarna.uppercase(),refMerk)
+            val refWarna = getrefWanraByName(kodeWarna,refMerk)
+            Log.i("InsertLogTry","addLogCalled")
             if (refWarna!=null){
                 val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna,isi)
                 val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
@@ -301,16 +304,15 @@ class LogViewModel (
                     refLog = refLog,
                     barangLogRef = UUID.randomUUID().toString(),
                     barangLogTipe = MASUKKELUAR.KELUAR
-
                 )
                 updateDetailWarnaTODao(refWarna,isi,pcs,loggedInUsers)
                 insertBarangLogToDao(barangLog)
             }
-
         }
     }
     fun addLogBarang(logRef:String){
         viewModelScope.launch {
+            Log.i("InsertLogTry","addLogBarang() Called")
             for (i in countModelList.value!!){
                 getBarangLog(i.merkBarang!!,i.kodeBarang!!,i.isi!!,i.psc,logRef)
             }
@@ -707,7 +709,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
                 val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
                 try {
                     val oldBarangLog = withContext(Dispatchers.IO) {
-                        dataSourceBarangLog.selectBarangLogByRef(newBarangLog.barangLogRef)
+                        dataSourceBarangLog.findByBarangLogRef(newBarangLog.barangLogRef)
                     }
                     val selisihPcs: Int
 
@@ -823,7 +825,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
     }
     private suspend fun getrefDetailWanraByWarnaRefndIsi(name:String,isi:Double):String?{
         return withContext(Dispatchers.IO){
-            dataSourceDetailWarna.getDetailWarnaByIsi(name,isi)
+            dataSourceDetailWarna.getDetailWarnaRefByIsiAndWarnaRef(name,isi)
         }
     }
     /*
@@ -843,9 +845,11 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
     private suspend fun updateDetailWarnaTODao(refWarna: String, isi: Double, pcs: Int,loggedInUsers: String?) {
         withContext(Dispatchers.IO) {
             try {
-                dataSourceDetailWarna.updateDetailWarna(refWarna, isi, pcs,loggedInUsers)
-                dataSourceDetailWarna.selecttTry(refWarna)
-                //Log.i("InsertLogTry", "Updated $resultt rows for refDetailWarna=$refWarna, isi=$isi, pcs=$pcs")
+                Log.e("InsertLogTry", "refWarna: $refWarna, isi: $isi pcs: $pcs")
+                val result=dataSourceDetailWarna.updateDetailWarna(refWarna, isi, pcs,loggedInUsers)
+                val resultt = dataSourceDetailWarna.selecttTry(refWarna)
+                Log.i("InsertLogTry", "Updated $result rows")
+                Log.i("InsertLogTry", "Updated $resultt rows")
             } catch (e: Exception) {
                 Log.e("InsertLogTry", "Error updating detail warna: ${e.message}", e)
             }

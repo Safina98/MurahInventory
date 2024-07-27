@@ -24,6 +24,7 @@ class InputStokLogAdapter(
             //binding.clickListemer = clickListener
             binding.updateListener = updateInputStokLogClickListener
             binding.deleteListener= deleteInputStokLogClickListener
+            binding.longListener = longListener
             binding.executePendingBindings()
         }
 

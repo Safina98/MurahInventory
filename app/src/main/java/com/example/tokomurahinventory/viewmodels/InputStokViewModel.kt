@@ -6,14 +6,12 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.BarangLogDao
 import com.example.tokomurahinventory.database.DetailWarnaDao
 import com.example.tokomurahinventory.database.MerkDao
 import com.example.tokomurahinventory.database.WarnaDao
 import com.example.tokomurahinventory.models.BarangLog
 import com.example.tokomurahinventory.models.DetailWarnaTable
-import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.models.model.InputStokLogModel
 import com.example.tokomurahinventory.utils.MASUKKELUAR
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
@@ -216,7 +214,7 @@ class InputStokViewModel (
                     if (item!=null){
                         val barangNewLog = convertToBarangLog(inputStokLogModel,refMerk,refWarna,refDetailWarna,loggedInUsers,item.refLog)
                         val oldBarangLog = withContext(Dispatchers.IO) {
-                            dataSourceBarangLog.selectBarangLogByRef(barangNewLog.barangLogRef)
+                            dataSourceBarangLog.findByBarangLogRef(barangNewLog.barangLogRef)
                         }
                         updateDetailWarna(barangNewLog,oldBarangLog)
                         updateBarangLogToDao(barangNewLog)
@@ -328,7 +326,7 @@ class InputStokViewModel (
     }
     private suspend fun getrefDetailWanraByWarnaRefndIsi(name:String,isi:Double):String?{
         return withContext(Dispatchers.IO){
-            dataSourceDetailWarna.getDetailWarnaByIsi(name,isi)
+            dataSourceDetailWarna.getDetailWarnaRefByIsiAndWarnaRef(name,isi)
         }
     }
     private suspend fun doesBarangLogExist(barangLogRef: String): Boolean {

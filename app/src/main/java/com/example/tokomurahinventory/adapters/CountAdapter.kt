@@ -1,14 +1,12 @@
 package com.example.tokomurahinventory.adapters
 
-import android.text.Editable
-import android.text.TextWatcher
+
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.tokomurahinventory.databinding.ItemListBarangLogBinding
 import com.example.tokomurahinventory.databinding.ItemListBarangLogNewBinding
 import com.example.tokomurahinventory.models.CountModel
 import com.example.tokomurahinventory.viewmodels.LogViewModel
@@ -26,7 +24,6 @@ class CountAdapter(
 
     class ViewHolder private constructor(private val binding: ItemListBarangLogNewBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        // Add a function to set up TextWatcher
 
         fun bind(
             item: CountModel, position: Int,
@@ -49,7 +46,6 @@ class CountAdapter(
             binding.position = position
             binding.viewModel = viewModel
             binding.lifecycleOwner = lifecycleOwner
-
             binding.executePendingBindings()
         }
 
@@ -70,8 +66,6 @@ class CountAdapter(
         val item = getItem(position)
         holder.bind(item, position, clickListener, deleteNetListener, barangLogMerkClickListener, barangLogKodeClickListener, barangLogIsiClickListener,barangLogPcsClickListener,viewModel, lifecycleOwner)
     }
-
-
 }
 class CountAdapterDiffCallback : DiffUtil.ItemCallback<CountModel>() {
     override fun areItemsTheSame(oldItem: CountModel, newItem: CountModel): Boolean {
@@ -112,49 +106,3 @@ class BarangLogPcsClickListener(val clickListener: (countModel: CountModel, posi
         clickListener(countModel, position)
     }
 }
-/*
-        // Add a function to set up TextWatcher
-        private fun setupTextWatchers(position: Int) {
-            binding.inputIsi.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    // Update the ViewModel when input_count changes
-                    val count1 = s.toString().toDoubleOrNull() ?: 0.0
-                    binding.viewModel?.updateIsi(position, count1)
-                }
-                override fun afterTextChanged(s: Editable?) {}
-            })
-            binding.inputMerk.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    // Update the ViewModel when input_count changes
-                    val count1 = s.toString()
-                    binding.viewModel?.updateMerk(position, count1)
-                }
-                override fun afterTextChanged(s: Editable?) {}
-            })
-
-            binding.inputKode.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    // Update the ViewModel when input_net changes
-                    val net = s.toString()
-                    binding.viewModel?.updateKode(position, net)
-                }
-                override fun afterTextChanged(s: Editable?) {}
-            })
-
-            binding.inputPcs.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    // Update the ViewModel when input_net changes
-                    val net = s.toString().toIntOrNull() ?: 0
-                    binding.viewModel?.updatePcs(position, net)
-                }
-                override fun afterTextChanged(s: Editable?) {}
-            })
-        }
-
-         */

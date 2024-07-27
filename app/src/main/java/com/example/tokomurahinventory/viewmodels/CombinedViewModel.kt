@@ -450,7 +450,7 @@ class CombinedViewModel(
             Log.i("InsertLogTry","inserted baranglog: $barangLog")
             val id = dataSourceBarangLog.insert(barangLog)
             Log.i("InsertLogTry","inserted baranglog id: $id")
-            val barangLog = dataSourceBarangLog.selectBarangLogByRef(barangLog.barangLogRef)
+            val barangLog = dataSourceBarangLog.findByBarangLogRef(barangLog.barangLogRef)
             Log.i("InsertLogTry","inserted baranglog id: $barangLog")
         }
     }
@@ -507,11 +507,11 @@ class CombinedViewModel(
             dataSourceDetailWarna.updateDetailWarnaA(detailWarnaTable.warnaRef,newIsi,detailWarnaTable.detailWarnaPcs,detailWarnaTable.lastEditedBy?:"",detailWarnaTable.detailWarnaDate)
         }
     }
-    private suspend fun deleteDetailWarnaToDao(isi:Double,warnaRef:String){
+    private suspend fun deleteDetailWarnaToDao(isi:Double,detailWarmaRef:String){
         withContext(Dispatchers.IO){
-            val records = dataSourceDetailWarna.getDetailWarnaByIsiAndRef(isi, warnaRef)
+            val records = dataSourceDetailWarna.getDetailWarnaByIsiAndRef(isi,detailWarmaRef)
             Log.i("DETAILWARNAPROB","records $records")
-            dataSourceDetailWarna.deteteDetailWarnaByIsi(warnaRef,isi)
+            dataSourceDetailWarna.deteteDetailWarnaByIsi(detailWarmaRef,isi)
         }
     }
     private suspend fun insertDetailWarnaToDao(detailWarnaTable: DetailWarnaTable) {

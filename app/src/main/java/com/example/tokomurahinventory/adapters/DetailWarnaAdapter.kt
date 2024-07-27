@@ -7,10 +7,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tokomurahinventory.databinding.ItemListDetailWarnaBinding
-import com.example.tokomurahinventory.databinding.ItemListWarnaBinding
 import com.example.tokomurahinventory.models.model.DetailWarnaModel
-import com.example.tokomurahinventory.models.MerkTable
-import com.example.tokomurahinventory.models.WarnaTable
+
 
 
 class DetailWarnaAdapter(
@@ -25,6 +23,7 @@ class DetailWarnaAdapter(
             binding.detailWarna = item
             binding.updateClickListemer = updateDetailWarnaClickListener
             binding.deleteClickListemer = deleteDetailWarnaClickListener
+            binding.longClickLisntener =longListener
             //binding.clickListener = clickListener
             binding.executePendingBindings()
         }
@@ -58,7 +57,7 @@ class DetailWarnaStockDiffCallback: DiffUtil.ItemCallback<DetailWarnaModel>(){
 class DetailWarnaClickListener(val clickListener: (warna: DetailWarnaModel) -> Unit) {
     fun onClick(Warna: DetailWarnaModel) = clickListener(Warna)
 }
-class  DetailWarnaLongListener(val longListener: (Warna: DetailWarnaModel) -> Unit){
+class DetailWarnaLongListener(val longListener: (Warna: DetailWarnaModel) -> Unit){
     fun onLongClick(v: View, Warna: DetailWarnaModel): Boolean {
         longListener(Warna)
         return true}
