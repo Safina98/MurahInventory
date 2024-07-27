@@ -7,7 +7,6 @@
         <variable
             name="viewModel"
             type="com.example.tokomurahinventory.viewmodels.ExportImportViewModel" />
-
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -50,6 +49,16 @@
             android:text="Export Log Barang"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btn_export_users" />
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/btn_import_merk_new"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/import_header"
@@ -69,6 +78,15 @@
             android:text="Import Data"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/import_header" />
+        <TextView
+            style="@style/rv_input_Log_big_text_style"
+            android:id="@+id/btn_import_merk_new"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Import Merk Baru"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_import_merk" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

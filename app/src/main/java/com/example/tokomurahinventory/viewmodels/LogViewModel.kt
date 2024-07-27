@@ -170,7 +170,7 @@ class LogViewModel (
     private fun performDataFiltering(startDate: Date?, endDate: Date?) {
         viewModelScope.launch {
             val filteredData = withContext(Dispatchers.IO) {
-                dataSourceLog.getLogsByDateRange(startDate,endDate)
+                dataSourceLog.getLogsByDateRange(startDate,endDate,MASUKKELUAR.KELUAR)
             }
             _allLog.value = filteredData
             _unFilteredLog.value = filteredData
@@ -517,7 +517,10 @@ class LogViewModel (
             val itemToUpdate = updatedList?.find { it.id == id }
             if (itemToUpdate != null) {
                 val refMerk = getrefMerkByName(itemToUpdate!!.merkBarang!!.uppercase())
-                val refWarna = getrefWanraByName(itemToUpdate.kodeBarang!!.uppercase(), refMerk)
+                val refWarna = getrefWanraByName(itemToUpdate.kodeBarang!!, refMerk)
+                Log.i("UpdateError","$itemToUpdate")
+                Log.i("UpdateError","$refMerk")
+                Log.i("UpdateError","$refWarna")
                 val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna!!, itemToUpdate.isi!!)
 
                 val isPcsReadyInStok = checkIfPcsReadyInStok(refDetailWarna!!, net)
@@ -766,9 +769,12 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
 
     fun getStringS():String{
         var s =""
-        for (i in countModelList.value!!){
-            s = s+"${i.merkBarang} ${i.kodeBarang}; ${i.isi} meter; ${i.psc} pcs\n"
+        if (countModelList.value!=null){
+            for (i in countModelList.value!!){
+                s = s+"${i.merkBarang} ${i.kodeBarang}; ${i.isi} meter; ${i.psc} pcs\n"
+            }
         }
+
         return s
     }
 

@@ -132,7 +132,7 @@ class InputStokViewModel (
     private fun performDataFiltering(startDate: Date?, endDate: Date?) {
         uiScope.launch {
             val filteredData = withContext(Dispatchers.IO) {
-               dataSourceBarangLog.getLogMasukByDateRange(startDate,endDate)
+               dataSourceBarangLog.getLogMasukByDateRange(startDate,endDate,MASUKKELUAR.MASUK)
             }
             _inputLogModel.value = filteredData
             _unFilteredLog.value = filteredData

@@ -36,9 +36,9 @@ interface LogDao {
     @Query("""
         SELECT * FROM log_table
         WHERE (:startDate IS NULL OR logDate >= :startDate)
-        AND (:endDate IS NULL OR logDate <= :endDate)
+        AND (:endDate IS NULL OR logDate <= :endDate) AND logTipe =:tipe
     """)
-    fun getLogsByDateRange(startDate: Date?, endDate: Date?): List<LogTable>
+    fun getLogsByDateRange(startDate: Date?, endDate: Date?,tipe:String): List<LogTable>
 
     @Query("""
         SELECT 

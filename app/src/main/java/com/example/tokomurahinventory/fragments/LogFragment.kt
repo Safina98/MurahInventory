@@ -75,7 +75,7 @@ class LogFragment : AuthFragment(){
         //adapter.submitList(viewModel.logDummy)
         viewModel.allLog.observe(viewLifecycleOwner, Observer {
             it?.let{
-                adapter.submitList(it.sortedBy { it.logLastEditedDate })
+                adapter.submitList(it.sortedByDescending { it.logLastEditedDate })
                 adapter.notifyDataSetChanged()
                 Log.i("WarnaProb","$it")
             }

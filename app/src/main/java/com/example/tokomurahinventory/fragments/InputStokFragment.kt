@@ -81,7 +81,7 @@ class InputStokFragment : AuthFragment() {
         )
         binding.rvInputStokLog.adapter=adapter
         viewModel.inputLogModel.observe(viewLifecycleOwner, Observer {
-            adapter.submitList(it.sortedBy { it.barangLogInsertedDate })
+            adapter.submitList(it.sortedByDescending { it.barangLogInsertedDate })
             adapter.notifyDataSetChanged()
             Log.i("INPUTLOGTRY","$it")
         })
@@ -106,8 +106,6 @@ class InputStokFragment : AuthFragment() {
         viewModel.selectedEndDate.observe(viewLifecycleOwner) {
             viewModel.updateRv4()
         }
-
-
 
         return binding.root
     }
@@ -143,13 +141,11 @@ class InputStokFragment : AuthFragment() {
             autoCompleteIsi.setText(inputStokLogModel.isi.toString())
             etPcs.setText(inputStokLogModel.pcs.toString())
         }
-
         // Fetch and observe data
         viewModel.allMerkFromDb.observe(viewLifecycleOwner) { allMerk ->
             merkAdapter.clear()
             merkAdapter.addAll(allMerk)
         }
-
         autoCompleteMerk.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -160,12 +156,10 @@ class InputStokFragment : AuthFragment() {
             }
             override fun afterTextChanged(s: Editable?) {}
         })
-
         viewModel.codeWarnaByMerk.observe(viewLifecycleOwner) { warnaList ->
             warnaAdapter.clear()
             warnaAdapter.addAll(warnaList ?: emptyList())
         }
-
         autoCompleteWarna.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -198,9 +192,6 @@ class InputStokFragment : AuthFragment() {
             .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
             .show()
     }
-
-
-
 
     private fun showDatePickerDialog(code:Int) {
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.pop_up_date_picker, null)

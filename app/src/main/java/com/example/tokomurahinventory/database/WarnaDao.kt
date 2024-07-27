@@ -59,13 +59,13 @@ interface WarnaDao {
         w.refMerk,
         w.kodeWarna,
         w.totalPcs,
-        w.satuanTotal,
         w.satuan,
         w.warnaRef,
         w.createdBy,
         w.lastEditedBy,
         w.warnaCreatedDate,
         w.warnaLastEditedDate,
+        SUM(d.detailWarnaIsi) AS satuanTotal,
         SUM(d.detailWarnaPcs) as totalDetailPcs
     FROM warna_table w
     LEFT JOIN detail_warna_table d ON w.warnaRef = d.warnaRef
@@ -80,13 +80,13 @@ interface WarnaDao {
         w.refMerk,
         w.kodeWarna,
         w.totalPcs,
-        w.satuanTotal,
         w.satuan,
         w.warnaRef,
         w.createdBy,
         w.lastEditedBy,
         w.warnaCreatedDate,
         w.warnaLastEditedDate,
+        SUM(d.detailWarnaIsi) AS satuanTotal,
         SUM(d.detailWarnaPcs) as totalDetailPcs
     FROM warna_table w
     LEFT JOIN detail_warna_table d ON w.warnaRef = d.warnaRef

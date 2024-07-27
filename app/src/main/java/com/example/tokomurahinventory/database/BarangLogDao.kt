@@ -104,7 +104,7 @@ interface BarangLogDao {
         JOIN 
             warna_table ON barang_log.warnaRef = warna_table.warnaRef
         WHERE (:startDate IS NULL OR log_table.logDate >= :startDate)
-        AND (:endDate IS NULL OR log_table.logDate <= :endDate)
+        AND (:endDate IS NULL OR log_table.logDate <= :endDate AND log_table.logTipe =:tipe)
     """)
-    fun getLogMasukByDateRange(startDate: Date?, endDate: Date?): List<InputStokLogModel>
+    fun getLogMasukByDateRange(startDate: Date?, endDate: Date?, tipe:String): List<InputStokLogModel>
 }

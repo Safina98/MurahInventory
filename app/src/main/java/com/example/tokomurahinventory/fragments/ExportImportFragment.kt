@@ -94,6 +94,15 @@ class ExportImportFragment : AuthFragment() {
         }
         binding.viewModel = viewModel
 
+        viewModel.isLoading.observe(viewLifecycleOwner) {
+            //viewModel.updateRv4()
+            if (it==true){
+                binding.progressBar.visibility = View.VISIBLE
+            }else{
+                binding.progressBar.visibility = View.GONE
+            }
+        }
+
         binding.btnExportMerk.setOnClickListener {
             exportStockCSV("Daftar Merk Toko Murah","MERK")
         }

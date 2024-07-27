@@ -22,6 +22,7 @@ import com.example.tokomurahinventory.models.UsersTable
 import com.example.tokomurahinventory.models.WarnaTable
 import com.example.tokomurahinventory.models.model.CombinedDataModel
 import com.example.tokomurahinventory.models.model.CombinedLogData
+import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,6 +33,7 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 class ExportImportViewModel(
     val dataSourceMerk: MerkDao,
@@ -123,6 +125,37 @@ class ExportImportViewModel(
         }
         }
 
+    private suspend fun insertNewMerk(tokens: List<String>){
+        val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
+        val merkTable = MerkTable().apply {
+            namaMerk = tokens[1].trim()
+            refMerk = UUID.randomUUID().toString()
+            merkCreatedDate = Date()
+            merkLastEditedDate = Date()
+            user = loggedInUsers
+            createdBy = loggedInUsers
+            lastEditedBy = loggedInUsers
+        }
+        dataSourceMerk.insertMerkTable(merkTable)
+    }
+    private suspend fun insertNewWarna(tokens: List<String>){
+        val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
+        val refMerkk = dataSourceMerk.getMerkRefByName(tokens[111])!!
+        val warnaTable = WarnaTable().apply {
+            kodeWarna = tokens[9].trim()
+            totalPcs = tokens[10].trim().toIntOrNull() ?: 0
+            satuanTotal = tokens[11].trim().toDoubleOrNull() ?: 0.0
+            satuan = tokens[12].trim()
+            warnaRef = UUID.randomUUID().toString()
+            warnaCreatedDate = Date()
+            warnaLastEditedDate = Date()
+            user = loggedInUsers
+            createdBy = loggedInUsers
+            lastEditedBy = loggedInUsers
+            refMerk = refMerkk
+        }
+        dataSourceWarna.insertWarnaTable(warnaTable)
+    }
 
     private suspend fun importLog(tokens: List<String>){
         Log.i("INSERTCSVPROB","token ${tokens}")
@@ -192,7 +225,6 @@ class ExportImportViewModel(
         }
         Log.i("INSERTCSVPROB","merk table ${merkTable}")
         val warnaTable = WarnaTable().apply {
-
             kodeWarna = tokens[9].trim()
             totalPcs = tokens[10].trim().toIntOrNull() ?: 0
             satuanTotal = tokens[11].trim().toDoubleOrNull() ?: 0.0

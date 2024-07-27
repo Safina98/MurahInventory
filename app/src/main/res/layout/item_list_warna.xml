@@ -49,9 +49,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text='@{String.valueOf(warna.totalDetailPcs)}'
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/img_update"
                 app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/textView_satuan"
+                android:layout_margin="@dimen/small_margin"
+                style="@style/rv_item_text_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text='@{String.valueOf(warna.satuanTotal)}'
+                app:layout_constraintEnd_toStartOf="@id/img_update"
+                app:layout_constraintBottom_toBottomOf="parent" />
             <ImageView
                 app:showIfAdmin="@{true}"
                 android:id="@+id/img_update"
