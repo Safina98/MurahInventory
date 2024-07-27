@@ -7,8 +7,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import com.example.tokomurahinventory.models.DetailWarnaTable
-import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.models.UsersTable
 
 @Dao

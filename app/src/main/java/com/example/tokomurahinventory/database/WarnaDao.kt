@@ -6,7 +6,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.models.WarnaTable
 import com.example.tokomurahinventory.models.model.WarnaModel
 
@@ -65,11 +64,11 @@ interface WarnaDao {
         w.lastEditedBy,
         w.warnaCreatedDate,
         w.warnaLastEditedDate,
-        SUM(d.detailWarnaIsi) AS satuanTotal,
+        SUM(d.detailWarnaIsi*d.detailWarnaPcs) AS satuanTotal,
         SUM(d.detailWarnaPcs) as totalDetailPcs
     FROM warna_table w
     LEFT JOIN detail_warna_table d ON w.warnaRef = d.warnaRef
-    WHERE w.refMerk = :refMerk
+    WHERE w.refMerk = :refMerk AND d.detailWarnaPcs !=0
     GROUP BY w.idWarna, w.refMerk, w.kodeWarna, w.totalPcs, w.satuanTotal, w.satuan, w.warnaRef, w.createdBy, w.lastEditedBy, w.warnaCreatedDate, w.warnaLastEditedDate
 """)
         fun getWarnaWithTotalPcs(refMerk:String): LiveData<List<WarnaModel>>
@@ -86,11 +85,11 @@ interface WarnaDao {
         w.lastEditedBy,
         w.warnaCreatedDate,
         w.warnaLastEditedDate,
-        SUM(d.detailWarnaIsi) AS satuanTotal,
+        SUM(d.detailWarnaIsi*d.detailWarnaPcs) AS satuanTotal,
         SUM(d.detailWarnaPcs) as totalDetailPcs
     FROM warna_table w
     LEFT JOIN detail_warna_table d ON w.warnaRef = d.warnaRef
-    WHERE w.refMerk = :refMerk
+    WHERE w.refMerk = :refMerk AND d.detailWarnaPcs !=0
     GROUP BY w.idWarna, w.refMerk, w.kodeWarna, w.totalPcs, w.satuanTotal, w.satuan, w.warnaRef, w.createdBy, w.lastEditedBy, w.warnaCreatedDate, w.warnaLastEditedDate
 """)
     fun getWarnaWithTotalPcsList(refMerk: String): List<WarnaModel>

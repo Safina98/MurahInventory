@@ -11,7 +11,6 @@ import android.widget.AutoCompleteTextView
 import android.widget.EditText
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.tokomurahinventory.R
@@ -28,8 +27,6 @@ import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.CombinedViewModel
 import com.example.tokomurahinventory.viewmodels.CombinedViewModelFactory
 import com.example.tokomurahinventory.viewmodels.DetailWarnaViewModel
-import com.example.tokomurahinventory.viewmodels.DetailWarnaViewModelFactory
-import com.example.tokomurahinventory.viewmodels.MerkViewModel
 import com.google.android.material.textfield.TextInputLayout
 
 
@@ -60,7 +57,7 @@ class DetailWarnaFragment : AuthFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_detail_warna,container,false)
         val application = requireNotNull(this.activity).application
@@ -138,8 +135,7 @@ class DetailWarnaFragment : AuthFragment() {
         })
 
 
-        viewModel.warna.observe(viewLifecycleOwner, Observer {
-        })
+
 
         return binding.root
     }
