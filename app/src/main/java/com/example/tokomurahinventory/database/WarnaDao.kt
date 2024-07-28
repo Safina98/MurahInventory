@@ -18,6 +18,9 @@ interface WarnaDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertWarnaTable(warnaTable: WarnaTable)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertNew(warnaTable: WarnaTable)
+
     @Update
     fun update(warnaTable: WarnaTable)
 
@@ -68,7 +71,7 @@ interface WarnaDao {
         SUM(d.detailWarnaPcs) as totalDetailPcs
     FROM warna_table w
     LEFT JOIN detail_warna_table d ON w.warnaRef = d.warnaRef
-    WHERE w.refMerk = :refMerk AND d.detailWarnaPcs !=0
+    WHERE w.refMerk = :refMerk
     GROUP BY w.idWarna, w.refMerk, w.kodeWarna, w.totalPcs, w.satuanTotal, w.satuan, w.warnaRef, w.createdBy, w.lastEditedBy, w.warnaCreatedDate, w.warnaLastEditedDate
 """)
         fun getWarnaWithTotalPcs(refMerk:String): LiveData<List<WarnaModel>>
@@ -89,7 +92,7 @@ interface WarnaDao {
         SUM(d.detailWarnaPcs) as totalDetailPcs
     FROM warna_table w
     LEFT JOIN detail_warna_table d ON w.warnaRef = d.warnaRef
-    WHERE w.refMerk = :refMerk AND d.detailWarnaPcs !=0
+    WHERE w.refMerk = :refMerk 
     GROUP BY w.idWarna, w.refMerk, w.kodeWarna, w.totalPcs, w.satuanTotal, w.satuan, w.warnaRef, w.createdBy, w.lastEditedBy, w.warnaCreatedDate, w.warnaLastEditedDate
 """)
     fun getWarnaWithTotalPcsList(refMerk: String): List<WarnaModel>

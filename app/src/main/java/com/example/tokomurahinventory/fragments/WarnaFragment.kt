@@ -194,8 +194,10 @@ class WarnaFragment : AuthFragment() {
             val kodeWarna = textWarna.text.toString()
             val kodeSatuan = textSatuan.text.toString()
             if (warnaTable == null) {
+                Log.i("WarnaProbs","warna is null, insert called")
                 viewModel.insertWarna(kodeWarna, kodeSatuan)
             } else {
+                Log.i("WarnaProbs","warna not null, update called")
                 warnaTable.kodeWarna = kodeWarna
                 warnaTable.satuan = kodeSatuan
                 viewModel.updateWarna(warnaTable)

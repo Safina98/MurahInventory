@@ -223,6 +223,7 @@ class CombinedViewModel(
     fun getWarnaByMerk(refMerk: String?) {
         viewModelScope.launch {
             if (_refMerk.value!=null){
+                Log.i("WarnaProbs","")
                 val list = withContext(Dispatchers.IO) {
                     if (refMerk==null){
                         warnaDao.getWarnaWithTotalPcsList(_refMerk.value!!)
@@ -233,7 +234,7 @@ class CombinedViewModel(
                 }
                 _allWarnaByMerk.value = list
                 _unFilteredWarna.value = list
-                Log.i("SplitFragmetProbs","allWarnaByMerk ${list}")
+                Log.i("WarnaProbs","allWarnaByMerk ${list}")
             }
 
 
@@ -272,6 +273,8 @@ class CombinedViewModel(
 
     fun insertWarna(kodeWarna: String, satuan: String) {
         viewModelScope.launch {
+            Log.i("WarnaProbs","InserWarna called")
+            Log.i("WarnaProbs","refMerkk = ${refMerkk.value}")
             if (refMerkk.value!=null){
                 val warna = WarnaTable().apply {
                     this.refMerk = refMerkk.value!!
@@ -282,6 +285,7 @@ class CombinedViewModel(
                     this.lastEditedBy = createdBy
                     this.user = createdBy
                 }
+                Log.i("WarnaProbs","warna = ${warna}")
                 insertWarnaToDao(warna)
                 getWarnaByMerk(refMerkk.value)
             }else Toast.makeText(getApplication(), "Pilih merk", Toast.LENGTH_SHORT).show()
@@ -324,7 +328,14 @@ class CombinedViewModel(
 
     private suspend fun insertWarnaToDao(warna: WarnaTable) {
         withContext(Dispatchers.IO) {
-            warnaDao.insert(warna)
+            try {
+                Log.i("WarnaProbs", "insertWarnaToDaoCalled ")
+                Log.i("WarnaProbs", "refMerkk = warna= ${warna}")
+                warnaDao.insertNew(warna)
+                Log.i("WarnaProbs", "insertWarnaToDaoSuccessful")
+            } catch (e: Exception) {
+                Log.e("WarnaProbs", "Error inserting warna", e)
+            }
         }
     }
 

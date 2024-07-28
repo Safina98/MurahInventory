@@ -106,36 +106,33 @@ class DetailWarnaFragment : AuthFragment() {
 
         binding.rvDetailWarna.adapter = adapter
 
-        viewModel.refWarna.observe(viewLifecycleOwner, Observer {
-            Log.i("SplitFragmetProbs","refWarna ${it}")
+        viewModel.refWarna.observe(viewLifecycleOwner) {
+            Log.i("SplitFragmetProbs", "refWarna ${it}")
             it?.let {
                 viewModel.getDetailWarnaByWarnaRef(it)
             }
-        })
-        viewModel.warna.observe(viewLifecycleOwner, Observer {
-            Log.i("SplitFragmetProbs","warna ${it}")
-        })
+        }
+        viewModel.warna.observe(viewLifecycleOwner) {
+            Log.i("SplitFragmetProbs", "warna ${it}")
+        }
 
         //Obsert detail warna recycler view
-        viewModel.detailWarnaList.observe(viewLifecycleOwner, Observer {
+        viewModel.detailWarnaList.observe(viewLifecycleOwner) {
             it.let {
                 adapter.submitList(it.sortedBy { it.detailWarnaIsi })
                 adapter.notifyDataSetChanged()
 
             }
-        })
+        }
 
 
-        viewModel.addDetailWarnaFab.observe(viewLifecycleOwner, Observer {
-            if (it==true){
-                showAddDetailWarnaDialog(viewModel,null,0)
+        viewModel.addDetailWarnaFab.observe(viewLifecycleOwner) {
+            if (it == true) {
+                showAddDetailWarnaDialog(viewModel, null, 0)
                 viewModel.onAddDetailWarnaFabClicked()
             }
 
-        })
-
-
-
+        }
 
         return binding.root
     }
@@ -158,8 +155,8 @@ class DetailWarnaFragment : AuthFragment() {
         input2.setHint("pcs")
         builder.setView(view)
         builder.setPositiveButton("OK") { dialog, which ->
-            val pcs = textPcs.text.toString().toUpperCase().trim().toIntOrNull()
-            val isi = textIsi.text.toString().toUpperCase().trim().toDoubleOrNull()
+            val pcs = textPcs.text.toString().uppercase().trim().toIntOrNull()
+            val isi = textIsi.text.toString().uppercase().trim().toDoubleOrNull()
             if (pcs!=null && isi!=null)
             {
                 if (detailWarnaModel==null)
