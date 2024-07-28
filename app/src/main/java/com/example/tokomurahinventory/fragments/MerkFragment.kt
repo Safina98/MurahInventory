@@ -78,12 +78,13 @@ class MerkFragment : AuthFragment() {
        binding.lifecycleOwner = viewLifecycleOwner
         val adapter  = MerkAdapter(
             MerkClickListener {
-                //viewModel.onNavigateToWarna(it.refMerk)
+
                 viewModel.setRefMerk(it.refMerk)
                 viewModel.getWarnaByMerk(it.refMerk)
                 viewModel.getStringMerk(it.refMerk)
                 viewModel.setRefWarna("")
                 viewModel.getStringWarna("")
+                viewModel.onNavigateToWarna(it.refMerk)
                 },
             MerkLongListener {
                     // Handle item long click

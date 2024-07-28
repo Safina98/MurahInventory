@@ -145,10 +145,11 @@ class DetailWarnaFragment : AuthFragment() {
         val textPcs = view.findViewById<AutoCompleteTextView>(R.id.txt_satuan)
         val input1 = view.findViewById<TextInputLayout>(R.id.layout_satu)
         val input2 = view.findViewById<TextInputLayout>(R.id.layout_dua)
+        val defaultpcs = 1
         if (detailWarnaModel!=null){
             textPcs.setText(detailWarnaModel.detailWarnaPcs.toString())
             textIsi.setText(detailWarnaModel.detailWarnaIsi.toString())
-        }
+        }else{ textPcs.setText(defaultpcs.toString())}
         textPcs.inputType = InputType.TYPE_CLASS_NUMBER
         textIsi.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
         input1.setHint("isi")

@@ -381,7 +381,7 @@ class LogViewModel (
 
             if (isMerkPresent && isWarnaPresent && isIsiPresent) {
                 val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
-                val refWarna = getrefWanraByName(countModel.kodeBarang!!.uppercase(), refMerk)
+                val refWarna = getrefWanraByName(countModel.kodeBarang!!, refMerk)
                 val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna!!, countModel.isi!!)
 
                 val isPcsReadyInStok = checkIfPcsReadyInStok(refDetailWarna!!, countModel.psc)
@@ -426,7 +426,7 @@ class LogViewModel (
 
             if (isMerkPresent && isWarnaPresent && isIsiPresent) {
                 val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
-                val refWarna = getrefWanraByName(countModel.kodeBarang!!.uppercase(), refMerk)
+                val refWarna = getrefWanraByName(countModel.kodeBarang!!, refMerk)
                 val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna!!, countModel.isi!!)
 
                 Log.i("InsertLogTry", "updateCountModel refMerk: $refMerk")
@@ -685,7 +685,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
     fun getBarangLogUpdate(namaMerk:String,kodeWarna:String,isi:Double,pcs:Int,refLog:String,barangLogRef:String){
         viewModelScope.launch{
             val refMerk = getrefMerkByName(namaMerk.uppercase())
-            val refWarna = getrefWanraByName(kodeWarna.uppercase(),refMerk)
+            val refWarna = getrefWanraByName(kodeWarna,refMerk)
             val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna!!,isi)
             val barangLog = BarangLog(
                 refMerk = refMerk,

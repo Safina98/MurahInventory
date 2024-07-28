@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/parentFragment"
+        android:id="@+id/merkFragment"
         android:icon="@drawable/baseline_home_24"
         android:title="Stok" />
     <item

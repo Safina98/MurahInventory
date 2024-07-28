@@ -89,10 +89,11 @@ class WarnaFragment : AuthFragment() {
         val adapter = WarnaAdapter(
             WarnaClickListener {
                // Log.i("WarnaProb", "warna table : $it")
-                //viewModel.onNavigateToDetailWarna(it.warnaRef)
+
                 viewModel.setRefWarna(it.warnaRef)
                 viewModel.getStringWarna(it.warnaRef)
                 viewModel.getDetailWarnaByWarnaRef(it.warnaRef)
+                viewModel.onNavigateToDetailWarna(it.warnaRef)
             },
             WarnaLongListener {
                 // Handle item long click
@@ -152,7 +153,7 @@ class WarnaFragment : AuthFragment() {
         viewModel.navigateToDetailWarna.observe(viewLifecycleOwner, Observer {
             if (it != null) {
                 this.findNavController().navigate(WarnaFragmentDirections.actionWarnaFragmentToDetailWarnaFragment(it))
-                //viewModel.onNavigatetedToDetailWarna()
+                viewModel.onNavigatedToDetailWarna()
                 //viewModel.clearScope()
             }
         })
