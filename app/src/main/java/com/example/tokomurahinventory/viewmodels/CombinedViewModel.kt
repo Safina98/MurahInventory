@@ -283,9 +283,11 @@ class CombinedViewModel(
                     this.lastEditedBy = createdBy
                     this.user = createdBy
                 }
+                setRefWarna(warna.warnaRef)
                 Log.i("WarnaProbs","warna = ${warna}")
                 insertWarnaToDao(warna)
                 getWarnaByMerk(refMerkk.value)
+                insertDetailWarna(0, 0.0)
             }else Toast.makeText(getApplication(), "Pilih merk", Toast.LENGTH_SHORT).show()
 
         }

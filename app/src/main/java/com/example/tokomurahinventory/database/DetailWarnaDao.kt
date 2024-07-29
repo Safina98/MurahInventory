@@ -51,7 +51,7 @@ interface DetailWarnaDao {
             SUM(d.detailWarnaPcs) as detailWarnaPcs
         FROM detail_warna_table d
         INNER JOIN warna_table w ON d.warnaRef = w.warnaRef
-        WHERE d.warnaRef = :warnaRef 
+        WHERE d.warnaRef = :warnaRef AND d.detailWarnaPcs!=0
         GROUP BY d.detailWarnaIsi, d.warnaRef, w.satuan
     """)
     fun getDetailWarnaSummary(warnaRef: String): LiveData<List<DetailWarnaModel>>
@@ -68,7 +68,7 @@ interface DetailWarnaDao {
             SUM(d.detailWarnaPcs) as detailWarnaPcs
         FROM detail_warna_table d
         INNER JOIN warna_table w ON d.warnaRef = w.warnaRef
-        WHERE d.warnaRef = :warnaRef 
+        WHERE d.warnaRef = :warnaRef AND d.detailWarnaPcs!=0
         GROUP BY d.detailWarnaIsi, d.warnaRef, w.satuan
     """)
     fun getDetailWarnaSummaryList(warnaRef: String): List<DetailWarnaModel>
@@ -93,7 +93,7 @@ interface DetailWarnaDao {
     @Query("SELECT * FROM detail_warna_table WHERE detailWarnaIsi = :isi AND detailWarnaRef = :detailWarnaRef")
     fun getDetailWarnaByIsiAndRef(isi: Double, detailWarnaRef: String): List<DetailWarnaTable>
 
-    @Query("""SELECT d.detailWarnaIsi FROM detail_warna_table d WHERE d.warnaRef = :warnaRef""")
+    @Query("""SELECT d.detailWarnaIsi FROM detail_warna_table d WHERE d.warnaRef = :warnaRef AND d.detailWarnaIsi!=0.0 AND d.detailWarnaPcs !=0 """)
     fun getIsiDetailWarnaByWarna(warnaRef: String): List<Double>
 
     @Query("SELECT detailWarnaRef FROM detail_warna_table WHERE warnaRef = :warnaRef and detailWarnaIsi =:isi")
