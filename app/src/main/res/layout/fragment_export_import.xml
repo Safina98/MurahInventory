@@ -49,6 +49,16 @@
             android:text="Export Log Barang"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btn_export_users" />
+        <TextView
+            style="@style/rv_input_Log_big_text_style"
+            android:id="@+id/label_progres"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Data sedang diproses. Harap tunggu..."
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/progress_bar" />
         <ProgressBar
             android:id="@+id/progress_bar"
             android:layout_width="wrap_content"
@@ -57,7 +67,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="@id/btn_import_merk_new"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:indicatorColor="@color/colorAccent"
             android:visibility="gone" />
 
         <TextView

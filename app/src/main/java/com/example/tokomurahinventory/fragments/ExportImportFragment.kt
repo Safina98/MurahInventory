@@ -18,6 +18,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.tokomurahinventory.R
@@ -34,6 +35,7 @@ import com.example.tokomurahinventory.viewmodels.MerkViewModelFactory
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileNotFoundException
+import java.lang.Exception
 
 
 class ExportImportFragment : AuthFragment() {
@@ -98,8 +100,23 @@ class ExportImportFragment : AuthFragment() {
             //viewModel.updateRv4()
             if (it==true){
                 binding.progressBar.visibility = View.VISIBLE
+                binding.labelProgres.visibility = View.VISIBLE
+                binding.btnExportLog.visibility = View.GONE
+                binding.btnExportUsers.visibility = View.GONE
+                binding.btnExportMerk.visibility = View.GONE
+                binding.btnImportMerk.visibility = View.GONE
+                binding.exportHeader.visibility = View.GONE
+                binding.importHeader.visibility = View.GONE
+
             }else{
                 binding.progressBar.visibility = View.GONE
+                binding.labelProgres.visibility = View.GONE
+                binding.btnExportLog.visibility = View.VISIBLE
+                binding.btnExportUsers.visibility = View.VISIBLE
+                binding.btnExportMerk.visibility = View.VISIBLE
+                binding.btnImportMerk.visibility = View.VISIBLE
+                binding.exportHeader.visibility = View.VISIBLE
+                binding.importHeader.visibility = View.VISIBLE
             }
         }
 
@@ -143,21 +160,25 @@ class ExportImportFragment : AuthFragment() {
         val file = File(context?.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName + ".csv")
         Log.i("FilePath","else path: " +file.path.toString())
         viewModel.writeCSV(file,code)
+        viewModel.csvWriteComplete.observe(viewLifecycleOwner, Observer {
+            if (it!=null){
+                val photoURI: Uri = FileProvider.getUriForFile(this.requireContext(), requireContext().applicationContext.packageName + ".provider",file)
+                val shareIntent: Intent = Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_STREAM, photoURI)
+                    type = "text/*"
+                }
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                try {
+                    startActivity(Intent.createChooser(shareIntent, "Stok"))
+                }catch (e : Exception){
+                    Log.i("error_msg",e.toString())
+                }
+            }
 
 
 
-        val photoURI: Uri = FileProvider.getUriForFile(this.requireContext(), requireContext().applicationContext.packageName + ".provider",file)
-        val shareIntent: Intent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_STREAM, photoURI)
-            type = "text/*"
-        }
-        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        try {
-            startActivity(Intent.createChooser(shareIntent, "Stok"))
-        }catch (e : java.lang.Exception){
-            Log.i("error_msg",e.toString())
-        }
+        })
     }
 
 

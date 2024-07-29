@@ -55,6 +55,9 @@ class ExportImportViewModel(
     val isLoading: LiveData<Boolean>
         get() = _isLoading
 
+    private val _csvWriteComplete = MutableLiveData<Unit?>()
+    val csvWriteComplete: LiveData<Unit?> get() = _csvWriteComplete
+
     //TODO write vendible database
     //TODO write log and BarangLog database
     //TODO write inputLog  database
@@ -264,6 +267,9 @@ class ExportImportViewModel(
 
     fun writeCSV(file: File, code: String) {
         viewModelScope.launch {
+            Log.i("INSERTCSVPROB","write csv called")
+            _csvWriteComplete.value = null
+            _isLoading.value = true
             try {
                 val content = getMerkHeader(code)
                 val fw = FileWriter(file.absoluteFile)
@@ -277,7 +283,8 @@ class ExportImportViewModel(
                     "USERS" -> getAllUsersData()
                     else -> listOf<Any>()
                 }
-
+                Log.i("INSERTCSVPROB","${allItems.size}")
+                var i = 0
                 for (data in allItems) {
                     val content = when (code.uppercase()) {
                         "MERK" -> {
@@ -295,17 +302,24 @@ class ExportImportViewModel(
 
                         else -> ""
                     }
+                    i = i+1
                     bw.write(content)
                     bw.newLine()
                 }
-
+                Log.i("INSERTCSVPROB","i: $i")
                 bw.close()
                 Toast.makeText(getApplication(), "Success", Toast.LENGTH_SHORT).show()
+
+
             } catch (e: IOException) {
                 e.printStackTrace()
                 Toast.makeText(getApplication(), "Failed", Toast.LENGTH_SHORT).show()
             }
+            _isLoading.value = false
+            _csvWriteComplete.postValue(Unit)  // Notify observers
         }
+
+
     }
     fun escapeCSVField(field: String): String {
         return field.replace("\"", "\"\"").replace("\r\n", " ").replace("\n", " ").replace("\r", " ")
@@ -324,6 +338,7 @@ class ExportImportViewModel(
             else ->""
         }
     }
+
 
     fun exportDataToCSV(context: Context, merks: List<MerkTable>, warnas: List<WarnaTable>, detailWarnas: List<DetailWarnaTable>): File {
         val csvDir = File(context.getExternalFilesDir(null), "csv_exports")

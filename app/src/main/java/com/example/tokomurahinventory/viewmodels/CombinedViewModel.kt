@@ -236,8 +236,6 @@ class CombinedViewModel(
                 _unFilteredWarna.value = list
                 Log.i("WarnaProbs","allWarnaByMerk ${list}")
             }
-
-
         }
     }
     fun getStringWarna(warnaRef:String){
@@ -295,7 +293,7 @@ class CombinedViewModel(
 
     fun updateWarna(warnaTable: WarnaModel) {
         viewModelScope.launch {
-            warnaTable.lastEditedBy = SharedPreferencesHelper.getLoggedInUser(getApplication())
+            warnaTable.lastEditedBy = SharedPreferencesHelper.getLoggedInUser(getApplication()) ?:""
             warnaTable.warnaLastEditedDate = Date()
             updateWarnaToDao(warnaTable.toWarnaTable())
             Log.i("SplitFragmentProb"," update warna ${refWarna.value}")
