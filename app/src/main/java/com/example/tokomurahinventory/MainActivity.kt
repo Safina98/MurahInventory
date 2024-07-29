@@ -14,6 +14,7 @@ import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -43,11 +44,16 @@ class MainActivity : AppCompatActivity() {
         drawerLayout = binding.drawerLayout
         SharedPreferencesHelper.initialize(this)
 
+        drawerLayout = binding.drawerLayout
+        SharedPreferencesHelper.initialize(this)
+
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.myNavHostFragment) as NavHostFragment
         val navController = navHostFragment.navController
+
+        // Setup NavigationUI
         NavigationUI.setupActionBarWithNavController(this, navController, drawerLayout)
-        appBarConfiguration = AppBarConfiguration(navController.graph, drawerLayout)
         NavigationUI.setupWithNavController(binding.navView, navController)
+
         appLifecycleObserver = AppLifecycleObserver(this)
         ProcessLifecycleOwner.get().lifecycle.addObserver(appLifecycleObserver)
         // Check if the table is empty and insert a default user if needed
@@ -64,7 +70,7 @@ class MainActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.myNavHostFragment) as NavHostFragment
         val navController = navHostFragment.navController
-        return navController.navigateUp() || super.onSupportNavigateUp()
+        return NavigationUI.navigateUp(navController, drawerLayout) || super.onSupportNavigateUp()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -72,16 +78,24 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.myNavHostFragment) as NavHostFragment
+        val navController = navHostFragment.navController
+
         return when (item.itemId) {
             R.id.action_logout -> {
                 Log.d("AppDebug", "Logout action triggered.")
                 logout()
                 true
             }
-            else -> super.onOptionsItemSelected(item)
+            else -> {
+                // Delegate the navigation drawer toggle to NavigationUI
+                NavigationUI.onNavDestinationSelected(item, navController) || super.onOptionsItemSelected(item)
+            }
         }
     }
+
 
     private fun checkAuthentication() {
         authViewModel.authenticationState.observe(this) { isAuthenticated ->
@@ -173,4 +187,6 @@ class MainActivity : AppCompatActivity() {
     fun resetOrientation() {
         requestedOrientation = originalOrientation
     }
+
+
 }

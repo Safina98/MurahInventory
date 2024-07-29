@@ -201,7 +201,7 @@ class InputStokViewModel (
             val refMerk = getrefMerkByName(inputStokLogModel.namaMerk.uppercase())
             Log.i("InsertLogTry", "ref merk:$refMerk")
             if (refMerk!=null){
-                val refWarna = getrefWanraByName(inputStokLogModel.kodeWarna.uppercase(),refMerk)
+                val refWarna = getrefWanraByName(inputStokLogModel.kodeWarna,refMerk)
                 Log.i("InsertLogTry", "ref merk:$refWarna")
                 if (refWarna!=null){
                     var refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna,inputStokLogModel.isi)
