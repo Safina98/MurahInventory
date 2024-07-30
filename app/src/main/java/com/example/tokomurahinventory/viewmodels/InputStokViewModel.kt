@@ -170,8 +170,8 @@ class InputStokViewModel (
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             val item = getBarangLogFromDB(inputStokLogModel.inputBarangLogRef)
             if (item!=null){
-                updateDetailWarnaTODao(item.warnaRef,item.isi,item.pcs,loggedInUsers)
-                deleteBarangLogToDao(item.id)
+                //updateDetailWarnaTODao(item.warnaRef,item.isi,item.pcs,loggedInUsers)
+                updataDetailWarnaAndDeleteBarangLogToDao(item.warnaRef, item.isi, item.pcs, loggedInUsers, item.id)
                 getAllInputLogModel()
         }
         }
@@ -197,6 +197,7 @@ class InputStokViewModel (
     }
     fun updateInputStok(inputStokLogModel: InputStokLogModel){
         uiScope.launch {
+            Log.i("InsertLogTry", "PCs ${inputStokLogModel.inputBarangLogRef}")
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             val refMerk = getrefMerkByName(inputStokLogModel.namaMerk.uppercase())
             Log.i("InsertLogTry", "ref merk:$refMerk")
@@ -216,8 +217,9 @@ class InputStokViewModel (
                         val oldBarangLog = withContext(Dispatchers.IO) {
                             dataSourceBarangLog.findByBarangLogRef(barangNewLog.barangLogRef)
                         }
+                        Log.i("InsertLogTry", "PCs ${barangNewLog.barangLogRef}")
                         updateDetailWarna(barangNewLog,oldBarangLog)
-                        updateBarangLogToDao(barangNewLog)
+                        //updateBarangLogToDao(barangNewLog)
                         getAllInputLogModel()
                 }
 
@@ -228,47 +230,122 @@ class InputStokViewModel (
     }
     fun updateDetailWarna(newBarangLog: BarangLog,oldBarangLog:BarangLog?) {
         uiScope.launch {
+            Log.i("InsertLogTry", "PCs ${newBarangLog.pcs}")
             Log.i("InsertLogTry", "Update Detail Warna called")
+            Log.i("InsertLogTry", "PCs ${newBarangLog.barangLogRef}")
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             Log.i("InsertLogTry", "Logged in user: $loggedInUsers")
+            var selisihPcs = 0
+            val detailWarnaUpdates = mutableListOf<DetailWarnaTable>()
             try {
                 // Fetch the old record from the database
                 Log.i("InsertLogTry", "Old log barang isi=${oldBarangLog!!.isi}, New log barang isi=${newBarangLog.isi}")
                 if (oldBarangLog != null) {
                     Log.i("InsertLogTry", "Old barang log found")
                     Log.i("InsertLogTry", "Old log barang ref=${oldBarangLog.warnaRef}, New log barang ref=${newBarangLog.warnaRef}")
-
+                    Log.i("InsertLogTry", "PCs ${newBarangLog.pcs}")
+                    Log.i("InsertLogTry", "PCs ${newBarangLog.barangLogRef}")
                     if (oldBarangLog.warnaRef == newBarangLog.warnaRef) {
                         Log.i("InsertLogTry", "Ref matches")
-
+                        Log.i("InsertLogTry", "PCs ${newBarangLog.pcs}")
+                        Log.i("InsertLogTry", "PCs ${newBarangLog.barangLogRef}")
                         if (oldBarangLog.isi == newBarangLog.isi) {
+                            Log.i("InsertLogTry", "PCs ${newBarangLog.pcs}")
                             Log.i("InsertLogTry", "Isi matches")
-                            val selisihPcs = newBarangLog.pcs - oldBarangLog.pcs
+                            Log.i("InsertLogTry", "PCs ${newBarangLog.barangLogRef}")
+                            selisihPcs = newBarangLog.pcs - oldBarangLog.pcs
                             Log.i("InsertLogTry", "Difference in pcs: $selisihPcs")
-                            updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, -selisihPcs, loggedInUsers)
+                            detailWarnaUpdates.add(
+                                DetailWarnaTable(
+                                    warnaRef = oldBarangLog.warnaRef,
+                                    detailWarnaIsi = oldBarangLog.isi,
+                                    detailWarnaPcs = -selisihPcs
+                                )
+                            )
+                            //updateBarangLogToDao(newBarangLog)
+                            //updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, -selisihPcs, loggedInUsers)
                         } else {
+                            Log.i("InsertLogTry", "PCs ${newBarangLog.pcs}")
                             Log.i("InsertLogTry", "Isi does not match")
+                            Log.i("InsertLogTry", "PCs ${newBarangLog.barangLogRef}")
                             // Update old log
-                            updateDetailWarnaTODao(oldBarangLog.warnaRef, oldBarangLog.isi, oldBarangLog.pcs, loggedInUsers)
+                            detailWarnaUpdates.add(
+                                DetailWarnaTable(
+                                    warnaRef = oldBarangLog.warnaRef,
+                                    detailWarnaIsi = oldBarangLog.isi,
+                                    detailWarnaPcs =  oldBarangLog.pcs
+                                )
+                            )
+                            detailWarnaUpdates.add(
+                                DetailWarnaTable(
+                                    warnaRef = newBarangLog.warnaRef,
+                                    detailWarnaIsi = newBarangLog.isi,
+                                    detailWarnaPcs = -newBarangLog.pcs
+                                )
+                            )
+                            selisihPcs = oldBarangLog.pcs
+                            //updateBarangLogToDao(newBarangLog)
+                            //updateDetailWarnaTODao(oldBarangLog.warnaRef, oldBarangLog.isi, oldBarangLog.pcs, loggedInUsers)
                             // Update new log
-                            updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, -newBarangLog.pcs, loggedInUsers)
+                            //updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, -newBarangLog.pcs, loggedInUsers)
                         }
                     } else {
+                        Log.i("InsertLogTry", "PCs ${newBarangLog.pcs}")
                         Log.i("InsertLogTry", "Ref does not match")
+                        Log.i("InsertLogTry", "PCs ${newBarangLog.barangLogRef}")
                         // Update old log
-
-                        updateDetailWarnaTODao(oldBarangLog.warnaRef, oldBarangLog.isi, oldBarangLog.pcs, loggedInUsers)
+                        selisihPcs = oldBarangLog.pcs
+                        //updateBarangLogToDao(newBarangLog)
+                        //updateDetailWarnaTODao(oldBarangLog.warnaRef, oldBarangLog.isi, selisihPcs, loggedInUsers)
                         // Update new log
-                        updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, -newBarangLog.pcs, loggedInUsers)
+                        //updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, -newBarangLog.pcs, loggedInUsers)
+                        detailWarnaUpdates.add(
+                            DetailWarnaTable(
+                                warnaRef = oldBarangLog.warnaRef,
+                                detailWarnaIsi = oldBarangLog.isi,
+                                detailWarnaPcs = oldBarangLog.pcs
+                            )
+                        )
+                        detailWarnaUpdates.add(
+                            DetailWarnaTable(
+                                warnaRef = newBarangLog.warnaRef,
+                                detailWarnaIsi = newBarangLog.isi,
+                                detailWarnaPcs = -newBarangLog.pcs
+                            )
+                        )
                     }
                 } else {
+                    Log.i("InsertLogTry", "PCs ${newBarangLog.pcs}")
                     Log.e("InsertLogTry", "Old barang log not found")
+                    Log.i("InsertLogTry", "PCs ${newBarangLog.barangLogRef}")
+                    detailWarnaUpdates.add(
+                        DetailWarnaTable(
+                            warnaRef = newBarangLog.warnaRef,
+                            detailWarnaIsi = newBarangLog.isi,
+                            detailWarnaPcs =-newBarangLog.pcs
+                        )
+                    )
                     // New log without an old counterpart
-                    updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, -newBarangLog.pcs, loggedInUsers)
+                    //updateBarangLogToDao(newBarangLog)
+                    //updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, -newBarangLog.pcs, loggedInUsers)
                 }
+                updateBarangLogAndDetailWarna(
+                    newBarangLog.refMerk,
+                    newBarangLog.warnaRef,
+                    newBarangLog.detailWarnaRef!!,
+                    newBarangLog.isi,
+                    newBarangLog.pcs,
+                    newBarangLog.barangLogDate,
+                    newBarangLog.refLog,
+                    newBarangLog.barangLogRef,
+                    detailWarnaUpdates,
+                    loggedInUsers
+                )
+                getAllInputLogModel()
             } catch (e: Exception) {
                 Log.e("InsertLogTry", "Error updating detail warna: ${e.message}", e)
             }
+
         }
     }
 
@@ -304,9 +381,14 @@ class InputStokViewModel (
         }
     }
 
-    private suspend fun deleteBarangLogToDao(barangLogId:Int){
+    private suspend fun updataDetailWarnaAndDeleteBarangLogToDao(refWarna: String,
+                                                                 detailWarnaIsi: Double,
+                                                                 detailWarnaPcs: Int,
+                                                                 loggedInUsers: String?,
+                                                                 id: Int){
         withContext(Dispatchers.IO){
-            dataSourceBarangLog.delete(barangLogId)
+            //dataSourceBarangLog.delete(barangLogId)
+            dataSourceBarangLog.updateDetailAndDeleteBarangLog(refWarna,detailWarnaIsi,detailWarnaPcs,loggedInUsers,id)
         }
     }
     private suspend fun getDetailWarna(waraRef:String, isi:Double): DetailWarnaTable {
@@ -340,6 +422,34 @@ class InputStokViewModel (
                 // Update existing record if barangLogRef exists
                 dataSourceBarangLog.updateByBarangLogRef(log.refMerk, log.warnaRef, log.detailWarnaRef ?: "", log.isi, log.pcs, log.barangLogDate, log.refLog, log.barangLogRef)
             }
+        }
+    }
+    private suspend fun updateBarangLogAndDetailWarna( refMerk: String,
+                                                       warnaRef: String,
+                                                       detailWarnaRef: String,
+                                                       isi: Double,
+                                                       pcs: Int,
+                                                       barangLogDate: Date,
+                                                       refLog: String,
+                                                       barangLogRef: String,
+                                                       detailWarnaUpdates: List<DetailWarnaTable>,
+                                                       loggedInUsers: String?){
+        return withContext(Dispatchers.IO){
+            Log.i("InsertLogTry", "PCs ${pcs}")
+            Log.i("InsertLogTry", "PCs ${barangLogRef}")
+            dataSourceBarangLog.updateBarangLogAndDetails(
+                refMerk,
+                warnaRef,
+                detailWarnaRef,
+                isi,
+                pcs,
+                barangLogDate,
+                refLog,
+                barangLogRef,
+                detailWarnaUpdates,
+                loggedInUsers
+            )
+
         }
     }
 

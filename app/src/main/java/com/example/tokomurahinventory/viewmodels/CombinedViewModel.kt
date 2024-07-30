@@ -390,6 +390,7 @@ class CombinedViewModel(
                     detailWarnaTable.detailWarnaLastEditedDate = Date()
                     detailWarnaTable.detailWarnaIsi = isi
                     detailWarnaTable.detailWarnaPcs = pcs
+                    detailWarnaTable.user = loggedInUsers
 
                     val detailWarnaTable1 = checkIfIsiExisted(isi, _refWarna.value!!)
                     if (detailWarnaTable1 != null) {
@@ -404,7 +405,7 @@ class CombinedViewModel(
                         detailWarnaTable.createdBy = loggedInUsers
                         detailWarnaTable.detailWarnaDate = Date()
                         insertDetailWarnaToDao(detailWarnaTable)
-                        detailWarnaTable.user = loggedInUsers
+
                         insertInputLog(detailWarnaTable)
                     }
                 } else Toast.makeText(getApplication(), "Pilih kode warna", Toast.LENGTH_SHORT).show()

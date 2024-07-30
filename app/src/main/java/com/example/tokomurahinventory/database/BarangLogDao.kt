@@ -1,5 +1,6 @@
 package com.example.tokomurahinventory.database
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
@@ -43,7 +44,7 @@ interface BarangLogDao {
     fun selectBarangLogByLogRef(refLog:String): List<BarangLog>
 
     @Query("UPDATE barang_log SET refMerk = :refMerk, warnaRef = :warnaRef, detailWarnaRef = :detailWarnaRef, isi = :isi, pcs = :pcs, barangLogDate = :barangLogDate, refLog = :refLog WHERE barangLogRef = :barangLogRef")
-    fun updateByBarangLogRef(refMerk: String, warnaRef: String, detailWarnaRef: String, isi: Double, pcs: Int, barangLogDate: Date, refLog: String, barangLogRef: String)
+    fun updateByBarangLogRef(refMerk: String, warnaRef: String, detailWarnaRef: String, isi: Double, pcs: Int, barangLogDate: Date, refLog: String, barangLogRef: String):Int
 
     @Query("SELECT * FROM barang_log WHERE barangLogRef =:barangLogRef")
     fun findByBarangLogRef(barangLogRef:String):BarangLog?
@@ -127,6 +128,8 @@ interface BarangLogDao {
         detailWarnaUpdates: List<DetailWarnaTable>,
         loggedInUsers: String?
     ) {
+        Log.i("InsertLogTry", "PCs ${pcs}")
+        Log.i("InsertLogTry", "PCs ${barangLogRef}")
         updateByBarangLogRef(refMerk, warnaRef, detailWarnaRef, isi, pcs, barangLogDate, refLog, barangLogRef)
         detailWarnaUpdates.forEach { update ->
             updateDetailWarna(update.warnaRef, update.detailWarnaIsi, update.detailWarnaPcs, loggedInUsers)
@@ -170,5 +173,35 @@ interface BarangLogDao {
             )
         }
     }
+
+    @Transaction
+    suspend fun updateBarangLogAndDetailWarna(
+        newBarangLog: BarangLog,
+        oldBarangLog: BarangLog?,
+        loggedInUsers: String?
+    ) {
+        Log.i("DAO", "Updating barang log with ref: ${newBarangLog.barangLogRef}")
+        // Update barang log
+        updateByBarangLogRef(
+            newBarangLog.refMerk,
+            newBarangLog.warnaRef,
+            newBarangLog.detailWarnaRef ?: "",
+            newBarangLog.isi,
+            newBarangLog.pcs,
+            newBarangLog.barangLogDate,
+            newBarangLog.refLog,
+            newBarangLog.barangLogRef
+        )
+
+        // Update detail warna
+        oldBarangLog?.let {
+            Log.i("DAO", "Updating detail warna for old barang log: ${it.warnaRef}")
+            updateDetailWarna(it.warnaRef, it.isi, it.pcs, loggedInUsers)
+        }
+        Log.i("DAO", "Updating detail warna for new barang log: ${newBarangLog.warnaRef}")
+        updateDetailWarna(newBarangLog.warnaRef, newBarangLog.isi, -newBarangLog.pcs, loggedInUsers)
+    }
+
+
 
 }
