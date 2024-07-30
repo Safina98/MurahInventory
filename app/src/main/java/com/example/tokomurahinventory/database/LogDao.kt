@@ -5,7 +5,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
+import com.example.tokomurahinventory.models.BarangLog
 import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.models.model.CombinedLogData
 import java.util.Date
@@ -76,4 +78,25 @@ interface LogDao {
         JOIN barang_log AS b ON l.refLog = b.refLog
     """)
     fun getAllCombinedLogData(): List<CombinedLogData>
+    @Query(" UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs-:detailWarnaPcs,lastEditedBy =:loggedInUsers WHERE warnaRef = :refWarna AND detailWarnaIsi = :detailWarnaIsi")
+    fun updateDetailWarna(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,loggedInUsers:String?): Int
+
+    @Transaction
+    suspend fun deleteLogAndUpdateDetailWarna(
+        log: LogTable,
+        barangLogList: List<BarangLog>,
+        loggedInUsers: String?
+    ) {
+        // Update detail_warna_table for each BarangLog
+        barangLogList.forEach { barangLog ->
+            updateDetailWarna(
+                barangLog.warnaRef,
+                barangLog.isi,
+                barangLog.pcs * -1,
+                loggedInUsers
+            )
+        }
+        // Delete the LogTable entry
+        delete(log.id)
+    }
 }

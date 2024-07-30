@@ -152,4 +152,6 @@ interface DetailWarnaDao {
         JOIN merk_table AS m ON w.refMerk = m.refMerk
     """)
     fun getAllCombinedData(): List<CombinedDataModel>
+
+
 }

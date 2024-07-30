@@ -239,52 +239,77 @@ class LogViewModel (
                 updateLogToDao(updatedLog)
                 updateLogBarang(updatedLog.refLog)
                 //compare old countModel with the current one for delete purpose
-                compare(updatedLog.refLog, cmList)
+                compare(updatedLog.refLog, cmList) //check
                 getAllLogTable()
                 onNavigateToLog()
             }else Toast.makeText(getApplication(),"Insert Failed, please check the data",Toast.LENGTH_SHORT).show()
         }
     }
-    fun addLog(){
+    fun addLog() {
         viewModelScope.launch {
             val s = getStringS()
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             val allDataPresent = areAllCountModelValuesNotNull(countModelList)
             val hasNotIdenticalItem = hasNotIdenticalItems(countModelList.value)
-           if (loggedInUsers!=null) {
-            if (allDataPresent&&hasNotIdenticalItem) {
-                val newLog = LogTable(
-                    id = 0,
-                    userName = loggedInUsers,
-                    password = "",
-                    namaToko = namaToko.value ?: "Failed",
-                    logCreatedDate = Date(), // assuming you have a date field
-                    keterangan = subKeterangan.value ?: "Failed",
-                    merk = s,
-                    kodeWarna = "",
-                    logIsi = 0.0,
-                    pcs = countModelList.value!!.sumOf { it.psc },
-                    detailWarnaRef = "",
-                    refLog = UUID.randomUUID().toString(),
-                    logLastEditedDate = Date(),
-                    createdBy = loggedInUsers,
-                    lastEditedBy = loggedInUsers,
-                    logTipe = MASUKKELUAR.KELUAR
-                )
-                insertLogToDao(newLog)
-                Log.i("InsertLogTry","addLog() Called")
-                addLogBarang(newLog.refLog)
 
-                getAllLogTable()
-                onNavigateToLog()
-            }else Toast.makeText(getApplication(),"Insert Failed, please check the data",Toast.LENGTH_SHORT).show()
-            }
-            else{
-               Toast.makeText(getApplication(), userNullString, Toast.LENGTH_SHORT).show()
-            }
+            if (loggedInUsers != null) {
+                if (allDataPresent && hasNotIdenticalItem) {
+                    val newLog = LogTable(
+                        id = 0,
+                        userName = loggedInUsers,
+                        password = "",
+                        namaToko = namaToko.value ?: "Failed",
+                        logCreatedDate = Date(),
+                        keterangan = subKeterangan.value ?: "Failed",
+                        merk = s,
+                        kodeWarna = "",
+                        logIsi = 0.0,
+                        pcs = countModelList.value!!.sumOf { it.psc },
+                        detailWarnaRef = "",
+                        refLog = UUID.randomUUID().toString(),
+                        logLastEditedDate = Date(),
+                        createdBy = loggedInUsers,
+                        lastEditedBy = loggedInUsers,
+                        logTipe = MASUKKELUAR.KELUAR
+                    )
 
+                    // Prepare list of BarangLog
+                    val barangLogs = countModelList.value!!.map { item ->
+                        val refMerk = getrefMerkByName(item.merkBarang!!.uppercase())
+                        val refWarna = getrefWanraByName(item.kodeBarang!!, refMerk)!!
+                        val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna, item.isi!!)
+                        BarangLog(
+                            refMerk = refMerk,
+                            warnaRef = refWarna,
+                            detailWarnaRef = refDetailWarna,
+                            isi = item.isi!!,
+                            pcs = item.psc,
+                            barangLogDate = Date(),
+                            refLog = newLog.refLog,
+                            barangLogRef = UUID.randomUUID().toString(),
+                            barangLogTipe = MASUKKELUAR.KELUAR
+                        )
+                    }
+
+                    try {
+                        insertLogAndUpdateDetailWarna(newLog,barangLogs,loggedInUsers)
+                        //yourDao.insertLogAndUpdateDetailWarna(newLog, barangLogs, loggedInUsers)
+                        getAllLogTable()
+                        onNavigateToLog()
+                        Log.i("InsertLogTry", "addLog() and related operations completed successfully")
+                    } catch (e: Exception) {
+                        Log.e("InsertLogTry", "Error performing transaction: ${e.message}", e)
+                        Toast.makeText(getApplication(), "Insert Failed, please try again", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(getApplication(), "Insert Failed, please check the data", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Toast.makeText(getApplication(), userNullString, Toast.LENGTH_SHORT).show()
+            }
         }
     }
+
     fun getBarangLog(namaMerk:String,kodeWarna:String,isi:Double,pcs:Int,refLog:String){
         viewModelScope.launch{
             Log.i("InsertLogTry","getBarangLog() called")
@@ -305,46 +330,21 @@ class LogViewModel (
                     barangLogRef = UUID.randomUUID().toString(),
                     barangLogTipe = MASUKKELUAR.KELUAR
                 )
-                updateDetailWarnaTODao(refWarna,isi,pcs,loggedInUsers)
-                insertBarangLogToDao(barangLog)
+                updateDetailWarnaAndInsertBarangLogToDao(barangLog,refWarna,isi,pcs,loggedInUsers)
             }
         }
     }
-    fun addLogBarang(logRef:String){
-        viewModelScope.launch {
-            Log.i("InsertLogTry","addLogBarang() Called")
-            for (i in countModelList.value!!){
-                getBarangLog(i.merkBarang!!,i.kodeBarang!!,i.isi!!,i.psc,logRef)
-            }
-        }
-    }
+
     //////////////////////////////////Delete/////////////////////////////////////////////////
     /////////////////////////////////////Log////////////////////////////////////////////////
-    //create mutable and live data selected merk ref,selected warna ref
-    //observe selected merk
-    //onchange update list warna
-    // observe selected warna
-    //on change update selected isi
-    //di adapter panggil fungsi untuk set selected merk
-
-    //delete log
 
     fun deleteLog(log: LogTable){
         viewModelScope.launch {
             //get barangLog
             val barangLogList = getBarangLogFromDao(log.refLog)
-            updateDetailWarna(barangLogList)
-            deleteLogToDao(log)
-            getAllLogTable()
-        }
-    }
-    fun updateDetailWarna(barangLogList:List<BarangLog>){
-        viewModelScope.launch {
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
-            for(i in barangLogList){
-                //update detail warna, add pcs detail warna  where ref = detail warna ref and isi = isi
-                updateDetailWarnaTODao(i.warnaRef,i.isi,i.pcs*-1,loggedInUsers)
-            }
+            updateDetailWarnaAndDeleteBarangLog(log,barangLogList,loggedInUsers)
+            getAllLogTable()
         }
     }
 
@@ -413,61 +413,7 @@ class LogViewModel (
 
 
     //try update count model
-    fun updateCountModelOld(countModel: CountModel): Boolean {
-        var success = false
-        viewModelScope.launch {
-            val isMerkPresent = checkMerkExisted(countModel.merkBarang!!)
-            val isWarnaPresent = isKodeWarnaInLiveData(codeWarnaByMerk, countModel.kodeBarang!!)
-            val isIsiPresent = isIsiInLiveData(isiByWarnaAndMerk, countModel.isi!!)
 
-            Log.i("InsertLogTry", "updateCountModel isMerkPresent: $isMerkPresent")
-            Log.i("InsertLogTry", "updateCountModel isWarnaPresent: $isWarnaPresent")
-            Log.i("InsertLogTry", "updateCountModel isIsiPresent: $isIsiPresent")
-
-            if (isMerkPresent && isWarnaPresent && isIsiPresent) {
-                val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
-                val refWarna = getrefWanraByName(countModel.kodeBarang!!, refMerk)
-                val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna!!, countModel.isi!!)
-
-                Log.i("InsertLogTry", "updateCountModel refMerk: $refMerk")
-                Log.i("InsertLogTry", "updateCountModel refWarna: $refWarna")
-                Log.i("InsertLogTry", "updateCountModel refDetailWarna: $refDetailWarna")
-
-                val isPcsReadyInStok = checkIfPcsReadyInStok(refDetailWarna!!, countModel.psc)
-
-                Log.i("InsertLogTry", "updateCountModel isPCsReadyInStock: $isPcsReadyInStok")
-
-                if (isPcsReadyInStok) {
-                    val updatedList = _countModelList.value?.toMutableList()
-                    val itemToUpdate = updatedList?.find { it.id == countModel.id }
-
-                    Log.i("InsertLogTry", "updateCountModel itemToUpdate: $itemToUpdate")
-
-                    if (itemToUpdate != null) {
-                        itemToUpdate.merkBarang = countModel.merkBarang!!
-                        itemToUpdate.kodeBarang = countModel.kodeBarang
-                        itemToUpdate.isi = countModel.isi!!
-                        itemToUpdate.psc = countModel.psc
-
-                        Log.i("InsertLogTry", "updateCountModel itemToUpdate: $itemToUpdate")
-
-                        merkMutable.value = countModel.merkBarang
-                        _countModelList.value = updatedList // Notify observers of the change
-                        success = true
-                    } else {
-                        Log.e("InsertLogTry", "Item with ID ${countModel.id} not found.")
-                        Toast.makeText(getApplication(), "Barang tidak tersedia", Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    Log.e("InsertLogTry", "PCS not ready in stock for ID ${countModel.id}.")
-                    Toast.makeText(getApplication(), "Item with ID ${countModel.id} not found.", Toast.LENGTH_SHORT).show()
-                }
-            } else {
-                Toast.makeText(getApplication(), "Data tidak ada di database, coba lagi", Toast.LENGTH_SHORT).show()
-            }
-        }
-        return success
-    }
 
 
     // Function to update the merk value
@@ -668,6 +614,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
             }
         }
     }
+    //when update log and delete a log
     fun compare(logRef:String,cmList:List<CountModel>){
         viewModelScope.launch {
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
@@ -677,8 +624,9 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
             }
             itemsNotInCmList.forEach { item ->
                 Log.i("InsertLogTry", "Item ${item.isi} - ${item.isi} not found in cmList")
-                updateDetailWarnaTODao(item.warnaRef,item.isi,-item.pcs,loggedInUsers)
-                deleteBarangLogToDao(item.id)
+                //updateDetailWarnaTODao(item.warnaRef,item.isi,-item.pcs,loggedInUsers)
+                //deleteBarangLogToDao(item.id)
+                updateDetailAndDeleteBarangLogToDao(item.warnaRef,item.isi,-item.pcs,loggedInUsers,item.id)
             }
         }
     }
@@ -699,9 +647,11 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
                 barangLogTipe = MASUKKELUAR.KELUAR
             )
             updateDetailWarna(barangLog)
-            updateBarangLogToDao(barangLog)
+            //updateBarangLogToDao(barangLog)
         }
     }
+
+
 
 
         fun updateDetailWarna(newBarangLog: BarangLog) {
@@ -711,39 +661,88 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
                     val oldBarangLog = withContext(Dispatchers.IO) {
                         dataSourceBarangLog.findByBarangLogRef(newBarangLog.barangLogRef)
                     }
-                    val selisihPcs: Int
+
+                    val detailWarnaUpdates = mutableListOf<DetailWarnaTable>()
 
                     if (oldBarangLog != null) {
-                        Log.i("InsertLogTry", "old log barang isi ${oldBarangLog.isi} new log barang isi=${newBarangLog.isi}")
-
                         if (oldBarangLog.warnaRef == newBarangLog.warnaRef) {
                             if (oldBarangLog.isi == newBarangLog.isi) {
-                                selisihPcs = newBarangLog.pcs - oldBarangLog.pcs
-                                updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, selisihPcs,loggedInUsers)
+                                val selisihPcs = newBarangLog.pcs - oldBarangLog.pcs
+                                detailWarnaUpdates.add(
+                                    DetailWarnaTable(
+                                        warnaRef = oldBarangLog.warnaRef,
+                                        detailWarnaIsi = oldBarangLog.isi,
+                                        detailWarnaPcs = selisihPcs
+                                    )
+                                )
                             } else {
                                 val oldDetailWarna = getDetailWarna(oldBarangLog.warnaRef, oldBarangLog.isi)
                                 val newDetailWarnaTable = getDetailWarna(newBarangLog.warnaRef, newBarangLog.isi)
-                                selisihPcs = -oldBarangLog.pcs
-                                Log.i("InsertLogTry", "old detail warna pcs - selisih pcs=${oldDetailWarna.detailWarnaIsi} -> ${oldDetailWarna.detailWarnaPcs - selisihPcs}")
-                                Log.i("InsertLogTry", "new detail warna - selisih pcs:${newDetailWarnaTable.detailWarnaIsi} -> ${newDetailWarnaTable.detailWarnaPcs - newBarangLog.pcs}")
-                                updateDetailWarnaTODao(oldBarangLog.warnaRef, oldBarangLog.isi, selisihPcs,loggedInUsers)
-                                updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, newBarangLog.pcs,loggedInUsers)
+                                val oldSelisihPcs = -oldBarangLog.pcs
+                                val newSelisihPcs = newBarangLog.pcs
+
+                                detailWarnaUpdates.add(
+                                    DetailWarnaTable(
+                                        warnaRef = oldBarangLog.warnaRef,
+                                        detailWarnaIsi = oldBarangLog.isi,
+                                        detailWarnaPcs = oldSelisihPcs
+                                    )
+                                )
+                                detailWarnaUpdates.add(
+                                    DetailWarnaTable(
+                                        warnaRef = newBarangLog.warnaRef,
+                                        detailWarnaIsi = newBarangLog.isi,
+                                        detailWarnaPcs = newSelisihPcs
+                                    )
+                                )
                             }
                         } else {
-                            Log.i("InsertLogTry", "old ref != new ref")
-                            selisihPcs = -oldBarangLog.pcs
-                            updateDetailWarnaTODao(oldBarangLog.warnaRef, oldBarangLog.isi, selisihPcs,loggedInUsers)
-                            updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, newBarangLog.pcs,loggedInUsers)
+                            val oldSelisihPcs = -oldBarangLog.pcs
+                            detailWarnaUpdates.add(
+                                DetailWarnaTable(
+                                    warnaRef = oldBarangLog.warnaRef,
+                                    detailWarnaIsi = oldBarangLog.isi,
+                                    detailWarnaPcs = oldSelisihPcs
+                                )
+                            )
+                            detailWarnaUpdates.add(
+                                DetailWarnaTable(
+                                    warnaRef = newBarangLog.warnaRef,
+                                    detailWarnaIsi = newBarangLog.isi,
+                                    detailWarnaPcs = newBarangLog.pcs
+                                )
+                            )
                         }
                     } else {
-                        Log.e("InsertLogTry", "oldBarangLog is null")
-                        updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, newBarangLog.pcs,loggedInUsers)
+                        detailWarnaUpdates.add(
+                            DetailWarnaTable(
+                                warnaRef = newBarangLog.warnaRef,
+                                detailWarnaIsi = newBarangLog.isi,
+                                detailWarnaPcs = newBarangLog.pcs
+                            )
+                        )
                     }
+
+                    // Call the DAO transaction method
+                    updateBarangLogAndDetailWarna(
+                        newBarangLog.refMerk,
+                        newBarangLog.warnaRef,
+                        newBarangLog.detailWarnaRef!!,
+                        newBarangLog.isi,
+                        newBarangLog.pcs,
+                        newBarangLog.barangLogDate,
+                        newBarangLog.refLog,
+                        newBarangLog.barangLogRef,
+                        detailWarnaUpdates,
+                        loggedInUsers
+                    )
+
                 } catch (e: Exception) {
                     Log.e("InsertLogTry", "Error updating detail warna: ${e.message}", e)
                 }
             }
         }
+
 
 
     fun areAllCountModelValuesNotNull(countModelList: LiveData<List<CountModel>?>): Boolean {
@@ -780,9 +779,6 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
         return s
     }
 
-
-
-
     fun setLiveDataToNull(){
         _codeWarnaByMerk.value = null
         _isiByWarnaAndMerk.value=null
@@ -807,12 +803,19 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
             dataSourceLog.insert(logTable)
         }
     }
-    private suspend fun insertBarangLogToDao(barangLog: BarangLog){
+    private suspend fun updateDetailWarnaAndInsertBarangLogToDao(
+        barangLog: BarangLog,
+        refWarna: String,
+        detailWarnaIsi: Double,
+        detailWarnaPcs: Int,
+        loggedInUsers: String?
+    ){
         withContext(Dispatchers.IO){
             //dataSource5.insert(logTable)
-            dataSourceBarangLog.insert(barangLog)
+            dataSourceBarangLog.insertBarangLogAndUpdateDetailWarna(barangLog,refWarna,detailWarnaIsi,detailWarnaPcs,loggedInUsers)
         }
     }
+
     private suspend fun getrefMerkByName(name:String):String{
         return withContext(Dispatchers.IO){
             dataSourceMerk.getMerkRefByName(name)!!
@@ -828,32 +831,44 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
             dataSourceDetailWarna.getDetailWarnaRefByIsiAndWarnaRef(name,isi)
         }
     }
-    /*
-        private suspend fun updateDetailWarna(refDetailWarna:String,isi:Double,pcs:Int){
-            withContext(Dispatchers.IO){
-                dataSourceDetailWarna.updateDetailWarna(refDetailWarna,isi,pcs)
-            }
-        }
 
-     */
     private suspend fun getDetailWarna(waraRef:String, isi:Double):DetailWarnaTable{
         return withContext(Dispatchers.IO){
             dataSourceDetailWarna. getDetailWarnaByIsii(waraRef,isi)
         }
     }
 
-    private suspend fun updateDetailWarnaTODao(refWarna: String, isi: Double, pcs: Int,loggedInUsers: String?) {
-        withContext(Dispatchers.IO) {
-            try {
-                Log.e("InsertLogTry", "refWarna: $refWarna, isi: $isi pcs: $pcs")
-                val result=dataSourceDetailWarna.updateDetailWarna(refWarna, isi, pcs,loggedInUsers)
-                val resultt = dataSourceDetailWarna.selecttTry(refWarna)
-                Log.i("InsertLogTry", "Updated $result rows")
-                Log.i("InsertLogTry", "Updated $resultt rows")
-            } catch (e: Exception) {
-                Log.e("InsertLogTry", "Error updating detail warna: ${e.message}", e)
-            }
+    private suspend fun updateBarangLogAndDetailWarna( refMerk: String,
+                                                       warnaRef: String,
+                                                       detailWarnaRef: String,
+                                                       isi: Double,
+                                                       pcs: Int,
+                                                       barangLogDate: Date,
+                                                       refLog: String,
+                                                       barangLogRef: String,
+                                                       detailWarnaUpdates: List<DetailWarnaTable>,
+                                                       loggedInUsers: String?){
+        return withContext(Dispatchers.IO){
+            dataSourceBarangLog.updateBarangLogAndDetails(
+                refMerk,
+                warnaRef,
+                detailWarnaRef,
+                isi,
+                pcs,
+                barangLogDate,
+                refLog,
+                barangLogRef,
+                detailWarnaUpdates,
+                loggedInUsers
+            )
+
         }
+    }
+
+
+    private suspend fun updateDetailWarnaAndDeleteBarangLog( log: LogTable, barangLogList: List<BarangLog>, loggedInUsers: String?){
+        withContext(Dispatchers.IO){
+            dataSourceLog.deleteLogAndUpdateDetailWarna(  log, barangLogList, loggedInUsers) }
     }
 
     private suspend fun updateLogToDao(log: LogTable){
@@ -861,28 +876,21 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
             dataSourceLog.update(log)
         }
     }
-    private suspend fun updateBarangLogToDao(log: BarangLog) {
-        withContext(Dispatchers.IO) {
-            if (doesBarangLogExist(log.barangLogRef)) {
-                // Update existing record if barangLogRef exists
-                dataSourceBarangLog.updateByBarangLogRef(log.refMerk, log.warnaRef, log.detailWarnaRef ?: "", log.isi, log.pcs, log.barangLogDate, log.refLog, log.barangLogRef)
-            }
-        }
-    }
+
     private suspend fun doesBarangLogExist(barangLogRef: String): Boolean {
         return withContext(Dispatchers.IO) {
             dataSourceBarangLog.findByBarangLogRef(barangLogRef) != null
         }
     }
 
-    private suspend fun deleteLogToDao(log: LogTable){
+    private suspend fun updateDetailAndDeleteBarangLogToDao(refWarna:String, detailWarnaIsi:Double, detailWarnaPcs:Int, loggedInUsers:String?, id:Int){
         withContext(Dispatchers.IO){
-            dataSourceLog.delete(log.id)
-        }
-    }
-    private suspend fun deleteBarangLogToDao(barangLogId:Int){
-        withContext(Dispatchers.IO){
-            dataSourceBarangLog.delete(barangLogId)
+            try {
+                dataSourceBarangLog.updateDetailAndDeleteBarangLog(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers, id)
+            } catch (e: Exception) {
+                Log.i("INSERTLOGTRY","updateDetailDeleteLog failed")
+                Log.i("INSERTLOGTRY","$e")
+            }
         }
     }
     //function to check wether merk in db or not
@@ -894,6 +902,11 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
     private suspend fun getBarangLogFromDao(logRef:String):List<BarangLog>{
         return withContext(Dispatchers.IO){
             dataSourceBarangLog.selectBarangLogByLogRef(logRef)
+        }
+    }
+    private suspend fun insertLogAndUpdateDetailWarna(log:LogTable,barangLogList:List<BarangLog>,loggedInUsers: String?){
+        return withContext(Dispatchers.IO){
+            dataSourceBarangLog.insertLogAndUpdateDetailWarna(log,barangLogList,loggedInUsers)
         }
     }
 

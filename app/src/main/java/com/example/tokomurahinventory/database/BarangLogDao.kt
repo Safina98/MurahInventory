@@ -5,9 +5,11 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import com.example.tokomurahinventory.models.BarangLog
 import com.example.tokomurahinventory.models.CountModel
+import com.example.tokomurahinventory.models.DetailWarnaTable
 import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.models.model.InputStokLogModel
 import java.util.Date
@@ -93,4 +95,80 @@ interface BarangLogDao {
         AND (:endDate IS NULL OR log_table.logDate <= :endDate AND log_table.logTipe =:tipe)
     """)
     fun getLogMasukByDateRange(startDate: Date?, endDate: Date?, tipe:String): List<InputStokLogModel>
+
+    @Query(" UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs-:detailWarnaPcs,lastEditedBy =:loggedInUsers WHERE warnaRef = :refWarna AND detailWarnaIsi = :detailWarnaIsi")
+    fun updateDetailWarna(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,loggedInUsers:String?): Int
+
+    @Insert
+    fun insert(logTable: LogTable)
+
+    @Transaction
+    suspend fun updateDetailAndDeleteBarangLog(
+        refWarna: String,
+        detailWarnaIsi: Double,
+        detailWarnaPcs: Int,
+        loggedInUsers: String?,
+        id: Int
+    ) {
+        updateDetailWarna(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers)
+        delete(id)
+    }
+
+    @Transaction
+    suspend fun updateBarangLogAndDetails(
+        refMerk: String,
+        warnaRef: String,
+        detailWarnaRef: String,
+        isi: Double,
+        pcs: Int,
+        barangLogDate: Date,
+        refLog: String,
+        barangLogRef: String,
+        detailWarnaUpdates: List<DetailWarnaTable>,
+        loggedInUsers: String?
+    ) {
+        updateByBarangLogRef(refMerk, warnaRef, detailWarnaRef, isi, pcs, barangLogDate, refLog, barangLogRef)
+        detailWarnaUpdates.forEach { update ->
+            updateDetailWarna(update.warnaRef, update.detailWarnaIsi, update.detailWarnaPcs, loggedInUsers)
+        }
+    }
+    @Transaction
+    suspend fun insertBarangLogAndUpdateDetailWarna(
+        barangLog: BarangLog,
+        refWarna: String,
+        detailWarnaIsi: Double,
+        detailWarnaPcs: Int,
+        loggedInUsers: String?
+    ) {
+        // Insert the BarangLog and get the generated ID (if needed)
+        val barangLogId = insert(barangLog)
+
+        // Update one entry in detail_warna_table
+        updateDetailWarna(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers)
+    }
+
+    @Transaction
+    suspend fun insertLogAndUpdateDetailWarna(
+        logTable: LogTable,
+        barangLogs: List<BarangLog>,
+        loggedInUsers: String?
+    ) {
+        // Insert the LogTable entry
+        insert(logTable)
+
+        // Insert BarangLog entries and update detail_warna_table
+        barangLogs.forEach { barangLog ->
+            // Insert BarangLog
+            insert(barangLog)
+
+            // Update detail_warna_table
+            updateDetailWarna(
+                barangLog.warnaRef,
+                barangLog.isi,
+                barangLog.pcs,
+                loggedInUsers
+            )
+        }
+    }
+
 }
