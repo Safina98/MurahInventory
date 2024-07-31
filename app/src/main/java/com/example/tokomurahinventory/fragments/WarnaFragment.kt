@@ -107,8 +107,19 @@ class WarnaFragment : AuthFragment() {
             }
         )
 
+
         binding.rvWarna.adapter = adapter
 
+        viewModel.isWarnaLoading.observe(viewLifecycleOwner) {
+            if(it==true){
+                binding.progressBarWarna.visibility = View.VISIBLE
+                binding.rvWarna.visibility = View.GONE
+            }else
+            {
+                binding.progressBarWarna.visibility = View.GONE
+                binding.rvWarna.visibility = View.VISIBLE
+            }
+        }
         viewModel.merk.observe(viewLifecycleOwner, Observer {
             Log.i("SplitFragmetProbs","merk ${it}")
         })

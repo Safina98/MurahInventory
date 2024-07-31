@@ -78,6 +78,16 @@ class InputStokFragment : AuthFragment() {
             }
         )
         binding.rvInputStokLog.adapter=adapter
+        viewModel.isInputLogLoading.observe(viewLifecycleOwner) {
+            if(it==true){
+                binding.progressBarInputLog.visibility = View.VISIBLE
+                binding.rvInputStokLog.visibility= View.GONE
+            }else
+            {
+                binding.progressBarInputLog.visibility = View.GONE
+                binding.rvInputStokLog.visibility= View.VISIBLE
+            }
+        }
         viewModel.inputLogModel.observe(viewLifecycleOwner, Observer {
             adapter.submitList(it.sortedByDescending { it.barangLogInsertedDate })
             adapter.notifyDataSetChanged()

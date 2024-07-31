@@ -55,7 +55,11 @@ class LogViewModel (
     private val _countModelList = MutableLiveData<List<CountModel>?>()
     val countModelList :LiveData<List<CountModel>?> get() = _countModelList
 
-   // val codeWarnaByMerk = SingleLiveEvent<List<String>>()
+    private val _isLogLoading = MutableLiveData<Boolean>(false)
+    val isLogLoading: LiveData<Boolean> get() = _isLogLoading
+
+
+    // val codeWarnaByMerk = SingleLiveEvent<List<String>>()
    // val isiByWarnaAndMerk = SingleLiveEvent<List<String>>()
 
     //Untuk Update Log
@@ -111,6 +115,7 @@ class LogViewModel (
     //get list merk
     fun getAllLogTable(){
         viewModelScope.launch {
+            _isLogLoading.value=true
             val startDate = Calendar.getInstance().apply {
                 set(Calendar.HOUR_OF_DAY, 0)
                 set(Calendar.MINUTE, 0)
@@ -130,6 +135,7 @@ class LogViewModel (
             }
             _allLog.value = list
             _unFilteredLog.value = list
+            _isLogLoading.value = false
         }
     }
     fun setStartDateRange(startDate: Date?){
@@ -183,11 +189,13 @@ class LogViewModel (
     //filter data from database by date
     private fun performDataFiltering(startDate: Date?, endDate: Date?) {
         viewModelScope.launch {
+            _isLogLoading.value = true
             val filteredData = withContext(Dispatchers.IO) {
                 dataSourceLog.getLogsByDateRange(startDate,endDate,MASUKKELUAR.KELUAR)
             }
             _allLog.value = filteredData
             _unFilteredLog.value = filteredData
+            _isLogLoading.value = false
         }
     }
     //get list merk for suggestion

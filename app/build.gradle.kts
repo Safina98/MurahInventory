@@ -110,5 +110,5 @@ dependencies {
 
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1") // Updated version
 
-
+    implementation("androidx.work:work-runtime:2.7.1")
 }

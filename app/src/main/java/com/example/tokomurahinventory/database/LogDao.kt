@@ -80,7 +80,8 @@ interface LogDao {
     fun getAllCombinedLogData(): List<CombinedLogData>
     @Query(" UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs-:detailWarnaPcs,lastEditedBy =:loggedInUsers WHERE warnaRef = :refWarna AND detailWarnaIsi = :detailWarnaIsi")
     fun updateDetailWarna(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,loggedInUsers:String?): Int
-
+    @Query("DELETE FROM log_table WHERE logDate < :date")
+    fun deleteLogsBefore(date: Date)
     @Transaction
     suspend fun deleteLogAndUpdateDetailWarna(
         log: LogTable,

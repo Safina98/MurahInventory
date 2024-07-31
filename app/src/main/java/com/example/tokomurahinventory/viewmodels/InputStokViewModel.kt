@@ -59,6 +59,9 @@ class InputStokViewModel (
     private val _isiByWarnaAndMerk = MutableLiveData<List<Double>?>()
     val isiByWarnaAndMerk: LiveData<List<Double>?> get() = _isiByWarnaAndMerk
 
+    private val _isInputLogLoading = MutableLiveData<Boolean>(false)
+    val isInputLogLoading: LiveData<Boolean> get() = _isInputLogLoading
+
 
     init {
         getAllInputLogModel()
@@ -67,6 +70,7 @@ class InputStokViewModel (
 
     fun getAllInputLogModel(){
         uiScope.launch {
+            _isInputLogLoading.value = true
             val startDate = Calendar.getInstance().apply {
                 set(Calendar.HOUR_OF_DAY, 0)
                 set(Calendar.MINUTE, 0)
@@ -88,6 +92,7 @@ class InputStokViewModel (
             Log.i("InsertLogTry","$list")
             _inputLogModel.value=list
             _unFilteredLog.value = list
+            _isInputLogLoading.value = false
         }
     }
     fun getWarnaByMerk(merk:String){
@@ -144,12 +149,14 @@ class InputStokViewModel (
     //filter data from database by date
     private fun performDataFiltering(startDate: Date?, endDate: Date?) {
         uiScope.launch {
+            _isInputLogLoading.value = true
             val filteredData = withContext(Dispatchers.IO) {
                dataSourceBarangLog.getLogMasukByDateRange(startDate,endDate,MASUKKELUAR.MASUK)
             }
             Log.i("InsertLogTry","$filteredData")
             _inputLogModel.value = filteredData
             _unFilteredLog.value = filteredData
+            _isInputLogLoading.value = false
         }
     }
     fun setStartDateRange(startDate: Date?){

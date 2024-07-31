@@ -112,6 +112,16 @@ class MerkFragment : AuthFragment() {
                 adapter.notifyDataSetChanged()
             }
         })
+       viewModel.isLoading.observe(viewLifecycleOwner) {
+           if(it==true){
+               binding.progressBarMerk.visibility = View.VISIBLE
+               binding.rvMerk.visibility = View.GONE
+           }else
+           {
+               binding.progressBarMerk.visibility = View.GONE
+               binding.rvMerk.visibility = View.VISIBLE
+           }
+       }
 
         binding.searchBarMerk.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {

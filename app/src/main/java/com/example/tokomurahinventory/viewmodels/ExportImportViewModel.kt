@@ -22,6 +22,7 @@ import com.example.tokomurahinventory.models.UsersTable
 import com.example.tokomurahinventory.models.WarnaTable
 import com.example.tokomurahinventory.models.model.CombinedDataModel
 import com.example.tokomurahinventory.models.model.CombinedLogData
+import com.example.tokomurahinventory.utils.DataGenerator
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -58,6 +59,8 @@ class ExportImportViewModel(
     private val _csvWriteComplete = MutableLiveData<Unit?>()
     val csvWriteComplete: LiveData<Unit?> get() = _csvWriteComplete
 
+    private val dataGenerator: DataGenerator = DataGenerator(dataSourceBarangLog,dataSourceDetailWarna,dataSourceLog,dataSourceMerk,dataSourceWarna)
+
     //TODO write vendible database
     //TODO write log and BarangLog database
     //TODO write inputLog  database
@@ -65,6 +68,22 @@ class ExportImportViewModel(
     init {
 
 
+    }
+
+    fun generateData() {
+        viewModelScope.launch {
+            _isLoading.value=true
+            try {
+
+                dataGenerator.populateMerk()
+
+                // Optionally handle successful data generation here
+            } catch (e: Exception) {
+                // Handle exceptions here
+                Log.i("GeneratingDummy","$e")
+            }
+        }
+        _isLoading.value=false
     }
     suspend fun getAllMerks(): List<MerkTable> {
         return withContext(Dispatchers.IO){

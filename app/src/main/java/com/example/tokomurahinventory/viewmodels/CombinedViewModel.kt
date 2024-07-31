@@ -99,6 +99,16 @@ class CombinedViewModel(
     val _orientationMode = MutableLiveData<Int>()
     val orientationMode:LiveData<Int> get() =  _orientationMode
 
+    private val _isLoading = MutableLiveData<Boolean>(false)
+    val isLoading: LiveData<Boolean>
+        get() = _isLoading
+    private val _isWarnaLoading = MutableLiveData<Boolean>(false)
+    val isWarnaLoading: LiveData<Boolean> get() = _isWarnaLoading
+
+    private val _isDetailWarnaLoading = MutableLiveData<Boolean>(false)
+    val isDetailWarnaLoading: LiveData<Boolean> get() = _isWarnaLoading
+
+
     init {
         if (_refMerk.value != null) {
             getWarnaByMerk(_refMerk.value)
@@ -119,21 +129,25 @@ class CombinedViewModel(
     }
     fun getDetailWarnaByWarnaRef(warnaRef: String){
         viewModelScope.launch {
+            _isDetailWarnaLoading.value = true
           val  list = withContext(Dispatchers.IO){
                 dataSourceDetailWarna.getDetailWarnaSummaryList(warnaRef)
             }
             _detailWarnaList.value = list
+            _isDetailWarnaLoading.value = false
            // Log.i("SplitFragmetProbs","allWarnaDetailWarna ${list}")
         }
     }
     // Merk functions
     fun getAllMerkTable() {
         viewModelScope.launch {
+            _isLoading.value = true
             val list = withContext(Dispatchers.IO) {
                 merkDao.selectAllMerkList()
             }
             _allMerkTable.value = list
             _unFilteredMerk.value = list
+            _isLoading.value = false
         }
     }
 
@@ -222,6 +236,7 @@ class CombinedViewModel(
     // Warna functions
     fun getWarnaByMerk(refMerk: String?) {
         viewModelScope.launch {
+            _isWarnaLoading.value = true
             if (_refMerk.value!=null){
                 Log.i("WarnaProbs","")
                 val list = withContext(Dispatchers.IO) {
@@ -235,7 +250,9 @@ class CombinedViewModel(
                 _allWarnaByMerk.value = list
                 _unFilteredWarna.value = list
                 Log.i("WarnaProbs","allWarnaByMerk ${list}")
+
             }
+            _isWarnaLoading.value = false
         }
     }
     fun getStringWarna(warnaRef:String){

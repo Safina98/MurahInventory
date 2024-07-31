@@ -88,6 +88,17 @@ class DetailWarnaFragment : AuthFragment() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
+        viewModel.isDetailWarnaLoading.observe(viewLifecycleOwner) {
+            if(it==true){
+                binding.progressBarDetail.visibility = View.VISIBLE
+                binding.rvDetailWarna.visibility = View.GONE
+            }else
+            {
+                binding.progressBarDetail.visibility = View.GONE
+                binding.rvDetailWarna.visibility = View.VISIBLE
+            }
+        }
+
 
         val adapter=DetailWarnaAdapter(
             DetailWarnaClickListener {

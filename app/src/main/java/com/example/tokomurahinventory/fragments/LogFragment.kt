@@ -65,6 +65,16 @@ class LogFragment : AuthFragment(){
             }
         )
         binding.rvLog.adapter = adapter
+        viewModel.isLogLoading.observe(viewLifecycleOwner) {
+            if(it==true){
+                binding.progressBarLog.visibility = View.VISIBLE
+                binding.rvLog.visibility = View.GONE
+            }else
+            {
+                binding.progressBarLog.visibility = View.GONE
+                binding.rvLog.visibility = View.VISIBLE
+            }
+        }
 
         //adapter.submitList(viewModel.logDummy)
         viewModel.allLog.observe(viewLifecycleOwner, Observer {

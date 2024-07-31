@@ -2,8 +2,11 @@ package com.example.tokomurahinventory.fragments
 
 import android.Manifest
 import android.app.Activity
+import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -35,7 +38,10 @@ import com.example.tokomurahinventory.viewmodels.MerkViewModelFactory
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.IOException
+import java.io.InputStream
 import java.lang.Exception
+import java.sql.SQLException
 
 
 class ExportImportFragment : AuthFragment() {
@@ -132,7 +138,9 @@ class ExportImportFragment : AuthFragment() {
         }
         binding.btnImportMerk.setOnClickListener {
             importCSVStock()
+            //viewModel.generateData()
         }
+
 
         return binding.root
     }
@@ -143,6 +151,56 @@ class ExportImportFragment : AuthFragment() {
         catch (e: FileNotFoundException) {
             Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show() }
     }
+    private fun importDatabase() {
+        val fileIntent = Intent(Intent.ACTION_GET_CONTENT).apply {
+            type = "application/octet-stream" // Use appropriate MIME type for your database file
+        }
+        try {
+            resultLauncherDB.launch(fileIntent.type)
+        } catch (e: Exception) {
+            Toast.makeText(context, "Error selecting file: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val resultLauncherDB = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            //importDatabaseFromUri(it)
+        }
+    }
+
+
+    private fun importDatabaseFromUriOld(uri: Uri) {
+        val contentResolver = requireContext().contentResolver
+        val inputStream: InputStream? = contentResolver.openInputStream(uri)
+        val databaseFile = File(context?.getDatabasePath("inventory_table.db")!!.absolutePath)
+        val tempFile = File.createTempFile("temp_db", ".db", requireContext().cacheDir)
+
+        try {
+            inputStream?.use { input ->
+                tempFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            Log.i("DatabaseImport", "Temporary file created at ${tempFile.absolutePath}")
+
+            // Replace the old database file with the imported one
+            if (databaseFile.exists()) {
+                databaseFile.delete() // Delete old database file if it exists
+                Log.i("DatabaseImport", "Old database file deleted")
+            }
+            tempFile.copyTo(databaseFile) // Copy new file to the correct location
+            tempFile.delete() // Delete temporary file
+            Log.i("DatabaseImport", "Database file replaced at ${databaseFile.absolutePath}")
+
+            Toast.makeText(context, "Database imported successfully", Toast.LENGTH_SHORT).show()
+        } catch (e: IOException) {
+            Log.e("DatabaseImportError", "Error importing database: ${e.message}")
+            Toast.makeText(context, "Error importing database: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+
     private fun checkPermission(): Boolean {
         // checking of permissions.
         val permission1 = ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -180,6 +238,47 @@ class ExportImportFragment : AuthFragment() {
 
         })
     }
+    private fun exportDatabase(fileName: String) {
+        val databaseFile = context?.getDatabasePath("inventory_table") ?: return
+        val destinationFile = File(context?.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "$fileName.db")
+
+        // Copy the database file to the destination
+        try {
+            databaseFile.inputStream().use { input ->
+                destinationFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+        } catch (e: IOException) {
+            Log.e("FileCopyError", "Error copying database file", e)
+            return
+        }
+
+        // Share the database file
+        val fileUri: Uri = FileProvider.getUriForFile(
+            this.requireContext(),
+            "${requireContext().applicationContext.packageName}.provider",
+            destinationFile
+        )
+
+        val shareIntent: Intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_STREAM, fileUri)
+            type = "application/octet-stream"
+        }
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        try {
+            startActivity(Intent.createChooser(shareIntent, "Share database file"))
+        } catch (e: Exception) {
+            Log.e("ShareError", "Error sharing database file", e)
+        }
+    }
+
+    fun getDatabaseFile(context: Context): File {
+        val databasePath = context.getDatabasePath("inventory_table").absolutePath
+        return File(databasePath)
+    }
+
 
 
 }

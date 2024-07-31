@@ -86,6 +86,8 @@ class InputLogFragment : AuthFragment() {
 
 
         binding.rvAddBarang.adapter = adapter
+
+
         viewModel.countModelList.observe(viewLifecycleOwner) { it?.let {
             adapter.submitList(it)
             adapter.notifyDataSetChanged()

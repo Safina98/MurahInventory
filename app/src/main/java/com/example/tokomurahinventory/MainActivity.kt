@@ -24,11 +24,15 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
+import androidx.work.WorkManager
 import com.example.tokomurahinventory.databinding.ActivityMainBinding
 import com.example.tokomurahinventory.fragments.ParentFragment
 import com.example.tokomurahinventory.utils.AppLifecycleObserver
+import com.example.tokomurahinventory.utils.CleanupWorker
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.AuthViewModel
+import java.util.concurrent.TimeUnit
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -56,6 +60,7 @@ class MainActivity : AppCompatActivity() {
 
         appLifecycleObserver = AppLifecycleObserver(this)
         ProcessLifecycleOwner.get().lifecycle.addObserver(appLifecycleObserver)
+
         // Check if the table is empty and insert a default user if needed
         authViewModel.checkAndInsertDefaultUser(applicationContext)
         checkAuthentication()
@@ -187,6 +192,5 @@ class MainActivity : AppCompatActivity() {
     fun resetOrientation() {
         requestedOrientation = originalOrientation
     }
-
-
+    
 }
