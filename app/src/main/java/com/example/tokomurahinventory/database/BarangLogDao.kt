@@ -99,9 +99,20 @@ interface BarangLogDao {
 
     @Query(" UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs-:detailWarnaPcs,lastEditedBy =:loggedInUsers WHERE warnaRef = :refWarna AND detailWarnaIsi = :detailWarnaIsi")
     fun updateDetailWarna(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,loggedInUsers:String?): Int
-
+    @Insert
+    fun insert(detailWarnaTable: DetailWarnaTable)
     @Insert
     fun insert(logTable: LogTable)
+    @Query("""
+        UPDATE detail_warna_table 
+        SET detailWarnaPcs = detailWarnaPcs + :detailWarnaPcs, 
+            lastEditedBy = :lastEditedBy, 
+            detailWarnaLastEditedDate = :lastEditedDate 
+        WHERE warnaRef = :refWarna 
+        AND detailWarnaIsi = :detailWarnaIsi
+    """)
+    fun updateDetailWarnaA(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,lastEditedBy:String?,lastEditedDate:Date): Int
+
 
     @Transaction
     suspend fun updateDetailAndDeleteBarangLog(
@@ -202,6 +213,34 @@ interface BarangLogDao {
         updateDetailWarna(newBarangLog.warnaRef, newBarangLog.isi, -newBarangLog.pcs, loggedInUsers)
     }
 
-
-
+    @Transaction
+    suspend fun performUpdateDetailWarnaAndInsertLogAndBarangLogFromDetailWarna(
+        refWarna: String,
+        detailWarnaIsi: Double,
+        detailWarnaPcs: Int,
+        lastEditedBy: String?,
+        lastEditedDate: Date,
+        log: LogTable,
+        barangLog: BarangLog
+    ) {
+        // Update the detail_warna_table
+        updateDetailWarnaA(refWarna, detailWarnaIsi, detailWarnaPcs, lastEditedBy, lastEditedDate)
+        // Insert into LogTable
+        insert(log)
+        // Insert into BarangLog and get the new ID
+        insert(barangLog)
+    }
+    @Transaction
+    suspend fun insertDetailWarnaAndLogAndBarangLogFromDetailWarna(
+        detailWarnaTable: DetailWarnaTable,
+        log: LogTable,
+        barangLog: BarangLog
+    ) {
+        // Update the detail_warna_table
+        insert(detailWarnaTable)
+        // Insert into LogTable
+        insert(log)
+        // Insert into BarangLog and get the new ID
+        insert(barangLog)
+    }
 }
