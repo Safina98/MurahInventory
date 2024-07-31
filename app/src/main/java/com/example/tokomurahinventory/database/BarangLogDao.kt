@@ -70,8 +70,10 @@ interface BarangLogDao {
             warna_table ON barang_log.warnaRef = warna_table.warnaRef
         WHERE 
         barangLogTipe =:tipe
+        AND (:startDate IS NULL OR log_table.logDate >= :startDate)
+        AND (:endDate IS NULL OR log_table.logDate <= :endDate)
     """)
-    fun getAllLogMasuk(tipe:String): List<InputStokLogModel>
+    fun getAllLogMasuk(tipe:String,startDate: Date?, endDate: Date?): List<InputStokLogModel>
 
     @Query("""
          SELECT 

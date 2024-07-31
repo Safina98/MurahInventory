@@ -21,6 +21,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
@@ -36,7 +37,6 @@ class InputStokViewModel (
     private var viewModelJob = Job()
     //ui scope for coroutines
     private val uiScope = CoroutineScope(Dispatchers.Main +  viewModelJob)
-
     //show or hide start date picker dialog
     private var _isStartDatePickerClicked = MutableLiveData<Boolean>()
     val isStartDatePickerClicked :LiveData<Boolean>get() = _isStartDatePickerClicked
@@ -67,10 +67,25 @@ class InputStokViewModel (
 
     fun getAllInputLogModel(){
         uiScope.launch {
+            val startDate = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }.time
+
+            // Set to the end of the day
+            val endDate = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, 23)
+                set(Calendar.MINUTE, 59)
+                set(Calendar.SECOND, 59)
+                set(Calendar.MILLISECOND, 999)
+            }.time
+
             var list = withContext(Dispatchers.IO){
-                dataSourceBarangLog.getAllLogMasuk(MASUKKELUAR.MASUK)
+                dataSourceBarangLog.getAllLogMasuk(MASUKKELUAR.MASUK,startDate,endDate)
             }
-           // Log.i("InsertLogTry","$list")
+            Log.i("InsertLogTry","$list")
             _inputLogModel.value=list
             _unFilteredLog.value = list
         }
@@ -132,6 +147,7 @@ class InputStokViewModel (
             val filteredData = withContext(Dispatchers.IO) {
                dataSourceBarangLog.getLogMasukByDateRange(startDate,endDate,MASUKKELUAR.MASUK)
             }
+            Log.i("InsertLogTry","$filteredData")
             _inputLogModel.value = filteredData
             _unFilteredLog.value = filteredData
         }
@@ -230,29 +246,14 @@ class InputStokViewModel (
     }
     fun updateDetailWarna(newBarangLog: BarangLog,oldBarangLog:BarangLog?) {
         uiScope.launch {
-            Log.i("InsertLogTry", "PCs ${newBarangLog.pcs}")
-            Log.i("InsertLogTry", "Update Detail Warna called")
-            Log.i("InsertLogTry", "PCs ${newBarangLog.barangLogRef}")
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
-            Log.i("InsertLogTry", "Logged in user: $loggedInUsers")
             var selisihPcs = 0
             val detailWarnaUpdates = mutableListOf<DetailWarnaTable>()
             try {
                 // Fetch the old record from the database
-                Log.i("InsertLogTry", "Old log barang isi=${oldBarangLog!!.isi}, New log barang isi=${newBarangLog.isi}")
                 if (oldBarangLog != null) {
-                    Log.i("InsertLogTry", "Old barang log found")
-                    Log.i("InsertLogTry", "Old log barang ref=${oldBarangLog.warnaRef}, New log barang ref=${newBarangLog.warnaRef}")
-                    Log.i("InsertLogTry", "PCs ${newBarangLog.pcs}")
-                    Log.i("InsertLogTry", "PCs ${newBarangLog.barangLogRef}")
                     if (oldBarangLog.warnaRef == newBarangLog.warnaRef) {
-                        Log.i("InsertLogTry", "Ref matches")
-                        Log.i("InsertLogTry", "PCs ${newBarangLog.pcs}")
-                        Log.i("InsertLogTry", "PCs ${newBarangLog.barangLogRef}")
                         if (oldBarangLog.isi == newBarangLog.isi) {
-                            Log.i("InsertLogTry", "PCs ${newBarangLog.pcs}")
-                            Log.i("InsertLogTry", "Isi matches")
-                            Log.i("InsertLogTry", "PCs ${newBarangLog.barangLogRef}")
                             selisihPcs = newBarangLog.pcs - oldBarangLog.pcs
                             Log.i("InsertLogTry", "Difference in pcs: $selisihPcs")
                             detailWarnaUpdates.add(
@@ -265,9 +266,6 @@ class InputStokViewModel (
                             //updateBarangLogToDao(newBarangLog)
                             //updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, -selisihPcs, loggedInUsers)
                         } else {
-                            Log.i("InsertLogTry", "PCs ${newBarangLog.pcs}")
-                            Log.i("InsertLogTry", "Isi does not match")
-                            Log.i("InsertLogTry", "PCs ${newBarangLog.barangLogRef}")
                             // Update old log
                             detailWarnaUpdates.add(
                                 DetailWarnaTable(
@@ -290,9 +288,6 @@ class InputStokViewModel (
                             //updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, -newBarangLog.pcs, loggedInUsers)
                         }
                     } else {
-                        Log.i("InsertLogTry", "PCs ${newBarangLog.pcs}")
-                        Log.i("InsertLogTry", "Ref does not match")
-                        Log.i("InsertLogTry", "PCs ${newBarangLog.barangLogRef}")
                         // Update old log
                         selisihPcs = oldBarangLog.pcs
                         //updateBarangLogToDao(newBarangLog)
@@ -315,9 +310,6 @@ class InputStokViewModel (
                         )
                     }
                 } else {
-                    Log.i("InsertLogTry", "PCs ${newBarangLog.pcs}")
-                    Log.e("InsertLogTry", "Old barang log not found")
-                    Log.i("InsertLogTry", "PCs ${newBarangLog.barangLogRef}")
                     detailWarnaUpdates.add(
                         DetailWarnaTable(
                             warnaRef = newBarangLog.warnaRef,
