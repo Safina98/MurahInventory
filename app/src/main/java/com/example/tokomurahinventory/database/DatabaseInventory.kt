@@ -1,16 +1,19 @@
 package com.example.tokomurahinventory.database
 
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase
+import android.os.Build
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.example.tokomurahinventory.models.DetailWarnaTable
-import com.example.tokomurahinventory.models.MerkTable
-import com.example.tokomurahinventory.models.WarnaTable
 import com.example.tokomurahinventory.models.BarangLog
+import com.example.tokomurahinventory.models.DetailWarnaTable
 import com.example.tokomurahinventory.models.LogTable
+import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.models.UsersTable
+import com.example.tokomurahinventory.models.WarnaTable
+
 
 @Database(entities = [MerkTable::class,WarnaTable::class,DetailWarnaTable::class,UsersTable::class,LogTable::class,BarangLog::class],version=1, exportSchema = true)
 @TypeConverters(Converters::class)
@@ -22,7 +25,9 @@ abstract class DatabaseInventory: RoomDatabase()  {
     abstract val logDao:LogDao
     abstract val barangLogDao:BarangLogDao
 
+
     companion object{
+
         @Volatile
         private var INSTANCE: DatabaseInventory?=null
         fun getInstance(context: Context):DatabaseInventory{
@@ -32,7 +37,7 @@ abstract class DatabaseInventory: RoomDatabase()  {
                     instance = Room.databaseBuilder(
                         context.applicationContext,
                         DatabaseInventory::class.java,
-                        "inventory_table"
+                        "inventory_table.db"
                     ).fallbackToDestructiveMigration()
                         .build()
                     INSTANCE = instance

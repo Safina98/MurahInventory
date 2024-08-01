@@ -51,6 +51,14 @@
             app:layout_constraintTop_toBottomOf="@id/btn_export_users" />
         <TextView
             style="@style/rv_input_Log_big_text_style"
+            android:id="@+id/btn_export_database"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Export Database"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_export_log" />
+        <TextView
+            style="@style/rv_input_Log_big_text_style"
             android:id="@+id/label_progres"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -79,7 +87,7 @@
             android:text="Import Data"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btn_export_log" />
+            app:layout_constraintTop_toBottomOf="@id/btn_export_database" />
 
         <TextView
             style="@style/rv_input_Log_big_text_style"
@@ -94,8 +102,7 @@
             android:id="@+id/btn_import_merk_new"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Import Merk Baru"
-            android:visibility="gone"
+            android:text="Import Database"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btn_import_merk" />
 

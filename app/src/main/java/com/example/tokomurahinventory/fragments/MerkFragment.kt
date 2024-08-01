@@ -78,7 +78,6 @@ class MerkFragment : AuthFragment() {
        binding.lifecycleOwner = viewLifecycleOwner
         val adapter  = MerkAdapter(
             MerkClickListener {
-
                 viewModel.setRefMerk(it.refMerk)
                 viewModel.getWarnaByMerk(it.refMerk)
                 viewModel.getStringMerk(it.refMerk)

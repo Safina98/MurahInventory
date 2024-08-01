@@ -103,6 +103,7 @@ class DetailWarnaFragment : AuthFragment() {
         val adapter=DetailWarnaAdapter(
             DetailWarnaClickListener {
                 //viewModel.onNavigateToDetailWarna(it.warnaRef)
+
             },
             DetailWarnaLongListener {
                 // Handle item long click

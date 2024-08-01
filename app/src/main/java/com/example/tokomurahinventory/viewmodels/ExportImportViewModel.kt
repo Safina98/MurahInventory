@@ -72,11 +72,11 @@ class ExportImportViewModel(
 
     fun generateData() {
         viewModelScope.launch {
-            _isLoading.value=true
+
             try {
-
-                dataGenerator.populateMerk()
-
+                //dataGenerator.populateMerk()
+                _isLoading.value=true
+                dataGenerator.populateLog()
                 // Optionally handle successful data generation here
             } catch (e: Exception) {
                 // Handle exceptions here
