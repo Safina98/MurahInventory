@@ -76,6 +76,32 @@ interface BarangLogDao {
     fun getAllLogMasuk(tipe:String,startDate: Date?, endDate: Date?): List<InputStokLogModel>
 
     @Query("""
+        SELECT 
+            barang_log.id,
+            merk_table.namaMerk,
+            warna_table.kodeWarna,
+            warna_table.satuan,
+            barang_log.pcs,
+            barang_log.isi,
+            log_table.logDate AS barangLogInsertedDate,
+            log_table.createdBy,
+            barang_log.barangLogRef AS inputBarangLogRef
+        FROM 
+            barang_log
+        JOIN 
+            log_table ON barang_log.refLog = log_table.refLog
+        JOIN 
+            merk_table ON barang_log.refMerk = merk_table.refMerk
+        JOIN 
+            warna_table ON barang_log.warnaRef = warna_table.warnaRef
+        WHERE 
+        barangLogTipe =:tipe
+        AND (:startDate IS NULL OR log_table.logDate >= :startDate)
+        AND (:endDate IS NULL OR log_table.logDate <= :endDate)
+    """)
+    fun getAllLogMasukLiveData(tipe:String,startDate: Date?, endDate: Date?): LiveData<List<InputStokLogModel>>
+
+    @Query("""
          SELECT 
             barang_log.id,
             merk_table.namaMerk,

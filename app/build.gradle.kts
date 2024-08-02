@@ -69,10 +69,10 @@ dependencies {
     //hash password
     implementation("org.mindrot:jbcrypt:0.4")
 
-    implementation("androidx.core:core-ktx:1.3.1")
-    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.2.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
     //implementation("androidx.activity:activity-compose:1.9.0")
     //implementation(platform("androidx.compose:compose-bom:2023.03.00"))
     //implementation("androidx.compose.ui:ui")
@@ -88,27 +88,27 @@ dependencies {
     //debugImplementation("androidx.compose.ui:ui-test-manifest")
 
     // Navigation
-    implementation("androidx.navigation:navigation-fragment-ktx:2.5.0")
-    implementation("androidx.navigation:navigation-ui-ktx:2.5.0")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
 
     // Room
-    implementation("androidx.room:room-runtime:$roomVersion")
-    kapt("androidx.room:room-compiler:$roomVersion")
+    implementation("androidx.room:room-runtime:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
 
     //Coroutine
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutineVersion")
-    implementation("androidx.room:room-ktx:2.4.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("androidx.room:room-ktx:2.6.1")
 
     // Legacy support and Lifecycle Extensions
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.lifecycle:lifecycle-extensions:$lifecycleExtensionsVersion")
 
     // Nav drawer
-    implementation("androidx.drawerlayout:drawerlayout:1.1.1")
-    implementation("com.google.android.material:material:1.9.0") // Updated version
+    implementation("androidx.drawerlayout:drawerlayout:1.2.0")
+    implementation("com.google.android.material:material:1.12.0") // Updated version
 
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1") // Updated version
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.4") // Updated version
 
-    implementation("androidx.work:work-runtime:2.7.1")
+    implementation("androidx.work:work-runtime:2.9.0")
 }

@@ -81,7 +81,7 @@ class ExportImportFragment : AuthFragment() {
 
         val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?: ""
         val viewModelFactory = ExportImportViewModelFactory(dataSourceMerk,dataSourceWarna,dataSourceDetailWarna,dataSourceLog,dataSourcebarangLog,dataSourceUsers,loggedInUser,application)
-        binding.lifecycleOwner =this
+        binding.lifecycleOwner = viewLifecycleOwner
         viewModel = ViewModelProvider(this,viewModelFactory)
             .get(ExportImportViewModel::class.java)
         if (checkPermission()) {
@@ -93,6 +93,7 @@ class ExportImportFragment : AuthFragment() {
 
         viewModel.isLoading.observe(viewLifecycleOwner) {
             //viewModel.updateRv4()
+            Log.i("ViewModel", "isLoading $it")
             if (it==true){
                 binding.progressBar.visibility = View.VISIBLE
                 binding.labelProgres.visibility = View.VISIBLE
@@ -125,12 +126,11 @@ class ExportImportFragment : AuthFragment() {
         binding.btnExportLog.setOnClickListener {
             exportStockCSV("Daftar Log Toko Murah","LOG")
         }
-        binding.btnExportLog.setOnClickListener {
-            exportDatabase("Daftar Log Toko Murah")
-        }
+
         binding.btnImportMerk.setOnClickListener {
             importCSVStock()
-           // viewModel.generateData()
+            //viewModel.generateData()
+            //viewModel.tryDeleteLog()
         }
         binding.btnExportDatabase.setOnClickListener {
             shareDatabaseBackup(requireContext())
@@ -192,7 +192,6 @@ class ExportImportFragment : AuthFragment() {
         val fileIntent = Intent(Intent.ACTION_GET_CONTENT).apply {
             type = "application/zip"
         }
-
         try {
             resultLauncherNew.launch(fileIntent.type)
         } catch (e: FileNotFoundException) {
@@ -242,31 +241,7 @@ class ExportImportFragment : AuthFragment() {
         Log.i("ZipDB", "Files extracted successfully")
         Toast.makeText(requireContext(), "Files extracted successfully", Toast.LENGTH_SHORT).show()
     }
-    fun extractAndReplaceDatabase(zipFile: File) {
-        val context = requireContext() // Ensure to use the correct context
-        val dbDir = context.getDatabasePath("inventory_table.db").parentFile
-        val dbName = "inventory_table.db" // Update if the name is different
 
-        try {
-            val zipInputStream = ZipInputStream(FileInputStream(zipFile))
-            var zipEntry: ZipEntry?
-
-            while (zipInputStream.nextEntry.also { zipEntry = it } != null) {
-                if (zipEntry?.name?.endsWith(".db") == true) {
-                    val outputFile = File(dbDir, dbName)
-                    outputFile.outputStream().use { output ->
-                        zipInputStream.copyTo(output)
-                    }
-                    Log.i("ZipDB", "Successfully extracted and replaced database file: ${outputFile.absolutePath}")
-                }
-            }
-            zipInputStream.closeEntry()
-            zipInputStream.close()
-            reinitializeRoom(requireContext(),"/data/data/com.example.tokomurahinventory/databases/inventory_table.db")
-        } catch (e: IOException) {
-            Log.e("ZipDB", "Error extracting database from zip file", e)
-        }
-    }
 
     private fun readFileFromUri(context: Context, uri: Uri): File? {
         return try {
@@ -290,244 +265,6 @@ class ExportImportFragment : AuthFragment() {
             null
         }
     }
-    fun replaceDatabase(context: Context, newDatabaseFilePath: String) {
-        val databaseName = "inventory_table.db"
-        val dbPath = context.getDatabasePath(databaseName).absolutePath
-        val walPath = "$dbPath-wal"
-        val shmPath = "$dbPath-shm"
-
-        // Step 1: Delete existing database and associated files
-        deleteFileSafely(dbPath)
-        deleteFileSafely(walPath)
-        deleteFileSafely(shmPath)
-
-        // Step 2: Copy the new database file to the database path
-        try {
-            val newDatabaseFile = File(newDatabaseFilePath)
-            val destinationFile = File(dbPath)
-            copyFile(newDatabaseFile, destinationFile)
-            reinitializeRoom(requireContext(),destinationFile.absolutePath)
-        } catch (e: IOException) {
-            Log.e(TAG, "Error copying new database file: ${e.localizedMessage}", e)
-        }
-    }
-
-    private fun deleteFileSafely(filePath: String) {
-        val file = File(filePath)
-        if (file.exists()) {
-            if (file.delete()) {
-                Log.i(TAG, "Deleted: $filePath")
-            } else {
-                Log.e(TAG, "Failed to delete: $filePath")
-            }
-        }
-    }
-
-    private fun copyFile(sourceFile: File, destinationFile: File) {
-        FileInputStream(sourceFile).use { input ->
-            FileOutputStream(destinationFile).use { output ->
-                input.copyTo(output)
-            }
-        }
-    }
-
-
-    fun replaceDatabaseFiles(context: Context, extractedFiles: List<File>) {
-        Log.i("ZipDB","replace database called")
-        val dbPath = context.getDatabasePath("inventory_table.db").absolutePath
-        Log.i("ZipDB","dbPath: ${dbPath}")
-        val walPath = "$dbPath-wal"
-        Log.i("ZipDB","walPath: ${walPath}")
-        val shmPath = "$dbPath-shm"
-        Log.i("ZipDB","shmPath: ${shmPath}")
-        //val dbshm: File = File(dbfile.getPath() + "-shm")
-        //val dbwal: File = File(dbfile.getPath() + "-wal")
-       // deleteWalAndShmFiles(requireContext())
-        // Define old and new paths
-
-        val fileMap = mapOf(
-            "$dbPath" to extractedFiles.find { it.name == "inventory_table.db" },
-            walPath to extractedFiles.find { it.name.endsWith("-wal") },
-            shmPath to extractedFiles.find { it.name.endsWith("-shm") }
-        )
-
-        // Replace the old database files with the new ones
-        fileMap.forEach { (oldPath, newFile) ->
-            newFile?.let {
-                File(oldPath).delete() // Remove old file if it exists
-                deleteWalAndShmFiles(requireContext(),"inventory_table.db")
-                it.renameTo(File(oldPath)) // Rename new file to old file's path
-            }
-        }
-
-        reinitializeRoom(requireContext(),dbPath)
-        Log.i("ZipDB","replace database done")
-    }
-    fun reinitializeRoom(context: Context, newDatabaseFilePath: String) {
-        context.deleteDatabase("inventory_table.db") // Delete the existing database
-
-        val newDatabaseFile = File(newDatabaseFilePath)
-
-        val db = Room.databaseBuilder(
-            context.applicationContext,
-            DatabaseInventory::class.java,
-            "inventory_table.db"
-        )
-            .createFromFile(newDatabaseFile)
-            .build()
-
-        // Optionally, access DAO or perform database operations
-    }
-
-    fun importDatabase(context: Context, zipFile: File) {
-        val extractDir = File(context.filesDir, "inventory_table.db")
-        extractDir.mkdirs()
-
-        // Extract ZIP file
-        extractZipFile(context, zipFile, extractDir)
-
-        // Find the extracted database file
-        val extractedDatabaseFile = File(extractDir, "inventory_table.db") // Replace with your actual database file name
-
-        // Define the destination file path
-        val destinationFile = context.getDatabasePath("inventory_table.db") // Use the same name as your Room database
-
-        // Copy database file to the Room database path
-        copyDatabaseFile(context, extractedDatabaseFile, destinationFile)
-        reinitializeRoom(requireContext(),destinationFile.absolutePath)
-        // Optionally, delete the extracted files if no longer needed
-        extractedDatabaseFile.delete()
-        extractDir.deleteRecursively()
-
-    }
-    fun copyDatabaseFile(context: Context, sourceFile: File, destinationFile: File) {
-        sourceFile.inputStream().use { inputStream ->
-            destinationFile.outputStream().use { outputStream ->
-                inputStream.copyTo(outputStream)
-            }
-        }
-    }
-    fun extractZipFile(context: Context, zipFile: File, extractTo: File) {
-        ZipInputStream(FileInputStream(zipFile)).use { zipInput ->
-            var entry: ZipEntry? = zipInput.nextEntry
-            while (entry != null) {
-                val file = File(extractTo, entry.name)
-                if (entry.isDirectory) {
-                    file.mkdirs()
-                } else {
-                    file.parentFile?.mkdirs()
-                    file.outputStream().use { output ->
-                        zipInput.copyTo(output)
-                    }
-                }
-                zipInput.closeEntry()
-                entry = zipInput.nextEntry
-            }
-        }
-    }
-    fun deleteDatabaseAndFiles(context: Context, databaseName: String) {
-        // Get the database path
-        val dbPath = context.getDatabasePath(databaseName).absolutePath
-
-        // Create File objects for the database, -wal, and -shm files
-        val dbFile = File(dbPath)
-        val walFile = File("$dbPath-wal")
-        val shmFile = File("$dbPath-shm")
-
-        // Delete the database file if it exists
-        if (dbFile.exists()) {
-            if (dbFile.delete()) {
-                Log.i("ZipDB ", "Successfully deleted database file: ${dbFile.absolutePath}")
-            } else {
-                Log.e("ZipDB", "Failed to delete database file: ${dbFile.absolutePath}")
-            }
-        } else {
-            Log.i("ZipDB ", "Database file does not exist: ${dbFile.absolutePath}")
-        }
-
-        // Delete the -wal file if it exists
-        if (walFile.exists()) {
-            if (walFile.delete()) {
-                Log.i("ZipDB ", "Successfully deleted -wal file: ${walFile.absolutePath}")
-            } else {
-                Log.e("ZipDB", "Failed to delete -wal file: ${walFile.absolutePath}")
-            }
-        } else {
-            Log.i("DeleteFiles", "-wal file does not exist: ${walFile.absolutePath}")
-        }
-
-        // Delete the -shm file if it exists
-        if (shmFile.exists()) {
-            if (shmFile.delete()) {
-                Log.i("ZipDB", "Successfully deleted -shm file: ${shmFile.absolutePath}")
-            } else {
-                Log.e("ZipDB", "Failed to delete -shm file: ${shmFile.absolutePath}")
-            }
-        } else {
-            Log.i("ZipDB", "-shm file does not exist: ${shmFile.absolutePath}")
-        }
-    }
-
-
-    fun deleteWalAndShmFiles(context: Context, databaseName: String) {
-        // Get the database path
-        val dbPath = context.getDatabasePath(databaseName).absolutePath
-
-        // Create File objects for the -wal and -shm files
-        val walFile = File("$dbPath-wal")
-        val shmFile = File("$dbPath-shm")
-
-        // Delete the -wal file if it exists
-        if (walFile.exists()) {
-            if (walFile.delete()) {
-                Log.i("DeleteFiles", "Successfully deleted -wal file: ${walFile.absolutePath}")
-            } else {
-                Log.e("DeleteFiles", "Failed to delete -wal file: ${walFile.absolutePath}")
-            }
-        } else {
-            Log.i("DeleteFiles", "-wal file does not exist: ${walFile.absolutePath}")
-        }
-
-        // Delete the -shm file if it exists
-        if (shmFile.exists()) {
-            if (shmFile.delete()) {
-                Log.i("DeleteFiles", "Successfully deleted -shm file: ${shmFile.absolutePath}")
-            } else {
-                Log.e("DeleteFiles", "Failed to delete -shm file: ${shmFile.absolutePath}")
-            }
-        } else {
-            Log.i("DeleteFiles", "-shm file does not exist: ${shmFile.absolutePath}")
-        }
-    }
-    private fun extractZipFile(context: Context, zipFile: File): List<File> {
-        Log.i("ZipDB","extracted file started")
-        val extractedFiles = mutableListOf<File>()
-        try {
-            ZipInputStream(FileInputStream(zipFile)).use { zipInputStream ->
-                var zipEntry: ZipEntry?
-                while (zipInputStream.nextEntry.also { zipEntry = it } != null) {
-                    val extractedFile = File(context.getDatabasePath("inventory_table.db").parentFile, zipEntry!!.name)
-                    Log.i("ZipDB","extractedFile name: ${extractedFile.name}")
-                    extractedFiles.add(extractedFile)
-
-                    // Create directories if necessary
-                    extractedFile.parentFile?.mkdirs()
-
-
-                    // Write the zip entry to the file
-                    FileOutputStream(extractedFile).use { fos ->
-                        zipInputStream.copyTo(fos)
-                    }
-                    zipInputStream.closeEntry()
-                }
-            }
-        } catch (e: IOException) {
-            Log.e("ZipDB", "Error extracting ZIP file: ${e.localizedMessage}", e)
-        }
-        Log.i("ZipDB","extractedFiles size: ${extractedFiles.size}")
-        return extractedFiles
-    }
-
 
     fun zipDatabaseFiles(context: Context, databaseName: String): File {
         val dbPath = context.getDatabasePath(databaseName).absolutePath
@@ -547,6 +284,7 @@ class ExportImportFragment : AuthFragment() {
 
         Log.i("ZipDB","zipFile ${zipFile.absolutePath}")
         Log.i("ZipDB","zipFile ${zipFile.name}")
+
         return zipFile
     }
 
@@ -559,28 +297,33 @@ class ExportImportFragment : AuthFragment() {
         }
     }
     fun shareDatabaseBackup(context: Context) {
+        viewModel.writingInProgress()
         Log.i("ZipDB","shareDatabaseBackup called")
         val zipFile = zipDatabaseFiles(context, "inventory_table.db")
         Log.i("ZipDB","zipFile ${zipFile.name}")
-try {
-    val fileUri: Uri = FileProvider.getUriForFile(
-        context,
-        "${context.packageName}.provider",
-        zipFile
-    )
-    Log.i("ZipDB", "fileuri ${fileUri}")
-    val shareIntent: Intent = Intent(Intent.ACTION_SEND).apply {
-        putExtra(Intent.EXTRA_STREAM, fileUri)
-        type = "application/zip"  // Change to "application/zip" for ZIP files
-    }
-    Log.i("ZipDB", "shareintent ${shareIntent.dataString}")
-    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        viewModel.writingDone()
+        viewModel.csvWriteComplete.observe(viewLifecycleOwner, Observer {
+            Log.i("ViewModel", "Writing in progress")
+            if (it!=null){}
+            try {
+                val fileUri: Uri = FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.provider",
+                    zipFile
+                )
+                Log.i("ZipDB", "fileuri ${fileUri}")
+                val shareIntent: Intent = Intent(Intent.ACTION_SEND).apply {
+                    putExtra(Intent.EXTRA_STREAM, fileUri)
+                    type = "application/zip"  // Change to "application/zip" for ZIP files
+                }
+                Log.i("ZipDB", "shareintent ${shareIntent.dataString}")
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                context.startActivity(Intent.createChooser(shareIntent, "Share database file"))
+            }catch (e: Exception) {
+                Log.e("ZipDB", "Error sharing database file: ${e.localizedMessage}", e)
+            }
+            })
 
-
-    context.startActivity(Intent.createChooser(shareIntent, "Share database file"))
-}        catch (e: Exception) {
-            Log.e("ZipDB", "Error sharing database file: ${e.localizedMessage}", e)
-        }
     }
 
 

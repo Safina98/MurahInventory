@@ -32,6 +32,7 @@ import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
@@ -76,6 +77,9 @@ class ExportImportViewModel(
             try {
                 //dataGenerator.populateMerk()
                 _isLoading.value=true
+                Log.i("GeneratingDummy","staring")
+                //val a = getAllCombinedData()
+                //Log.i("GeneratingDummy","${a.size}")
                 dataGenerator.populateLog()
                 // Optionally handle successful data generation here
             } catch (e: Exception) {
@@ -85,6 +89,8 @@ class ExportImportViewModel(
         }
         _isLoading.value=false
     }
+
+
     suspend fun getAllMerks(): List<MerkTable> {
         return withContext(Dispatchers.IO){
             dataSourceMerk.selectAllMerkList()
@@ -391,6 +397,16 @@ class ExportImportViewModel(
 
         Toast.makeText(context, "CSV files exported to: ${csvDir.absolutePath}", Toast.LENGTH_LONG).show()
         return csvDir // Return the directory containing the CSV files
+    }
+    fun writingInProgress(){
+        Log.i("ViewModel", "Writing in progress")
+        _isLoading.value = true
+        _csvWriteComplete.value = null
+    }
+    fun writingDone(){
+        Log.i("ViewModel", "Writing in progress")
+        _isLoading.value = false
+        _csvWriteComplete.postValue(Unit)
     }
 
 

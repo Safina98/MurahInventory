@@ -23,6 +23,9 @@ interface LogDao {
     @Update
     fun update(logTable: LogTable)
 
+    @Query("DELETE FROM log_table WHERE logDate < :cutoffDate")
+    suspend fun deleteRecordsOlderThan(cutoffDate: Date)
+
     @Query("SELECT * FROM LOG_TABLE")
     fun selectAllLog():LiveData<List<LogTable>>
 
