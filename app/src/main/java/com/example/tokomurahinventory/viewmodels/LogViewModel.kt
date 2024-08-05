@@ -115,6 +115,25 @@ class LogViewModel (
 
 
     ////////////////////////////Select/////////////////////////////////////////////////////
+
+   fun setInitialStartDateAndEndDate() {
+       val startDate = Calendar.getInstance().apply {
+           set(Calendar.HOUR_OF_DAY, 0)
+           set(Calendar.MINUTE, 0)
+           set(Calendar.SECOND, 0)
+           set(Calendar.MILLISECOND, 0)
+       }.time
+       val endDate = Calendar.getInstance().apply {
+           set(Calendar.HOUR_OF_DAY, 23)
+           set(Calendar.MINUTE, 59)
+           set(Calendar.SECOND, 59)
+           set(Calendar.MILLISECOND, 999)
+       }.time
+       _selectedStartDate.value = startDate
+       _selectedEndDate.value=endDate
+       updateDateRangeString(null,null)
+   }
+
     //get list merk
     fun getAllLogTable(){
         viewModelScope.launch {
@@ -397,7 +416,8 @@ class LogViewModel (
             val barangLogList = getBarangLogFromDao(log.refLog)
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             updateDetailWarnaAndDeleteBarangLog(log,barangLogList,loggedInUsers)
-            getAllLogTable()
+            updateRv4()
+           // getAllLogTable()
         }
     }
 

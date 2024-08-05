@@ -30,6 +30,7 @@ import java.util.Calendar
 class LogFragment : AuthFragment(){
     private lateinit var binding: FragmentLogBinding
     private lateinit var viewModel: LogViewModel
+    private var isDialogShowing = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -101,7 +102,7 @@ class LogFragment : AuthFragment(){
             it?.let{
                 adapter.submitList(it.sortedByDescending { it.logLastEditedDate })
                 adapter.notifyDataSetChanged()
-                Log.i("WarnaProb","$it")
+                Log.i("dataSize","${it.size}")
             }
         })
         binding.searchBarLog.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -119,6 +120,8 @@ class LogFragment : AuthFragment(){
         viewModel.selectedEndDate.observe(viewLifecycleOwner) {
             viewModel.updateRv4()
         }
+
+
         viewModel.isStartDatePickerClicked.observe(viewLifecycleOwner) {
             if (it==true){
                 showDatePickerDialog(1)
@@ -136,9 +139,15 @@ class LogFragment : AuthFragment(){
     }
     override fun onStart() {
         super.onStart()
-        viewModel.getAllLogTable()
+        Log.i("DATEDIALOGPROB","show date dilaog called")
+        viewModel.setInitialStartDateAndEndDate()
+    //viewModel.getAllLogTable()
     }
     private fun showDatePickerDialog(code:Int) {
+
+        if (isDialogShowing) return
+
+        isDialogShowing = true
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.pop_up_date_picker, null)
         val datePickerStart = dialogView.findViewById<DatePicker>(R.id.datePickerStart)
         val datePickerEnd = dialogView.findViewById<DatePicker>(R.id.datePickerEnd)
@@ -168,7 +177,9 @@ class LogFragment : AuthFragment(){
             }
             .setNegativeButton("Cancel", null)
             .create()
-
+        dialog.setOnDismissListener {
+            isDialogShowing = false
+        }
         dialog.show()
     }
 }

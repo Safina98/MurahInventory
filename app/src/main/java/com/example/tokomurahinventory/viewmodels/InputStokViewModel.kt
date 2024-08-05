@@ -70,7 +70,23 @@ class InputStokViewModel (
         //getAllInputLogModel()
         updateDateRangeString(_selectedStartDate.value, _selectedEndDate.value)
     }
-
+    fun setInitialStartDateAndEndDate() {
+        val startDate = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.time
+        val endDate = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 23)
+            set(Calendar.MINUTE, 59)
+            set(Calendar.SECOND, 59)
+            set(Calendar.MILLISECOND, 999)
+        }.time
+        _selectedStartDate.value = startDate
+        _selectedEndDate.value=endDate
+        updateDateRangeString(null,null)
+    }
     fun getAllInputLogModel(){
         uiScope.launch {
             _isInputLogLoading.value = true
@@ -211,7 +227,8 @@ class InputStokViewModel (
             if (item!=null){
                 //updateDetailWarnaTODao(item.warnaRef,item.isi,item.pcs,loggedInUsers)
                 updataDetailWarnaAndDeleteBarangLogToDao(item.warnaRef, item.isi, item.pcs, loggedInUsers, item.id)
-                getAllInputLogModel()
+                //getAllInputLogModel()
+                updateRv4()
         }
         }
     }
@@ -357,7 +374,8 @@ class InputStokViewModel (
                     detailWarnaUpdates,
                     loggedInUsers
                 )
-                getAllInputLogModel()
+                updateRv4()
+                //getAllInputLogModel()
             } catch (e: Exception) {
                 Log.e("InsertLogTry", "Error updating detail warna: ${e.message}", e)
             }

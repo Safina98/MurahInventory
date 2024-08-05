@@ -115,7 +115,7 @@ class InputStokFragment : AuthFragment() {
         viewModel.inputLogModel.observe(viewLifecycleOwner, Observer {
             adapter.submitList(it.sortedByDescending { it.barangLogInsertedDate })
             adapter.notifyDataSetChanged()
-            Log.i("INPUTLOGTRY","$it")
+            Log.i("dataSize","${it.size}")
         })
         binding.searchBarLog.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -261,6 +261,6 @@ class InputStokFragment : AuthFragment() {
     override fun onResume() {
         super.onResume()
         Log.i("FRAGMENT LIFECYCLE", "onResume called")
-        viewModel.getAllInputLogModel()
+        viewModel.setInitialStartDateAndEndDate()
     }
 }
