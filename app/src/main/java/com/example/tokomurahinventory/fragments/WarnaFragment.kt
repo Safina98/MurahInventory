@@ -69,31 +69,13 @@ class WarnaFragment : AuthFragment() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
-        //viewModel = ViewModelProvider(this, factory).get(CombinedViewModel::class.java)
-        /*
-        val application = requireNotNull(this.activity).application
-        val refMerk = arguments?.let { WarnaFragmentArgs.fromBundle(it).refMerk }
-
-        val dataSourceWarna = DatabaseInventory.getInstance(application).warnaDao
-        val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext())
-
-        val viewModelFactory = WarnaViewModelFactory(dataSourceWarna, refMerk?: "", loggedInUser?:"", application)
-        viewModel = ViewModelProvider(this, viewModelFactory).get(WarnaViewModel::class.java)
-        viewModel.getWarnaByMerk()
-
-        binding.lifecycleOwner = this
-        binding.viewModel = viewModel
-
-         */
-
         val adapter = WarnaAdapter(
             WarnaClickListener {
                // Log.i("WarnaProb", "warna table : $it")
-
                 viewModel.setRefWarna(it.warnaRef)
                 viewModel.getStringWarna(it.warnaRef)
                 viewModel.getDetailWarnaByWarnaRef(it.warnaRef)
-                viewModel.onNavigateToDetailWarna(it.warnaRef)
+                //viewModel.onNavigateToDetailWarna(it.warnaRef)
             },
             WarnaLongListener {
                 // Handle item long click
@@ -137,6 +119,7 @@ class WarnaFragment : AuthFragment() {
             }
         })
         viewModel.refWarna.observe(viewLifecycleOwner, Observer {})
+
         viewModel.warna.observe(viewLifecycleOwner, Observer {
             Log.i("SplitFragmetProbs","warna ${it}")
         })

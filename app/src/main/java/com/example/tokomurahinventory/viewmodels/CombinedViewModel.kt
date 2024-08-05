@@ -196,6 +196,8 @@ class CombinedViewModel(
             merkTable.merkLastEditedDate = Date()
             updateMerkToDao(merkTable)
             getAllMerkTable()
+            setRefMerk(merkTable.refMerk)
+            getStringMerk(merkTable.refMerk)
         }
     }
 
@@ -246,11 +248,14 @@ class CombinedViewModel(
             if (_refMerk.value!=null){
                 Log.i("WarnaProbs","")
                 val list = withContext(Dispatchers.IO) {
-                    if (refMerk==null){
+                    warnaDao.getWarnaWithTotalPcsList(_refMerk.value!!)
+                   /* if (refMerk==null){
                         warnaDao.getWarnaWithTotalPcsList(_refMerk.value!!)
                     }else{
                         warnaDao.getWarnaWithTotalPcsList(refMerk)
                     }
+
+                    */
                 }
                 _allWarnaByMerk.value = list
                 _unFilteredWarna.value = list
@@ -334,6 +339,7 @@ class CombinedViewModel(
                 //getDetailWarnaByWarnaRef(warnaTable.warnaRef)
                 updateWarnaToDao(warnaTable.toWarnaTable())
                 setRefWarna(warnaTable.warnaRef)
+                getStringWarna(warnaTable.warnaRef)
                 getWarnaByMerk(refMerkk.value)
             }catch (e:Exception){
                 Toast.makeText(getApplication(),"Gagal Mengubah data, coba lagi",Toast.LENGTH_SHORT).show()

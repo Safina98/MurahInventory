@@ -83,7 +83,7 @@ class MerkFragment : AuthFragment() {
                 viewModel.getStringMerk(it.refMerk)
                 viewModel.setRefWarna("")
                 viewModel.getStringWarna("")
-                viewModel.onNavigateToWarna(it.refMerk)
+               // viewModel.onNavigateToWarna(it.refMerk)
                 },
             MerkLongListener {
                     // Handle item long click

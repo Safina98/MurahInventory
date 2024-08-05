@@ -122,9 +122,12 @@ class DetailWarnaFragment : AuthFragment() {
                 viewModel.getDetailWarnaByWarnaRef(it)
             }
         }
+        /*
         viewModel.warna.observe(viewLifecycleOwner) {
             Log.i("SplitFragmetProbs", "warna ${it}")
         }
+
+         */
 
         //Obsert detail warna recycler view
         viewModel.detailWarnaList.observe(viewLifecycleOwner) {
