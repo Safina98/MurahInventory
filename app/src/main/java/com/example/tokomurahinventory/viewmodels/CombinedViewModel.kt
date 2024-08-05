@@ -11,6 +11,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.BarangLogDao
+import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.database.DetailWarnaDao
 import com.example.tokomurahinventory.database.LogDao
 import com.example.tokomurahinventory.database.MerkDao
@@ -19,6 +20,7 @@ import com.example.tokomurahinventory.models.BarangLog
 import com.example.tokomurahinventory.models.DetailWarnaTable
 import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.models.MerkTable
+import com.example.tokomurahinventory.models.UsersTable
 import com.example.tokomurahinventory.models.model.WarnaModel
 import com.example.tokomurahinventory.models.WarnaTable
 import com.example.tokomurahinventory.models.model.DetailWarnaModel
@@ -46,6 +48,9 @@ class CombinedViewModel(
     val dataSourceLog: LogDao,
     application: Application
 ) : BaseAndroidViewModel(application) {
+    //TODO delete
+    val userDao = DatabaseInventory.getInstance(application).usersDao
+
     private var viewModelJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
@@ -314,9 +319,18 @@ class CombinedViewModel(
         viewModelScope.launch {
             _isWarnaLoading.value = true
             try {
-                warnaTable.lastEditedBy = SharedPreferencesHelper.getLoggedInUser(getApplication()) ?:""
+                val users = SharedPreferencesHelper.getLoggedInUser(getApplication()) ?:""
+                warnaTable.lastEditedBy = users
                 Log.i("UpdateWarnaProbs"," update warna ${warnaTable}")
                 warnaTable.warnaLastEditedDate = Date()
+                //getMerkFromdb by warna merk
+                val merk = getMerkByMerkRef(warnaTable.refMerk)
+                val warnaP = getWarnabuRef(warnaTable.warnaRef)
+                val user = getUserByUserName(warnaTable.lastEditedBy!!)
+                Log.i("UpdateWarnaProb","Merk $merk")
+                Log.i("UpdateWarnaProb","Warna $warnaP")
+                Log.i("UpdateWarnaProb","User ${user!!.userName}")
+                //get user by username from db by detail warna last edited by
                 //getDetailWarnaByWarnaRef(warnaTable.warnaRef)
                 updateWarnaToDao(warnaTable.toWarnaTable())
                 setRefWarna(warnaTable.warnaRef)
@@ -335,6 +349,7 @@ class CombinedViewModel(
             kodeWarna = this.kodeWarna,
             totalPcs = this.totalPcs,
             satuanTotal = this.satuanTotal,
+            user= this.lastEditedBy,
             satuan = this.satuan,
             warnaRef = this.warnaRef,
             lastEditedBy = loggedInUser,
@@ -343,6 +358,22 @@ class CombinedViewModel(
             warnaLastEditedDate = Date()
         )
     }
+    private suspend fun getMerkByMerkRef(ref:String):String?{
+        return withContext(Dispatchers.IO){
+            merkDao.getMerkNameByRef(ref)
+        }
+    }
+    private suspend fun getWarnabuRef(ref:String):String?{
+        return withContext(Dispatchers.IO){
+            warnaDao.getKodeWarnaByRef(ref)
+        }
+    }
+    private suspend fun getUserByUserName(ref:String):UsersTable?{
+        return withContext(Dispatchers.IO){
+            userDao.getUserByUsername(ref)
+        }
+    }
+
     fun deleteWarna(warnaTable: WarnaModel) {
         viewModelScope.launch {
             _isWarnaLoading.value = true

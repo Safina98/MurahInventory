@@ -27,6 +27,10 @@ import com.example.tokomurahinventory.databinding.FragmentExportImportBinding
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.ExportImportViewModel
 import com.example.tokomurahinventory.viewmodels.ExportImportViewModelFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.*
 import java.util.zip.*
 
@@ -285,7 +289,7 @@ class ExportImportFragment : AuthFragment() {
 
         Log.i("ZipDB","zipFile ${zipFile.absolutePath}")
         Log.i("ZipDB","zipFile ${zipFile.name}")
-        viewModel.writingDone()
+       // viewModel.writingDone()
         return zipFile
     }
 
@@ -297,35 +301,41 @@ class ExportImportFragment : AuthFragment() {
             zipOut.closeEntry()
         }
     }
-    fun shareDatabaseBackup(context: Context) {
-        viewModel.writingInProgress()
-        val zipFile = zipDatabaseFiles(context, "inventory_table.db")
+    private fun shareDatabaseBackup(context: Context) {
+        //viewModel.writingInProgress()
 
-        viewModel.csvWriteComplete.observe(viewLifecycleOwner, Observer {
-            if (it!=null){
-                try {
-                    val fileUri: Uri = FileProvider.getUriForFile(
-                        context,
-                        "${context.packageName}.provider",
-                        zipFile
-                    )
-                    Log.i("ZipDB", "fileuri ${fileUri}")
-                    val shareIntent: Intent = Intent(Intent.ACTION_SEND).apply {
-                        putExtra(Intent.EXTRA_STREAM, fileUri)
-                        type = "application/zip"  // Change to "application/zip" for ZIP files
-                    }
-                    Log.i("ZipDB", "shareintent ${shareIntent.dataString}")
-                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    context.startActivity(Intent.createChooser(shareIntent, "Share database file"))
-                }catch (e: Exception) {
-                    Log.e("ZipDB", "Error sharing database file: ${e.localizedMessage}", e)
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                // Perform background work
+                val zipFile = withContext(Dispatchers.IO) {
+                    zipDatabaseFiles(context, "inventory_table.db")
                 }
 
-            }
-                        })
-        loaded()
+                // Update UI with the result
+                val fileUri: Uri = FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.provider",
+                    zipFile
+                )
+                val shareIntent: Intent = Intent(Intent.ACTION_SEND).apply {
+                    putExtra(Intent.EXTRA_STREAM, fileUri)
+                    type = "application/zip"
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                context.startActivity(Intent.createChooser(shareIntent, "Share database file"))
 
+            } catch (e: Exception) {
+                Log.e("ZipDB", "Error sharing database file: ${e.localizedMessage}", e)
+            } finally {
+                // Ensure UI is updated whether success or failure
+                loaded()
+            }
+        }
+
+        // Show loading UI
+        loading()
     }
+
 
 
     private fun exportDatabase(fileName: String) {
