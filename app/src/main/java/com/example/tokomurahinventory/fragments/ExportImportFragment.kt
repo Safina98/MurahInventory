@@ -20,6 +20,7 @@ import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
 import com.example.tokomurahinventory.R
 import com.example.tokomurahinventory.database.DatabaseInventory
@@ -195,57 +196,88 @@ class ExportImportFragment : AuthFragment() {
         })
     }
     private fun importZipFile() {
-        Log.i("ZipDB","importZipFile started")
+        loading()
+        Log.i("ZipDB", "importZipFile started")
         val fileIntent = Intent(Intent.ACTION_GET_CONTENT).apply {
             type = "application/zip"
         }
         try {
             resultLauncherNew.launch(fileIntent.type)
-        } catch (e: FileNotFoundException) {
-            Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            loaded()
+            Log.e("ZipDB", "Error launching file picker", e)
+            Toast.makeText(context, "Error selecting file", Toast.LENGTH_SHORT).show()
         }
+
     }
+
     private val resultLauncherNew = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let {
-            Log.i("ZipDB","result Launcer new")
-            val tempFile = readFileFromUri(requireContext(), it)
-            Log.i("ZipDB","file ${tempFile?.name}")
-            Log.i("ZipDB","file path ${tempFile?.absolutePath}")
-            if (tempFile?.exists() == true) {
-                try {
-                    extractZipFile(tempFile)
-                } catch (e: IOException) {
-                    Log.e("ZipDB", "Error extracting zip file", e)
-                    Toast.makeText(requireContext(), "Error extracting file", Toast.LENGTH_SHORT).show()
-                }
-            } else {
-                Toast.makeText(requireContext(), "File does not exist", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-    private fun extractZipFile(zipFile: File) {
-        val zipInputStream = ZipInputStream(FileInputStream(zipFile))
-        var zipEntry: ZipEntry? = zipInputStream.nextEntry
-        while (zipEntry != null) {
-            val outputFile = File(requireContext().getDatabasePath(zipEntry.name).parent, zipEntry.name)
-            if (zipEntry.isDirectory) {
-                outputFile.mkdirs()
-            } else {
-                FileOutputStream(outputFile).use { outputStream ->
-                    val buffer = ByteArray(1024)
-                    var length: Int
-                    while (zipInputStream.read(buffer).also { length = it } > 0) {
-                        outputStream.write(buffer, 0, length)
+            Log.i("ZipDB", "result Launcher new")
+            lifecycleScope.launch {
+                withContext(Dispatchers.IO) {
+                    val tempFile = readFileFromUri(requireContext(), it)
+
+                    Log.i("ZipDB", "file ${tempFile?.name}")
+                    Log.i("ZipDB", "file path ${tempFile?.absolutePath}")
+                    if (tempFile?.exists() == true) {
+                        try {
+                            extractZipFile(tempFile)
+                        } catch (e: IOException) {
+                            Log.e("ZipDB", "Error extracting zip file", e)
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(requireContext(), "Error extracting file", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(requireContext(), "File does not exist", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
+                // Ensure progress bar is hidden after processing
+
             }
-            zipEntry = zipInputStream.nextEntry
         }
-        zipInputStream.closeEntry()
-        zipInputStream.close()
-        Log.i("ZipDB", "Files extracted successfully")
-        Toast.makeText(requireContext(), "Files extracted successfully", Toast.LENGTH_SHORT).show()
     }
+
+
+    private fun extractZipFile(zipFile: File) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val zipInputStream = ZipInputStream(FileInputStream(zipFile))
+                var zipEntry: ZipEntry? = zipInputStream.nextEntry
+                while (zipEntry != null) {
+                    val outputFile = File(requireContext().getDatabasePath(zipEntry.name).parent, zipEntry.name)
+                    if (zipEntry.isDirectory) {
+                        outputFile.mkdirs()
+                    } else {
+                        FileOutputStream(outputFile).use { outputStream ->
+                            val buffer = ByteArray(1024)
+                            var length: Int
+                            while (zipInputStream.read(buffer).also { length = it } > 0) {
+                                outputStream.write(buffer, 0, length)
+                            }
+                        }
+                    }
+                    zipEntry = zipInputStream.nextEntry
+                }
+                zipInputStream.closeEntry()
+                zipInputStream.close()
+                Log.i("ZipDB", "Files extracted successfully")
+                withContext(Dispatchers.Main) {
+                    loaded()
+                    Toast.makeText(requireContext(), "Files extracted successfully", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: IOException) {
+                Log.e("ZipDB", "Error extracting zip file", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), "Error extracting file", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
 
     private fun readFileFromUri(context: Context, uri: Uri): File? {
         return try {
@@ -385,16 +417,20 @@ class ExportImportFragment : AuthFragment() {
         binding.btnImportMerk.visibility = View.GONE
         binding.exportHeader.visibility = View.GONE
         binding.importHeader.visibility = View.GONE
+        binding.btnImportMerkNew.visibility = View.GONE
+        binding.btnExportDatabase.visibility = View.GONE
     }
     fun loaded(){
         binding.progressBar.visibility = View.GONE
         binding.labelProgres.visibility = View.GONE
         binding.btnExportLog.visibility = View.VISIBLE
         binding.btnExportUsers.visibility = View.VISIBLE
-        binding.btnExportMerk.visibility = View.VISIBLE
+        binding.btnExportMerk   .visibility = View.VISIBLE
         binding.btnImportMerk.visibility = View.VISIBLE
         binding.exportHeader.visibility = View.VISIBLE
         binding.importHeader.visibility = View.VISIBLE
+        binding.btnImportMerkNew.visibility = View.VISIBLE
+        binding.btnExportDatabase.visibility = View.VISIBLE
     }
 
 
