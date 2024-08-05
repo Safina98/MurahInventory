@@ -295,6 +295,7 @@ class ExportImportViewModel(
                 Log.i("INSERTCSVPROB","${allItems.size}")
                 var i = 0
                 Log.i("INSERTCSVPROB","i: $i")
+
                 bw.close()
                 Toast.makeText(getApplication(), "Success", Toast.LENGTH_SHORT).show()
             } catch (e: IOException) {
