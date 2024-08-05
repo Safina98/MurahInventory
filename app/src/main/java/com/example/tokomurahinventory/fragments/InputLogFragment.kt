@@ -107,22 +107,22 @@ class InputLogFragment : AuthFragment() {
     private fun handleAddNetClick(countModel: CountModel, position: Int) {
         // Handle the AddNet click action
     }
-
     private fun handleDeleteNetClick(countModel: CountModel, position: Int) {
         clearEditText()
         viewModel.deleteCountModel(countModel.id)
         notifyAnItemDeleted(position)
     }
-
     private fun handleBarangLogMerkClick(countModel: CountModel, position: Int) {
+       // showLoadingIndicator()
         clearEditText()
         showPopUpDialog(countModel.id, "Merk")
+       // hideLoadingIndicator()
     }
 
     private fun handleBarangLogKodeClick(countModel: CountModel, position: Int) {
         clearEditText()
-        showLoadingIndicator()
         countModel.merkBarang?.let {
+            showLoadingIndicator()
             viewModel.getWarnaByMerkOld(it)
             viewModel.codeWarnaByMerk.observe(viewLifecycleOwner) { colors ->
                 if (colors != null) {
@@ -131,6 +131,7 @@ class InputLogFragment : AuthFragment() {
                 }
             }
         } ?: Toast.makeText(context, "Masukkan Merk", Toast.LENGTH_SHORT).show()
+        //hideLoadingIndicator()
     }
 
     private fun handleBarangLogIsiClick(countModel: CountModel, position: Int) {
@@ -145,16 +146,19 @@ class InputLogFragment : AuthFragment() {
                 }
             }
         } else {
+            hideLoadingIndicator()
             Toast.makeText(context, "Masukkan Merk dan warna", Toast.LENGTH_SHORT).show()
         }
+
     }
 
     private fun handleBarangLogPcsClick(countModel: CountModel, position: Int) {
         clearEditText()
+        showLoadingIndicator()
         countModel.isi?.let {
             showPopUpDialog(countModel.id, "Pcs")
         } ?: Toast.makeText(context, "Masukkan Merk, warna dan isi", Toast.LENGTH_SHORT).show()
-
+        hideLoadingIndicator()
     }
 
     private fun setupDialog(countModel: CountModel?) {

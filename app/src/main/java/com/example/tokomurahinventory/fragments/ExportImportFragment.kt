@@ -58,10 +58,8 @@ class ExportImportFragment : AuthFragment() {
                 Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show()
                 Log.e("Insert Csv", "Error reading CSV: $e")
             }
-
         }
     }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -92,8 +90,7 @@ class ExportImportFragment : AuthFragment() {
         binding.viewModel = viewModel
 
         viewModel.isLoading.observe(viewLifecycleOwner) {
-            //viewModel.updateRv4()
-            Log.i("ViewModel", "isLoading $it")
+            Log.i("ZipDB", "isLoading $it")
             if (it==true){
                 binding.progressBar.visibility = View.VISIBLE
                 binding.labelProgres.visibility = View.VISIBLE
@@ -103,7 +100,6 @@ class ExportImportFragment : AuthFragment() {
                 binding.btnImportMerk.visibility = View.GONE
                 binding.exportHeader.visibility = View.GONE
                 binding.importHeader.visibility = View.GONE
-
             }else{
                 binding.progressBar.visibility = View.GONE
                 binding.labelProgres.visibility = View.GONE
@@ -115,36 +111,44 @@ class ExportImportFragment : AuthFragment() {
                 binding.importHeader.visibility = View.VISIBLE
             }
         }
-
         binding.btnExportMerk.setOnClickListener {
             exportStockCSV("Daftar Merk Toko Murah","MERK")
         }
-
         binding.btnExportUsers.setOnClickListener {
             exportStockCSV("Daftar Users Toko Murah","USERS")
         }
         binding.btnExportLog.setOnClickListener {
             exportStockCSV("Daftar Log Toko Murah","LOG")
         }
-
         binding.btnImportMerk.setOnClickListener {
-            importCSVStock()
-            //viewModel.generateData()
+            //importCSVStock()
+            viewModel.generateData()
             //viewModel.tryDeleteLog()
         }
         binding.btnExportDatabase.setOnClickListener {
+            loading()
             shareDatabaseBackup(requireContext())
-            Log.i("ZipDB","shareDatabaseBackup called")
+
+            //Log.i("ZipDB","shareDatabaseBackup called")
         }
         binding.btnImportMerkNew.setOnClickListener {
             closeDatabase(database)
             importZipFile()
+            reopenDatabase()
         }
         return binding.root
     }
     fun closeDatabase(database: DatabaseInventory) {
         database.close()
     }
+    fun reopenDatabase(): DatabaseInventory {
+        return Room.databaseBuilder(
+            requireContext().applicationContext,
+            DatabaseInventory::class.java,
+            "inventory_table.db"
+        ).build()
+    }
+
     private fun importCSVStock() {
         var fileIntent = Intent(Intent.ACTION_GET_CONTENT)
         fileIntent.type = "text/*"
@@ -152,7 +156,6 @@ class ExportImportFragment : AuthFragment() {
         catch (e: FileNotFoundException) {
             Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show() }
     }
-
     private fun checkPermission(): Boolean {
         // checking of permissions.
         val permission1 = ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -219,7 +222,6 @@ class ExportImportFragment : AuthFragment() {
     private fun extractZipFile(zipFile: File) {
         val zipInputStream = ZipInputStream(FileInputStream(zipFile))
         var zipEntry: ZipEntry? = zipInputStream.nextEntry
-
         while (zipEntry != null) {
             val outputFile = File(requireContext().getDatabasePath(zipEntry.name).parent, zipEntry.name)
             if (zipEntry.isDirectory) {
@@ -237,11 +239,9 @@ class ExportImportFragment : AuthFragment() {
         }
         zipInputStream.closeEntry()
         zipInputStream.close()
-
         Log.i("ZipDB", "Files extracted successfully")
         Toast.makeText(requireContext(), "Files extracted successfully", Toast.LENGTH_SHORT).show()
     }
-
 
     private fun readFileFromUri(context: Context, uri: Uri): File? {
         return try {
@@ -266,6 +266,7 @@ class ExportImportFragment : AuthFragment() {
         }
     }
 
+
     fun zipDatabaseFiles(context: Context, databaseName: String): File {
         val dbPath = context.getDatabasePath(databaseName).absolutePath
         Log.i("ZipDB","zipFile ${dbPath}.db")
@@ -277,14 +278,14 @@ class ExportImportFragment : AuthFragment() {
         Log.i("ZipDB","zipFile ${zipFile.absolutePath}")
         Log.i("ZipDB","zipFile ${zipFile.name}")
         ZipOutputStream(FileOutputStream(zipFile)).use { zipOut ->
-            addFileToZip(zipOut, File(dbPath), "")
-            addFileToZip(zipOut, File(walPath), "")
-            addFileToZip(zipOut, File(shmPath), "")
+           addFileToZip(zipOut, File(dbPath), "")
+           addFileToZip(zipOut, File(walPath), "")
+           addFileToZip(zipOut, File(shmPath), "")
         }
 
         Log.i("ZipDB","zipFile ${zipFile.absolutePath}")
         Log.i("ZipDB","zipFile ${zipFile.name}")
-
+        viewModel.writingDone()
         return zipFile
     }
 
@@ -298,31 +299,31 @@ class ExportImportFragment : AuthFragment() {
     }
     fun shareDatabaseBackup(context: Context) {
         viewModel.writingInProgress()
-        Log.i("ZipDB","shareDatabaseBackup called")
         val zipFile = zipDatabaseFiles(context, "inventory_table.db")
-        Log.i("ZipDB","zipFile ${zipFile.name}")
-        viewModel.writingDone()
+
         viewModel.csvWriteComplete.observe(viewLifecycleOwner, Observer {
-            Log.i("ViewModel", "Writing in progress")
-            if (it!=null){}
-            try {
-                val fileUri: Uri = FileProvider.getUriForFile(
-                    context,
-                    "${context.packageName}.provider",
-                    zipFile
-                )
-                Log.i("ZipDB", "fileuri ${fileUri}")
-                val shareIntent: Intent = Intent(Intent.ACTION_SEND).apply {
-                    putExtra(Intent.EXTRA_STREAM, fileUri)
-                    type = "application/zip"  // Change to "application/zip" for ZIP files
+            if (it!=null){
+                try {
+                    val fileUri: Uri = FileProvider.getUriForFile(
+                        context,
+                        "${context.packageName}.provider",
+                        zipFile
+                    )
+                    Log.i("ZipDB", "fileuri ${fileUri}")
+                    val shareIntent: Intent = Intent(Intent.ACTION_SEND).apply {
+                        putExtra(Intent.EXTRA_STREAM, fileUri)
+                        type = "application/zip"  // Change to "application/zip" for ZIP files
+                    }
+                    Log.i("ZipDB", "shareintent ${shareIntent.dataString}")
+                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    context.startActivity(Intent.createChooser(shareIntent, "Share database file"))
+                }catch (e: Exception) {
+                    Log.e("ZipDB", "Error sharing database file: ${e.localizedMessage}", e)
                 }
-                Log.i("ZipDB", "shareintent ${shareIntent.dataString}")
-                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                context.startActivity(Intent.createChooser(shareIntent, "Share database file"))
-            }catch (e: Exception) {
-                Log.e("ZipDB", "Error sharing database file: ${e.localizedMessage}", e)
+
             }
-            })
+                        })
+        loaded()
 
     }
 
@@ -347,7 +348,6 @@ class ExportImportFragment : AuthFragment() {
             "${requireContext().applicationContext.packageName}.provider",
             destinationFile
         )
-
         val shareIntent: Intent = Intent().apply {
             action = Intent.ACTION_SEND
             putExtra(Intent.EXTRA_STREAM, fileUri)
@@ -364,6 +364,27 @@ class ExportImportFragment : AuthFragment() {
     fun getDatabaseFile(context: Context): File {
         val databasePath = context.getDatabasePath("inventory_table.db").absolutePath
         return File(databasePath)
+    }
+
+    fun loading(){
+        binding.progressBar.visibility = View.VISIBLE
+        binding.labelProgres.visibility = View.VISIBLE
+        binding.btnExportLog.visibility = View.GONE
+        binding.btnExportUsers.visibility = View.GONE
+        binding.btnExportMerk.visibility = View.GONE
+        binding.btnImportMerk.visibility = View.GONE
+        binding.exportHeader.visibility = View.GONE
+        binding.importHeader.visibility = View.GONE
+    }
+    fun loaded(){
+        binding.progressBar.visibility = View.GONE
+        binding.labelProgres.visibility = View.GONE
+        binding.btnExportLog.visibility = View.VISIBLE
+        binding.btnExportUsers.visibility = View.VISIBLE
+        binding.btnExportMerk.visibility = View.VISIBLE
+        binding.btnImportMerk.visibility = View.VISIBLE
+        binding.exportHeader.visibility = View.VISIBLE
+        binding.importHeader.visibility = View.VISIBLE
     }
 
 

@@ -62,9 +62,12 @@ class InputStokViewModel (
     private val _isInputLogLoading = MutableLiveData<Boolean>(false)
     val isInputLogLoading: LiveData<Boolean> get() = _isInputLogLoading
 
+    private val _isLoadCrashed = MutableLiveData<Boolean>(false)
+    val isLoadCrashed: LiveData<Boolean> get() = _isLoadCrashed
+
 
     init {
-        getAllInputLogModel()
+        //getAllInputLogModel()
         updateDateRangeString(_selectedStartDate.value, _selectedEndDate.value)
     }
 
@@ -100,10 +103,8 @@ class InputStokViewModel (
             val refMerk = withContext(Dispatchers.IO){dataSourceMerk.getMerkRefByName(merk)}
             if (refMerk != null) {
                 val stringWarnaList = withContext(Dispatchers.IO) {
-
                     dataSourceWarna.selectStringWarnaByMerk(refMerk)
                 }
-
                 _codeWarnaByMerk.value = stringWarnaList
             }else Toast.makeText(getApplication(),"Merk Tidak ada di database",Toast.LENGTH_SHORT).show()
             //codeWarnaByMerk.setValue(stringWarnaList)
@@ -150,13 +151,27 @@ class InputStokViewModel (
     private fun performDataFiltering(startDate: Date?, endDate: Date?) {
         uiScope.launch {
             _isInputLogLoading.value = true
-            val filteredData = withContext(Dispatchers.IO) {
-               dataSourceBarangLog.getLogMasukByDateRange(startDate,endDate,MASUKKELUAR.MASUK)
+            _isLoadCrashed.value=false
+            try {
+                val filteredData = withContext(Dispatchers.IO) {
+                    dataSourceBarangLog.getLogMasukByDateRange(
+                        startDate,
+                        endDate,
+                        MASUKKELUAR.MASUK
+                    )
+                }
+                withContext(Dispatchers.Main) {
+                    _inputLogModel.value = filteredData
+                    _unFilteredLog.value = filteredData
+                    _isInputLogLoading.value = false
+                }
+
+            }catch (e:Exception){
+                withContext(Dispatchers.Main) {
+                    _isInputLogLoading.value = false
+                    _isLoadCrashed.value = true
+                }
             }
-            Log.i("InsertLogTry","$filteredData")
-            _inputLogModel.value = filteredData
-            _unFilteredLog.value = filteredData
-            _isInputLogLoading.value = false
         }
     }
     fun setStartDateRange(startDate: Date?){
@@ -190,6 +205,7 @@ class InputStokViewModel (
 
     fun deleteInputStok(inputStokLogModel: InputStokLogModel){
         uiScope.launch {
+            _isInputLogLoading.value = true
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             val item = getBarangLogFromDB(inputStokLogModel.inputBarangLogRef)
             if (item!=null){
@@ -220,6 +236,7 @@ class InputStokViewModel (
     }
     fun updateInputStok(inputStokLogModel: InputStokLogModel){
         uiScope.launch {
+            _isInputLogLoading.value = true
             Log.i("InsertLogTry", "PCs ${inputStokLogModel.inputBarangLogRef}")
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             val refMerk = getrefMerkByName(inputStokLogModel.namaMerk.uppercase())
@@ -243,7 +260,7 @@ class InputStokViewModel (
                         Log.i("InsertLogTry", "PCs ${barangNewLog.barangLogRef}")
                         updateDetailWarna(barangNewLog,oldBarangLog)
                         //updateBarangLogToDao(barangNewLog)
-                        getAllInputLogModel()
+                        //getAllInputLogModel()
                 }
 
                 }else Toast.makeText(getApplication(),"Warna tidak ada di database. Input warna terlebih dulu",Toast.LENGTH_SHORT).show()

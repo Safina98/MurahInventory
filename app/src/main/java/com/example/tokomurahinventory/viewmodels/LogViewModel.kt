@@ -58,6 +58,9 @@ class LogViewModel (
     private val _isLogLoading = MutableLiveData<Boolean>(false)
     val isLogLoading: LiveData<Boolean> get() = _isLogLoading
 
+    private val _isLoadCrashed = MutableLiveData<Boolean>(false)
+    val isLoadCrashed: LiveData<Boolean> get() = _isLoadCrashed
+
 
     // val codeWarnaByMerk = SingleLiveEvent<List<String>>()
    // val isiByWarnaAndMerk = SingleLiveEvent<List<String>>()
@@ -104,7 +107,7 @@ class LogViewModel (
 
 
     init {
-        getAllLogTable()
+        //getAllLogTable()
         user.value = loggedInUser
         updateDateRangeString(_selectedStartDate.value, _selectedEndDate.value)
     }
@@ -116,27 +119,34 @@ class LogViewModel (
     fun getAllLogTable(){
         viewModelScope.launch {
             _isLogLoading.value=true
-            val startDate = Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, 0)
-                set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
-            }.time
+            _isLoadCrashed.value=false
+            try {
+                val startDate = Calendar.getInstance().apply {
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }.time
 
-            // Set to the end of the day
-            val endDate = Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, 23)
-                set(Calendar.MINUTE, 59)
-                set(Calendar.SECOND, 59)
-                set(Calendar.MILLISECOND, 999)
-            }.time
-            val list = withContext(Dispatchers.IO){
-                dataSourceLog.selectAllLogList(MASUKKELUAR.KELUAR,startDate,endDate)
+                // Set to the end of the day
+                val endDate = Calendar.getInstance().apply {
+                    set(Calendar.HOUR_OF_DAY, 23)
+                    set(Calendar.MINUTE, 59)
+                    set(Calendar.SECOND, 59)
+                    set(Calendar.MILLISECOND, 999)
+                }.time
+                val list = withContext(Dispatchers.IO){
+                    dataSourceLog.selectAllLogList(MASUKKELUAR.KELUAR,startDate,endDate)
+                }
+                _allLog.value = list
+                _unFilteredLog.value = list
+                _isLogLoading.value = false
+            }catch (e:Exception){
+                Log.i("LOADLOGPROBS","$e")
+                isLoadCrashed.value==true
             }
-            _allLog.value = list
-            _unFilteredLog.value = list
-            _isLogLoading.value = false
-        }
+            }
+
     }
     fun setStartDateRange(startDate: Date?){
         viewModelScope.launch {
@@ -190,12 +200,28 @@ class LogViewModel (
     private fun performDataFiltering(startDate: Date?, endDate: Date?) {
         viewModelScope.launch {
             _isLogLoading.value = true
-            val filteredData = withContext(Dispatchers.IO) {
-                dataSourceLog.getLogsByDateRange(startDate,endDate,MASUKKELUAR.KELUAR)
+            _isLoadCrashed.value = false
+            try {
+                val filteredData = withContext(Dispatchers.IO) {
+                    dataSourceLog.getLogsByDateRange(startDate, endDate, MASUKKELUAR.KELUAR)
+                }
+                // Update LiveData on the main thread
+                withContext(Dispatchers.Main) {
+                    _isLogLoading.value = false
+                    _allLog.value = filteredData
+                    _unFilteredLog.value = filteredData
+                }
+
+            } catch (e: Exception) {
+                // Log the exception for debugging
+                Log.e("DataFilteringError", "Error during data filtering", e)
+
+                // Update LiveData on the main thread
+                withContext(Dispatchers.Main) {
+                    _isLogLoading.value = false
+                    _isLoadCrashed.value = true
+                }
             }
-            _allLog.value = filteredData
-            _unFilteredLog.value = filteredData
-            _isLogLoading.value = false
         }
     }
     //get list merk for suggestion
@@ -233,6 +259,7 @@ class LogViewModel (
     ///////////////////////////////////////Log/////////////////////////////////////////////
     fun updateLog(){
         viewModelScope.launch {
+            _isLogLoading.value = true
             val s = getStringS()
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             val allDataPresent = areAllCountModelValuesNotNull(countModelList)
@@ -262,20 +289,22 @@ class LogViewModel (
                 updateLogBarang(updatedLog.refLog)
                 //compare old countModel with the current one for delete purpose
                 compare(updatedLog.refLog, cmList) //check
-                getAllLogTable()
+                //getAllLogTable()
                 onNavigateToLog()
             }else Toast.makeText(getApplication(),"Insert Failed, please check the data",Toast.LENGTH_SHORT).show()
         }
     }
     fun addLog() {
         viewModelScope.launch {
+            _isLogLoading.value = true
+            Log.i("InsertLogTry", "addLog() called")
             val s = getStringS()
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             val allDataPresent = areAllCountModelValuesNotNull(countModelList)
             val hasNotIdenticalItem = hasNotIdenticalItems(countModelList.value)
-
             if (loggedInUsers != null) {
                 if (allDataPresent && hasNotIdenticalItem) {
+                    Log.i("InsertLogTry", "all data present")
                     val newLog = LogTable(
                         id = 0,
                         userName = loggedInUsers,
@@ -314,9 +343,10 @@ class LogViewModel (
                     }
 
                     try {
+                        Log.i("InsertLogTry", "try inserting data")
                         insertLogAndUpdateDetailWarna(newLog,barangLogs,loggedInUsers)
                         //yourDao.insertLogAndUpdateDetailWarna(newLog, barangLogs, loggedInUsers)
-                        getAllLogTable()
+                        //getAllLogTable()
                         onNavigateToLog()
                         Log.i("InsertLogTry", "addLog() and related operations completed successfully")
                     } catch (e: Exception) {
@@ -363,6 +393,7 @@ class LogViewModel (
     fun deleteLog(log: LogTable){
         viewModelScope.launch {
             //get barangLog
+            _isLogLoading.value = true
             val barangLogList = getBarangLogFromDao(log.refLog)
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             updateDetailWarnaAndDeleteBarangLog(log,barangLogList,loggedInUsers)
@@ -560,7 +591,7 @@ class LogViewModel (
 
     fun filterLog(query: String?) {
         val list = mutableListOf<LogTable>()
-        if (!query.isNullOrEmpty()) {
+        if (!query.isNullOrEmpty()&&_unFilteredLog.value!=null) {
             list.addAll(_unFilteredLog.value!!.filter {
                 it.namaToko.lowercase(Locale.getDefault()).contains(query.lowercase(Locale.getDefault())) ||
                         it.userName?.lowercase(Locale.getDefault())?.contains(query.lowercase(Locale.getDefault())) ?: false ||
@@ -583,8 +614,8 @@ class LogViewModel (
         if (mutableLog.value!=null){
             updateLog()
         }
-    else{
-        addLog()
+        else{
+            addLog()
         }
     }
 /////////////////////////////////////Converter//////////////////////////////////////////////
@@ -931,8 +962,6 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
             dataSourceBarangLog.insertLogAndUpdateDetailWarna(log,barangLogList,loggedInUsers)
         }
     }
-
-
 
     //Navigation
     fun onAddLogFabClick(){ _addLogFab.value = true }

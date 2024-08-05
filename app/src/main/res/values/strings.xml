@@ -5,4 +5,5 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="user_null_string">User kosong, logout dan login kembali</string>
+    <string name="load_crashed_msg">Gagal Memuat data, click untuk \ncoba lagi</string>
 </resources>

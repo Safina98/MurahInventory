@@ -34,7 +34,6 @@
                 style="@style/txt_item_log_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:logDate="@{inputStokLog.barangLogInsertedDate}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 

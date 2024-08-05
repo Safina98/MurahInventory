@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tokomurahinventory.databinding.ItemListLogBinding
 import com.example.tokomurahinventory.models.LogTable
-
+import com.example.tokomurahinventory.utils.DATE_FORMAT
 
 
 class LogAdapter(
@@ -20,6 +20,8 @@ class LogAdapter(
     class MyViewHolder private constructor(val binding: ItemListLogBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: LogTable, clickListener: LogClickListener, longListener: LogLongListener, logDeleteListener: LogDeleteListener) {
             binding.log = item
+            val formattedDate = DATE_FORMAT.format(item.logCreatedDate)
+            binding.txtDate.text = formattedDate
             binding.clickListemer = clickListener
             binding.deleteListener = logDeleteListener
             binding.executePendingBindings()

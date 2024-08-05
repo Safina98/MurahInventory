@@ -8,6 +8,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tokomurahinventory.databinding.ItemListInputStokLogBinding
 import com.example.tokomurahinventory.models.model.InputStokLogModel
+import com.example.tokomurahinventory.utils.DATE_FORMAT
+import com.example.tokomurahinventory.utils.FULL_DATE_FORMAT
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 
 class InputStokLogAdapter(
@@ -20,11 +24,14 @@ class InputStokLogAdapter(
 
     class MyViewHolder private constructor(val binding: ItemListInputStokLogBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: InputStokLogModel, clickListener: InputStokLogClickListener, longListener: InputStokLogLongListener, updateInputStokLogClickListener: UpdateInputStokLogClickListener, deleteInputStokLogClickListener: DeleteInputStokLogClickListener) {
+
+            val formattedDate = DATE_FORMAT.format(item.barangLogInsertedDate)
             binding.inputStokLog = item
             //binding.clickListemer = clickListener
             binding.updateListener = updateInputStokLogClickListener
             binding.deleteListener= deleteInputStokLogClickListener
             binding.longListener = longListener
+            binding.txtTanggal.text = formattedDate
             binding.executePendingBindings()
         }
 

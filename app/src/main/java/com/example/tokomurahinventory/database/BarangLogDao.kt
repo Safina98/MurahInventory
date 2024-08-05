@@ -125,8 +125,8 @@ interface BarangLogDao {
     """)
     fun getLogMasukByDateRange(startDate: Date?, endDate: Date?, tipe:String): List<InputStokLogModel>
 
-    @Query(" UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs-:detailWarnaPcs,lastEditedBy =:loggedInUsers WHERE warnaRef = :refWarna AND detailWarnaIsi = :detailWarnaIsi")
-    fun updateDetailWarna(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,loggedInUsers:String?): Int
+    @Query(" UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs-:detailWarnaPcs,lastEditedBy =:loggedInUsers,detailWarnaLastEditedDate=:lastEditedDate WHERE warnaRef = :refWarna AND detailWarnaIsi = :detailWarnaIsi")
+    fun updateDetailWarna(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,loggedInUsers:String?,lastEditedDate: Date): Int
     @Insert
     fun insert(detailWarnaTable: DetailWarnaTable)
     @Insert
@@ -150,7 +150,7 @@ interface BarangLogDao {
         loggedInUsers: String?,
         id: Int
     ) {
-        updateDetailWarna(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers)
+        updateDetailWarna(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers,Date())
         delete(id)
     }
 
@@ -171,7 +171,7 @@ interface BarangLogDao {
         Log.i("InsertLogTry", "PCs ${barangLogRef}")
         updateByBarangLogRef(refMerk, warnaRef, detailWarnaRef, isi, pcs, barangLogDate, refLog, barangLogRef)
         detailWarnaUpdates.forEach { update ->
-            updateDetailWarna(update.warnaRef, update.detailWarnaIsi, update.detailWarnaPcs, loggedInUsers)
+            updateDetailWarna(update.warnaRef, update.detailWarnaIsi, update.detailWarnaPcs, loggedInUsers,Date())
         }
     }
     @Transaction
@@ -186,7 +186,7 @@ interface BarangLogDao {
         val barangLogId = insert(barangLog)
 
         // Update one entry in detail_warna_table
-        updateDetailWarna(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers)
+        updateDetailWarna(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers,Date())
     }
 
     @Transaction
@@ -208,7 +208,8 @@ interface BarangLogDao {
                 barangLog.warnaRef,
                 barangLog.isi,
                 barangLog.pcs,
-                loggedInUsers
+                loggedInUsers,
+                Date()
             )
         }
     }
@@ -235,10 +236,10 @@ interface BarangLogDao {
         // Update detail warna
         oldBarangLog?.let {
             Log.i("DAO", "Updating detail warna for old barang log: ${it.warnaRef}")
-            updateDetailWarna(it.warnaRef, it.isi, it.pcs, loggedInUsers)
+            updateDetailWarna(it.warnaRef, it.isi, it.pcs, loggedInUsers,Date())
         }
         Log.i("DAO", "Updating detail warna for new barang log: ${newBarangLog.warnaRef}")
-        updateDetailWarna(newBarangLog.warnaRef, newBarangLog.isi, -newBarangLog.pcs, loggedInUsers)
+        updateDetailWarna(newBarangLog.warnaRef, newBarangLog.isi, -newBarangLog.pcs, loggedInUsers,Date())
     }
 
     @Transaction

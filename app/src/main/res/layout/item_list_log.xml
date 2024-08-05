@@ -50,7 +50,6 @@
                 android:id="@+id/txtDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:logDate="@{log.logCreatedDate}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 style="@style/txt_item_log_style" />

@@ -78,15 +78,39 @@ class InputStokFragment : AuthFragment() {
             }
         )
         binding.rvInputStokLog.adapter=adapter
-        viewModel.isInputLogLoading.observe(viewLifecycleOwner) {
-            if(it==true){
+        viewModel.isInputLogLoading.observe(viewLifecycleOwner) { isLoading ->
+            Log.i("LoadLogProbs", "isLoading observer : $isLoading")
+            if (isLoading) {
                 binding.progressBarInputLog.visibility = View.VISIBLE
-                binding.rvInputStokLog.visibility= View.GONE
-            }else
-            {
+                binding.rvInputStokLog.visibility = View.GONE
+                binding.textCrashed.visibility = View.GONE
+            } else {
+                // This should only hide the ProgressBar if not loading
                 binding.progressBarInputLog.visibility = View.GONE
-                binding.rvInputStokLog.visibility= View.VISIBLE
+                // Check if the data loading was successful or not
+                if (viewModel.isLoadCrashed.value == true) {
+                    binding.rvInputStokLog.visibility = View.GONE
+                    binding.textCrashed.visibility = View.VISIBLE
+                } else {
+                    binding.rvInputStokLog.visibility = View.VISIBLE
+                    binding.textCrashed.visibility = View.GONE
+                }
             }
+        }
+
+        viewModel.isLoadCrashed.observe(viewLifecycleOwner) { hasCrashed ->
+            if (hasCrashed) {
+                // Only show crash message if there was an actual crash
+                binding.textCrashed.visibility = View.VISIBLE
+                binding.rvInputStokLog.visibility = View.GONE
+            } else {
+                // Hide the crash message if there's no crash
+                binding.textCrashed.visibility = View.GONE
+                // RecyclerView visibility will be handled by the isLogLoading observer
+            }
+        }
+        binding.textCrashed.setOnClickListener{
+            viewModel.updateRv4()
         }
         viewModel.inputLogModel.observe(viewLifecycleOwner, Observer {
             adapter.submitList(it.sortedByDescending { it.barangLogInsertedDate })
@@ -120,7 +144,7 @@ class InputStokFragment : AuthFragment() {
 
     override fun onStart() {
         super.onStart()
-        viewModel.getAllInputLogModel()
+        //viewModel.getAllInputLogModel()
     }
     private fun setupDialog(inputStokLogModel: InputStokLogModel?) {
         val dialogBinding = DataBindingUtil.inflate<PopUpAddBarangLogBinding>(

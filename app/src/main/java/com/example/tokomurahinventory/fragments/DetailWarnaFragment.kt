@@ -103,12 +103,10 @@ class DetailWarnaFragment : AuthFragment() {
         val adapter=DetailWarnaAdapter(
             DetailWarnaClickListener {
                 //viewModel.onNavigateToDetailWarna(it.warnaRef)
-
             },
             DetailWarnaLongListener {
                 // Handle item long click
                 DialogUtils.showCreratedEdited(requireContext(),it.createdBy ?: it.user!!,it.lastEditedBy ?: it.user!!, it.detailWarnaDate,it.detailWarnaLastEditedDate)
-
             }, UpdateDetailWarnaClickListener {
                 showAddDetailWarnaDialog(viewModel,it,-1)
             }, DeleteDetailWarnaClickListener {
@@ -133,7 +131,6 @@ class DetailWarnaFragment : AuthFragment() {
             it.let {
                 adapter.submitList(it.sortedBy { it.detailWarnaIsi })
                 adapter.notifyDataSetChanged()
-
             }
         }
 

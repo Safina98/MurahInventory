@@ -31,14 +31,12 @@ class LogFragment : AuthFragment(){
     private lateinit var binding: FragmentLogBinding
     private lateinit var viewModel: LogViewModel
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_log,container,false)
-
         val application = requireNotNull(this.activity).application
         val dataSourceLog = DatabaseInventory.getInstance(application).logDao
         val dataSourcebarangLog = DatabaseInventory.getInstance(application).barangLogDao
@@ -49,7 +47,6 @@ class LogFragment : AuthFragment(){
         val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?: ""
         viewModel = ViewModelProvider(requireActivity(), LogViewModelFactory(dataSourceMerk,dataSourceWarna,dataSourceDetailWarna,dataSourceLog,dataSourcebarangLog,loggedInUser,application)).get(LogViewModel::class.java)
         binding.viewModel = viewModel
-
         viewModel.resetTwoWayBindingSub()
         val adapter  = LogAdapter(
             LogClickListener {
@@ -65,17 +62,40 @@ class LogFragment : AuthFragment(){
             }
         )
         binding.rvLog.adapter = adapter
-        viewModel.isLogLoading.observe(viewLifecycleOwner) {
-            if(it==true){
+        viewModel.isLogLoading.observe(viewLifecycleOwner) { isLoading ->
+            Log.i("LoadLogProbs", "isLoading observer : $isLoading")
+            if (isLoading) {
                 binding.progressBarLog.visibility = View.VISIBLE
                 binding.rvLog.visibility = View.GONE
-            }else
-            {
+                binding.textCrashed.visibility = View.GONE
+            } else {
+                // This should only hide the ProgressBar if not loading
                 binding.progressBarLog.visibility = View.GONE
-                binding.rvLog.visibility = View.VISIBLE
+                // Check if the data loading was successful or not
+                if (viewModel.isLoadCrashed.value == true) {
+                    binding.rvLog.visibility = View.GONE
+                    binding.textCrashed.visibility = View.VISIBLE
+                } else {
+                    binding.rvLog.visibility = View.VISIBLE
+                    binding.textCrashed.visibility = View.GONE
+                }
             }
         }
 
+        viewModel.isLoadCrashed.observe(viewLifecycleOwner) { hasCrashed ->
+            if (hasCrashed) {
+                // Only show crash message if there was an actual crash
+                binding.textCrashed.visibility = View.VISIBLE
+                binding.rvLog.visibility = View.GONE
+            } else {
+                // Hide the crash message if there's no crash
+                binding.textCrashed.visibility = View.GONE
+                // RecyclerView visibility will be handled by the isLogLoading observer
+            }
+        }
+        binding.textCrashed.setOnClickListener{
+            viewModel.updateRv4()
+        }
         //adapter.submitList(viewModel.logDummy)
         viewModel.allLog.observe(viewLifecycleOwner, Observer {
             it?.let{
@@ -114,12 +134,10 @@ class LogFragment : AuthFragment(){
 
         return binding.root
     }
-
     override fun onStart() {
         super.onStart()
         viewModel.getAllLogTable()
     }
-
     private fun showDatePickerDialog(code:Int) {
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.pop_up_date_picker, null)
         val datePickerStart = dialogView.findViewById<DatePicker>(R.id.datePickerStart)

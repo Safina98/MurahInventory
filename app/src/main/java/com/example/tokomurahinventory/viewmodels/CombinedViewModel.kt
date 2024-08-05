@@ -46,7 +46,6 @@ class CombinedViewModel(
     val dataSourceLog: LogDao,
     application: Application
 ) : BaseAndroidViewModel(application) {
-
     private var viewModelJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
@@ -158,13 +157,14 @@ class CombinedViewModel(
                 it.namaMerk.lowercase(Locale.getDefault()).contains(query.toString().lowercase(Locale.getDefault()))
             })
         } else {
-            list.addAll(_unFilteredMerk.value!!)
+            list.addAll(_unFilteredMerk.value?: listOf())
         }
         _allMerkTable.value = list
     }
 
     fun insertMerk(namaMerk: String) {
         viewModelScope.launch {
+            _isLoading.value = true
             val merk = MerkTable().apply {
                 this.namaMerk = namaMerk
                 val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
@@ -186,6 +186,7 @@ class CombinedViewModel(
 
     fun updateMerk(merkTable: MerkTable) {
         viewModelScope.launch {
+            _isLoading.value=true
             merkTable.lastEditedBy = SharedPreferencesHelper.getLoggedInUser(getApplication())
             merkTable.merkLastEditedDate = Date()
             updateMerkToDao(merkTable)
@@ -195,6 +196,7 @@ class CombinedViewModel(
 
     fun deleteMerk(merkTable: MerkTable) {
         viewModelScope.launch {
+            _isLoading.value = true
             deleteMerkToDao(merkTable)
             getAllMerkTable()
             getWarnaByMerk(refMerkk.value)
@@ -224,7 +226,6 @@ class CombinedViewModel(
         addMerkFabM.value = true
     }
 
-
     fun onAddMerkFabClicked() {
         addMerkFabM.value = false
         Log.i("SplitFragmetProbs","addWarnaFabClick ${addMerkFabM.value}")
@@ -245,7 +246,6 @@ class CombinedViewModel(
                     }else{
                         warnaDao.getWarnaWithTotalPcsList(refMerk)
                     }
-
                 }
                 _allWarnaByMerk.value = list
                 _unFilteredWarna.value = list
@@ -288,6 +288,7 @@ class CombinedViewModel(
 
     fun insertWarna(kodeWarna: String, satuan: String) {
         viewModelScope.launch {
+            _isWarnaLoading.value = true
             Log.i("WarnaProbs","InserWarna called")
             Log.i("WarnaProbs","refMerkk = ${refMerkk.value}")
             if (refMerkk.value!=null){
@@ -301,22 +302,30 @@ class CombinedViewModel(
                     this.user = createdBy
                 }
                 setRefWarna(warna.warnaRef)
-                Log.i("WarnaProbs","warna = ${warna}")
+                Log.i("UpdateWarnaProbs","warna = ${warna}")
                 insertWarnaToDao(warna)
                 getWarnaByMerk(refMerkk.value)
-                insertDetailWarna(0, 0.0)
+                //insertDetailWarna(0, 0.0)
             }else Toast.makeText(getApplication(), "Pilih merk", Toast.LENGTH_SHORT).show()
-
         }
     }
 
     fun updateWarna(warnaTable: WarnaModel) {
         viewModelScope.launch {
-            warnaTable.lastEditedBy = SharedPreferencesHelper.getLoggedInUser(getApplication()) ?:""
-            warnaTable.warnaLastEditedDate = Date()
-            updateWarnaToDao(warnaTable.toWarnaTable())
-            Log.i("SplitFragmentProb"," update warna ${refWarna.value}")
-            getWarnaByMerk(refMerkk.value)
+            _isWarnaLoading.value = true
+            try {
+                warnaTable.lastEditedBy = SharedPreferencesHelper.getLoggedInUser(getApplication()) ?:""
+                Log.i("UpdateWarnaProbs"," update warna ${warnaTable}")
+                warnaTable.warnaLastEditedDate = Date()
+                //getDetailWarnaByWarnaRef(warnaTable.warnaRef)
+                updateWarnaToDao(warnaTable.toWarnaTable())
+                setRefWarna(warnaTable.warnaRef)
+                getWarnaByMerk(refMerkk.value)
+            }catch (e:Exception){
+                Toast.makeText(getApplication(),"Gagal Mengubah data, coba lagi",Toast.LENGTH_SHORT).show()
+                Log.i("UpdateWarnaProbs"," error${e}}")
+            }
+            _isWarnaLoading.value = false
         }
     }
     fun WarnaModel.toWarnaTable(): WarnaTable {
@@ -334,9 +343,9 @@ class CombinedViewModel(
             warnaLastEditedDate = Date()
         )
     }
-
     fun deleteWarna(warnaTable: WarnaModel) {
         viewModelScope.launch {
+            _isWarnaLoading.value = true
             deleteWarnaToDao(warnaTable.toWarnaTable())
             getWarnaByMerk(refMerkk.value)
             getDetailWarnaByWarnaRef(refWarna.value!!)
@@ -346,10 +355,7 @@ class CombinedViewModel(
     private suspend fun insertWarnaToDao(warna: WarnaTable) {
         withContext(Dispatchers.IO) {
             try {
-                Log.i("WarnaProbs", "insertWarnaToDaoCalled ")
-                Log.i("WarnaProbs", "refMerkk = warna= ${warna}")
                 warnaDao.insertNew(warna)
-                Log.i("WarnaProbs", "insertWarnaToDaoSuccessful")
             } catch (e: Exception) {
                 Log.e("WarnaProbs", "Error inserting warna", e)
             }
@@ -377,8 +383,6 @@ class CombinedViewModel(
     @SuppressLint("NullSafeMutableLiveData")
     fun onNavigatedToDetailWarna() { navigateToDetailWarnaM.value = null }
 
-
-
     fun onMerkLongClick(v: View): Boolean {
         Log.i("SplitFragmetProbs","addWarnaFabLongClick ")
         return true
@@ -396,13 +400,12 @@ class CombinedViewModel(
         return date
     }
 
-
     fun insertDetailWarna(pcs: Int, isi: Double) {
         viewModelScope.launch {
+            _isDetailWarnaLoading.value=true
             val detailWarnaTable = DetailWarnaTable()
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             val refMerk_ = getMerkRef()
-
             if (loggedInUsers != null) {
                 if (_refWarna.value!=null&&refMerk_!=null){
                     detailWarnaTable.warnaRef = _refWarna.value!!
@@ -411,15 +414,13 @@ class CombinedViewModel(
                     detailWarnaTable.detailWarnaIsi = isi
                     detailWarnaTable.detailWarnaPcs = pcs
                     detailWarnaTable.user = loggedInUsers
-
                     val detailWarnaTable1 = checkIfIsiExisted(isi, _refWarna.value!!)
                     if (detailWarnaTable1 != null) {
-                        detailWarnaTable1.lastEditedBy = loggedInUsers
-                        detailWarnaTable1.detailWarnaIsi = isi
-                        detailWarnaTable1.detailWarnaPcs = pcs
-                        detailWarnaTable.detailWarnaLastEditedDate = Date()
-                        val log = createLog(detailWarnaTable1)
-                        val barangLog = createBarangLog(detailWarnaTable1,log,refMerk_,detailWarnaTable.detailWarnaRef)
+                        detailWarnaTable.detailWarnaRef = detailWarnaTable1.detailWarnaRef
+                        detailWarnaTable.createdBy = detailWarnaTable1.createdBy
+                        detailWarnaTable.detailWarnaDate = detailWarnaTable1.detailWarnaDate
+                        val log = createLog(detailWarnaTable)
+                        val barangLog = createBarangLog(detailWarnaTable,log,refMerk_,detailWarnaTable.detailWarnaRef)
                         updateDetailWarnaAndInsertBarangLogAndLog(detailWarnaTable.warnaRef,detailWarnaTable.detailWarnaIsi,detailWarnaTable.detailWarnaPcs,detailWarnaTable.lastEditedBy,detailWarnaTable.detailWarnaLastEditedDate,log,barangLog)
 
                     } else {
@@ -501,10 +502,8 @@ class CombinedViewModel(
             dataSourceDetailWarna.checkIfIsiExisted(isi,refWarna)
         }
     }
-
     fun onAddDetailWarnaFabClick() { _addDetailWarnaFab.value = true }
     fun onAddDetailWarnaFabClicked() { _addDetailWarnaFab.value = false }
     fun onLongClick(v: View): Boolean { return false }
-
 
 }
