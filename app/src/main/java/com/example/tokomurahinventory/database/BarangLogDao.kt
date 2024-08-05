@@ -37,6 +37,10 @@ interface BarangLogDao {
             "WHERE barang_log.refLog = :refLog")
     fun selectCountModelByLogRef(refLog: String): List<CountModel>
 
+    @Query("SELECT detailWarnaPcs FROM detail_warna_table WHERE warnaRef = :warnaRef AND detailWarnaIsi = :detailWarnaIsi")
+    suspend fun getCurrentDetailWarnaPcs(warnaRef: String, detailWarnaIsi: Double): Int
+
+
     @Query("SELECT * FROM barang_log")
     fun selectAllLog(): LiveData<List<BarangLog>>
 
@@ -150,8 +154,24 @@ interface BarangLogDao {
         loggedInUsers: String?,
         id: Int
     ) {
-        updateDetailWarna(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers,Date())
-        delete(id)
+        // Retrieve the current pcs value for the given refWarna and detailWarnaIsi
+        val currentPcs = getCurrentDetailWarnaPcs(refWarna, detailWarnaIsi)
+
+        // Calculate the new pcs value after the update
+        val newPcs = currentPcs - detailWarnaPcs
+
+        // Check if the new pcs value would be negative
+        if (newPcs >= 0) {
+            // Perform the update
+            updateDetailWarna(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers, Date())
+
+            // Perform the delete operation
+            delete(id)
+        } else {
+            // Log the error and throw an exception to roll back the transaction
+            Log.e("InsertLogTry", "Update failed: Negative pcs value detected for refWarna $refWarna and detailWarnaIsi $detailWarnaIsi")
+            throw IllegalArgumentException("Stok tidak cukup, stok sisa $currentPcs")
+        }
     }
 
     @Transaction
@@ -167,13 +187,23 @@ interface BarangLogDao {
         detailWarnaUpdates: List<DetailWarnaTable>,
         loggedInUsers: String?
     ) {
-        Log.i("InsertLogTry", "PCs ${pcs}")
-        Log.i("InsertLogTry", "PCs ${barangLogRef}")
+        // Update BarangLog Table
         updateByBarangLogRef(refMerk, warnaRef, detailWarnaRef, isi, pcs, barangLogDate, refLog, barangLogRef)
+        // Perform DetailWarnaTable updates
         detailWarnaUpdates.forEach { update ->
-            updateDetailWarna(update.warnaRef, update.detailWarnaIsi, update.detailWarnaPcs, loggedInUsers,Date())
+            val currentPcs = getCurrentDetailWarnaPcs(update.warnaRef, update.detailWarnaIsi)
+            val newPcs = currentPcs - update.detailWarnaPcs
+
+            if (newPcs >= 0) {
+                updateDetailWarna(update.warnaRef, update.detailWarnaIsi, update.detailWarnaPcs, loggedInUsers, Date())
+            } else {
+                // Log the error and throw an exception to roll back the transaction
+                Log.e("InsertLogTry", "Update failed: Negative pcs value detected for warnaRef ${update.warnaRef} and detailWarnaIsi ${update.detailWarnaIsi}")
+                throw IllegalArgumentException("Stok tidak cukup, stok sisa $currentPcs")
+            }
         }
     }
+
     @Transaction
     suspend fun insertBarangLogAndUpdateDetailWarna(
         barangLog: BarangLog,

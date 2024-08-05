@@ -222,14 +222,20 @@ class InputStokViewModel (
     fun deleteInputStok(inputStokLogModel: InputStokLogModel){
         uiScope.launch {
             _isInputLogLoading.value = true
-            val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
-            val item = getBarangLogFromDB(inputStokLogModel.inputBarangLogRef)
-            if (item!=null){
-                //updateDetailWarnaTODao(item.warnaRef,item.isi,item.pcs,loggedInUsers)
-                updataDetailWarnaAndDeleteBarangLogToDao(item.warnaRef, item.isi, item.pcs, loggedInUsers, item.id)
-                //getAllInputLogModel()
-                updateRv4()
-        }
+            try {
+                val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
+                val item = getBarangLogFromDB(inputStokLogModel.inputBarangLogRef)
+                if (item!=null){
+                    //updateDetailWarnaTODao(item.warnaRef,item.isi,item.pcs,loggedInUsers)
+                    updataDetailWarnaAndDeleteBarangLogToDao(item.warnaRef, item.isi, item.pcs, loggedInUsers, item.id)
+                    //getAllInputLogModel()
+
+                }
+            }catch (e:Exception){
+                Toast.makeText(getApplication(),"$e",Toast.LENGTH_SHORT).show()
+                Log.e("InsertLogTry", "Error updating detail warna: ${e.message}", e)
+            }
+            updateRv4()
         }
     }
     fun convertToBarangLog(input: InputStokLogModel,refMerk:String,refWarna:String,refDetailWarna:String,loggedInUsers:String?,logRef:String): BarangLog {
@@ -304,8 +310,6 @@ class InputStokViewModel (
                                     detailWarnaPcs = -selisihPcs
                                 )
                             )
-                            //updateBarangLogToDao(newBarangLog)
-                            //updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, -selisihPcs, loggedInUsers)
                         } else {
                             // Update old log
                             detailWarnaUpdates.add(
@@ -322,19 +326,8 @@ class InputStokViewModel (
                                     detailWarnaPcs = -newBarangLog.pcs
                                 )
                             )
-                            selisihPcs = oldBarangLog.pcs
-                            //updateBarangLogToDao(newBarangLog)
-                            //updateDetailWarnaTODao(oldBarangLog.warnaRef, oldBarangLog.isi, oldBarangLog.pcs, loggedInUsers)
-                            // Update new log
-                            //updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, -newBarangLog.pcs, loggedInUsers)
                         }
                     } else {
-                        // Update old log
-                        selisihPcs = oldBarangLog.pcs
-                        //updateBarangLogToDao(newBarangLog)
-                        //updateDetailWarnaTODao(oldBarangLog.warnaRef, oldBarangLog.isi, selisihPcs, loggedInUsers)
-                        // Update new log
-                        //updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, -newBarangLog.pcs, loggedInUsers)
                         detailWarnaUpdates.add(
                             DetailWarnaTable(
                                 warnaRef = oldBarangLog.warnaRef,
@@ -358,9 +351,7 @@ class InputStokViewModel (
                             detailWarnaPcs =-newBarangLog.pcs
                         )
                     )
-                    // New log without an old counterpart
-                    //updateBarangLogToDao(newBarangLog)
-                    //updateDetailWarnaTODao(newBarangLog.warnaRef, newBarangLog.isi, -newBarangLog.pcs, loggedInUsers)
+
                 }
                 updateBarangLogAndDetailWarna(
                     newBarangLog.refMerk,
@@ -374,12 +365,13 @@ class InputStokViewModel (
                     detailWarnaUpdates,
                     loggedInUsers
                 )
-                updateRv4()
+
                 //getAllInputLogModel()
             } catch (e: Exception) {
+                Toast.makeText(getApplication(),"$e",Toast.LENGTH_SHORT).show()
                 Log.e("InsertLogTry", "Error updating detail warna: ${e.message}", e)
             }
-
+            updateRv4()
         }
     }
 
