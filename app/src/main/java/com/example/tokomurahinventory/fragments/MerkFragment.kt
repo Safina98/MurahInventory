@@ -42,6 +42,7 @@ import java.util.Date
 class MerkFragment : AuthFragment() {
     private lateinit var binding: FragmentMerkBinding
     private lateinit var viewModel: CombinedViewModel
+    private var isDialogShowing = false
    // private val viewModel:MerkViewModel by viewModels()
 //   private val viewModel:CombinedViewModel by viewModels()
     override fun onCreateView(
@@ -188,6 +189,9 @@ class MerkFragment : AuthFragment() {
         Log.d(":SplitFragmetProbs", "Button: $button")
     }
     fun showAddDialog(viewModel: CombinedViewModel, merkTable:MerkTable?, i:Int){
+        if (isDialogShowing) return
+
+        isDialogShowing = true
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Tambah Merk Barang")
         val inflater = LayoutInflater.from(context)
@@ -208,6 +212,9 @@ class MerkFragment : AuthFragment() {
             }
         }
         builder.setNegativeButton("No") { dialog, which ->
+        }
+        builder.setOnDismissListener {
+            isDialogShowing = false
         }
         val alert = builder.create()
         alert.show()

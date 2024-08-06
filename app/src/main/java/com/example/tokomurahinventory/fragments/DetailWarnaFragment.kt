@@ -35,6 +35,7 @@ class DetailWarnaFragment : AuthFragment() {
     private lateinit var binding:FragmentDetailWarnaBinding
     //private val viewModel: MerkViewModel by viewModels()
     private lateinit var viewModel:CombinedViewModel
+    private var isDialogShowing = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -126,6 +127,9 @@ class DetailWarnaFragment : AuthFragment() {
         return binding.root
     }
     fun showAddDetailWarnaDialog(viewModel:CombinedViewModel, detailWarnaModel: DetailWarnaModel?, i:Int){
+        if (isDialogShowing) return
+
+        isDialogShowing = true
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Tambah Barang")
         val inflater = LayoutInflater.from(context)
@@ -161,6 +165,9 @@ class DetailWarnaFragment : AuthFragment() {
                 Toast.makeText(context,"Gagal menambah data",Toast.LENGTH_SHORT).show()
         }
         builder.setNegativeButton("No") { dialog, which ->
+        }
+        builder.setOnDismissListener {
+            isDialogShowing = false
         }
         val alert = builder.create()
         alert.show()

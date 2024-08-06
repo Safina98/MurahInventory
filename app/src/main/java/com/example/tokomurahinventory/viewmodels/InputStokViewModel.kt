@@ -215,8 +215,6 @@ class InputStokViewModel (
     }
     fun resetDate(){
         setInitialStartDateAndEndDate()
-        //setStartDateRange(null)
-        //setEndDateRange(null)
         updateDateRangeString(null,null)
     }
 

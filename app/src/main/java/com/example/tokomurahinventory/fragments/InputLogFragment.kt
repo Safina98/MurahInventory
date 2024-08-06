@@ -49,6 +49,7 @@ class InputLogFragment : AuthFragment() {
     private lateinit var adapter: CountAdapter
     private lateinit var progressBar: ProgressBar
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

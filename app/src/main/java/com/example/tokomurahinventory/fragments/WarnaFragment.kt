@@ -39,6 +39,7 @@ class WarnaFragment : AuthFragment() {
     private lateinit var binding: FragmentWarnaBinding
     //private lateinit var viewModel: WarnaViewModel
     private lateinit var viewModel: CombinedViewModel
+    private var isDialogShowing = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Initialize ViewModel
@@ -180,6 +181,9 @@ class WarnaFragment : AuthFragment() {
     }
 
     private fun showAddWarnaDialog(viewModel: CombinedViewModel, warnaTable: WarnaModel?, i: Int) {
+        if (isDialogShowing) return
+
+        isDialogShowing = true
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Tambah Warna")
         val inflater = LayoutInflater.from(context)
@@ -224,8 +228,11 @@ class WarnaFragment : AuthFragment() {
         }
 
         builder.setNegativeButton("No") { dialog, which -> }
-
+        builder.setOnDismissListener {
+            isDialogShowing = false
+        }
         val alert = builder.create()
+
         alert.show()
     }
 

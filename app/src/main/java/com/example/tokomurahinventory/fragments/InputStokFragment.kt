@@ -47,6 +47,7 @@ class InputStokFragment : AuthFragment() {
 
     private lateinit var binding: FragmentInputStokBinding
     private val viewModel: InputStokViewModel by viewModels()
+    private var isDialogShowing = false
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -147,6 +148,9 @@ class InputStokFragment : AuthFragment() {
         //viewModel.getAllInputLogModel()
     }
     private fun setupDialog(inputStokLogModel: InputStokLogModel?) {
+        if (isDialogShowing) return
+
+        isDialogShowing = true
         val dialogBinding = DataBindingUtil.inflate<PopUpAddBarangLogBinding>(
             LayoutInflater.from(context),
             R.layout.pop_up_add_barang_log,
@@ -221,10 +225,15 @@ class InputStokFragment : AuthFragment() {
                 }
                 dialog.dismiss() }
             .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
+        .setOnDismissListener {
+            isDialogShowing = false
+        }
             .show()
     }
 
     private fun showDatePickerDialog(code:Int) {
+        if (isDialogShowing) return
+        isDialogShowing = true
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.pop_up_date_picker, null)
         val datePickerStart = dialogView.findViewById<DatePicker>(R.id.datePickerStart)
         val datePickerEnd = dialogView.findViewById<DatePicker>(R.id.datePickerEnd)
@@ -254,6 +263,9 @@ class InputStokFragment : AuthFragment() {
             }
             .setNegativeButton("Cancel", null)
             .create()
+        dialog.setOnDismissListener {
+            isDialogShowing = false
+        }
 
         dialog.show()
     }
