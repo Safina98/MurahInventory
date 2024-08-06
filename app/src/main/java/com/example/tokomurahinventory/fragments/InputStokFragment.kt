@@ -153,7 +153,6 @@ class InputStokFragment : AuthFragment() {
             null,
             false
         )
-
         val autoCompleteMerk = dialogBinding.txtMerk
         val autoCompleteWarna = dialogBinding.txtWarna
         val autoCompleteIsi = dialogBinding.txtIsi
