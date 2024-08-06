@@ -202,8 +202,6 @@ class LogViewModel (
     }
     fun resetDate(){
         setInitialStartDateAndEndDate()
-        //setStartDateRange(null)
-        //setEndDateRange(null)
         updateDateRangeString(null,null)
     }
 
@@ -246,10 +244,7 @@ class LogViewModel (
                 }
 
             } catch (e: Exception) {
-                // Log the exception for debugging
                 Log.e("DataFilteringError", "Error during data filtering", e)
-
-                // Update LiveData on the main thread
                 withContext(Dispatchers.Main) {
                     _isLogLoading.value = false
                     _isLoadCrashed.value = true
@@ -272,7 +267,6 @@ class LogViewModel (
             dataSourceWarna.selectStringWarnaByMerk(refMerk)
         }
     }
-
 
     //get list isi for sugestion
     fun getIsiByWarnaAndMerk(merk:String,warna:String){
@@ -463,46 +457,52 @@ class LogViewModel (
     fun updateCountModel(countModel: CountModel, callback: (UpdateStatus) -> Unit) {
         viewModelScope.launch {
             // Perform validation
-            val isMerkPresent = checkMerkExisted(countModel.merkBarang!!)
-            val isWarnaPresent = isKodeWarnaInLiveData(codeWarnaByMerk, countModel.kodeBarang!!)
-            val isIsiPresent = isIsiInLiveData(isiByWarnaAndMerk, countModel.isi!!)
-
-            val isPcsReadyInStok = if (isIsiPresent) {
-                val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
-                val refWarna = getrefWanraByName(countModel.kodeBarang!!, refMerk)
-                val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna!!, countModel.isi!!)
-                checkIfPcsReadyInStok(refDetailWarna!!, countModel.psc)
-            } else false
+            Log.i("NEWPOPUPPROB","${countModel.merkBarang}")
+            Log.i("NEWPOPUPPROB","${countModel.kodeBarang}")
             var updatedList = _countModelList.value?.toMutableList()
             var itemToUpdate = updatedList?.find { it.id == countModel.id }
             val a =CountModel(itemToUpdate?.id?:getAutoIncrementId(),null,null,null,0,"","")
-            if (isMerkPresent && isWarnaPresent && isIsiPresent && isPcsReadyInStok) {
-                // Update the item if validation passes
-                if (itemToUpdate != null) {
-                    itemToUpdate.merkBarang = countModel.merkBarang!!
-                    itemToUpdate.kodeBarang = countModel.kodeBarang
-                    itemToUpdate.isi = countModel.isi!!
-                    itemToUpdate.psc = countModel.psc
-                    merkMutable.value = countModel.merkBarang
-                    _countModelList.value = updatedList // Notify observers of the change
-                    callback(UpdateStatus.SUCCESS) // Notify success
-                } else {
-                    // Notify observers of the change
+            if (itemToUpdate != null) {
+                val isMerkPresent = checkMerkExisted(countModel.merkBarang!!)
+                Log.i("NEWPOPUPPROB","${countModel.merkBarang} ${isMerkPresent}")
+                val isWarnaPresent = isKodeWarnaInLiveData(codeWarnaByMerk, countModel.kodeBarang!!)
+                Log.i("NEWPOPUPPROB","${countModel.kodeBarang} ${isWarnaPresent}")
+                val isIsiPresent = isIsiInLiveData(isiByWarnaAndMerk, countModel.isi!!)
+                val isPcsReadyInStok = if (isIsiPresent) {
+                    val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
+                    val refWarna = getrefWanraByName(countModel.kodeBarang!!, refMerk)
+                    val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna!!, countModel.isi!!)
+                    checkIfPcsReadyInStok(refDetailWarna!!, countModel.psc)
+                } else false
 
-                    callback(UpdateStatus.ITEM_NOT_FOUND) // Notify failure
+                if (isMerkPresent && isWarnaPresent && isIsiPresent && isPcsReadyInStok) {
+                    // Update the item if validation passes
+                        itemToUpdate.merkBarang = countModel.merkBarang!!
+                        itemToUpdate.kodeBarang = countModel.kodeBarang
+                        itemToUpdate.isi = countModel.isi!!
+                        itemToUpdate.psc = countModel.psc
+                        merkMutable.value = countModel.merkBarang
+                        _countModelList.value = updatedList // Notify observers of the change
+                        callback(UpdateStatus.SUCCESS) // Notify success
+
+                } else {
+                    updatedList!!.remove(itemToUpdate)
+                    _countModelList.value = updatedList
+                    // Notify the appropriate failure status
+                    when {
+                        !isMerkPresent -> callback(UpdateStatus.MERK_NOT_PRESENT)
+                        !isWarnaPresent -> callback(UpdateStatus.WARNA_NOT_PRESENT)
+                        !isIsiPresent -> callback(UpdateStatus.ISI_NOT_PRESENT)
+                        !isPcsReadyInStok -> callback(UpdateStatus.PCS_NOT_READY_IN_STOCK)
+                    }
                 }
-            } else {
-                updatedList!!.remove(itemToUpdate)
-                _countModelList.value = updatedList
-                // Notify the appropriate failure status
-                when {
-                    !isMerkPresent -> callback(UpdateStatus.MERK_NOT_PRESENT)
-                    !isWarnaPresent -> callback(UpdateStatus.WARNA_NOT_PRESENT)
-                    !isIsiPresent -> callback(UpdateStatus.ISI_NOT_PRESENT)
-                    !isPcsReadyInStok -> callback(UpdateStatus.PCS_NOT_READY_IN_STOCK)
-                }
-            }
         }
+         else {
+            // Notify observers of the change
+
+            callback(UpdateStatus.ITEM_NOT_FOUND) // Notify failure
+        }
+    }
     }
 
 
@@ -607,11 +607,12 @@ class LogViewModel (
         }
     }
 
-    fun addNewCountItemBtn(){
+    fun addNewCountItemBtn():CountModel{
         val a = _countModelList.value?.toMutableList() ?: mutableListOf()
-        a.add(CountModel(getAutoIncrementId(),null,null,null,0,"",""))
+        val b = CountModel(getAutoIncrementId(),null,null,null,0,"","")
+        a.add(b)
         _countModelList.value=a
-
+        return b
     }
     //Auto Increment Count Model Id
     private fun getAutoIncrementId(): Int {

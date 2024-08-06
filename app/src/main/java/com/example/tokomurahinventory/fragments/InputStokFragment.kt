@@ -150,6 +150,7 @@ class InputStokFragment : AuthFragment() {
     }
     private fun setupDialog(inputStokLogModel: InputStokLogModel?) {
         if (isDialogShowing) return
+
         isDialogShowing = true
         val dialogBinding = DataBindingUtil.inflate<PopUpAddBarangLogBinding>(
             LayoutInflater.from(context),
@@ -228,6 +229,7 @@ class InputStokFragment : AuthFragment() {
                         Log.i("InsertLogTry","pop up dialog ${inputStokLogModel.pcs}")
                         viewModel.updateInputStok(inputStokLogModel)
                     }else Toast.makeText(context,"Gagal mengubah data", Toast.LENGTH_SHORT).show()
+
                 }
                 dialog.dismiss() }
             .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }

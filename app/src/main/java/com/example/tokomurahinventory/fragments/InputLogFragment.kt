@@ -86,15 +86,20 @@ class InputLogFragment : AuthFragment() {
                 setupDialog(countModel)
                // handleBarangLogMerkClick(countModel, position)
                                        },
-            BarangLogKodeClickListener { countModel, position -> handleBarangLogKodeClick(countModel, position) },
-            BarangLogIsiClickListener { countModel, position -> handleBarangLogIsiClick(countModel, position) },
-            BarangLogPcsClickListener { countModel, position -> handleBarangLogPcsClick(countModel, position) },
+            BarangLogKodeClickListener { countModel, position -> setupDialog(countModel) },
+            BarangLogIsiClickListener { countModel, position -> setupDialog(countModel) },
+            BarangLogPcsClickListener { countModel, position -> setupDialog(countModel) },
             viewModel,
             this
         )
 
 
         binding.rvAddBarang.adapter = adapter
+
+        binding.btnAddNewCountmodel.setOnClickListener {
+            val countModel = viewModel.addNewCountItemBtn()
+            setupDialog(countModel)
+        }
 
 
         viewModel.countModelList.observe(viewLifecycleOwner) { it?.let {
@@ -103,6 +108,7 @@ class InputLogFragment : AuthFragment() {
             adapter.notifyDataSetChanged()
         }}
         viewModel.allMerkFromDb.observe(viewLifecycleOwner){it?.let {}}
+
         viewModel.navigateToLog.observe(viewLifecycleOwner, Observer {
             clearEditText()
             if (it == true) {
@@ -170,109 +176,6 @@ class InputLogFragment : AuthFragment() {
         } ?: Toast.makeText(context, "Masukkan Merk, warna dan isi", Toast.LENGTH_SHORT).show()
         hideLoadingIndicator()
     }
-
-    private fun setupDialogOld(countModel: CountModel?) {
-        val dialogBinding = DataBindingUtil.inflate<PopUpAddBarangLogBinding>(
-            LayoutInflater.from(context),
-            R.layout.pop_up_add_barang_log,
-            null,
-            false
-        )
-
-        val autoCompleteMerk = dialogBinding.txtMerk
-        val autoCompleteWarna = dialogBinding.txtWarna
-        val autoCompleteIsi = dialogBinding.txtIsi
-        val etPcs = dialogBinding.txtPcs
-
-        // Use mutable lists for adapters
-        val merkAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, mutableListOf())
-        autoCompleteMerk.setAdapter(merkAdapter)
-
-        val warnaAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, mutableListOf())
-        autoCompleteWarna.setAdapter(warnaAdapter)
-
-        val isiAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, mutableListOf())
-        autoCompleteIsi.setAdapter(isiAdapter)
-
-        if (countModel != null) {
-            autoCompleteMerk.setText(countModel.merkBarang)
-            autoCompleteWarna.setText(countModel.kodeBarang)
-            if (countModel.isi!=null)autoCompleteIsi.setText(countModel.isi.toString())
-            etPcs.setText(countModel.psc.toString())
-        }
-
-        // Fetch and observe data
-        viewModel.allMerkFromDb.observe(viewLifecycleOwner) { allMerk ->
-            merkAdapter.clear()
-            merkAdapter.addAll(allMerk)
-        }
-
-        autoCompleteMerk.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val merk = s.toString()
-                if (merk.isNotEmpty()) {
-                    viewModel.getWarnaByMerkOld(merk)
-                }
-            }
-            override fun afterTextChanged(s: Editable?) {}
-        })
-
-        viewModel.codeWarnaByMerk.observe(viewLifecycleOwner) { warnaList ->
-            warnaAdapter.clear()
-            warnaAdapter.addAll(warnaList ?: emptyList())
-        }
-
-        autoCompleteWarna.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val warna = s.toString()
-                val merk = autoCompleteMerk.text.toString()
-                if (warna.isNotEmpty() && merk.isNotEmpty()) {
-                    viewModel.getIsiByWarnaAndMerk(merk, warna)
-                }
-            }
-            override fun afterTextChanged(s: Editable?) {}
-        })
-
-        viewModel.isiByWarnaAndMerk.observe(viewLifecycleOwner) { isiList ->
-            isiAdapter.clear()
-            isiAdapter.addAll(isiList?.map { it.toString() } ?: emptyList())
-        }
-
-        // Create and show the dialog
-        val dialog = AlertDialog.Builder(requireContext())
-            .setView(dialogBinding.root)
-            .setPositiveButton("OK", null) // No action here
-            .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
-            .create()
-
-        dialog.setOnShowListener {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setOnClickListener {
-                if (countModel != null) {
-                    countModel.merkBarang = autoCompleteMerk.text.toString().trim()
-                    countModel.kodeBarang = autoCompleteWarna.text.toString().trim()
-                    if (countModel.isi!=null) countModel.isi = autoCompleteIsi.text.toString().trim().toDouble()
-                    countModel.psc = etPcs.text.toString().trim().toInt()
-                    Log.i("InsertLogTry", "pop up dialog countModel: $countModel")
-
-                    // Handle dialog dismissal based on update result
-                    viewModel.updateCountModel(countModel) { success ->
-                        if (success!=null) {
-                            dialog.dismiss() // Dismiss only if update is successful
-                        } else {
-                            Toast.makeText(requireContext(), "Update failed, try again.", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                } else {
-                    dialog.dismiss()
-                }
-            }
-        }
-
-        dialog.show()
-    }
-
 
     fun showPopUpDialog(position: Int, code: String) {
         // Dismiss any existing dialog
@@ -363,17 +266,13 @@ class InputLogFragment : AuthFragment() {
 
 
 
-    @RequiresApi(Build.VERSION_CODES.N)
+
     private fun setupDialog(inputStokLogModel: CountModel?) {
         if (isDialogShowing) return
         isDialogShowing = true
 
         val dialogBinding = DataBindingUtil.inflate<PopUpAddBarangLogBinding>(
-            LayoutInflater.from(context),
-            R.layout.pop_up_add_barang_log,
-            null,
-            false
-        )
+            LayoutInflater.from(context), R.layout.pop_up_add_barang_log, null, false)
 
         val autoCompleteMerk = dialogBinding.txtMerk
         val autoCompleteWarna = dialogBinding.txtWarna
@@ -390,16 +289,16 @@ class InputLogFragment : AuthFragment() {
         if (inputStokLogModel != null) {
             autoCompleteMerk.setText(inputStokLogModel.merkBarang)
             autoCompleteWarna.setText(inputStokLogModel.kodeBarang)
-            autoCompleteIsi.setText(inputStokLogModel.isi.toString())
-            etPcs.setText(inputStokLogModel.psc.toString())
+            if (inputStokLogModel.isi!=null){autoCompleteIsi.setText(inputStokLogModel.isi.toString())}
+            if (inputStokLogModel.psc!=0)etPcs.setText(inputStokLogModel.psc.toString())
+            if (inputStokLogModel.merkBarang!=null)viewModel.getWarnaByMerkNew(inputStokLogModel.merkBarang!!)
+            if (inputStokLogModel.kodeBarang!=null)viewModel.getIsiByWarnaAndMerk(inputStokLogModel.merkBarang!!,inputStokLogModel.kodeBarang!!)
         }
-
         // Fetch and observe data
         viewModel.allMerkFromDb.observe(viewLifecycleOwner) { allMerk ->
             merkAdapter.clear()
             merkAdapter.addAll(allMerk)
         }
-
         autoCompleteMerk.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
@@ -419,13 +318,15 @@ class InputLogFragment : AuthFragment() {
         autoCompleteWarna.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+            }
+            override fun afterTextChanged(s: Editable?) {
                 val warna = s.toString()
                 val merk = autoCompleteMerk.text.toString()
                 if (warna.isNotEmpty() && merk.isNotEmpty()) {
                     viewModel.getIsiByWarnaAndMerk(merk, warna)
                 }
             }
-            override fun afterTextChanged(s: Editable?) {}
         })
 
         viewModel.isiByWarnaAndMerk.observe(viewLifecycleOwner) { isiList ->
@@ -458,7 +359,7 @@ class InputLogFragment : AuthFragment() {
                         viewModel.updateCountModel(inputStokLogModel) { status ->
                             when (status) {
                                 UpdateStatus.SUCCESS -> {
-                                    Toast.makeText(requireContext(), "Update successful", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(requireContext(), "Berhasil Mengubah data", Toast.LENGTH_SHORT).show()
                                     dialog.dismiss()
                                 }
                                 UpdateStatus.MERK_NOT_PRESENT -> Toast.makeText(requireContext(), "Merk tidak ada di database", Toast.LENGTH_SHORT).show()
@@ -466,7 +367,7 @@ class InputLogFragment : AuthFragment() {
                                 UpdateStatus.ISI_NOT_PRESENT -> Toast.makeText(requireContext(), "Isi tidak ada di database", Toast.LENGTH_SHORT).show()
                                 UpdateStatus.PCS_NOT_READY_IN_STOCK -> Toast.makeText(requireContext(), "Jumlah barang tidak cukup", Toast.LENGTH_SHORT).show()
                                 else -> {
-                                    Toast.makeText(requireContext(), "Failed to update", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(requireContext(), "Gagal mengubah data", Toast.LENGTH_SHORT).show()
                                     // Optionally, you can log the status here if needed
                                 }
                             }
