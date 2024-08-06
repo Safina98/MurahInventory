@@ -87,19 +87,6 @@ class DetailWarnaFragment : AuthFragment() {
             CombinedViewModel::class.java)
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
-
-        viewModel.isDetailWarnaLoading.observe(viewLifecycleOwner) {
-            if(it==true){
-                binding.progressBarDetail.visibility = View.VISIBLE
-                binding.rvDetailWarna.visibility = View.GONE
-            }else
-            {
-                binding.progressBarDetail.visibility = View.GONE
-                binding.rvDetailWarna.visibility = View.VISIBLE
-            }
-        }
-
-
         val adapter=DetailWarnaAdapter(
             DetailWarnaClickListener {
                 //viewModel.onNavigateToDetailWarna(it.warnaRef)
@@ -116,19 +103,51 @@ class DetailWarnaFragment : AuthFragment() {
 
         binding.rvDetailWarna.adapter = adapter
 
+
+        viewModel.isDetailWarnaLoading.observe(viewLifecycleOwner) { isLoading ->
+            Log.i("LoadLogProbs", "isLoading observer : $isLoading")
+            if (isLoading) {
+                binding.progressBarDetail.visibility = View.VISIBLE
+                binding.rvDetailWarna.visibility = View.GONE
+                binding.textDetailCrashed.visibility = View.GONE
+            } else {
+                // This should only hide the ProgressBar if not loading
+                binding.progressBarDetail.visibility = View.GONE
+                // Check if the data loading was successful or not
+                if (viewModel.isLoadDetailWarnaCrashed.value == true) {
+                    binding.rvDetailWarna.visibility = View.GONE
+                    binding.textDetailCrashed.visibility = View.VISIBLE
+                } else {
+                    binding.rvDetailWarna.visibility = View.VISIBLE
+                    binding.textDetailCrashed.visibility = View.GONE
+                }
+            }
+        }
+
+        viewModel.isLoadDetailWarnaCrashed.observe(viewLifecycleOwner) { hasCrashed ->
+            if (hasCrashed) {
+                // Only show crash message if there was an actual crash
+                binding.textDetailCrashed.visibility = View.VISIBLE
+                binding.rvDetailWarna.visibility = View.GONE
+            } else {
+                // Hide the crash message if there's no crash
+                binding.textDetailCrashed.visibility = View.GONE
+                // RecyclerView visibility will be handled by the isLogLoading observer
+            }
+        }
+        binding.textDetailCrashed.setOnClickListener{
+            val warnaRef = viewModel.refWarna.value
+            if (warnaRef != null) {
+                viewModel.getDetailWarnaByWarnaRef(warnaRef)
+            }
+        }
+
         viewModel.refWarna.observe(viewLifecycleOwner) {
             Log.i("SplitFragmetProbs", "refWarna ${it}")
             it?.let {
                 viewModel.getDetailWarnaByWarnaRef(it)
             }
         }
-        /*
-        viewModel.warna.observe(viewLifecycleOwner) {
-            Log.i("SplitFragmetProbs", "warna ${it}")
-        }
-
-         */
-
         //Obsert detail warna recycler view
         viewModel.detailWarnaList.observe(viewLifecycleOwner) {
             it.let {

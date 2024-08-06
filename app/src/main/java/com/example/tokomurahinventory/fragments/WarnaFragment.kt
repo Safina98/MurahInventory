@@ -92,15 +92,39 @@ class WarnaFragment : AuthFragment() {
 
         binding.rvWarna.adapter = adapter
 
-        viewModel.isWarnaLoading.observe(viewLifecycleOwner) {
-            if(it==true){
+        viewModel.isWarnaLoading.observe(viewLifecycleOwner) { isLoading ->
+            Log.i("LoadLogProbs", "isLoading observer : $isLoading")
+            if (isLoading) {
                 binding.progressBarWarna.visibility = View.VISIBLE
                 binding.rvWarna.visibility = View.GONE
-            }else
-            {
+                binding.textWarnaCrashed.visibility = View.GONE
+            } else {
+                // This should only hide the ProgressBar if not loading
                 binding.progressBarWarna.visibility = View.GONE
-                binding.rvWarna.visibility = View.VISIBLE
+                // Check if the data loading was successful or not
+                if (viewModel.isLoadWarnaCrashed.value == true) {
+                    binding.rvWarna.visibility = View.GONE
+                    binding.textWarnaCrashed.visibility = View.VISIBLE
+                } else {
+                    binding.rvWarna.visibility = View.VISIBLE
+                    binding.textWarnaCrashed.visibility = View.GONE
+                }
             }
+        }
+
+        viewModel.isLoadWarnaCrashed.observe(viewLifecycleOwner) { hasCrashed ->
+            if (hasCrashed) {
+                // Only show crash message if there was an actual crash
+                binding.textWarnaCrashed.visibility = View.VISIBLE
+                binding.rvWarna.visibility = View.GONE
+            } else {
+                // Hide the crash message if there's no crash
+                binding.textWarnaCrashed.visibility = View.GONE
+                // RecyclerView visibility will be handled by the isLogLoading observer
+            }
+        }
+        binding.textWarnaCrashed.setOnClickListener{
+            viewModel.getWarnaByMerk(null)
         }
         viewModel.merk.observe(viewLifecycleOwner, Observer {
             Log.i("SplitFragmetProbs","merk ${it}")

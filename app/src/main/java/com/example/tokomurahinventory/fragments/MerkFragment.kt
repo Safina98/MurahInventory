@@ -111,15 +111,39 @@ class MerkFragment : AuthFragment() {
                 adapter.notifyDataSetChanged()
             }
         })
-       viewModel.isLoading.observe(viewLifecycleOwner) {
-           if(it==true){
+       viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+           Log.i("LoadLogProbs", "isLoading observer : $isLoading")
+           if (isLoading) {
                binding.progressBarMerk.visibility = View.VISIBLE
                binding.rvMerk.visibility = View.GONE
-           }else
-           {
+               binding.textMerkCrashed.visibility = View.GONE
+           } else {
+               // This should only hide the ProgressBar if not loading
                binding.progressBarMerk.visibility = View.GONE
-               binding.rvMerk.visibility = View.VISIBLE
+               // Check if the data loading was successful or not
+               if (viewModel.isLoadMerkCrashed.value == true) {
+                   binding.rvMerk.visibility = View.GONE
+                   binding.textMerkCrashed.visibility = View.VISIBLE
+               } else {
+                   binding.rvMerk.visibility = View.VISIBLE
+                   binding.textMerkCrashed.visibility = View.GONE
+               }
            }
+       }
+
+       viewModel.isLoadMerkCrashed.observe(viewLifecycleOwner) { hasCrashed ->
+           if (hasCrashed) {
+               // Only show crash message if there was an actual crash
+               binding.textMerkCrashed.visibility = View.VISIBLE
+               binding.rvMerk.visibility = View.GONE
+           } else {
+               // Hide the crash message if there's no crash
+               binding.textMerkCrashed.visibility = View.GONE
+               // RecyclerView visibility will be handled by the isLogLoading observer
+           }
+       }
+       binding.textMerkCrashed.setOnClickListener{
+           viewModel.getAllMerkTable()
        }
 
         binding.searchBarMerk.setOnQueryTextListener(object : SearchView.OnQueryTextListener {

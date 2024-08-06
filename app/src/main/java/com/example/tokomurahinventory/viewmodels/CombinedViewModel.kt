@@ -104,13 +104,19 @@ class CombinedViewModel(
     val orientationMode:LiveData<Int> get() =  _orientationMode
 
     private val _isLoading = MutableLiveData<Boolean>(false)
-    val isLoading: LiveData<Boolean>
-        get() = _isLoading
+    val isLoading: LiveData<Boolean> get() = _isLoading
+    private val _isLoadMerkCrashed = MutableLiveData<Boolean>(false)
+    val isLoadMerkCrashed: LiveData<Boolean> get() = _isLoadMerkCrashed
+
     private val _isWarnaLoading = MutableLiveData<Boolean>(false)
     val isWarnaLoading: LiveData<Boolean> get() = _isWarnaLoading
+    private val _isLoadWarnaCrashed = MutableLiveData<Boolean>(false)
+    val isLoadWarnaCrashed: LiveData<Boolean> get() = _isLoadWarnaCrashed
 
     private val _isDetailWarnaLoading = MutableLiveData<Boolean>(false)
     val isDetailWarnaLoading: LiveData<Boolean> get() = _isWarnaLoading
+    private val _isLoadDetailWarnaCrashed = MutableLiveData<Boolean>(false)
+    val isLoadDetailWarnaCrashed: LiveData<Boolean> get() = _isLoadDetailWarnaCrashed
 
 
     init {
@@ -129,29 +135,39 @@ class CombinedViewModel(
     }
     fun setRefWarna(ref:String){
         _refWarna.value=ref
-        Log.i("SplitFragmetProbs","setRefWarna ${_refWarna.value}")
     }
     fun getDetailWarnaByWarnaRef(warnaRef: String){
         viewModelScope.launch {
             _isDetailWarnaLoading.value = true
-          val  list = withContext(Dispatchers.IO){
-                dataSourceDetailWarna.getDetailWarnaSummaryList(warnaRef)
+            _isLoadDetailWarnaCrashed.value = false
+            try {
+                val  list = withContext(Dispatchers.IO){
+                    dataSourceDetailWarna.getDetailWarnaSummaryList(warnaRef)
+                }
+                _detailWarnaList.value = list
+                _isDetailWarnaLoading.value = false
+            }catch (e:Exception){
+                _isDetailWarnaLoading.value = false
+                _isLoadDetailWarnaCrashed.value = true
             }
-            _detailWarnaList.value = list
-            _isDetailWarnaLoading.value = false
-           // Log.i("SplitFragmetProbs","allWarnaDetailWarna ${list}")
         }
     }
     // Merk functions
     fun getAllMerkTable() {
         viewModelScope.launch {
             _isLoading.value = true
-            val list = withContext(Dispatchers.IO) {
-                merkDao.selectAllMerkList()
+            _isLoadMerkCrashed.value=false
+            try {
+                val list = withContext(Dispatchers.IO) {
+                    merkDao.selectAllMerkList()
+                }
+                _allMerkTable.value = list
+                _unFilteredMerk.value = list
+                _isLoading.value = false
+            }catch (e:Exception){
+                _isLoading.value = false
+                _isLoadMerkCrashed.value = true
             }
-            _allMerkTable.value = list
-            _unFilteredMerk.value = list
-            _isLoading.value = false
         }
     }
 
@@ -245,24 +261,24 @@ class CombinedViewModel(
     fun getWarnaByMerk(refMerk: String?) {
         viewModelScope.launch {
             _isWarnaLoading.value = true
-            if (_refMerk.value!=null){
-                Log.i("WarnaProbs","")
-                val list = withContext(Dispatchers.IO) {
-                    warnaDao.getWarnaWithTotalPcsList(_refMerk.value!!)
-                   /* if (refMerk==null){
+            _isLoadWarnaCrashed.value = false
+            try {
+                if (_refMerk.value!=null){
+                    Log.i("WarnaProbs","")
+                    val list = withContext(Dispatchers.IO) {
                         warnaDao.getWarnaWithTotalPcsList(_refMerk.value!!)
-                    }else{
-                        warnaDao.getWarnaWithTotalPcsList(refMerk)
                     }
+                    _allWarnaByMerk.value = list
+                    _unFilteredWarna.value = list
+                    Log.i("WarnaProbs","allWarnaByMerk ${list}")
 
-                    */
                 }
-                _allWarnaByMerk.value = list
-                _unFilteredWarna.value = list
-                Log.i("WarnaProbs","allWarnaByMerk ${list}")
-
+                _isWarnaLoading.value = false
+            }catch (e:Exception){
+                _isWarnaLoading.value = false
+                _isLoadWarnaCrashed.value = true
             }
-            _isWarnaLoading.value = false
+
         }
     }
     fun getStringWarna(warnaRef:String){

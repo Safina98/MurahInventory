@@ -29,9 +29,7 @@ class ParentFragment : Fragment() {
         // Load fragments based on orientation
         loadFragments()
     }
-
-
-
+    
     private fun loadFragments() {
         val orientation = resources.configuration.orientation
         val fragmentManager = parentFragmentManager
