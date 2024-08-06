@@ -19,6 +19,7 @@ import com.example.tokomurahinventory.models.DetailWarnaTable
 import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.utils.MASUKKELUAR
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
+import com.example.tokomurahinventory.utils.UpdateStatus
 import com.example.tokomurahinventory.utils.userNullString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -52,7 +53,7 @@ class LogViewModel (
     val isiByWarnaAndMerk: LiveData<List<Double>?> get() = _isiByWarnaAndMerk
 
     //Live Data List for Barang Log
-    private val _countModelList = MutableLiveData<List<CountModel>?>()
+    val _countModelList = MutableLiveData<List<CountModel>?>()
     val countModelList :LiveData<List<CountModel>?> get() = _countModelList
 
     private val _isLogLoading = MutableLiveData<Boolean>(false)
@@ -133,6 +134,18 @@ class LogViewModel (
        _selectedEndDate.value=endDate
        updateDateRangeString(null,null)
    }
+    fun getWarnaByMerkNew(merk:String){
+        viewModelScope.launch {
+            val refMerk = withContext(Dispatchers.IO){dataSourceMerk.getMerkRefByName(merk)}
+            if (refMerk != null) {
+                val stringWarnaList = withContext(Dispatchers.IO) {
+                    dataSourceWarna.selectStringWarnaByMerk(refMerk)
+                }
+                _codeWarnaByMerk.value = stringWarnaList
+            }else Toast.makeText(getApplication(),"Merk Tidak ada di database",Toast.LENGTH_SHORT).show()
+            //codeWarnaByMerk.setValue(stringWarnaList)
+        }
+    }
 
     //get list merk
     fun getAllLogTable(){
@@ -447,43 +460,51 @@ class LogViewModel (
 
 
     // In LogViewModel
-    fun updateCountModel(countModel: CountModel, callback: (Boolean) -> Unit) {
+    fun updateCountModel(countModel: CountModel, callback: (UpdateStatus) -> Unit) {
         viewModelScope.launch {
+            // Perform validation
             val isMerkPresent = checkMerkExisted(countModel.merkBarang!!)
             val isWarnaPresent = isKodeWarnaInLiveData(codeWarnaByMerk, countModel.kodeBarang!!)
             val isIsiPresent = isIsiInLiveData(isiByWarnaAndMerk, countModel.isi!!)
 
-            if (isMerkPresent && isWarnaPresent && isIsiPresent) {
+            val isPcsReadyInStok = if (isIsiPresent) {
                 val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
                 val refWarna = getrefWanraByName(countModel.kodeBarang!!, refMerk)
                 val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna!!, countModel.isi!!)
-
-                val isPcsReadyInStok = checkIfPcsReadyInStok(refDetailWarna!!, countModel.psc)
-
-                if (isPcsReadyInStok) {
-                    val updatedList = _countModelList.value?.toMutableList()
-                    val itemToUpdate = updatedList?.find { it.id == countModel.id }
-
-                    if (itemToUpdate != null) {
-                        itemToUpdate.merkBarang = countModel.merkBarang!!
-                        itemToUpdate.kodeBarang = countModel.kodeBarang
-                        itemToUpdate.isi = countModel.isi!!
-                        itemToUpdate.psc = countModel.psc
-
-                        merkMutable.value = countModel.merkBarang
-                        _countModelList.value = updatedList // Notify observers of the change
-                        callback(true) // Notify success
-                    } else {
-                        callback(false) // Notify failure
-                    }
+                checkIfPcsReadyInStok(refDetailWarna!!, countModel.psc)
+            } else false
+            var updatedList = _countModelList.value?.toMutableList()
+            var itemToUpdate = updatedList?.find { it.id == countModel.id }
+            val a =CountModel(itemToUpdate?.id?:getAutoIncrementId(),null,null,null,0,"","")
+            if (isMerkPresent && isWarnaPresent && isIsiPresent && isPcsReadyInStok) {
+                // Update the item if validation passes
+                if (itemToUpdate != null) {
+                    itemToUpdate.merkBarang = countModel.merkBarang!!
+                    itemToUpdate.kodeBarang = countModel.kodeBarang
+                    itemToUpdate.isi = countModel.isi!!
+                    itemToUpdate.psc = countModel.psc
+                    merkMutable.value = countModel.merkBarang
+                    _countModelList.value = updatedList // Notify observers of the change
+                    callback(UpdateStatus.SUCCESS) // Notify success
                 } else {
-                    callback(false) // Notify failure
+                    // Notify observers of the change
+
+                    callback(UpdateStatus.ITEM_NOT_FOUND) // Notify failure
                 }
             } else {
-                callback(false) // Notify failure
+                updatedList!!.remove(itemToUpdate)
+                _countModelList.value = updatedList
+                // Notify the appropriate failure status
+                when {
+                    !isMerkPresent -> callback(UpdateStatus.MERK_NOT_PRESENT)
+                    !isWarnaPresent -> callback(UpdateStatus.WARNA_NOT_PRESENT)
+                    !isIsiPresent -> callback(UpdateStatus.ISI_NOT_PRESENT)
+                    !isPcsReadyInStok -> callback(UpdateStatus.PCS_NOT_READY_IN_STOCK)
+                }
             }
         }
     }
+
 
 
     //try update count model

@@ -150,7 +150,6 @@ class InputStokFragment : AuthFragment() {
     }
     private fun setupDialog(inputStokLogModel: InputStokLogModel?) {
         if (isDialogShowing) return
-
         isDialogShowing = true
         val dialogBinding = DataBindingUtil.inflate<PopUpAddBarangLogBinding>(
             LayoutInflater.from(context),

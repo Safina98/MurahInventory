@@ -21,6 +21,15 @@ object MASUKKELUAR {
     const val MASUK = "Masuk"
     const val KELUAR = "Keluar"
 }
+enum class UpdateStatus {
+    SUCCESS,
+    MERK_NOT_PRESENT,
+    WARNA_NOT_PRESENT,
+    ISI_NOT_PRESENT,
+    PCS_NOT_READY_IN_STOCK,
+    ITEM_NOT_FOUND
+}
+
 const val FULL_DATE_FORMAT = "EEEE, d MMMM yyyy"
 val userNullString = "User kosong, log out dan log in kembali"
 val viewerNotAuthorized="Viewer not authorized to add Item, switch to editor or admin"
