@@ -35,24 +35,6 @@ class DetailWarnaFragment : AuthFragment() {
     private lateinit var binding:FragmentDetailWarnaBinding
     //private val viewModel: MerkViewModel by viewModels()
     private lateinit var viewModel:CombinedViewModel
-    /*
-    val adapter by lazy {
-        DetailWarnaAdapter(
-            DetailWarnaClickListener {
-                Toast.makeText(context,it.toString(),Toast.LENGTH_SHORT).show()
-                //viewModel.onNavigateToDetailWarna(it.warnaRef)
-            },
-            DetailWarnaLongListener {
-                // Handle item long click
-            }, UpdateDetailWarnaClickListener {
-
-            }, DeleteDetailWarnaClickListener {
-
-            }
-        )
-    }
-
-     */
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -62,19 +44,7 @@ class DetailWarnaFragment : AuthFragment() {
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_detail_warna,container,false)
         val application = requireNotNull(this.activity).application
         var refWarna = arguments?.let { DetailWarnaFragmentArgs.fromBundle(it).refWarna}
-/*
-        val dataSourceWarna = DatabaseInventory.getInstance(application).warnaDao
-        val dataSourceDetailWarna = DatabaseInventory.getInstance(application).detailWarnaDao
-        val dataSourceLog = DatabaseInventory.getInstance(application).logDao
-        val dataSourceBarangLog = DatabaseInventory.getInstance(application).barangLogDao
-        val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?: ""
-        val viewModelFactory = DetailWarnaViewModelFactory(dataSourceWarna,dataSourceDetailWarna,dataSourceLog,dataSourceBarangLog,refWarna!!,loggedInUser,application)
-        binding.lifecycleOwner =this
-        val viewModel = ViewModelProvider(this,viewModelFactory)
-            .get(DetailWarnaViewModel::class.java)
-        binding.viewModel = viewModel
-
- */     val merkDao = DatabaseInventory.getInstance(application).merkDao
+        val merkDao = DatabaseInventory.getInstance(application).merkDao
         val warnaDao = DatabaseInventory.getInstance(application).warnaDao
         val dataSourceDetailWarna = DatabaseInventory.getInstance(application).detailWarnaDao
         val dataSourceLog = DatabaseInventory.getInstance(application).logDao
@@ -82,7 +52,6 @@ class DetailWarnaFragment : AuthFragment() {
         val refMerk =""
         val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?:""
         binding.lifecycleOwner = this
-        //val factory = CombinedViewModelFactory(merkDao, warnaDao, refMerk, loggedInUser, requireActivity().application)
         viewModel = ViewModelProvider(requireActivity(), CombinedViewModelFactory(merkDao, warnaDao, refMerk, loggedInUser,dataSourceDetailWarna,dataSourceLog,dataSourceBarangLog, application)).get(
             CombinedViewModel::class.java)
         binding.viewModel = viewModel
@@ -100,10 +69,7 @@ class DetailWarnaFragment : AuthFragment() {
                 DialogUtils.showDeleteDialog(this, viewModel, it, { vm, item -> (vm as DetailWarnaViewModel).deleteDetailWarna(item as DetailWarnaModel) })
             }
         )
-
         binding.rvDetailWarna.adapter = adapter
-
-
         viewModel.isDetailWarnaLoading.observe(viewLifecycleOwner) { isLoading ->
             Log.i("LoadLogProbs", "isLoading observer : $isLoading")
             if (isLoading) {
@@ -111,9 +77,7 @@ class DetailWarnaFragment : AuthFragment() {
                 binding.rvDetailWarna.visibility = View.GONE
                 binding.textDetailCrashed.visibility = View.GONE
             } else {
-                // This should only hide the ProgressBar if not loading
                 binding.progressBarDetail.visibility = View.GONE
-                // Check if the data loading was successful or not
                 if (viewModel.isLoadDetailWarnaCrashed.value == true) {
                     binding.rvDetailWarna.visibility = View.GONE
                     binding.textDetailCrashed.visibility = View.VISIBLE
@@ -123,7 +87,6 @@ class DetailWarnaFragment : AuthFragment() {
                 }
             }
         }
-
         viewModel.isLoadDetailWarnaCrashed.observe(viewLifecycleOwner) { hasCrashed ->
             if (hasCrashed) {
                 // Only show crash message if there was an actual crash
@@ -141,7 +104,6 @@ class DetailWarnaFragment : AuthFragment() {
                 viewModel.getDetailWarnaByWarnaRef(warnaRef)
             }
         }
-
         viewModel.refWarna.observe(viewLifecycleOwner) {
             Log.i("SplitFragmetProbs", "refWarna ${it}")
             it?.let {
@@ -155,16 +117,12 @@ class DetailWarnaFragment : AuthFragment() {
                 adapter.notifyDataSetChanged()
             }
         }
-
-
         viewModel.addDetailWarnaFab.observe(viewLifecycleOwner) {
             if (it == true) {
                 showAddDetailWarnaDialog(viewModel, null, 0)
                 viewModel.onAddDetailWarnaFabClicked()
             }
-
         }
-
         return binding.root
     }
     fun showAddDetailWarnaDialog(viewModel:CombinedViewModel, detailWarnaModel: DetailWarnaModel?, i:Int){
@@ -199,17 +157,12 @@ class DetailWarnaFragment : AuthFragment() {
                     //detailWarnaModel.detailWarnaIsi = isi
                    // viewModel.updateDetailWarna(detailWarnaModel,pcs,isi)
                 }
-
             }else
                 Toast.makeText(context,"Gagal menambah data",Toast.LENGTH_SHORT).show()
-
         }
         builder.setNegativeButton("No") { dialog, which ->
-
         }
         val alert = builder.create()
         alert.show()
     }
-
-
 }

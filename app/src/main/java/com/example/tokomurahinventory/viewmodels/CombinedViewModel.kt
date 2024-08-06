@@ -423,7 +423,8 @@ class CombinedViewModel(
 
     private suspend fun updateWarnaToDao(warna: WarnaTable) {
         withContext(Dispatchers.IO) {
-            warnaDao.update(warna)
+            //warnaDao.update(warna)
+            warnaDao.updateWarna(warna.kodeWarna,warna.satuan,warna.lastEditedBy,warna.warnaLastEditedDate,warna.idWarna)
         }
     }
 

@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Update
 import com.example.tokomurahinventory.models.WarnaTable
 import com.example.tokomurahinventory.models.model.WarnaModel
+import java.util.Date
 
 
 @Dao
@@ -96,6 +97,25 @@ interface WarnaDao {
     GROUP BY w.idWarna, w.refMerk, w.kodeWarna, w.totalPcs, w.satuanTotal, w.satuan, w.warnaRef, w.createdBy, w.lastEditedBy, w.warnaCreatedDate, w.warnaLastEditedDate
 """)
     fun getWarnaWithTotalPcsList(refMerk: String): List<WarnaModel>
+
+    @Query("""
+        UPDATE warna_table
+        SET
+            kodeWarna = :kodeWarna,
+            satuan = :satuan,
+            warnaLastEditedDate = :lastEditedDate,
+            user = :lastEditedBy,
+            lastEditedBy = :lastEditedBy
+        WHERE idWarna=:warnaId
+    """)
+    suspend fun updateWarna(
+        kodeWarna: String,
+        satuan: String,
+        lastEditedBy: String?,
+        lastEditedDate:Date,
+        warnaId:Int
+    )
+
 
 }
 
