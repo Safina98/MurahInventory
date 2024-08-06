@@ -142,7 +142,7 @@ class LogViewModel (
                     dataSourceWarna.selectStringWarnaByMerk(refMerk)
                 }
                 _codeWarnaByMerk.value = stringWarnaList
-            }else Toast.makeText(getApplication(),"Merk Tidak ada di database",Toast.LENGTH_SHORT).show()
+            }//else Toast.makeText(getApplication(),"Merk Tidak ada di database",Toast.LENGTH_SHORT).show()
             //codeWarnaByMerk.setValue(stringWarnaList)
         }
     }
@@ -271,14 +271,14 @@ class LogViewModel (
     //get list isi for sugestion
     fun getIsiByWarnaAndMerk(merk:String,warna:String){
         viewModelScope.launch {
-            val refMerk = withContext(Dispatchers.IO){dataSourceMerk.getMerkRefByName(merk)!!}
-            val refWarna = withContext(Dispatchers.IO){dataSourceWarna.getWarnaRefByName(warna,refMerk)}
-            if (refWarna!=null){
-                val stringWarnaList=withContext(Dispatchers.IO){dataSourceDetailWarna.getIsiDetailWarnaByWarna(refWarna)}
-                _isiByWarnaAndMerk.value = stringWarnaList
+            val refMerk = withContext(Dispatchers.IO){dataSourceMerk.getMerkRefByName(merk)}
+            if (refMerk!=null){
+                val refWarna = withContext(Dispatchers.IO){dataSourceWarna.getWarnaRefByName(warna,refMerk)}
+                if (refWarna!=null){
+                    val stringWarnaList=withContext(Dispatchers.IO){dataSourceDetailWarna.getIsiDetailWarnaByWarna(refWarna)}
+                    _isiByWarnaAndMerk.value = stringWarnaList
+                }
             }
-
-
            // isiByWarnaAndMerk.setValue(stringWarnaList.map { it.toString() })
         }
     }
@@ -454,14 +454,16 @@ class LogViewModel (
 
 
     // In LogViewModel
-    fun updateCountModel(countModel: CountModel, callback: (UpdateStatus) -> Unit) {
+    fun updateCountModel(countModel: CountModel, oldCountModel:CountModel,callback: (UpdateStatus) -> Unit) {
         viewModelScope.launch {
             // Perform validation
             Log.i("NEWPOPUPPROB","${countModel.merkBarang}")
             Log.i("NEWPOPUPPROB","${countModel.kodeBarang}")
-            var updatedList = _countModelList.value?.toMutableList()
-            var itemToUpdate = updatedList?.find { it.id == countModel.id }
-            val a =CountModel(itemToUpdate?.id?:getAutoIncrementId(),null,null,null,0,"","")
+            Log.i("NEWPOPUPPROB","oldCOuntModel ${oldCountModel}")
+            val updatedList = _countModelList.value?.toMutableList()
+            val itemToUpdate = updatedList?.find { it.id == countModel.id }
+            Log.i("NEWPOPUPPROB","item to update ${itemToUpdate}")
+            val a = CountModel(itemToUpdate!!.id,itemToUpdate.kodeBarang,itemToUpdate.merkBarang,null,itemToUpdate.psc,"","")
             if (itemToUpdate != null) {
                 val isMerkPresent = checkMerkExisted(countModel.merkBarang!!)
                 Log.i("NEWPOPUPPROB","${countModel.merkBarang} ${isMerkPresent}")
@@ -471,10 +473,10 @@ class LogViewModel (
                 val isPcsReadyInStok = if (isIsiPresent) {
                     val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
                     val refWarna = getrefWanraByName(countModel.kodeBarang!!, refMerk)
-                    val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna!!, countModel.isi!!)
+                    val refDetailWarna =
+                        refWarna?.let { getrefDetailWanraByWarnaRefndIsi(it, countModel.isi!!) }
                     checkIfPcsReadyInStok(refDetailWarna!!, countModel.psc)
                 } else false
-
                 if (isMerkPresent && isWarnaPresent && isIsiPresent && isPcsReadyInStok) {
                     // Update the item if validation passes
                         itemToUpdate.merkBarang = countModel.merkBarang!!
@@ -486,9 +488,11 @@ class LogViewModel (
                         callback(UpdateStatus.SUCCESS) // Notify success
 
                 } else {
-                    updatedList!!.remove(itemToUpdate)
+                    Log.i("NEWPOPUPPROB","oldCOuntModel ${oldCountModel}")
+                    updatedList.remove(itemToUpdate)
+                    updatedList.add(oldCountModel)
                     _countModelList.value = updatedList
-                    // Notify the appropriate failure status
+
                     when {
                         !isMerkPresent -> callback(UpdateStatus.MERK_NOT_PRESENT)
                         !isWarnaPresent -> callback(UpdateStatus.WARNA_NOT_PRESENT)
@@ -499,7 +503,6 @@ class LogViewModel (
         }
          else {
             // Notify observers of the change
-
             callback(UpdateStatus.ITEM_NOT_FOUND) // Notify failure
         }
     }

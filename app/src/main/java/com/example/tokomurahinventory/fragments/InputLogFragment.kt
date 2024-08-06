@@ -279,6 +279,8 @@ class InputLogFragment : AuthFragment() {
         val autoCompleteIsi = dialogBinding.txtIsi
         val etPcs = dialogBinding.txtPcs
 
+        val oldCountModel = inputStokLogModel?.copy()
+        Log.i("NEWPOPUPPROB","oldCOuntModel ${oldCountModel}")
         // Initialize the adapter for the AutoCompleteTextView
         val merkAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, emptyList())
         autoCompleteMerk.setAdapter(merkAdapter)
@@ -356,7 +358,7 @@ class InputLogFragment : AuthFragment() {
                         inputStokLogModel.kodeBarang = kodeWarna
                         inputStokLogModel.isi = isi
                         inputStokLogModel.psc = pcs
-                        viewModel.updateCountModel(inputStokLogModel) { status ->
+                        viewModel.updateCountModel(inputStokLogModel,oldCountModel!!) { status ->
                             when (status) {
                                 UpdateStatus.SUCCESS -> {
                                     Toast.makeText(requireContext(), "Berhasil Mengubah data", Toast.LENGTH_SHORT).show()
@@ -367,13 +369,13 @@ class InputLogFragment : AuthFragment() {
                                 UpdateStatus.ISI_NOT_PRESENT -> Toast.makeText(requireContext(), "Isi tidak ada di database", Toast.LENGTH_SHORT).show()
                                 UpdateStatus.PCS_NOT_READY_IN_STOCK -> Toast.makeText(requireContext(), "Jumlah barang tidak cukup", Toast.LENGTH_SHORT).show()
                                 else -> {
-                                    Toast.makeText(requireContext(), "Gagal mengubah data", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(requireContext(), "Gagal mengubah data 1", Toast.LENGTH_SHORT).show()
                                     // Optionally, you can log the status here if needed
                                 }
                             }
                         }
                     } else {
-                        Toast.makeText(context, "Gagal mengubah data", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Gagal mengubah data ", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
