@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -216,15 +217,17 @@ class WarnaFragment : AuthFragment() {
         builder.setPositiveButton("OK") { dialog, which ->
             val kodeWarna = textWarna.text.toString()
             val kodeSatuan = textSatuan.text.toString()
-            if (warnaTable == null) {
-                Log.i("WarnaProbs","warna is null, insert called")
-                viewModel.insertWarna(kodeWarna, kodeSatuan)
-            } else {
-                Log.i("WarnaProbs","warna not null, update called")
-                warnaTable.kodeWarna = kodeWarna
-                warnaTable.satuan = kodeSatuan
-                viewModel.updateWarna(warnaTable)
-            }
+            if (kodeWarna.isNotEmpty() && kodeSatuan.isNotEmpty()){
+                if (warnaTable == null) {
+                    Log.i("WarnaProbs","warna is null, insert called")
+                    viewModel.insertWarna(kodeWarna, kodeSatuan)
+                } else {
+                    Log.i("WarnaProbs","warna not null, update called")
+                    warnaTable.kodeWarna = kodeWarna
+                    warnaTable.satuan = kodeSatuan
+                    viewModel.updateWarna(warnaTable)
+                }
+            }else  Toast.makeText(context,"Gagal mengubah data", Toast.LENGTH_SHORT).show()
         }
 
         builder.setNegativeButton("No") { dialog, which -> }

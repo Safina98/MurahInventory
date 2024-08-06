@@ -31,12 +31,10 @@ import com.google.android.material.textfield.TextInputLayout
 
 
 class DetailWarnaFragment : AuthFragment() {
-
     private lateinit var binding:FragmentDetailWarnaBinding
     //private val viewModel: MerkViewModel by viewModels()
     private lateinit var viewModel:CombinedViewModel
     private var isDialogShowing = false
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -153,14 +151,7 @@ class DetailWarnaFragment : AuthFragment() {
             val isi = textIsi.text.toString().uppercase().trim().toDoubleOrNull()
             if (pcs!=null && isi!=null)
             {
-                if (detailWarnaModel==null)
-                {
                 viewModel.insertDetailWarna(pcs,isi)
-                }else{
-                    //detailWarnaModel.detailWarnaPcs = pcs
-                    //detailWarnaModel.detailWarnaIsi = isi
-                   // viewModel.updateDetailWarna(detailWarnaModel,pcs,isi)
-                }
             }else
                 Toast.makeText(context,"Gagal menambah data",Toast.LENGTH_SHORT).show()
         }

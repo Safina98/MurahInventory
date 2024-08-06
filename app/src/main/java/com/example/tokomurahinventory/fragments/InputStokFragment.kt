@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
@@ -216,12 +217,18 @@ class InputStokFragment : AuthFragment() {
             .setView(dialogBinding.root)
             .setPositiveButton("OK") { dialog, _ ->
                 if (inputStokLogModel!=null){
-                    inputStokLogModel.namaMerk= autoCompleteMerk.text.toString().trim()
-                    inputStokLogModel.kodeWarna= autoCompleteWarna.text.toString().trim()
-                    inputStokLogModel.isi= autoCompleteIsi.text.toString().trim().toDouble()
-                    inputStokLogModel.pcs= etPcs.text.toString().trim().toInt()
-                    Log.i("InsertLogTry","pop up dialog ${inputStokLogModel.pcs}")
-                    viewModel.updateInputStok(inputStokLogModel)
+                    val namaMerk = autoCompleteMerk.text.toString().trim()
+                    val kodeWarna = autoCompleteMerk.text.toString().trim()
+                    val isi = autoCompleteIsi.text.toString().trim().toDoubleOrNull()
+                    val pcs = etPcs.text.toString().trim().toIntOrNull()
+                    if (namaMerk.isNotEmpty()&&kodeWarna.isNotEmpty()&&isi!=null&& pcs!=null) {
+                        inputStokLogModel.namaMerk= autoCompleteMerk.text.toString().trim()
+                        inputStokLogModel.kodeWarna= autoCompleteWarna.text.toString().trim()
+                        inputStokLogModel.isi= autoCompleteIsi.text.toString().trim().toDouble()
+                        inputStokLogModel.pcs= etPcs.text.toString().trim().toInt()
+                        Log.i("InsertLogTry","pop up dialog ${inputStokLogModel.pcs}")
+                        viewModel.updateInputStok(inputStokLogModel)
+                    }else Toast.makeText(context,"Gagal mengubah data", Toast.LENGTH_SHORT).show()
                 }
                 dialog.dismiss() }
             .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }

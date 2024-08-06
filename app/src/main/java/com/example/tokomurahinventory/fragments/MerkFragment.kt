@@ -202,14 +202,17 @@ class MerkFragment : AuthFragment() {
        )
         builder.setView(view)
         builder.setPositiveButton("OK") { dialog, which ->
-            val merk = textBrand.text.toString().toUpperCase()
-            if (merkTable==null){
-                viewModel.insertMerk(merk)
-            }else
-            {
-                merkTable.namaMerk = merk
-                viewModel.updateMerk(merkTable)
-            }
+            val merk = textBrand.text.toString().uppercase()
+            if (merk.isNotEmpty()){
+                if (merkTable==null){
+                    viewModel.insertMerk(merk)
+                }else
+                {
+                    merkTable.namaMerk = merk
+                    viewModel.updateMerk(merkTable)
+                }
+            }else  Toast.makeText(context,"Gagal mengubah data", Toast.LENGTH_SHORT).show()
+
         }
         builder.setNegativeButton("No") { dialog, which ->
         }
