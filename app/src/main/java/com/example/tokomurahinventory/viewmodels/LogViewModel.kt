@@ -43,31 +43,21 @@ class LogViewModel (
     //var allLog= dataSourceLog.selectAllLog()
     private var _allLog = MutableLiveData<List<LogTable>>()
     val allLog :LiveData<List<LogTable>> get() = _allLog
-
+    //live data for sugestion
     val allMerkFromDb = dataSourceMerk.selectAllNamaMerk()
-
     private val _codeWarnaByMerk = MutableLiveData<List<String>?>()
     val codeWarnaByMerk: LiveData<List<String>?> get() = _codeWarnaByMerk
-
     private val _isiByWarnaAndMerk = MutableLiveData<List<Double>?>()
     val isiByWarnaAndMerk: LiveData<List<Double>?> get() = _isiByWarnaAndMerk
 
     //Live Data List for Barang Log
     val _countModelList = MutableLiveData<List<CountModel>?>()
     val countModelList :LiveData<List<CountModel>?> get() = _countModelList
-
+    // Live data to handle visibility while loading and or crashed
     private val _isLogLoading = MutableLiveData<Boolean>(false)
     val isLogLoading: LiveData<Boolean> get() = _isLogLoading
-
     private val _isLoadCrashed = MutableLiveData<Boolean>(false)
     val isLoadCrashed: LiveData<Boolean> get() = _isLoadCrashed
-
-
-    // val codeWarnaByMerk = SingleLiveEvent<List<String>>()
-   // val isiByWarnaAndMerk = SingleLiveEvent<List<String>>()
-
-    //Untuk Update Log
-
 
     //count model id
     private var currentId = -1
@@ -134,6 +124,7 @@ class LogViewModel (
        _selectedEndDate.value=endDate
        updateDateRangeString(null,null)
    }
+    //populate warna for sugestion in new pop up
     fun getWarnaByMerkNew(merk:String){
         viewModelScope.launch {
             val refMerk = withContext(Dispatchers.IO){dataSourceMerk.getMerkRefByName(merk)}
@@ -142,8 +133,7 @@ class LogViewModel (
                     dataSourceWarna.selectStringWarnaByMerk(refMerk)
                 }
                 _codeWarnaByMerk.value = stringWarnaList
-            }//else Toast.makeText(getApplication(),"Merk Tidak ada di database",Toast.LENGTH_SHORT).show()
-            //codeWarnaByMerk.setValue(stringWarnaList)
+            }
         }
     }
 
@@ -242,7 +232,6 @@ class LogViewModel (
                     _allLog.value = filteredData
                     _unFilteredLog.value = filteredData
                 }
-
             } catch (e: Exception) {
                 Log.e("DataFilteringError", "Error during data filtering", e)
                 withContext(Dispatchers.Main) {
@@ -288,7 +277,9 @@ class LogViewModel (
             _isLogLoading.value = true
             val s = getStringS()
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
+            //check if all data exist  in database
             val allDataPresent = areAllCountModelValuesNotNull(countModelList)
+            //check if data have any identical item
             val hasNotIdenticalItem = hasNotIdenticalItems(countModelList.value)
             Log.i("InsertLogTry","$hasNotIdenticalItem")
             if (allDataPresent&&hasNotIdenticalItem) {
@@ -311,7 +302,7 @@ class LogViewModel (
                     logTipe = mutableLog.value!!.logTipe
                 )
                 val cmList = countModelList.value!!
-                updateLogToDao(updatedLog)
+                //updateLogToDao(updatedLog)
                 updateLogBarang(updatedLog.refLog)
                 //compare old countModel with the current one for delete purpose
                 compare(updatedLog.refLog, cmList) //check
@@ -693,9 +684,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
     fun updateLogBarang(logRef: String){
         viewModelScope.launch {
             for (i in countModelList.value!!){
-                Log.i("InsertLogTry","merk: ${i.merkBarang}, kode = ${i.kodeBarang}, detail: ${i.isi}")
                 if(doesBarangLogExist(i.barangLogRef)) {
-                    Log.i("InsertLogTry","Exist in database merk: ${i.merkBarang}, kode = ${i.kodeBarang}, detail: ${i.isi}")
                     getBarangLogUpdate(i.merkBarang!!, i.kodeBarang!!, i.isi!!, i.psc, logRef, i.barangLogRef)
                 }else{
                     Log.i("InsertLogTry","Not in database merk: ${i.merkBarang}, kode = ${i.kodeBarang}, detail: ${i.isi}")

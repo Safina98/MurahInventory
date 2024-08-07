@@ -160,7 +160,6 @@ class InputStokViewModel (
             }
             _inputLogModel.value = list
         }
-
     }
     //update rv by date
     fun updateRv4(){
@@ -186,7 +185,6 @@ class InputStokViewModel (
                     _unFilteredLog.value = filteredData
                     _isInputLogLoading.value = false
                 }
-
             }catch (e:Exception){
                 withContext(Dispatchers.Main) {
                     _isInputLogLoading.value = false
