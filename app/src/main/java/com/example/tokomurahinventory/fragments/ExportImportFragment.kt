@@ -116,7 +116,7 @@ class ExportImportFragment : AuthFragment() {
         }
         binding.btnImportMerk.setOnClickListener {
             importCSVStock()
-           // viewModel.generateData()
+           //viewModel.generateData()
             //viewModel.tryDeleteLog()
         }
         binding.btnExportDatabase.setOnClickListener {
@@ -192,7 +192,6 @@ class ExportImportFragment : AuthFragment() {
             resultLauncherNew.launch(fileIntent.type)
         } catch (e: Exception) {
             loaded()
-            Log.e("ZipDB", "Error launching file picker", e)
             Toast.makeText(context, "Error selecting file", Toast.LENGTH_SHORT).show()
         }
 

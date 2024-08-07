@@ -56,5 +56,11 @@ data class WarnaTable (
     @ColumnInfo(name = "createdBy")
     var createdBy: String? = null,
     @ColumnInfo(name = "lastEditedBy")
-    var lastEditedBy: String? =null
+    var lastEditedBy: String? =null,
+    @ColumnInfo(name = "warnaKet2")
+    var warnaKet2:String?="",
+    @ColumnInfo(name = "warnaBool")
+    var warnaBool:Boolean?=false,
+    @ColumnInfo(name = "warnaDouble")
+    var warnaDouble:String?=""
 )

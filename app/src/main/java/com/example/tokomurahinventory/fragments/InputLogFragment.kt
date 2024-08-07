@@ -97,6 +97,7 @@ class InputLogFragment : AuthFragment() {
         binding.rvAddBarang.adapter = adapter
 
         binding.btnAddNewCountmodel.setOnClickListener {
+            clearEditText()
             val countModel = viewModel.addNewCountItemBtn()
             setupDialog(countModel)
         }

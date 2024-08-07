@@ -460,6 +460,7 @@ class CombinedViewModel(
             val detailWarnaTable = DetailWarnaTable()
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             val refMerk_ = getMerkRef()
+            val ket = "Barang masuk sebanyak $pcs"
             if (loggedInUsers != null) {
                 if (_refWarna.value!=null&&refMerk_!=null){
                     detailWarnaTable.warnaRef = _refWarna.value!!
@@ -468,6 +469,7 @@ class CombinedViewModel(
                     detailWarnaTable.detailWarnaIsi = isi
                     detailWarnaTable.detailWarnaPcs = pcs
                     detailWarnaTable.user = loggedInUsers
+                    detailWarnaTable.detailWarnaKet = ket
                     val detailWarnaTable1 = checkIfIsiExisted(isi, _refWarna.value!!)
                     if (detailWarnaTable1 != null) {
                         detailWarnaTable.detailWarnaRef = detailWarnaTable1.detailWarnaRef
@@ -475,8 +477,7 @@ class CombinedViewModel(
                         detailWarnaTable.detailWarnaDate = detailWarnaTable1.detailWarnaDate
                         val log = createLog(detailWarnaTable)
                         val barangLog = createBarangLog(detailWarnaTable,log,refMerk_,detailWarnaTable.detailWarnaRef)
-                        updateDetailWarnaAndInsertBarangLogAndLog(detailWarnaTable.warnaRef,detailWarnaTable.detailWarnaIsi,detailWarnaTable.detailWarnaPcs,detailWarnaTable.lastEditedBy,detailWarnaTable.detailWarnaLastEditedDate,log,barangLog)
-
+                        updateDetailWarnaAndInsertBarangLogAndLog(detailWarnaTable.warnaRef,detailWarnaTable.detailWarnaIsi,detailWarnaTable.detailWarnaPcs,detailWarnaTable.lastEditedBy,detailWarnaTable.detailWarnaLastEditedDate,log,barangLog,ket)
                     } else {
                         detailWarnaTable.detailWarnaRef = UUID.randomUUID().toString()
                         detailWarnaTable.createdBy = loggedInUsers
@@ -520,7 +521,6 @@ class CombinedViewModel(
         }
     }
 
-
     private suspend fun updateDetailWarnaAndInsertBarangLogAndLog(
         refWarna: String,
         detailWarnaIsi: Double,
@@ -528,10 +528,11 @@ class CombinedViewModel(
         lastEditedBy: String?,
         lastEditedDate: Date,
         logTable: LogTable,
-        barangLog: BarangLog
+        barangLog: BarangLog,
+        ket:String
     ) {
         withContext(Dispatchers.IO){
-            dataSourceBarangLog.performUpdateDetailWarnaAndInsertLogAndBarangLogFromDetailWarna(refWarna, detailWarnaIsi, detailWarnaPcs, lastEditedBy, lastEditedDate, logTable, barangLog)
+            dataSourceBarangLog.performUpdateDetailWarnaAndInsertLogAndBarangLogFromDetailWarna(refWarna, detailWarnaIsi, detailWarnaPcs, lastEditedBy, lastEditedDate, logTable, barangLog,ket)
         }
 
     }

@@ -81,8 +81,8 @@ interface LogDao {
         JOIN barang_log AS b ON l.refLog = b.refLog
     """)
     fun getAllCombinedLogData(): List<CombinedLogData>
-    @Query(" UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs-:detailWarnaPcs,lastEditedBy =:loggedInUsers WHERE warnaRef = :refWarna AND detailWarnaIsi = :detailWarnaIsi")
-    fun updateDetailWarna(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,loggedInUsers:String?): Int
+    @Query(" UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs-:detailWarnaPcs,lastEditedBy =:loggedInUsers, detailWarnaKet=:ket WHERE warnaRef = :refWarna AND detailWarnaIsi = :detailWarnaIsi")
+    fun updateDetailWarna(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,loggedInUsers:String?,ket:String): Int
     @Query("DELETE FROM log_table WHERE logDate < :date")
     fun deleteLogsBefore(date: Date)
     @Transaction
@@ -92,12 +92,15 @@ interface LogDao {
         loggedInUsers: String?
     ) {
         // Update detail_warna_table for each BarangLog
+
         barangLogList.forEach { barangLog ->
+            val ket = "Stok barang bertambah ${barangLog.pcs}. Barang keluar untuk toko ${log.namaToko} dihapus"
             updateDetailWarna(
                 barangLog.warnaRef,
                 barangLog.isi,
                 barangLog.pcs * -1,
-                loggedInUsers
+                loggedInUsers,
+                ket
             )
         }
         // Delete the LogTable entry

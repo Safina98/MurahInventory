@@ -61,7 +61,7 @@ class DetailWarnaFragment : AuthFragment() {
             },
             DetailWarnaLongListener {
                 // Handle item long click
-                DialogUtils.showCreratedEdited(requireContext(),it.createdBy ?: it.user!!,it.lastEditedBy ?: it.user!!, it.detailWarnaDate,it.detailWarnaLastEditedDate)
+                DialogUtils.showCreratedEdited(requireContext(),it.createdBy ?: it.user!!,it.lastEditedBy ?: it.user!!, it.detailWarnaDate,it.detailWarnaLastEditedDate,it.detailWarnaKet)
             }, UpdateDetailWarnaClickListener {
                 showAddDetailWarnaDialog(viewModel,it,-1)
             }, DeleteDetailWarnaClickListener {

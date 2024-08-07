@@ -41,7 +41,13 @@ data class MerkTable (
     @ColumnInfo(name = "createdBy")
     var createdBy: String? = "justDeleted",
     @ColumnInfo(name = "lastEditedBy")
-    var lastEditedBy: String? = "justDeleted"
+    var lastEditedBy: String? = "justDeleted",
+    @ColumnInfo(name = "merkKet2")
+    var merkKet2:String?="",
+    @ColumnInfo(name = "merkBool")
+    var merkBool:Boolean?=false,
+    @ColumnInfo(name = "merkDouble")
+    var merkDouble:String?=""
 
 
 )

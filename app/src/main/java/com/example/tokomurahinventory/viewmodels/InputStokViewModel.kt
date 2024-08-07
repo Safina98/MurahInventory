@@ -228,14 +228,15 @@ class InputStokViewModel (
                 val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
                 val item = getBarangLogFromDB(inputStokLogModel.inputBarangLogRef)
                 if (item!=null){
-                    updataDetailWarnaAndDeleteBarangLogToDao(item.warnaRef, item.isi, item.pcs, loggedInUsers, item.id)
+                    val detailWarnaKet = "Stok Masuk Dihapus sebanyak ${inputStokLogModel.pcs} pcs."
+                    updataDetailWarnaAndDeleteBarangLogToDao(item.warnaRef, item.isi, item.pcs, loggedInUsers, item.id,detailWarnaKet)
                     updateRv4()
                 }
             }catch (e:Exception){
                 Toast.makeText(getApplication(),"$e",Toast.LENGTH_SHORT).show()
                 Log.e("InsertLogTry", "Error updating detail warna: ${e.message}", e)
             }
-
+            _isInputLogLoading.value = false
         }
     }
     fun convertToBarangLog(input: InputStokLogModel,refMerk:String,refWarna:String,refDetailWarna:String,loggedInUsers:String?,logRef:String): BarangLog {
@@ -307,7 +308,8 @@ class InputStokViewModel (
                                 DetailWarnaTable(
                                     warnaRef = oldBarangLog.warnaRef,
                                     detailWarnaIsi = oldBarangLog.isi,
-                                    detailWarnaPcs = -selisihPcs
+                                    detailWarnaPcs = -selisihPcs,
+                                    detailWarnaKet = "Stok barang masuk diubah dari ${oldBarangLog.pcs} pcs menjadi ${newBarangLog.pcs} pcs"
                                 )
                             )
                         } else {
@@ -316,30 +318,36 @@ class InputStokViewModel (
                                 DetailWarnaTable(
                                     warnaRef = oldBarangLog.warnaRef,
                                     detailWarnaIsi = oldBarangLog.isi,
-                                    detailWarnaPcs =  oldBarangLog.pcs
+                                    detailWarnaPcs =  oldBarangLog.pcs,
+                                    detailWarnaKet = "Stok barang masuk berkurang ${oldBarangLog.pcs} pcs. Barang masuk diubah menjadi  ${newBarangLog.pcs} pcs isi ${newBarangLog.isi}"
                                 )
                             )
                             detailWarnaUpdates.add(
                                 DetailWarnaTable(
                                     warnaRef = newBarangLog.warnaRef,
                                     detailWarnaIsi = newBarangLog.isi,
-                                    detailWarnaPcs = -newBarangLog.pcs
+                                    detailWarnaPcs = -newBarangLog.pcs,
+                                    detailWarnaKet = "Barang masuk bertambah ${newBarangLog.pcs} pcs",
                                 )
                             )
                         }
                     } else {
+                        val warna = withContext(Dispatchers.IO){dataSourceWarna.getKodeWarnaByRef(newBarangLog.warnaRef)}
+                        val merk = withContext(Dispatchers.IO){dataSourceMerk.getMerkNameByRef(newBarangLog.refMerk)}
                         detailWarnaUpdates.add(
                             DetailWarnaTable(
                                 warnaRef = oldBarangLog.warnaRef,
                                 detailWarnaIsi = oldBarangLog.isi,
-                                detailWarnaPcs = oldBarangLog.pcs
+                                detailWarnaPcs = oldBarangLog.pcs,
+                                detailWarnaKet = "Barang masuk berkurang ${oldBarangLog.pcs}. Stok barang masuk diubah menjadi ${newBarangLog.pcs} pcs $merk $warna",
                             )
                         )
                         detailWarnaUpdates.add(
                             DetailWarnaTable(
                                 warnaRef = newBarangLog.warnaRef,
                                 detailWarnaIsi = newBarangLog.isi,
-                                detailWarnaPcs = -newBarangLog.pcs
+                                detailWarnaPcs = -newBarangLog.pcs,
+                                detailWarnaKet = "Barang masuk bertambah ${newBarangLog.pcs}"
                             )
                         )
                     }
@@ -348,10 +356,10 @@ class InputStokViewModel (
                         DetailWarnaTable(
                             warnaRef = newBarangLog.warnaRef,
                             detailWarnaIsi = newBarangLog.isi,
-                            detailWarnaPcs =-newBarangLog.pcs
+                            detailWarnaPcs =-newBarangLog.pcs,
+                            detailWarnaKet = "Barang masuk bertambah ${newBarangLog.pcs}"
                         )
                     )
-
                 }
                 Log.e("InsertLogTry", "2 BarangLogDate ${newBarangLog.barangLogDate}")
                 updateBarangLogAndDetailWarna(
@@ -364,7 +372,7 @@ class InputStokViewModel (
                     newBarangLog.refLog,
                     newBarangLog.barangLogRef,
                     detailWarnaUpdates,
-                    loggedInUsers
+                    loggedInUsers,
                 )
 
                 //getAllInputLogModel()
@@ -412,10 +420,11 @@ class InputStokViewModel (
                                                                  detailWarnaIsi: Double,
                                                                  detailWarnaPcs: Int,
                                                                  loggedInUsers: String?,
-                                                                 id: Int){
+                                                                 id: Int,
+                                                                 detailWarnaKet:String){
         withContext(Dispatchers.IO){
             //dataSourceBarangLog.delete(barangLogId)
-            dataSourceBarangLog.updateDetailAndDeleteBarangLog(refWarna,detailWarnaIsi,detailWarnaPcs,loggedInUsers,id)
+            dataSourceBarangLog.updateDetailAndDeleteBarangLog(refWarna,detailWarnaIsi,detailWarnaPcs,loggedInUsers,id,detailWarnaKet)
         }
     }
     private suspend fun getDetailWarna(waraRef:String, isi:Double): DetailWarnaTable {
@@ -446,7 +455,6 @@ class InputStokViewModel (
     private suspend fun updateBarangLogToDao(log: BarangLog) {
         withContext(Dispatchers.IO) {
             if (doesBarangLogExist(log.barangLogRef)) {
-                // Update existing record if barangLogRef exists
                 dataSourceBarangLog.updateByBarangLogRef(log.refMerk, log.warnaRef, log.detailWarnaRef ?: "", log.isi, log.pcs, log.barangLogDate, log.refLog, log.barangLogRef)
             }
         }
@@ -462,8 +470,6 @@ class InputStokViewModel (
                                                        detailWarnaUpdates: List<DetailWarnaTable>,
                                                        loggedInUsers: String?){
         return withContext(Dispatchers.IO){
-           // Log.i("InsertLogTry", "PCs ${pcs}")
-            //Log.i("InsertLogTry", "PCs ${barangLogRef}")
             Log.e("InsertLogTry", "3 BarangLogDate ${barangLogDate}")
             dataSourceBarangLog.updateBarangLogAndDetails(
                 refMerk,
@@ -477,10 +483,8 @@ class InputStokViewModel (
                 detailWarnaUpdates,
                 loggedInUsers
             )
-
         }
     }
-
     //Navigation
     fun onStartDatePickerClick(){ _isStartDatePickerClicked.value = true }
     fun onStartDatePickerClicked(){ _isStartDatePickerClicked.value = false }

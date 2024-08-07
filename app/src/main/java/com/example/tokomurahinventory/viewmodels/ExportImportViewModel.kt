@@ -71,8 +71,8 @@ class ExportImportViewModel(
             try {
                 Log.i("GeneratingDummy","staring")
                 val allMerk = withContext(Dispatchers.IO){dataSourceMerk.selectAllMerkList()}
-                //dataGenerator.populateMerk(allMerk)
-                dataGenerator.populateLog(allMerk)
+                dataGenerator.populateMerk(allMerk)
+                //dataGenerator.populateLog(allMerk)
             } catch (e: Exception) {
                 Log.i("GeneratingDummy","$e")
             }
@@ -132,7 +132,7 @@ class ExportImportViewModel(
     }
     private suspend fun insertCSVN(tokens: List<String>) {
          Log.i("INSERTCSVPROB","size: ${tokens.size}")
-        if (tokens.size == 29) {
+        if (tokens.size == 28) {
             // Ensure there are 24 fields
             importMerk(tokens)
         }else if (tokens.size ==5) {
@@ -231,6 +231,44 @@ class ExportImportViewModel(
     }
     fun importMerk(tokens: List<String>){
         Log.i("INSERTCSVPROB","token ${tokens}")
+        Log.i("INSERTCSVPROB","token ${tokens[3]} ${tokens[4]}")
+        val merkTable = MerkTable().apply {
+            namaMerk = tokens[1].trim()
+            refMerk = tokens[2].trim()
+            merkCreatedDate = parseDate(tokens[3].trim()) ?: Date()
+            merkLastEditedDate = parseDate(tokens[4].trim()) ?: Date()
+            user = tokens[5]
+            createdBy = tokens[6].trim()
+            lastEditedBy = tokens[7].trim()
+        }
+        Log.i("INSERTCSVPROB","merk table ${merkTable}")
+        Log.i("INSERTCSVPROB","token ${tokens[15]} ${tokens[16]}")
+        val warnaTable = WarnaTable().apply {
+            kodeWarna = tokens[9].trim()
+            totalPcs = tokens[10].trim().toIntOrNull() ?: 0
+            satuanTotal = tokens[11].trim().toDoubleOrNull() ?: 0.0
+            satuan = tokens[12].trim()
+            warnaRef = tokens[13].trim()
+            warnaCreatedDate = parseDate(tokens[15].trim()) ?: Date()
+            warnaLastEditedDate = parseDate(tokens[16].trim()) ?: Date()
+            user = tokens[14].trim()
+            createdBy = tokens[17].trim()
+            lastEditedBy = tokens[18].trim()
+            refMerk = tokens[2].trim()
+        }
+        val detailWarnaTable = DetailWarnaTable().apply {
+            detailWarnaIsi = tokens[20].trim().toDoubleOrNull() ?: 0.0
+            detailWarnaPcs = tokens[21].trim().toIntOrNull() ?: 0
+            detailWarnaDate = parseDate(tokens[22].trim()) ?: Date()
+            detailWarnaLastEditedDate = parseDate(tokens[23].trim()) ?: Date()
+            user = tokens[24].trim()
+            createdBy = tokens[25].trim()
+            lastEditedBy = tokens[26].trim()
+            warnaRef = tokens[13].trim()
+            detailWarnaRef = tokens[27]
+        }
+
+        /*
         val merkTable = MerkTable().apply {
             namaMerk = tokens[1].trim()
             refMerk = tokens[2].trim()
@@ -266,6 +304,8 @@ class ExportImportViewModel(
             warnaRef = tokens[13].trim()
             detailWarnaRef = tokens[27]
         }
+
+         */
         //Log.i("INSERTCSVPROB","token ${tokens}")
         Log.i("INSERTCSVPROB","detail warna table${detailWarnaTable}")
         dataSourceMerk.insertMerkTable(merkTable)

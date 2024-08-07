@@ -62,5 +62,13 @@ data class DetailWarnaTable(
     @ColumnInfo(name = "createdBy")
     var createdBy: String? = "",
     @ColumnInfo(name = "lastEditedBy")
-    var lastEditedBy: String? = ""
+    var lastEditedBy: String? = "",
+    @ColumnInfo(name = "detailWarnaKet")
+    var detailWarnaKet:String?="",
+    @ColumnInfo(name = "detailWarnaKet2")
+    var detailWarnaKet2:String?="",
+    @ColumnInfo(name = "detailWarnaBool")
+    var detailWarnaBool:Boolean?=false,
+    @ColumnInfo(name = "detailWarnaDouble")
+    var detailWarnaDouble:String?=""
 )

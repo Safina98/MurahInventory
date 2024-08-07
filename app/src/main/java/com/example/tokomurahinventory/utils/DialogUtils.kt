@@ -48,7 +48,7 @@ object DialogUtils {
         val alert = builder.create()
         alert.show()
     }
-    fun showCreratedEdited(context: Context,createdBy:String, lastEditedBy:String, createdDate: Date, lastEditedDate: Date){
+    fun showCreratedEdited(context: Context,createdBy:String, lastEditedBy:String, createdDate: Date, lastEditedDate: Date,ket:String?){
         val builder = android.app.AlertDialog.Builder(context)
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.pop_up_created_edited, null)
@@ -56,11 +56,13 @@ object DialogUtils {
         val textLastEditedBy = view.findViewById<TextView>(R.id.textLastEditedBy)
         val textCreatedDate = view.findViewById<TextView>(R.id.textCreatedDate)
         val textLastEditedDate = view.findViewById<TextView>(R.id.textLastEditedDate)
+        val textKet = view.findViewById<TextView>(R.id.textKet)
 
         textCreatedBy.setText(createdBy)
         textLastEditedBy.setText(lastEditedBy)
         textCreatedDate.setText(formatDateToString(createdDate))
         textLastEditedDate.setText(formatDateToString(lastEditedDate))
+        textKet.setText(ket)
 
         builder.setView(view)
         builder.setPositiveButton("OK") { dialog, which ->

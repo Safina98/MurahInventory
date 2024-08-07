@@ -81,7 +81,7 @@ class WarnaFragment : AuthFragment() {
             },
             WarnaLongListener {
                 // Handle item long click
-                DialogUtils.showCreratedEdited(requireContext(),it.createdBy ?:"user has been deleted",it.lastEditedBy ?: "user has been deleted", it.warnaCreatedDate,it.warnaLastEditedDate)
+                DialogUtils.showCreratedEdited(requireContext(),it.createdBy ?:"user has been deleted",it.lastEditedBy ?: "user has been deleted", it.warnaCreatedDate,it.warnaLastEditedDate,null)
             },
             UpdateWarnaClickListener {
                 showAddWarnaDialog(viewModel, it, 1)

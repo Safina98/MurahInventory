@@ -276,6 +276,7 @@ class LogViewModel (
         viewModelScope.launch {
             _isLogLoading.value = true
             val s = getStringS()
+            Log.i("InsertLogTry","s =$s")
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             //check if all data exist  in database
             val allDataPresent = areAllCountModelValuesNotNull(countModelList)
@@ -302,10 +303,11 @@ class LogViewModel (
                     logTipe = mutableLog.value!!.logTipe
                 )
                 val cmList = countModelList.value!!
-                //updateLogToDao(updatedLog)
-                updateLogBarang(updatedLog.refLog)
+
+                updateLogBarang(updatedLog.refLog,updatedLog.namaToko)
                 //compare old countModel with the current one for delete purpose
-                compare(updatedLog.refLog, cmList) //check
+                compare(updatedLog.refLog, cmList,updatedLog.namaToko) //check
+                updateLogToDao(updatedLog)
                 //getAllLogTable()
                 onNavigateToLog()
             }else Toast.makeText(getApplication(),"Insert Failed, please check the data",Toast.LENGTH_SHORT).show()
@@ -362,6 +364,7 @@ class LogViewModel (
                     try {
                         Log.i("InsertLogTry", "try inserting data")
                         insertLogAndUpdateDetailWarna(newLog,barangLogs,loggedInUsers)
+
                         //yourDao.insertLogAndUpdateDetailWarna(newLog, barangLogs, loggedInUsers)
                         //getAllLogTable()
                         onNavigateToLog()
@@ -379,7 +382,7 @@ class LogViewModel (
         }
     }
 
-    fun getBarangLog(namaMerk:String,kodeWarna:String,isi:Double,pcs:Int,refLog:String){
+    fun getBarangLog(namaMerk:String,kodeWarna:String,isi:Double,pcs:Int,refLog:String,toko:String){
         viewModelScope.launch{
             Log.i("InsertLogTry","getBarangLog() called")
             val refMerk = getrefMerkByName(namaMerk.uppercase())
@@ -399,7 +402,8 @@ class LogViewModel (
                     barangLogRef = UUID.randomUUID().toString(),
                     barangLogTipe = MASUKKELUAR.KELUAR
                 )
-                updateDetailWarnaAndInsertBarangLogToDao(barangLog,refWarna,isi,pcs,loggedInUsers)
+                val ket = "Barang keluar sebanyak ${barangLog.pcs} pcs ke toko $toko"
+                updateDetailWarnaAndInsertBarangLogToDao(barangLog,refWarna,isi,pcs,loggedInUsers,ket)
             }
         }
     }
@@ -681,20 +685,20 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
         }
     }
 
-    fun updateLogBarang(logRef: String){
+    fun updateLogBarang(logRef: String,toko:String){
         viewModelScope.launch {
             for (i in countModelList.value!!){
                 if(doesBarangLogExist(i.barangLogRef)) {
-                    getBarangLogUpdate(i.merkBarang!!, i.kodeBarang!!, i.isi!!, i.psc, logRef, i.barangLogRef)
+                    getBarangLogUpdate(i.merkBarang!!, i.kodeBarang!!, i.isi!!, i.psc, logRef, i.barangLogRef,toko)
                 }else{
                     Log.i("InsertLogTry","Not in database merk: ${i.merkBarang}, kode = ${i.kodeBarang}, detail: ${i.isi}")
-                    getBarangLog(i.merkBarang!!,i.kodeBarang!!,i.isi!!,i.psc,logRef)
+                    getBarangLog(i.merkBarang!!,i.kodeBarang!!,i.isi!!,i.psc,logRef,toko)
                 }
             }
         }
     }
     //when update log and delete a log
-    fun compare(logRef:String,cmList:List<CountModel>){
+    fun compare(logRef:String,cmList:List<CountModel>,toko:String){
         viewModelScope.launch {
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             val a = withContext(Dispatchers.IO){dataSourceBarangLog.selectBarangLogByLogRef(logRef)}
@@ -703,13 +707,14 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
             }
             itemsNotInCmList.forEach { item ->
                 Log.i("InsertLogTry", "Item ${item.isi} - ${item.isi} not found in cmList")
+                val detailWarnaKet="Barang keluar untuk toko $toko dibatalkan sebanyak ${item.pcs} pcs"
                 //updateDetailWarnaTODao(item.warnaRef,item.isi,-item.pcs,loggedInUsers)
                 //deleteBarangLogToDao(item.id)
-                updateDetailAndDeleteBarangLogToDao(item.warnaRef,item.isi,-item.pcs,loggedInUsers,item.id)
+                updateDetailAndDeleteBarangLogToDao(item.warnaRef,item.isi,-item.pcs,loggedInUsers,item.id,detailWarnaKet)
             }
         }
     }
-    fun getBarangLogUpdate(namaMerk:String,kodeWarna:String,isi:Double,pcs:Int,refLog:String,barangLogRef:String){
+    fun getBarangLogUpdate(namaMerk:String,kodeWarna:String,isi:Double,pcs:Int,refLog:String,barangLogRef:String,toko:String){
         viewModelScope.launch{
             val refMerk = getrefMerkByName(namaMerk.uppercase())
             val refWarna = getrefWanraByName(kodeWarna,refMerk)
@@ -725,7 +730,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
                 barangLogRef = barangLogRef,
                 barangLogTipe = MASUKKELUAR.KELUAR
             )
-            updateDetailWarna(barangLog)
+            updateDetailWarna(barangLog,toko)
             //updateBarangLogToDao(barangLog)
         }
     }
@@ -733,7 +738,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
 
 
 
-        fun updateDetailWarna(newBarangLog: BarangLog) {
+        fun updateDetailWarna(newBarangLog: BarangLog,toko: String) {
             viewModelScope.launch {
                 val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
                 try {
@@ -747,48 +752,57 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
                         if (oldBarangLog.warnaRef == newBarangLog.warnaRef) {
                             if (oldBarangLog.isi == newBarangLog.isi) {
                                 val selisihPcs = newBarangLog.pcs - oldBarangLog.pcs
-                                detailWarnaUpdates.add(
-                                    DetailWarnaTable(
-                                        warnaRef = oldBarangLog.warnaRef,
-                                        detailWarnaIsi = oldBarangLog.isi,
-                                        detailWarnaPcs = selisihPcs
+                                if (selisihPcs!=0){
+                                    detailWarnaUpdates.add(
+                                        DetailWarnaTable(
+                                            warnaRef = oldBarangLog.warnaRef,
+                                            detailWarnaIsi = oldBarangLog.isi,
+                                            detailWarnaPcs = selisihPcs,
+                                            detailWarnaKet = "Stok barang keluar untuk toko ${toko} diubah dari ${oldBarangLog.pcs} pcs menjadi ${newBarangLog.pcs} pcs"
+                                        )
                                     )
-                                )
+                                }
+
                             } else {
-                                val oldDetailWarna = getDetailWarna(oldBarangLog.warnaRef, oldBarangLog.isi)
-                                val newDetailWarnaTable = getDetailWarna(newBarangLog.warnaRef, newBarangLog.isi)
+                                //val oldDetailWarna = getDetailWarna(oldBarangLog.warnaRef, oldBarangLog.isi)
+                                //val newDetailWarnaTable = getDetailWarna(newBarangLog.warnaRef, newBarangLog.isi)
                                 val oldSelisihPcs = -oldBarangLog.pcs
                                 val newSelisihPcs = newBarangLog.pcs
-
                                 detailWarnaUpdates.add(
                                     DetailWarnaTable(
                                         warnaRef = oldBarangLog.warnaRef,
                                         detailWarnaIsi = oldBarangLog.isi,
-                                        detailWarnaPcs = oldSelisihPcs
+                                        detailWarnaPcs = oldSelisihPcs,
+                                        detailWarnaKet = "Stok barang bertambah ${oldBarangLog.pcs} pcs. Barang keluar untuk toko $toko diubah menjadi  ${newBarangLog.pcs} pcs isi ${newBarangLog.isi}"
                                     )
                                 )
                                 detailWarnaUpdates.add(
                                     DetailWarnaTable(
                                         warnaRef = newBarangLog.warnaRef,
                                         detailWarnaIsi = newBarangLog.isi,
-                                        detailWarnaPcs = newSelisihPcs
+                                        detailWarnaPcs = newSelisihPcs,
+                                        detailWarnaKet = "Barang keluar ${newBarangLog.pcs} pcs untuk toko $toko",
                                     )
                                 )
                             }
                         } else {
                             val oldSelisihPcs = -oldBarangLog.pcs
+                            val warna = withContext(Dispatchers.IO){dataSourceWarna.getKodeWarnaByRef(newBarangLog.warnaRef)}
+                            val merk = withContext(Dispatchers.IO){dataSourceMerk.getMerkNameByRef(newBarangLog.refMerk)}
                             detailWarnaUpdates.add(
                                 DetailWarnaTable(
                                     warnaRef = oldBarangLog.warnaRef,
                                     detailWarnaIsi = oldBarangLog.isi,
-                                    detailWarnaPcs = oldSelisihPcs
+                                    detailWarnaPcs = oldSelisihPcs,
+                                    detailWarnaKet = "Barang bertambah ${oldBarangLog.pcs} pcs. Stok barang keluar diubah menjadi ${newBarangLog.pcs} pcs $merk $warna",
                                 )
                             )
                             detailWarnaUpdates.add(
                                 DetailWarnaTable(
                                     warnaRef = newBarangLog.warnaRef,
                                     detailWarnaIsi = newBarangLog.isi,
-                                    detailWarnaPcs = newBarangLog.pcs
+                                    detailWarnaPcs = newBarangLog.pcs,
+                                    detailWarnaKet = "Barang keluar sebanyak ${newBarangLog.pcs} pcs untuk ke $toko"
                                 )
                             )
                         }
@@ -887,11 +901,12 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
         refWarna: String,
         detailWarnaIsi: Double,
         detailWarnaPcs: Int,
-        loggedInUsers: String?
+        loggedInUsers: String?,
+        ket:String
     ){
         withContext(Dispatchers.IO){
             //dataSource5.insert(logTable)
-            dataSourceBarangLog.insertBarangLogAndUpdateDetailWarna(barangLog,refWarna,detailWarnaIsi,detailWarnaPcs,loggedInUsers)
+            dataSourceBarangLog.insertBarangLogAndUpdateDetailWarna(barangLog,refWarna,detailWarnaIsi,detailWarnaPcs,loggedInUsers,ket)
         }
     }
 
@@ -962,10 +977,10 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
         }
     }
 
-    private suspend fun updateDetailAndDeleteBarangLogToDao(refWarna:String, detailWarnaIsi:Double, detailWarnaPcs:Int, loggedInUsers:String?, id:Int){
+    private suspend fun updateDetailAndDeleteBarangLogToDao(refWarna:String, detailWarnaIsi:Double, detailWarnaPcs:Int, loggedInUsers:String?, id:Int,detailWarnaKet:String){
         withContext(Dispatchers.IO){
             try {
-                dataSourceBarangLog.updateDetailAndDeleteBarangLog(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers, id)
+                dataSourceBarangLog.updateDetailAndDeleteBarangLog(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers, id,detailWarnaKet)
             } catch (e: Exception) {
                 Log.i("INSERTLOGTRY","updateDetailDeleteLog failed")
                 Log.i("INSERTLOGTRY","$e")

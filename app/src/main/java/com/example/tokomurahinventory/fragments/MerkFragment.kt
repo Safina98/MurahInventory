@@ -88,7 +88,7 @@ class MerkFragment : AuthFragment() {
                 },
             MerkLongListener {
                     // Handle item long click
-                            DialogUtils.showCreratedEdited(requireContext(),it.createdBy ?: it.user!!,it.lastEditedBy ?: it.user!!, it.merkCreatedDate,it.merkLastEditedDate)
+                            DialogUtils.showCreratedEdited(requireContext(),it.createdBy ?: it.user!!,it.lastEditedBy ?: it.user!!, it.merkCreatedDate,it.merkLastEditedDate,it.merkKet2)
                 },
             UpdateMerkClickListener{
                 showAddDialog(viewModel,it,1)

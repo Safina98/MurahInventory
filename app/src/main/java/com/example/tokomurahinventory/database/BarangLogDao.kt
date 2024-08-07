@@ -14,6 +14,7 @@ import com.example.tokomurahinventory.models.DetailWarnaTable
 import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.models.model.InputStokLogModel
 import java.util.Date
+import kotlin.math.log
 
 
 @Dao
@@ -140,6 +141,8 @@ interface BarangLogDao {
     )
     @Query(" UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs-:detailWarnaPcs,lastEditedBy =:loggedInUsers,detailWarnaLastEditedDate=:lastEditedDate WHERE warnaRef = :refWarna AND detailWarnaIsi = :detailWarnaIsi")
     fun updateDetailWarna(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,loggedInUsers:String?,lastEditedDate: Date): Int
+    @Query(" UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs-:detailWarnaPcs,lastEditedBy =:loggedInUsers,detailWarnaLastEditedDate=:lastEditedDate,detailWarnaKet=:ket WHERE warnaRef = :refWarna AND detailWarnaIsi = :detailWarnaIsi")
+    fun updateDetailWarnaWithKet(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,loggedInUsers:String?,lastEditedDate: Date,ket:String): Int
     @Insert
     fun insert(detailWarnaTable: DetailWarnaTable)
     @Insert
@@ -148,11 +151,12 @@ interface BarangLogDao {
         UPDATE detail_warna_table 
         SET detailWarnaPcs = detailWarnaPcs + :detailWarnaPcs, 
             lastEditedBy = :lastEditedBy, 
-            detailWarnaLastEditedDate = :lastEditedDate 
+            detailWarnaLastEditedDate = :lastEditedDate ,
+            detailWarnaKet=:ket
         WHERE warnaRef = :refWarna 
         AND detailWarnaIsi = :detailWarnaIsi
     """)
-    fun updateDetailWarnaA(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,lastEditedBy:String?,lastEditedDate:Date): Int
+    fun updateDetailWarnaA(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,lastEditedBy:String?,lastEditedDate:Date,ket:String): Int
 
 
     @Transaction
@@ -161,7 +165,8 @@ interface BarangLogDao {
         detailWarnaIsi: Double,
         detailWarnaPcs: Int,
         loggedInUsers: String?,
-        id: Int
+        id: Int,
+        detailWarnaKet:String
     ) {
         // Retrieve the current pcs value for the given refWarna and detailWarnaIsi
         val currentPcs = getCurrentDetailWarnaPcs(refWarna, detailWarnaIsi)
@@ -172,8 +177,8 @@ interface BarangLogDao {
         // Check if the new pcs value would be negative
         if (newPcs >= 0) {
             // Perform the update
-            updateDetailWarna(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers, Date())
-
+           // updateDetailWarna(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers, Date())
+            updateDetailWarnaWithKet(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers, Date(),detailWarnaKet)
             // Perform the delete operation
             delete(id)
         } else {
@@ -206,7 +211,7 @@ interface BarangLogDao {
             val newPcs = currentPcs - update.detailWarnaPcs
 
             if (newPcs >= 0) {
-                updateDetailWarna(update.warnaRef, update.detailWarnaIsi, update.detailWarnaPcs, loggedInUsers, Date())
+                updateDetailWarnaWithKet(update.warnaRef, update.detailWarnaIsi, update.detailWarnaPcs, loggedInUsers, Date(),update.detailWarnaKet?:"")
             } else {
                 // Log the error and throw an exception to roll back the transaction
                 Log.e("InsertLogTry", "Update failed: Negative pcs value detected for warnaRef ${update.warnaRef} and detailWarnaIsi ${update.detailWarnaIsi}")
@@ -221,36 +226,38 @@ interface BarangLogDao {
         refWarna: String,
         detailWarnaIsi: Double,
         detailWarnaPcs: Int,
-        loggedInUsers: String?
+        loggedInUsers: String?,
+        ket:String
     ) {
         // Insert the BarangLog and get the generated ID (if needed)
         val barangLogId = insert(barangLog)
 
         // Update one entry in detail_warna_table
-        updateDetailWarna(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers,Date())
+        updateDetailWarnaWithKet(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers,Date(),ket)
     }
 
     @Transaction
     suspend fun insertLogAndUpdateDetailWarna(
         logTable: LogTable,
         barangLogs: List<BarangLog>,
-        loggedInUsers: String?
+        loggedInUsers: String?,
+
     ) {
         // Insert the LogTable entry
         insert(logTable)
-
         // Insert BarangLog entries and update detail_warna_table
         barangLogs.forEach { barangLog ->
             // Insert BarangLog
             insert(barangLog)
-
+            val ket =  "Barang keluar sebanyak ${barangLog.pcs} pcs, ke toko ${logTable.namaToko}"
             // Update detail_warna_table
-            updateDetailWarna(
+            updateDetailWarnaWithKet(
                 barangLog.warnaRef,
                 barangLog.isi,
                 barangLog.pcs,
                 loggedInUsers,
-                Date()
+                Date(),
+                ket
             )
         }
     }
@@ -259,7 +266,8 @@ interface BarangLogDao {
     suspend fun updateBarangLogAndDetailWarna(
         newBarangLog: BarangLog,
         oldBarangLog: BarangLog?,
-        loggedInUsers: String?
+        loggedInUsers: String?,
+        ket: String
     ) {
         Log.i("DAO", "Updating barang log with ref: ${newBarangLog.barangLogRef}")
         // Update barang log
@@ -291,10 +299,11 @@ interface BarangLogDao {
         lastEditedBy: String?,
         lastEditedDate: Date,
         log: LogTable,
-        barangLog: BarangLog
+        barangLog: BarangLog,
+        ket: String
     ) {
         // Update the detail_warna_table
-        updateDetailWarnaA(refWarna, detailWarnaIsi, detailWarnaPcs, lastEditedBy, lastEditedDate)
+        updateDetailWarnaA(refWarna, detailWarnaIsi, detailWarnaPcs, lastEditedBy, lastEditedDate,ket)
         // Insert into LogTable
         insert(log)
         // Insert into BarangLog and get the new ID

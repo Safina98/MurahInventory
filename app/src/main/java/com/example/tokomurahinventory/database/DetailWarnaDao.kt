@@ -48,10 +48,11 @@ interface DetailWarnaDao {
             d.detailWarnaDate,
             d.detailWarnaLastEditedDate,
             d.user,
-            SUM(d.detailWarnaPcs) as detailWarnaPcs
+            SUM(d.detailWarnaPcs) as detailWarnaPcs,
+            d.detailWarnaKet as detailWarnaKet
         FROM detail_warna_table d
         INNER JOIN warna_table w ON d.warnaRef = w.warnaRef
-        WHERE d.warnaRef = :warnaRef AND d.detailWarnaPcs!=0
+        WHERE d.warnaRef = :warnaRef AND d.detailWarnaIsi !=0.0
         GROUP BY d.detailWarnaIsi, d.warnaRef, w.satuan
     """)
     fun getDetailWarnaSummary(warnaRef: String): LiveData<List<DetailWarnaModel>>
@@ -65,10 +66,11 @@ interface DetailWarnaDao {
             d.detailWarnaDate,
             d.detailWarnaLastEditedDate,
             d.user,
-            SUM(d.detailWarnaPcs) as detailWarnaPcs
+            SUM(d.detailWarnaPcs) as detailWarnaPcs,
+            d.detailWarnaKet as detailWarnaKet
         FROM detail_warna_table d
         INNER JOIN warna_table w ON d.warnaRef = w.warnaRef
-        WHERE d.warnaRef = :warnaRef AND d.detailWarnaPcs!=0
+        WHERE d.warnaRef = :warnaRef AND d.detailWarnaIsi !=0.0
         GROUP BY d.detailWarnaIsi, d.warnaRef, w.satuan
     """)
     fun getDetailWarnaSummaryList(warnaRef: String): List<DetailWarnaModel>

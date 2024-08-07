@@ -27,9 +27,7 @@ abstract class DatabaseInventory: RoomDatabase()  {
     abstract val logDao:LogDao
     abstract val barangLogDao:BarangLogDao
 
-
     companion object{
-
         @Volatile
         private var INSTANCE: DatabaseInventory?=null
         fun getInstance(context: Context):DatabaseInventory{
