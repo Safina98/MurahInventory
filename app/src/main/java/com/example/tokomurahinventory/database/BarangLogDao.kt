@@ -61,7 +61,7 @@ interface BarangLogDao {
             warna_table.satuan,
             barang_log.pcs,
             barang_log.isi,
-            log_table.logDate AS barangLogInsertedDate,
+            log_table.lastEditedBy AS barangLogInsertedDate,
             log_table.createdBy,
             barang_log.barangLogRef AS inputBarangLogRef
         FROM 
@@ -87,7 +87,7 @@ interface BarangLogDao {
             warna_table.satuan,
             barang_log.pcs,
             barang_log.isi,
-            log_table.logDate AS barangLogInsertedDate,
+            log_table.logLastEditedDate AS barangLogInsertedDate,
             log_table.createdBy,
             barang_log.barangLogRef AS inputBarangLogRef
         FROM 
@@ -100,8 +100,8 @@ interface BarangLogDao {
             warna_table ON barang_log.warnaRef = warna_table.warnaRef
         WHERE 
         barangLogTipe =:tipe
-        AND (:startDate IS NULL OR log_table.logDate >= :startDate)
-        AND (:endDate IS NULL OR log_table.logDate <= :endDate)
+        AND (:startDate IS NULL OR log_table.logLastEditedDate >= :startDate)
+        AND (:endDate IS NULL OR log_table.logLastEditedDate <= :endDate)
     """)
     fun getAllLogMasukLiveData(tipe:String,startDate: Date?, endDate: Date?): LiveData<List<InputStokLogModel>>
 
@@ -113,7 +113,7 @@ interface BarangLogDao {
             warna_table.satuan,
             barang_log.pcs,
             barang_log.isi,
-            log_table.logDate AS barangLogInsertedDate,
+            log_table.logLastEditedDate AS barangLogInsertedDate,
             log_table.createdBy,
             barang_log.barangLogRef AS inputBarangLogRef
         FROM 
@@ -124,11 +124,20 @@ interface BarangLogDao {
             merk_table ON barang_log.refMerk = merk_table.refMerk
         JOIN 
             warna_table ON barang_log.warnaRef = warna_table.warnaRef
-        WHERE (:startDate IS NULL OR log_table.logDate >= :startDate)
-        AND (:endDate IS NULL OR log_table.logDate <= :endDate AND log_table.logTipe =:tipe)
+        WHERE (:startDate IS NULL OR log_table.logLastEditedDate >= :startDate)
+        AND (:endDate IS NULL OR log_table.logLastEditedDate <= :endDate AND log_table.logTipe =:tipe)
     """)
     fun getLogMasukByDateRange(startDate: Date?, endDate: Date?, tipe:String): List<InputStokLogModel>
 
+    @Query("""
+        UPDATE log_table SET lastEditedBy = :lastEditedBy, logLastEditedDate = :logLastEditedDate, userName = :userName WHERE refLog = :refLog
+    """)
+    suspend fun updateLastEditedLog(
+        lastEditedBy: String?,
+        logLastEditedDate: Date,
+        userName: String,
+        refLog: String
+    )
     @Query(" UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs-:detailWarnaPcs,lastEditedBy =:loggedInUsers,detailWarnaLastEditedDate=:lastEditedDate WHERE warnaRef = :refWarna AND detailWarnaIsi = :detailWarnaIsi")
     fun updateDetailWarna(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,loggedInUsers:String?,lastEditedDate: Date): Int
     @Insert
@@ -187,6 +196,8 @@ interface BarangLogDao {
         detailWarnaUpdates: List<DetailWarnaTable>,
         loggedInUsers: String?
     ) {
+        Log.e("InsertLogTry", "4 BarangLogDate ${barangLogDate}")
+        updateLastEditedLog(loggedInUsers,Date(),loggedInUsers?:"",refLog)
         // Update BarangLog Table
         updateByBarangLogRef(refMerk, warnaRef, detailWarnaRef, isi, pcs, barangLogDate, refLog, barangLogRef)
         // Perform DetailWarnaTable updates

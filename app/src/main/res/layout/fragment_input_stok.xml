@@ -75,7 +75,7 @@
             app:layout_constraintEnd_toEndOf="@id/search_bar_log"
             app:layout_constraintTop_toBottomOf="@id/search_bar_log"
             android:onClick="@{()->viewModel.resetDate()}"
-            android:text="reset" />
+            android:text="Hari Ini" />
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_input_stokLog"
             android:layout_width="match_parent"

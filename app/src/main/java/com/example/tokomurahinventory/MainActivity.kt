@@ -168,10 +168,10 @@ class MainActivity : AppCompatActivity() {
     fun logout() {
         Log.d("AppDebug", "Logout action triggered.")
         // Navigate to start destination and clear back stack
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.myNavHostFragment) as NavHostFragment
-        val navController = navHostFragment.navController
-        navController.popBackStack(navController.graph.startDestinationId, false)
-        navController.navigate(navController.graph.startDestinationId)
+        //val navHostFragment = supportFragmentManager.findFragmentById(R.id.myNavHostFragment) as NavHostFragment
+        //val navController = navHostFragment.navController
+        //navController.popBackStack(navController.graph.startDestinationId, false)
+        //navController.navigate(navController.graph.startDestinationId)
 
         SharedPreferencesHelper.clearUsername(this)
         authViewModel.setAuthenticationState(null)

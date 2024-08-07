@@ -258,7 +258,6 @@ class LogViewModel (
             val refMerk = withContext(Dispatchers.IO){dataSourceMerk.getMerkRefByName(merk)!!}
             val stringWarnaList=withContext(Dispatchers.IO){dataSourceWarna.selectStringWarnaByMerk(refMerk)}
             _codeWarnaByMerk.value = stringWarnaList
-            //codeWarnaByMerk.setValue(stringWarnaList)
         }
     }
     suspend fun getWarnaByMerk(merk: String): List<String> {
@@ -486,13 +485,11 @@ class LogViewModel (
                         merkMutable.value = countModel.merkBarang
                         _countModelList.value = updatedList // Notify observers of the change
                         callback(UpdateStatus.SUCCESS) // Notify success
-
                 } else {
                     Log.i("NEWPOPUPPROB","oldCOuntModel ${oldCountModel}")
                     updatedList.remove(itemToUpdate)
                     updatedList.add(oldCountModel)
                     _countModelList.value = updatedList
-
                     when {
                         !isMerkPresent -> callback(UpdateStatus.MERK_NOT_PRESENT)
                         !isWarnaPresent -> callback(UpdateStatus.WARNA_NOT_PRESENT)
@@ -501,18 +498,12 @@ class LogViewModel (
                     }
                 }
         }
-         else {
-            // Notify observers of the change
-            callback(UpdateStatus.ITEM_NOT_FOUND) // Notify failure
+            else {
+                callback(UpdateStatus.ITEM_NOT_FOUND) // Notify failure
+            }
         }
     }
-    }
-
-
-
     //try update count model
-
-
 
     // Function to update the merk value
     fun updateMerk(id: Int, merk: String) {

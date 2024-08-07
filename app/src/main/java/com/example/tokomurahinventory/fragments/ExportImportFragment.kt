@@ -26,6 +26,7 @@ import com.example.tokomurahinventory.R
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentExportImportBinding
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
+import com.example.tokomurahinventory.utils.UserRoles
 import com.example.tokomurahinventory.viewmodels.ExportImportViewModel
 import com.example.tokomurahinventory.viewmodels.ExportImportViewModelFactory
 import kotlinx.coroutines.CoroutineScope
@@ -97,23 +98,11 @@ class ExportImportFragment : AuthFragment() {
         viewModel.isLoading.observe(viewLifecycleOwner) {
             Log.i("ZipDB", "isLoading $it")
             if (it==true){
-                binding.progressBar.visibility = View.VISIBLE
-                binding.labelProgres.visibility = View.VISIBLE
-                binding.btnExportLog.visibility = View.GONE
-                binding.btnExportUsers.visibility = View.GONE
-                binding.btnExportMerk.visibility = View.GONE
-                binding.btnImportMerk.visibility = View.GONE
-                binding.exportHeader.visibility = View.GONE
-                binding.importHeader.visibility = View.GONE
+                loading()
+
             }else{
-                binding.progressBar.visibility = View.GONE
-                binding.labelProgres.visibility = View.GONE
-                binding.btnExportLog.visibility = View.VISIBLE
-                binding.btnExportUsers.visibility = View.VISIBLE
-                binding.btnExportMerk.visibility = View.VISIBLE
-                binding.btnImportMerk.visibility = View.VISIBLE
-                binding.exportHeader.visibility = View.VISIBLE
-                binding.importHeader.visibility = View.VISIBLE
+                loaded()
+
             }
         }
         binding.btnExportMerk.setOnClickListener {
@@ -126,15 +115,13 @@ class ExportImportFragment : AuthFragment() {
             exportStockCSV("Daftar Log Toko Murah","LOG")
         }
         binding.btnImportMerk.setOnClickListener {
-            //importCSVStock()
-            viewModel.generateData()
+            importCSVStock()
+           // viewModel.generateData()
             //viewModel.tryDeleteLog()
         }
         binding.btnExportDatabase.setOnClickListener {
             loading()
             shareDatabaseBackup(requireContext())
-
-            //Log.i("ZipDB","shareDatabaseBackup called")
         }
         binding.btnImportMerkNew.setOnClickListener {
             closeDatabase(database)
@@ -226,11 +213,13 @@ class ExportImportFragment : AuthFragment() {
                         } catch (e: IOException) {
                             Log.e("ZipDB", "Error extracting zip file", e)
                             withContext(Dispatchers.Main) {
+                                loaded()
                                 Toast.makeText(requireContext(), "Error extracting file", Toast.LENGTH_SHORT).show()
                             }
                         }
                     } else {
                         withContext(Dispatchers.Main) {
+                            loaded()
                             Toast.makeText(requireContext(), "File does not exist", Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -272,6 +261,7 @@ class ExportImportFragment : AuthFragment() {
             } catch (e: IOException) {
                 Log.e("ZipDB", "Error extracting zip file", e)
                 withContext(Dispatchers.Main) {
+                    loaded()
                     Toast.makeText(requireContext(), "Error extracting file", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -291,12 +281,15 @@ class ExportImportFragment : AuthFragment() {
                 tempFile
             }
         } catch (e: SecurityException) {
+
             Log.e("FileReadError", "SecurityException while reading file from URI: ${e.localizedMessage}", e)
             null
         } catch (e: IOException) {
+
             Log.e("FileReadError", "IOException while reading file from URI: ${e.localizedMessage}", e)
             null
         } catch (e: Exception) {
+
             Log.e("FileReadError", "Exception while reading file from URI: ${e.localizedMessage}", e)
             null
         }
@@ -421,16 +414,20 @@ class ExportImportFragment : AuthFragment() {
         binding.btnExportDatabase.visibility = View.GONE
     }
     fun loaded(){
+        val userRole = SharedPreferencesHelper.getUserRole(requireContext())
         binding.progressBar.visibility = View.GONE
         binding.labelProgres.visibility = View.GONE
         binding.btnExportLog.visibility = View.VISIBLE
         binding.btnExportUsers.visibility = View.VISIBLE
         binding.btnExportMerk   .visibility = View.VISIBLE
-        binding.btnImportMerk.visibility = View.VISIBLE
         binding.exportHeader.visibility = View.VISIBLE
-        binding.importHeader.visibility = View.VISIBLE
-        binding.btnImportMerkNew.visibility = View.VISIBLE
         binding.btnExportDatabase.visibility = View.VISIBLE
+       if (userRole==UserRoles.ADMIN) {
+           binding.importHeader.visibility = View.VISIBLE
+           binding.btnImportMerkNew.visibility = View.VISIBLE
+           binding.btnImportMerk.visibility = View.VISIBLE
+       }
+
     }
 
 

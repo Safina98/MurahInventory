@@ -288,6 +288,9 @@ class InputLogFragment : AuthFragment() {
         val warnaAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, emptyList())
         autoCompleteWarna.setAdapter(warnaAdapter)
 
+        val isiAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, mutableListOf())
+        autoCompleteIsi.setAdapter(isiAdapter)
+
         if (inputStokLogModel != null) {
             autoCompleteMerk.setText(inputStokLogModel.merkBarang)
             autoCompleteWarna.setText(inputStokLogModel.kodeBarang)
@@ -299,7 +302,7 @@ class InputLogFragment : AuthFragment() {
         // Fetch and observe data
         viewModel.allMerkFromDb.observe(viewLifecycleOwner) { allMerk ->
             merkAdapter.clear()
-            merkAdapter.addAll(allMerk)
+            merkAdapter.addAll(allMerk.sortedBy { it })
         }
         autoCompleteMerk.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -314,7 +317,7 @@ class InputLogFragment : AuthFragment() {
 
         viewModel.codeWarnaByMerk.observe(viewLifecycleOwner) { warnaList ->
             warnaAdapter.clear()
-            warnaAdapter.addAll(warnaList ?: emptyList())
+            warnaAdapter.addAll(warnaList?.sortedBy { it } ?: emptyList())
         }
 
         autoCompleteWarna.addTextChangedListener(object : TextWatcher {
@@ -333,6 +336,8 @@ class InputLogFragment : AuthFragment() {
 
         viewModel.isiByWarnaAndMerk.observe(viewLifecycleOwner) { isiList ->
             // Update the UI or another adapter if needed
+            isiAdapter.clear()
+            isiAdapter.addAll(isiList?.sortedBy { it }?.map { it.toString() }?: emptyList())
         }
 
         // Create and show the dialog
@@ -361,7 +366,7 @@ class InputLogFragment : AuthFragment() {
                         viewModel.updateCountModel(inputStokLogModel,oldCountModel!!) { status ->
                             when (status) {
                                 UpdateStatus.SUCCESS -> {
-                                    Toast.makeText(requireContext(), "Berhasil Mengubah data", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(requireContext(), "Berhasil", Toast.LENGTH_SHORT).show()
                                     dialog.dismiss()
                                 }
                                 UpdateStatus.MERK_NOT_PRESENT -> Toast.makeText(requireContext(), "Merk tidak ada di database", Toast.LENGTH_SHORT).show()
@@ -383,10 +388,7 @@ class InputLogFragment : AuthFragment() {
             dialog.setOnDismissListener {
                 isDialogShowing = false
             }
-
         dialog.show()
     }
-
-
 
 }

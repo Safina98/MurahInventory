@@ -114,6 +114,7 @@ class InputStokViewModel (
             _isInputLogLoading.value = false
         }
     }
+    //get wanrna for sugestion
     fun getWarnaByMerk(merk:String){
         uiScope.launch {
             val refMerk = withContext(Dispatchers.IO){dataSourceMerk.getMerkRefByName(merk)}
@@ -123,7 +124,6 @@ class InputStokViewModel (
                 }
                 _codeWarnaByMerk.value = stringWarnaList
             }else Toast.makeText(getApplication(),"Merk Tidak ada di database",Toast.LENGTH_SHORT).show()
-            //codeWarnaByMerk.setValue(stringWarnaList)
         }
     }
     //get list isi for sugestion
@@ -141,23 +141,28 @@ class InputStokViewModel (
             // isiByWarnaAndMerk.setValue(stringWarnaList.map { it.toString() })
         }
     }
+    //filter rv by text
     fun filterLog(query: String?) {
         val list = mutableListOf<InputStokLogModel>()
         val queryParts = query?.split("\\s+".toRegex())?.map { it.lowercase(Locale.getDefault()) } ?: emptyList()
-        if (queryParts.isNotEmpty()) {
-            list.addAll(_unFilteredLog.value!!.filter { log ->
-                // Check if any part of the query matches either namaMerk or kodeWarna
-                queryParts.all { part ->
-                    log.namaMerk.lowercase(Locale.getDefault()).contains(part) ||
-                            log.kodeWarna.lowercase(Locale.getDefault()).contains(part) ||
-                            log.createdBy?.lowercase(Locale.getDefault())?.contains(part) ?: false
-                }
-            })
-        } else {
-            list.addAll(_unFilteredLog.value!!)
+        if (_unFilteredLog.value!=null){
+            if (queryParts.isNotEmpty()) {
+                list.addAll(_unFilteredLog.value!!.filter { log ->
+                    // Check if any part of the query matches either namaMerk or kodeWarna
+                    queryParts.all { part ->
+                        log.namaMerk.lowercase(Locale.getDefault()).contains(part) ||
+                                log.kodeWarna.lowercase(Locale.getDefault()).contains(part) ||
+                                log.createdBy?.lowercase(Locale.getDefault())?.contains(part) ?: false
+                    }
+                })
+            } else {
+                list.addAll(_unFilteredLog.value!!)
+            }
+            _inputLogModel.value = list
         }
-        _inputLogModel.value = list
+
     }
+    //update rv by date
     fun updateRv4(){
         uiScope.launch {
             performDataFiltering(selectedStartDate.value, selectedEndDate.value)
@@ -225,16 +230,14 @@ class InputStokViewModel (
                 val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
                 val item = getBarangLogFromDB(inputStokLogModel.inputBarangLogRef)
                 if (item!=null){
-                    //updateDetailWarnaTODao(item.warnaRef,item.isi,item.pcs,loggedInUsers)
                     updataDetailWarnaAndDeleteBarangLogToDao(item.warnaRef, item.isi, item.pcs, loggedInUsers, item.id)
-                    //getAllInputLogModel()
-
+                    updateRv4()
                 }
             }catch (e:Exception){
                 Toast.makeText(getApplication(),"$e",Toast.LENGTH_SHORT).show()
                 Log.e("InsertLogTry", "Error updating detail warna: ${e.message}", e)
             }
-            updateRv4()
+
         }
     }
     fun convertToBarangLog(input: InputStokLogModel,refMerk:String,refWarna:String,refDetailWarna:String,loggedInUsers:String?,logRef:String): BarangLog {
@@ -247,7 +250,7 @@ class InputStokViewModel (
             detailWarnaRef = refDetailWarna, // Set this if needed, or fetch from a different source
             isi = input.isi,
             pcs = input.pcs,
-            barangLogDate = input.barangLogInsertedDate,
+            barangLogDate = Date(),
             refLog = logRef, // Handle null or default value
             barangLogRef = input.inputBarangLogRef,
             barangLogExtraBool = false, // Set default value or handle if required
@@ -259,28 +262,28 @@ class InputStokViewModel (
     fun updateInputStok(inputStokLogModel: InputStokLogModel){
         uiScope.launch {
             _isInputLogLoading.value = true
-            Log.i("InsertLogTry", "PCs ${inputStokLogModel.inputBarangLogRef}")
+            //get logged in user for last edited
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             val refMerk = getrefMerkByName(inputStokLogModel.namaMerk.uppercase())
-            Log.i("InsertLogTry", "ref merk:$refMerk")
+            //check if merk and warna in database
             if (refMerk!=null){
                 val refWarna = getrefWanraByName(inputStokLogModel.kodeWarna,refMerk)
-                Log.i("InsertLogTry", "ref merk:$refWarna")
                 if (refWarna!=null){
                     var refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna,inputStokLogModel.isi)
+                  //if detail warna in database, then insert
                     if (refDetailWarna==null) {
-                        Log.i("InsertLogTry","refDetailWarna==null ${inputStokLogModel.pcs}")
                         refDetailWarna = UUID.randomUUID().toString()
                         insertDetailWarnaToDao(refWarna,inputStokLogModel.isi,0,loggedInUsers,refDetailWarna)
                     }
+                    //get old barang log id from db
                     val item = getBarangLogFromDB(inputStokLogModel.inputBarangLogRef)
                     if (item!=null){
+                        //convert input model to newBarangLog
                         val barangNewLog = convertToBarangLog(inputStokLogModel,refMerk,refWarna,refDetailWarna,loggedInUsers,item.refLog)
-                        val oldBarangLog = withContext(Dispatchers.IO) {
-                            dataSourceBarangLog.findByBarangLogRef(barangNewLog.barangLogRef)
-                        }
-                        Log.i("InsertLogTry", "PCs ${barangNewLog.barangLogRef}")
-                        updateDetailWarna(barangNewLog,oldBarangLog)
+                        Log.e("InsertLogTry", "1 BarangLogDate ${barangNewLog.barangLogDate}")
+                        //val oldBarangLog = withContext(Dispatchers.IO) { dataSourceBarangLog.findByBarangLogRef(barangNewLog.barangLogRef) }
+                        //Log.i("InsertLogTry", "PCs ${barangNewLog.barangLogRef}")
+                        updateDetailWarna(barangNewLog,item)
                         //updateBarangLogToDao(barangNewLog)
                         //getAllInputLogModel()
                 }
@@ -352,6 +355,7 @@ class InputStokViewModel (
                     )
 
                 }
+                Log.e("InsertLogTry", "2 BarangLogDate ${newBarangLog.barangLogDate}")
                 updateBarangLogAndDetailWarna(
                     newBarangLog.refMerk,
                     newBarangLog.warnaRef,
@@ -460,8 +464,9 @@ class InputStokViewModel (
                                                        detailWarnaUpdates: List<DetailWarnaTable>,
                                                        loggedInUsers: String?){
         return withContext(Dispatchers.IO){
-            Log.i("InsertLogTry", "PCs ${pcs}")
-            Log.i("InsertLogTry", "PCs ${barangLogRef}")
+           // Log.i("InsertLogTry", "PCs ${pcs}")
+            //Log.i("InsertLogTry", "PCs ${barangLogRef}")
+            Log.e("InsertLogTry", "3 BarangLogDate ${barangLogDate}")
             dataSourceBarangLog.updateBarangLogAndDetails(
                 refMerk,
                 warnaRef,
