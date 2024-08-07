@@ -151,7 +151,8 @@ interface DetailWarnaDao {
             d.user AS detailWarnaUser,
             d.createdBy AS detailWarnaCreatedBy,
             d.lastEditedBy AS detailWarnaLastEditedBy,
-            d.detailWarnaRef
+            d.detailWarnaRef,
+            d.detailWarnaKet AS a
         FROM detail_warna_table AS d
         JOIN warna_table AS w ON d.warnaRef = w.warnaRef
         JOIN merk_table AS m ON w.refMerk = m.refMerk
