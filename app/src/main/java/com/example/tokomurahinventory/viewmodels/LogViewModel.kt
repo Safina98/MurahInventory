@@ -444,8 +444,7 @@ class LogViewModel (
     private suspend fun checkIfPcsReadyInStok(refDetailWarna:String,pcs_n:Int):Boolean{
         return withContext(Dispatchers.IO){
         val a =dataSourceDetailWarna.countMatchingRows(refDetailWarna,pcs_n)
-            Log.i("NEWPOPUPPROB","$a")
-        a>0
+            a>0
         //dataSourceDetailWarna.isPcsReady(refDetailWarna,pcs_n)
         }
     }
@@ -1091,6 +1090,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
     }
     private suspend fun insertLogAndUpdateDetailWarna(log:LogTable,barangLogList:List<BarangLog>,loggedInUsers: String?){
         return withContext(Dispatchers.IO){
+            Log.i("dataSize", "dao called")
             dataSourceBarangLog.insertLogAndUpdateDetailWarna(log,barangLogList,loggedInUsers)
         }
     }

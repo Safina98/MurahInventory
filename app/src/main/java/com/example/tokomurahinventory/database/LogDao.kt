@@ -38,6 +38,9 @@ interface LogDao {
     @Query("DELETE FROM log_table WHERE id =:id")
     fun delete(id:Int)
 
+    @Query("DELETE FROM log_table WHERE logTipe =:ket")
+    fun deleteAllKeluar(ket: String)
+
     @Query("""
         SELECT * FROM log_table
         WHERE (:startDate IS NULL OR logLastEditedDate >= :startDate)

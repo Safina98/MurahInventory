@@ -23,6 +23,7 @@ import com.example.tokomurahinventory.models.WarnaTable
 import com.example.tokomurahinventory.models.model.CombinedDataModel
 import com.example.tokomurahinventory.models.model.CombinedLogData
 import com.example.tokomurahinventory.utils.DataGenerator
+import com.example.tokomurahinventory.utils.MASUKKELUAR
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -73,7 +74,11 @@ class ExportImportViewModel(
                 Log.i("GeneratingDummy","staring")
                 val allMerk = withContext(Dispatchers.IO){dataSourceMerk.selectAllMerkList()}
                 _isLoading.value=true
-                dataGenerator.populateMerk(allMerk)
+                //dataGenerator.populateMerk(allMerk)
+                withContext(Dispatchers.IO){
+                    dataSourceLog.deleteAllKeluar(MASUKKELUAR.KELUAR)
+                }
+
                 _isLoading.value=false
             //dataGenerator.populateLog(allMerk)
             } catch (e: Exception) {

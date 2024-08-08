@@ -245,20 +245,22 @@ interface BarangLogDao {
     ) {
         // Insert the LogTable entry
         insert(logTable)
+        Log.i("dataSize", "dao trans")
         // Insert BarangLog entries and update detail_warna_table
         barangLogs.forEach { barangLog ->
             // Insert BarangLog
             insert(barangLog)
             val ket =  "Barang keluar sebanyak ${barangLog.pcs} pcs, ke toko ${logTable.namaToko}"
             // Update detail_warna_table
-            updateDetailWarnaWithKet(
+           val a= updateDetailWarnaWithKet(
                 barangLog.warnaRef,
                 barangLog.isi,
                 barangLog.pcs,
                 loggedInUsers,
-                Date(),
+                logTable.logLastEditedDate,
                 ket
             )
+            Log.i("dataSize", "affected rows $a")
         }
     }
 
@@ -303,7 +305,8 @@ interface BarangLogDao {
         ket: String
     ) {
         // Update the detail_warna_table
-        updateDetailWarnaA(refWarna, detailWarnaIsi, detailWarnaPcs, lastEditedBy, lastEditedDate,ket)
+        val a =updateDetailWarnaA(refWarna, detailWarnaIsi, detailWarnaPcs, lastEditedBy, lastEditedDate,ket)
+        Log.i("dataSize","rows affected $a")
         // Insert into LogTable
         insert(log)
         // Insert into BarangLog and get the new ID
