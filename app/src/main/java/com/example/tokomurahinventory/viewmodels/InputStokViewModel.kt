@@ -193,9 +193,10 @@ class InputStokViewModel (
             }
         }
     }
-    fun setStartDateRange(startDate: Date?){
+    fun setStartDateRange(startDate: Date?,endDate: Date?){
         uiScope.launch {
             _selectedStartDate.value = startDate
+            _selectedEndDate.value = endDate
         }
     }
     fun setEndDateRange(endDate: Date?){

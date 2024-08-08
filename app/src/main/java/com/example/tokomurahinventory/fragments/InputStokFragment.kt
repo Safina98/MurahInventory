@@ -257,17 +257,17 @@ class InputStokFragment : AuthFragment() {
                 val endDay = datePickerEnd.dayOfMonth
 
                 val startDate = Calendar.getInstance().apply {
-                    set(startYear, startMonth, startDay, 0, 0, 0) // Set time to start of the day
+                    set(startYear, startMonth, startDay, 0, 0, 1) // Set time to start of the day
                     set(Calendar.MILLISECOND, 0)
                 }.time
 
                 val endDate = Calendar.getInstance().apply {
-                    set(endYear, endMonth, endDay, 23, 59, 59) // Set time to end of the day
+                    set(endYear, endMonth, endDay, 23, 59, 58) // Set time to end of the day
                     set(Calendar.MILLISECOND, 999)
                 }.time
                 viewModel.updateDateRangeString(startDate,endDate)
-                viewModel.setStartDateRange(startDate)
-                viewModel.setEndDateRange(endDate)
+                viewModel.setStartDateRange(startDate,endDate)
+                //viewModel.setEndDateRange(endDate)
             }
             .setNegativeButton("Cancel", null)
             .create()

@@ -122,6 +122,9 @@ interface DetailWarnaDao {
     @Query("SELECT EXISTS(SELECT 1 FROM detail_warna_table WHERE detailWarnaRef = :refDetailWarna AND detailWarnaPcs >= :pcs_n)")
     fun isPcsReady(refDetailWarna: String, pcs_n: Int): Boolean
 
+    @Query("SELECT COUNT(*) FROM detail_warna_table WHERE detailWarnaRef = :refDetailWarna AND detailWarnaPcs >= :pcs_n")
+    fun countMatchingRows(refDetailWarna: String, pcs_n: Int): Int
+
     @Query("""
         SELECT 
             m.id AS merkId,

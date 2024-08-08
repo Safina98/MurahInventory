@@ -170,9 +170,10 @@ class LogViewModel (
             }
 
     }
-    fun setStartDateRange(startDate: Date?){
+    fun setStartAndEndDateRange(startDate: Date?,endDate: Date?){
         viewModelScope.launch {
             _selectedStartDate.value = startDate
+            _selectedEndDate.value = endDate
         }
     }
     fun setEndDateRange(endDate: Date?){
@@ -222,6 +223,8 @@ class LogViewModel (
         viewModelScope.launch {
             _isLogLoading.value = true
             _isLoadCrashed.value = false
+            Log.i("SelectedDateProbs","perform filtering start date: ${selectedStartDate.value}")
+            Log.i("SelectedDateProbs","perform filtering end date: ${selectedEndDate.value}")
             try {
                 val filteredData = withContext(Dispatchers.IO) {
                     dataSourceLog.getLogsByDateRange(startDate, endDate, MASUKKELUAR.KELUAR)
@@ -438,7 +441,9 @@ class LogViewModel (
 
     private suspend fun checkIfPcsReadyInStok(refDetailWarna:String,pcs_n:Int):Boolean{
         return withContext(Dispatchers.IO){
-            dataSourceDetailWarna.isPcsReady(refDetailWarna,pcs_n)
+
+        dataSourceDetailWarna.countMatchingRows(refDetailWarna,pcs_n)>0
+        //dataSourceDetailWarna.isPcsReady(refDetailWarna,pcs_n)
         }
     }
 
@@ -451,35 +456,46 @@ class LogViewModel (
     fun updateCountModel(countModel: CountModel, oldCountModel:CountModel,callback: (UpdateStatus) -> Unit) {
         viewModelScope.launch {
             // Perform validation
-            Log.i("NEWPOPUPPROB","${countModel.merkBarang}")
-            Log.i("NEWPOPUPPROB","${countModel.kodeBarang}")
+            Log.i("NEWPOPUPPROB","countModel pcs : ${countModel.psc}")
+            Log.i("NEWPOPUPPROB","OldCountModel pcs : ${oldCountModel.psc}")
             Log.i("NEWPOPUPPROB","oldCOuntModel ${oldCountModel}")
+
+
             val updatedList = _countModelList.value?.toMutableList()
             val itemToUpdate = updatedList?.find { it.id == countModel.id }
-            Log.i("NEWPOPUPPROB","item to update ${itemToUpdate}")
+
             val a = CountModel(itemToUpdate!!.id,itemToUpdate.kodeBarang,itemToUpdate.merkBarang,null,itemToUpdate.psc,"","")
-            if (itemToUpdate != null) {
-                val isMerkPresent = checkMerkExisted(countModel.merkBarang!!)
-                Log.i("NEWPOPUPPROB","${countModel.merkBarang} ${isMerkPresent}")
-                val isWarnaPresent = isKodeWarnaInLiveData(codeWarnaByMerk, countModel.kodeBarang!!)
-                Log.i("NEWPOPUPPROB","${countModel.kodeBarang} ${isWarnaPresent}")
-                val isIsiPresent = isIsiInLiveData(isiByWarnaAndMerk, countModel.isi!!)
-                val isPcsReadyInStok = if (isIsiPresent) {
-                    val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
-                    val refWarna = getrefWanraByName(countModel.kodeBarang!!, refMerk)
-                    val refDetailWarna =
-                        refWarna?.let { getrefDetailWanraByWarnaRefndIsi(it, countModel.isi!!) }
-                    checkIfPcsReadyInStok(refDetailWarna!!, countModel.psc)
-                } else false
-                if (isMerkPresent && isWarnaPresent && isIsiPresent && isPcsReadyInStok) {
+            val isMerkPresent = checkMerkExisted(countModel.merkBarang!!)
+            val isWarnaPresent = isKodeWarnaInLiveData(codeWarnaByMerk, countModel.kodeBarang!!)
+            val isIsiPresent = isIsiInLiveData(isiByWarnaAndMerk, countModel.isi!!)
+            var isPcsReadyInStok = false
+                if (isMerkPresent && isWarnaPresent && isIsiPresent ) {
+                    if (itemToUpdate != null) {
+                        val barangLogfromdb= withContext(Dispatchers.IO){dataSourceBarangLog.findByBarangLogRef(countModel.barangLogRef)}
+                        var selisihpcs= countModel.psc
+                        if (barangLogfromdb!=null){
+                            selisihpcs= countModel.psc-barangLogfromdb!!.pcs
+                        }
+                        isPcsReadyInStok = if (isIsiPresent) {
+                            val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
+                            val refWarna = getrefWanraByName(countModel.kodeBarang!!, refMerk)
+                            val refDetailWarna = refWarna?.let { getrefDetailWanraByWarnaRefndIsi(it, countModel.isi!!) }
+                            val pcs = itemToUpdate.psc
+                            checkIfPcsReadyInStok(refDetailWarna!!, selisihpcs)
+                        } else false
+
+                        if(isPcsReadyInStok){
+                            itemToUpdate.merkBarang = countModel.merkBarang!!
+                            itemToUpdate.kodeBarang = countModel.kodeBarang
+                            itemToUpdate.isi = countModel.isi!!
+                            itemToUpdate.psc = countModel.psc
+                            merkMutable.value = countModel.merkBarang
+                            _countModelList.value = updatedList // Notify observers of the change
+                            callback(UpdateStatus.SUCCESS) // Notify success
+                        }
+
                     // Update the item if validation passes
-                        itemToUpdate.merkBarang = countModel.merkBarang!!
-                        itemToUpdate.kodeBarang = countModel.kodeBarang
-                        itemToUpdate.isi = countModel.isi!!
-                        itemToUpdate.psc = countModel.psc
-                        merkMutable.value = countModel.merkBarang
-                        _countModelList.value = updatedList // Notify observers of the change
-                        callback(UpdateStatus.SUCCESS) // Notify success
+
                 } else {
                     Log.i("NEWPOPUPPROB","oldCOuntModel ${oldCountModel}")
                     updatedList.remove(itemToUpdate)
