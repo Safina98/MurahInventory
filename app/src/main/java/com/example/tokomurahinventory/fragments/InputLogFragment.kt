@@ -18,7 +18,6 @@ import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.example.tokomurahinventory.R
 import com.example.tokomurahinventory.adapters.AddNetClickListener
@@ -29,19 +28,15 @@ import com.example.tokomurahinventory.adapters.BarangLogPcsClickListener
 import com.example.tokomurahinventory.adapters.CountAdapter
 import com.example.tokomurahinventory.adapters.DeleteNetClickListener
 import com.example.tokomurahinventory.database.DatabaseInventory
-import com.example.tokomurahinventory.database.OnWarnaDataLoadedCallback
 import com.example.tokomurahinventory.databinding.FragmentInputLogBinding
 import com.example.tokomurahinventory.databinding.PopUpAddBarangLogBinding
 import com.example.tokomurahinventory.databinding.PopUpAutocompleteTextviewBinding
 import com.example.tokomurahinventory.models.CountModel
-import com.example.tokomurahinventory.models.model.InputStokLogModel
+
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.utils.UpdateStatus
 import com.example.tokomurahinventory.viewmodels.LogViewModel
 import com.example.tokomurahinventory.viewmodels.LogViewModelFactory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 
 class InputLogFragment : AuthFragment() {
@@ -73,14 +68,13 @@ class InputLogFragment : AuthFragment() {
         val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?: ""
         viewModel = ViewModelProvider(
             requireActivity(),
-            LogViewModelFactory(dataSourceMerk, dataSourceWarna, dataSourceDetailWarna, dataSourceLog, dataSourcebarangLog, loggedInUser,application)
-        ).get(LogViewModel::class.java)
+            LogViewModelFactory(dataSourceMerk, dataSourceWarna, dataSourceDetailWarna, dataSourceLog, dataSourcebarangLog, loggedInUser,application)).get(LogViewModel::class.java)
 
         binding.viewModel = viewModel
         viewModel.codeWarnaByMerk.observe(viewLifecycleOwner, Observer {  })
 
         adapter = CountAdapter(
-            AddNetClickListener { countModel, position -> handleAddNetClick(countModel, position) },
+            AddNetClickListener { countModel, position ->  },
             DeleteNetClickListener { countModel, position -> handleDeleteNetClick(countModel, position) },
             BarangLogMerkClickListener { countModel, position ->
                 setupDialog(countModel)
@@ -121,9 +115,7 @@ class InputLogFragment : AuthFragment() {
 
         return binding.root
     }
-    private fun handleAddNetClick(countModel: CountModel, position: Int) {
-        // Handle the AddNet click action
-    }
+
     private fun handleDeleteNetClick(countModel: CountModel, position: Int) {
         clearEditText()
         viewModel.deleteCountModel(countModel.id)

@@ -29,10 +29,6 @@ import com.example.tokomurahinventory.utils.DialogUtils
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.CombinedViewModel
 import com.example.tokomurahinventory.viewmodels.CombinedViewModelFactory
-import com.example.tokomurahinventory.viewmodels.LogViewModel
-import com.example.tokomurahinventory.viewmodels.LogViewModelFactory
-import com.example.tokomurahinventory.viewmodels.WarnaViewModel
-import com.example.tokomurahinventory.viewmodels.WarnaViewModelFactory
 import com.google.android.material.textfield.TextInputLayout
 
 class WarnaFragment : AuthFragment() {

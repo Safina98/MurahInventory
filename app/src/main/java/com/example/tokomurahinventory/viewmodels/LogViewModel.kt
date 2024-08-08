@@ -88,8 +88,7 @@ class LogViewModel (
     private val _navigateToLog = MutableLiveData<Boolean>()
     val navigateToLog: LiveData<Boolean> get() = _navigateToLog
 
-    //state
-    private val _isWarnaClick = MutableLiveData<Boolean>()
+
 
 
 
@@ -139,49 +138,14 @@ class LogViewModel (
     }
 
     //get list merk
-    fun getAllLogTable(){
-        viewModelScope.launch {
-            _isLogLoading.value=true
-            _isLoadCrashed.value=false
-            try {
-                val startDate = Calendar.getInstance().apply {
-                    set(Calendar.HOUR_OF_DAY, 0)
-                    set(Calendar.MINUTE, 0)
-                    set(Calendar.SECOND, 0)
-                    set(Calendar.MILLISECOND, 0)
-                }.time
 
-                // Set to the end of the day
-                val endDate = Calendar.getInstance().apply {
-                    set(Calendar.HOUR_OF_DAY, 23)
-                    set(Calendar.MINUTE, 59)
-                    set(Calendar.SECOND, 59)
-                    set(Calendar.MILLISECOND, 999)
-                }.time
-                val list = withContext(Dispatchers.IO){
-                    dataSourceLog.selectAllLogList(MASUKKELUAR.KELUAR,startDate,endDate)
-                }
-                _allLog.value = list
-                _unFilteredLog.value = list
-                _isLogLoading.value = false
-            }catch (e:Exception){
-                Log.i("LOADLOGPROBS","$e")
-                isLoadCrashed.value==true
-            }
-            }
-
-    }
     fun setStartAndEndDateRange(startDate: Date?,endDate: Date?){
         viewModelScope.launch {
             _selectedStartDate.value = startDate
             _selectedEndDate.value = endDate
         }
     }
-    fun setEndDateRange(endDate: Date?){
-        viewModelScope.launch {
-            _selectedEndDate.value=endDate
-        }
-    }
+
     private fun formatDate(date: Date?): String? {
         if (date != null) {
             val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -449,9 +413,7 @@ class LogViewModel (
         }
     }
 
-    fun isDataEdited():Boolean{
-        return true
-    }
+
 
 
     fun updateCountModel(countModel: CountModel, oldCountModel: CountModel, callback: (UpdateStatus) -> Unit) {
@@ -549,7 +511,8 @@ class LogViewModel (
             Log.i("NEWPOPUPPROB","Baranglog from db pcs : ${barangLogfromdb.pcs}")
             val selisihpcs= countModel.psc-barangLogfromdb.pcs
             Log.i("NEWPOPUPPROB","selisih pcs : ${selisihpcs}")
-            val isPcsReadyInStok = if (isIsiPresent) {
+            val isPcsReadyInStok =
+                if (isIsiPresent) {
                 val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
                 val refWarna = getrefWanraByName(countModel.kodeBarang!!, refMerk)
                 val refDetailWarna = refWarna?.let { getrefDetailWanraByWarnaRefndIsi(it, countModel.isi!!) }
@@ -638,18 +601,14 @@ class LogViewModel (
             val updatedList = _countModelList.value?.toMutableList()
             val itemToUpdate = updatedList?.find { it.id == id }
             if (itemToUpdate != null) {
-                val refMerk = getrefMerkByName(itemToUpdate!!.merkBarang!!.uppercase())
+                val refMerk = getrefMerkByName(itemToUpdate.merkBarang!!.uppercase())
                 val refWarna = getrefWanraByName(itemToUpdate.kodeBarang!!, refMerk)
-                Log.i("UpdateError","$itemToUpdate")
-                Log.i("UpdateError","$refMerk")
-                Log.i("UpdateError","$refWarna")
+
                 val refDetailWarna = getrefDetailWanraByWarnaRefndIsi(refWarna!!, itemToUpdate.isi!!)
 
                 val isPcsReadyInStok = checkIfPcsReadyInStok(refDetailWarna!!, net)
-                val getDetailWarnaByDetailWarnaRef = withContext(Dispatchers.IO){dataSourceDetailWarna.getDetailWarnaByDetailWarnaRef(refDetailWarna)}
-                Log.e("UpdateError", "osPcsReadyInStok $isPcsReadyInStok.")
-                Log.e("UpdateError", "detailwarna isi ${getDetailWarnaByDetailWarnaRef.detailWarnaIsi}")
-                Log.e("UpdateError", "count.psc ${net}")
+
+
                 if (isPcsReadyInStok){
                     itemToUpdate.psc = net
                     _countModelList.value = updatedList // Notify observers of the change
@@ -980,12 +939,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
         }
     }
     //Suspend
-    private suspend fun insertLogToDao(logTable:LogTable){
-        withContext(Dispatchers.IO){
-            //dataSource5.insert(logTable)
-            dataSourceLog.insert(logTable)
-        }
-    }
+
     private suspend fun updateDetailWarnaAndInsertBarangLogToDao(
         barangLog: BarangLog,
         refWarna: String,
@@ -1016,11 +970,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
         }
     }
 
-    private suspend fun getDetailWarna(waraRef:String, isi:Double):DetailWarnaTable{
-        return withContext(Dispatchers.IO){
-            dataSourceDetailWarna. getDetailWarnaByIsii(waraRef,isi)
-        }
-    }
+
 
     private suspend fun updateBarangLogAndDetailWarna( refMerk: String,
                                                        warnaRef: String,

@@ -87,33 +87,7 @@ class InputStokViewModel (
         _selectedEndDate.value=endDate
         updateDateRangeString(null,null)
     }
-    fun getAllInputLogModel(){
-        uiScope.launch {
-            _isInputLogLoading.value = true
-            val startDate = Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, 0)
-                set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
-            }.time
 
-            // Set to the end of the day
-            val endDate = Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, 23)
-                set(Calendar.MINUTE, 59)
-                set(Calendar.SECOND, 59)
-                set(Calendar.MILLISECOND, 999)
-            }.time
-
-            var list = withContext(Dispatchers.IO){
-                dataSourceBarangLog.getAllLogMasuk(MASUKKELUAR.MASUK,startDate,endDate)
-            }
-            Log.i("InsertLogTry","$list")
-            _inputLogModel.value=list
-            _unFilteredLog.value = list
-            _isInputLogLoading.value = false
-        }
-    }
     //get wanrna for sugestion
     fun getWarnaByMerk(merk:String){
         uiScope.launch {
@@ -199,11 +173,7 @@ class InputStokViewModel (
             _selectedEndDate.value = endDate
         }
     }
-    fun setEndDateRange(endDate: Date?){
-        uiScope.launch {
-            _selectedEndDate.value=endDate
-        }
-    }
+
     private fun formatDateRange(startDate: Date?, endDate: Date?): String {
         return if (startDate != null && endDate != null) {
             val dateFormat = SimpleDateFormat("EEEE, d MMMM yyyy", Locale("in", "ID"))
@@ -390,16 +360,7 @@ class InputStokViewModel (
             dataSourceBarangLog.findByBarangLogRef(barangLogRef)
         }
     }
-    private suspend fun updateDetailWarnaTODao(refWarna: String, isi: Double, pcs: Int, loggedInUsers: String?) {
-        withContext(Dispatchers.IO) {
-            Log.i("InsertLogTry", "Update detail warna to dao pcs $pcs")
-            try {
-                dataSourceDetailWarna.updateDetailWarna(refWarna, isi, pcs, loggedInUsers)
-            } catch (e: Exception) {
-                Log.e("InsertLogTry", "Error updating or inserting detail warna: ${e.message}", e)
-            }
-        }
-    }
+
     private suspend fun insertDetailWarnaToDao(refWarna: String, isi: Double, pcs: Int, loggedInUsers: String?,refDetailWarna: String) {
         withContext(Dispatchers.IO){
             val newDetailWarna = DetailWarnaTable(
@@ -428,11 +389,7 @@ class InputStokViewModel (
             dataSourceBarangLog.updateDetailAndDeleteBarangLog(refWarna,detailWarnaIsi,detailWarnaPcs,loggedInUsers,id,detailWarnaKet)
         }
     }
-    private suspend fun getDetailWarna(waraRef:String, isi:Double): DetailWarnaTable {
-        return withContext(Dispatchers.IO){
-            dataSourceDetailWarna. getDetailWarnaByIsii(waraRef,isi)
-        }
-    }
+
     private suspend fun getrefMerkByName(name:String):String?{
         return withContext(Dispatchers.IO){
             dataSourceMerk.getMerkRefByName(name)
@@ -453,13 +410,7 @@ class InputStokViewModel (
             dataSourceBarangLog.findByBarangLogRef(barangLogRef) != null
         }
     }
-    private suspend fun updateBarangLogToDao(log: BarangLog) {
-        withContext(Dispatchers.IO) {
-            if (doesBarangLogExist(log.barangLogRef)) {
-                dataSourceBarangLog.updateByBarangLogRef(log.refMerk, log.warnaRef, log.detailWarnaRef ?: "", log.isi, log.pcs, log.barangLogDate, log.refLog, log.barangLogRef)
-            }
-        }
-    }
+
     private suspend fun updateBarangLogAndDetailWarna( refMerk: String,
                                                        warnaRef: String,
                                                        detailWarnaRef: String,

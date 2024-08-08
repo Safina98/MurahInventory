@@ -3,16 +3,13 @@ package com.example.tokomurahinventory.fragments
 import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -28,15 +25,9 @@ import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.utils.DialogUtils
 import com.example.tokomurahinventory.utils.DraggableFloatingActionButton
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
-import com.example.tokomurahinventory.utils.formatDateToString
-import com.example.tokomurahinventory.utils.viewerAndEditorNotAuthorized
-import com.example.tokomurahinventory.utils.viewerNotAuthorized
 import com.example.tokomurahinventory.viewmodels.CombinedViewModel
 import com.example.tokomurahinventory.viewmodels.CombinedViewModelFactory
-import com.example.tokomurahinventory.viewmodels.MerkViewModel
-import com.example.tokomurahinventory.viewmodels.MerkViewModelFactory
-import com.example.tokomurahinventory.viewmodels.UserAction
-import java.util.Date
+
 
 
 class MerkFragment : AuthFragment() {
@@ -48,7 +39,7 @@ class MerkFragment : AuthFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_merk,container,false)
 
@@ -62,8 +53,7 @@ class MerkFragment : AuthFragment() {
         val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?:""
 
        // val factory = CombinedViewModelFactory(merkDao, warnaDao, refMerk, loggedInUser, requireActivity().application)
-       viewModel = ViewModelProvider(requireActivity(), CombinedViewModelFactory(merkDao, warnaDao, refMerk, loggedInUser, dataSourceDetailWarna,dataSourceLog,dataSourceBarangLog,requireActivity().application)).get(
-            CombinedViewModel::class.java)
+       viewModel = ViewModelProvider(requireActivity(), CombinedViewModelFactory(merkDao, warnaDao, refMerk, loggedInUser, dataSourceDetailWarna,dataSourceLog,dataSourceBarangLog,requireActivity().application)).get(CombinedViewModel::class.java)
 
         //val viewModel = ViewModelProvider(this, factory).get(CombinedViewModel::class.java)
 
@@ -91,7 +81,7 @@ class MerkFragment : AuthFragment() {
                             DialogUtils.showCreratedEdited(requireContext(),it.createdBy ?: it.user!!,it.lastEditedBy ?: it.user!!, it.merkCreatedDate,it.merkLastEditedDate,it.merkKet2)
                 },
             UpdateMerkClickListener{
-                showAddDialog(viewModel,it,1)
+                showAddDialog(viewModel,it)
 
             },
             DeleteMerkClickListener{
@@ -159,7 +149,7 @@ class MerkFragment : AuthFragment() {
         //Observe fab merk state
         viewModel.addMerkFab.observe(viewLifecycleOwner, Observer {
             if (it==true){
-                showAddDialog(viewModel,null,-1)
+                showAddDialog(viewModel,null)
                 viewModel.onAddMerkFabClicked()
             }
         })
@@ -188,7 +178,7 @@ class MerkFragment : AuthFragment() {
         val button: DraggableFloatingActionButton = view.findViewById(R.id.btn_add_new_merk)
         Log.d(":SplitFragmetProbs", "Button: $button")
     }
-    fun showAddDialog(viewModel: CombinedViewModel, merkTable:MerkTable?, i:Int){
+    fun showAddDialog(viewModel: CombinedViewModel, merkTable:MerkTable?){
         if (isDialogShowing) return
 
         isDialogShowing = true

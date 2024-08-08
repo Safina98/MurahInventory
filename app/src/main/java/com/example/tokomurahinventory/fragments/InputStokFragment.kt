@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,28 +18,18 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.tokomurahinventory.R
 import com.example.tokomurahinventory.adapters.DeleteInputStokLogClickListener
-import com.example.tokomurahinventory.adapters.DeleteMerkClickListener
 import com.example.tokomurahinventory.adapters.InputStokLogAdapter
 import com.example.tokomurahinventory.adapters.InputStokLogClickListener
 import com.example.tokomurahinventory.adapters.InputStokLogLongListener
-import com.example.tokomurahinventory.adapters.MerkAdapter
-import com.example.tokomurahinventory.adapters.MerkClickListener
-import com.example.tokomurahinventory.adapters.MerkLongListener
 import com.example.tokomurahinventory.adapters.UpdateInputStokLogClickListener
-import com.example.tokomurahinventory.adapters.UpdateMerkClickListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentInputStokBinding
 import com.example.tokomurahinventory.databinding.PopUpAddBarangLogBinding
-import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.models.model.InputStokLogModel
 import com.example.tokomurahinventory.utils.DialogUtils
-
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
-import com.example.tokomurahinventory.viewmodels.DetailWarnaViewModel
-import com.example.tokomurahinventory.viewmodels.DetailWarnaViewModelFactory
 import com.example.tokomurahinventory.viewmodels.InputStokViewModel
 import com.example.tokomurahinventory.viewmodels.InputStokViewModelFactory
-import com.example.tokomurahinventory.viewmodels.MerkViewModel
 import java.util.Calendar
 
 
@@ -52,7 +41,7 @@ class InputStokFragment : AuthFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_input_stok,container,false)
         val application = requireNotNull(this.activity).application
@@ -130,7 +119,7 @@ class InputStokFragment : AuthFragment() {
         })
         viewModel.isStartDatePickerClicked.observe(viewLifecycleOwner) {
             if (it==true){
-                showDatePickerDialog(1)
+                showDatePickerDialog()
                 viewModel.onStartDatePickerClicked()
             }
         }
@@ -239,7 +228,7 @@ class InputStokFragment : AuthFragment() {
             .show()
     }
 
-    private fun showDatePickerDialog(code:Int) {
+    private fun showDatePickerDialog() {
         if (isDialogShowing) return
         isDialogShowing = true
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.pop_up_date_picker, null)

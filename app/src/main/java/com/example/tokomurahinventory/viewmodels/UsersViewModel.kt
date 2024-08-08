@@ -3,14 +3,11 @@ package com.example.tokomurahinventory.viewmodels
 import android.app.Application
 import android.view.View
 import android.widget.Toast
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.UsersDao
 import com.example.tokomurahinventory.models.UsersTable
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
-import com.example.tokomurahinventory.utils.UserRoles
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -27,7 +24,7 @@ class UsersViewModel(
     //val usersList = dataSourceUsers.selectAllUsers()
     private val _addUserFab = MutableLiveData<Boolean>()
     val addUserFab: LiveData<Boolean> get() = _addUserFab
-    var dummyModel = mutableListOf<UsersTable>()
+
 
     private var viewModelJob = Job()
     //ui scope for coroutines
@@ -43,7 +40,7 @@ class UsersViewModel(
 
     fun getAllUserTable(){
         uiScope.launch {
-            var list = withContext(Dispatchers.IO){
+            val list = withContext(Dispatchers.IO){
                 dataSourceUsers.selectAllUsersList()
             }
             _usersList.value = list
@@ -105,7 +102,7 @@ class UsersViewModel(
     }
 
     fun checkIfUserDeletingItSelf(userRole: String): Boolean {
-        var loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
+        val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
         return userRole.equals(loggedInUsers, ignoreCase = true)
     }
 

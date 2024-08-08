@@ -2,7 +2,6 @@ package com.example.tokomurahinventory.fragments
 
 import android.app.AlertDialog
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,10 +24,8 @@ import com.example.tokomurahinventory.adapters.UsersLongListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentUsersBinding
 import com.example.tokomurahinventory.models.UsersTable
-import com.example.tokomurahinventory.models.model.DetailWarnaModel
 import com.example.tokomurahinventory.utils.DialogUtils
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
-import com.example.tokomurahinventory.viewmodels.DetailWarnaViewModel
 import com.example.tokomurahinventory.viewmodels.UserAction
 import com.example.tokomurahinventory.viewmodels.UsersViewModel
 import com.example.tokomurahinventory.viewmodels.UsersViewModelFactory
@@ -42,7 +39,7 @@ class UsersFragment : AuthFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_users,container,false)
         val application = requireNotNull(this.activity).application
@@ -93,11 +90,11 @@ class UsersFragment : AuthFragment() {
                                 if (isUserDeletingItSelf) {
                                     DialogUtils.showConfirmationDialog(
                                         requireContext(), vm, a, {  confirmedViewModel, confirmedItem ->
-                                                                    (confirmedViewModel as UsersViewModel).deleteUser(confirmedItem as UsersTable)
+                                                                    (confirmedViewModel ).deleteUser(confirmedItem)
                                         }
                                     )
                                 } else {
-                                    (vm as UsersViewModel).deleteUser(item as UsersTable)
+                                    (vm).deleteUser(item)
                                 }
                             }
                         )

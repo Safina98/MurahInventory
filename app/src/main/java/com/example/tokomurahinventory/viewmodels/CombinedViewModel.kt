@@ -81,7 +81,7 @@ class CombinedViewModel(
     //Add detail warna fab
     private val _addDetailWarnaFab = MutableLiveData<Boolean>()
     val addDetailWarnaFab: LiveData<Boolean> get() = _addDetailWarnaFab
-    var dummyDetail = mutableListOf<DetailWarnaTable>()
+
 
     val _refMerk = MutableLiveData<String>()
     val refMerkk :LiveData<String> get() = _refMerk
@@ -186,7 +186,7 @@ class CombinedViewModel(
     fun insertMerk(namaMerk: String) {
         viewModelScope.launch {
             _isLoading.value = true
-            val merk = MerkTable().apply {
+             MerkTable().apply {
                 this.namaMerk = namaMerk
                 val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
                 if (loggedInUsers != null) {
@@ -244,7 +244,7 @@ class CombinedViewModel(
         }
     }
 
-    fun onAddMerkFabClick(context: Context) {
+    fun onAddMerkFabClick() {
         Log.i("SplitFragmetProbs","addWarnaFabClick ${addMerkFabM.value}")
         addMerkFabM.value = true
     }
@@ -380,12 +380,12 @@ class CombinedViewModel(
             warnaLastEditedDate = Date()
         )
     }
-    private suspend fun getMerkByMerkRef(ref:String):String?{
+    private suspend fun getMerkByMerkRef(ref:String):String{
         return withContext(Dispatchers.IO){
             merkDao.getMerkNameByRef(ref)
         }
     }
-    private suspend fun getWarnabuRef(ref:String):String?{
+    private suspend fun getWarnabuRef(ref:String):String{
         return withContext(Dispatchers.IO){
             warnaDao.getKodeWarnaByRef(ref)
         }
@@ -446,7 +446,7 @@ class CombinedViewModel(
     @SuppressLint("NullSafeMutableLiveData")
     fun onNavigatetedToWarna(){ navigateToWarnaM.value = null }
 
-    private fun constructYesterdayDate(month: Int): Date? {
+    private fun constructYesterdayDate(): Date? {
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DAY_OF_YEAR, -2)
         val date = calendar.time
@@ -506,6 +506,7 @@ class CombinedViewModel(
             userName = loggedInUsers
             logCreatedDate = Date()
             logLastEditedDate = Date()
+
         }
     }
     fun createBarangLog(detailWarnaTable: DetailWarnaTable,log:LogTable,refMerk_: String,detailWarmaRef: String):BarangLog{

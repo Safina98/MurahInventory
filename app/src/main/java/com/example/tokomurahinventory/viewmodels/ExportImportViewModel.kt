@@ -23,23 +23,19 @@ import com.example.tokomurahinventory.models.WarnaTable
 import com.example.tokomurahinventory.models.model.CombinedDataModel
 import com.example.tokomurahinventory.models.model.CombinedLogData
 import com.example.tokomurahinventory.utils.DataGenerator
-import com.example.tokomurahinventory.utils.MASUKKELUAR
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.BufferedWriter
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileWriter
 import java.io.IOException
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
+
 
 class ExportImportViewModel(
     val dataSourceMerk: MerkDao,
@@ -51,7 +47,6 @@ class ExportImportViewModel(
     val loggedInUser:String,
     application: Application
 ) :AndroidViewModel(application){
-    val allMerkFromDb= dataSourceMerk.selectAllMerk()
 
     private val _insertionCompleted = MutableLiveData<Boolean>()
     val insertionCompleted: LiveData<Boolean>
@@ -74,10 +69,8 @@ class ExportImportViewModel(
                 Log.i("GeneratingDummy","staring")
                 val allMerk = withContext(Dispatchers.IO){dataSourceMerk.selectAllMerkList()}
                 _isLoading.value=true
-                //dataGenerator.populateMerk(allMerk)
-                withContext(Dispatchers.IO){
-                    dataSourceLog.deleteAllKeluar(MASUKKELUAR.KELUAR)
-                }
+                dataGenerator.populateMerk(allMerk)
+
 
                 _isLoading.value=false
             //dataGenerator.populateLog(allMerk)
@@ -89,11 +82,7 @@ class ExportImportViewModel(
 
     }
 
-    suspend fun getAllMerks(): List<MerkTable> {
-        return withContext(Dispatchers.IO){
-            dataSourceMerk.selectAllMerkList()
-        }
-    }
+
     suspend fun getAllCombinedData(): List<CombinedDataModel> {
         return withContext(Dispatchers.IO){
             dataSourceDetailWarna.getAllCombinedData()
@@ -245,8 +234,8 @@ class ExportImportViewModel(
         val merkTable = MerkTable().apply {
             namaMerk = tokens[1].trim()
             refMerk = tokens[2].trim()
-            merkCreatedDate = parseDate(tokens[3].trim()) ?: Date()
-            merkLastEditedDate = parseDate(tokens[4].trim()) ?: Date()
+            merkCreatedDate = parseDate(tokens[3].trim())
+            merkLastEditedDate = parseDate(tokens[4].trim())
             user = tokens[5]
             createdBy = tokens[6].trim()
             lastEditedBy = tokens[7].trim()
@@ -297,7 +286,7 @@ class ExportImportViewModel(
                 val bw = BufferedWriter(fw)
                 bw.write(content)
                 bw.newLine()
-                val allItems = when (code.toUpperCase()) {
+                val allItems = when (code.uppercase()) {
                     "MERK" -> getAllCombinedData()
                     "LOG" -> getAllCombinedLogData()
                     "USERS" -> getAllUsersData()
@@ -394,16 +383,7 @@ class ExportImportViewModel(
         return csvDir // Return the directory containing the CSV files
     }
 
-    fun writingInProgress(){
-        Log.i("ViewModel", "Writing in progress")
-        _isLoading.value = true
-        _csvWriteComplete.value = null
-    }
-    fun writingDone(){
-        Log.i("ViewModel", "Writing in progress")
-        _isLoading.value = false
-        _csvWriteComplete.postValue(Unit)
-    }
+
 
 
 

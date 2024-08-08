@@ -44,7 +44,7 @@ class DetailWarnaViewModel(val dataSourceWarna : WarnaDao,
     //Add detail warna fab
     private val _addDetailWarnaFab = MutableLiveData<Boolean>()
     val addDetailWarnaFab: LiveData<Boolean> get() = _addDetailWarnaFab
-    var dummyDetail = mutableListOf<DetailWarnaTable>()
+
     //delete?
     val warna = dataSourceWarna.selectWarnaByWarnaRef(refWarna)
     //detail warna

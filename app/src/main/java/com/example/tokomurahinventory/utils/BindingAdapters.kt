@@ -1,12 +1,11 @@
 package com.example.tokomurahinventory.utils
 
-import android.content.SharedPreferences
+
 import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import java.text.SimpleDateFormat
 import java.util.Date

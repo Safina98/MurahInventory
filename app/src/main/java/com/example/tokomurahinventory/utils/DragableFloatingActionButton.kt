@@ -6,7 +6,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
 import android.view.ViewGroup.MarginLayoutParams
-import android.view.animation.OvershootInterpolator
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 //Source : https://stackoverflow.com/a/56377297/16776791

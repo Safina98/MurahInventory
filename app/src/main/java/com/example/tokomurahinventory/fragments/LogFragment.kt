@@ -35,7 +35,7 @@ class LogFragment : AuthFragment(){
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_log,container,false)
         val application = requireNotNull(this.activity).application
@@ -126,7 +126,7 @@ class LogFragment : AuthFragment(){
 
         viewModel.isStartDatePickerClicked.observe(viewLifecycleOwner) {
             if (it==true){
-                showDatePickerDialog(1)
+                showDatePickerDialog()
                 viewModel.onStartDatePickerClicked()
             }
         }
@@ -149,7 +149,7 @@ class LogFragment : AuthFragment(){
 
     //viewModel.getAllLogTable()
     }
-    private fun showDatePickerDialog(code:Int) {
+    private fun showDatePickerDialog() {
 
         if (isDialogShowing) return
 
