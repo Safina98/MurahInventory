@@ -67,17 +67,21 @@ class ExportImportViewModel(
 
     fun generateData() {
         viewModelScope.launch {
-            _isLoading.value=true
+
             try {
+
                 Log.i("GeneratingDummy","staring")
                 val allMerk = withContext(Dispatchers.IO){dataSourceMerk.selectAllMerkList()}
+                _isLoading.value=true
                 dataGenerator.populateMerk(allMerk)
-                //dataGenerator.populateLog(allMerk)
+                _isLoading.value=false
+            //dataGenerator.populateLog(allMerk)
             } catch (e: Exception) {
+               // _isLoading.value=false
                 Log.i("GeneratingDummy","$e")
             }
         }
-        _isLoading.value=false
+
     }
 
     suspend fun getAllMerks(): List<MerkTable> {

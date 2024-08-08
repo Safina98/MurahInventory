@@ -142,7 +142,11 @@ class LogFragment : AuthFragment(){
     override fun onStart() {
         super.onStart()
         Log.i("DATEDIALOGPROB","show date dilaog called")
-        viewModel.setInitialStartDateAndEndDate()
+        //viewModel.setInitialStartDateAndEndDate()
+        if (viewModel.allLog.value==null){
+            viewModel.updateRv4()
+        }
+
     //viewModel.getAllLogTable()
     }
     private fun showDatePickerDialog(code:Int) {

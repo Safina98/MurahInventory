@@ -95,7 +95,7 @@ interface DetailWarnaDao {
     @Query("SELECT * FROM detail_warna_table WHERE detailWarnaIsi = :isi AND detailWarnaRef = :detailWarnaRef")
     fun getDetailWarnaByIsiAndRef(isi: Double, detailWarnaRef: String): List<DetailWarnaTable>
 
-    @Query("""SELECT d.detailWarnaIsi FROM detail_warna_table d WHERE d.warnaRef = :warnaRef AND d.detailWarnaIsi!=0.0 AND d.detailWarnaPcs !=0 """)
+    @Query("""SELECT d.detailWarnaIsi FROM detail_warna_table d WHERE d.warnaRef = :warnaRef AND d.detailWarnaIsi!=0.0 """)
     fun getIsiDetailWarnaByWarna(warnaRef: String): List<Double>
 
     @Query("SELECT detailWarnaRef FROM detail_warna_table WHERE warnaRef = :warnaRef and detailWarnaIsi =:isi")

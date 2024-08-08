@@ -375,7 +375,7 @@ class InputLogFragment : AuthFragment() {
                                 UpdateStatus.ISI_NOT_PRESENT -> Toast.makeText(requireContext(), "Isi tidak ada di database", Toast.LENGTH_SHORT).show()
                                 UpdateStatus.PCS_NOT_READY_IN_STOCK -> Toast.makeText(requireContext(), "Jumlah barang tidak cukup", Toast.LENGTH_SHORT).show()
                                 else -> {
-                                    Toast.makeText(requireContext(), "Gagal mengubah data 1", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(requireContext(), "Gagal mengubah data ", Toast.LENGTH_SHORT).show()
                                     // Optionally, you can log the status here if needed
                                 }
                             }
