@@ -31,7 +31,7 @@ interface BarangLogDao {
     @Query("DELETE FROM barang_log WHERE id =:id")
     fun delete(id:Int)
 
-    @Query("SELECT merk_table.namaMerk AS merkBarang, warna_table.kodeWarna AS kodeBarang,barang_log.id as id, barang_log.isi, barang_log.pcs as psc, barang_log.refLog as logRef, barang_log.barangLogRef " +
+    @Query("SELECT merk_table.namaMerk AS merkBarang, warna_table.kodeWarna AS kodeBarang,barang_log.id as id, barang_log.isi, barang_log.pcs as psc, barang_log.refLog as logRef, barang_log.barangLogRef,warna_table.satuan as satuan " +
             "FROM barang_log " +
             "JOIN merk_table ON barang_log.refMerk = merk_table.refMerk " +
             "JOIN warna_table ON barang_log.warnaRef = warna_table.warnaRef " +
