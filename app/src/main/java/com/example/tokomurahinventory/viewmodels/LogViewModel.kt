@@ -237,8 +237,8 @@ class LogViewModel (
     fun updateLog(){
         viewModelScope.launch {
             _isLogLoading.value = true
-            val s = getStringS()
 
+            val s = getStringS()
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             //check if all data exist  in database
             val allDataPresent = areAllCountModelValuesNotNull(countModelList)
@@ -442,6 +442,7 @@ class LogViewModel (
             Log.i("NEWPOPUPPROB", "Baranglog from db pcs : ${barangLogfromdb.pcs}")
             Log.i("NEWPOPUPPROB", "selisih pcs : $selisihpcs")
 
+
             val isPcsReadyInStok = if (isIsiPresent) {
                 val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
                 val refWarna = getrefWanraByName(countModel.kodeBarang!!, refMerk)
@@ -452,10 +453,13 @@ class LogViewModel (
             if (isMerkPresent && isWarnaPresent && isIsiPresent && isPcsReadyInStok) {
                 // Update item in list
                 itemToUpdate.apply {
+                    val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
+                    val refWarna = getrefWanraByName(countModel.kodeBarang!!, refMerk)
                     merkBarang = countModel.merkBarang
                     kodeBarang = countModel.kodeBarang
                     isi = countModel.isi
                     psc = countModel.psc
+                    satuan = withContext(Dispatchers.IO){dataSourceWarna.getSatuanWarnaByRef(refWarna!!)}
                 }
                 merkMutable.value = countModel.merkBarang
                 _countModelList.value = updatedList
@@ -493,7 +497,7 @@ class LogViewModel (
             val updatedList = _countModelList.value?.toMutableList()
             val itemToUpdate = updatedList?.find { it.id == countModel.id }
             Log.i("NEWPOPUPPROB","item to update ${itemToUpdate}")
-            val a = CountModel(itemToUpdate!!.id,itemToUpdate.kodeBarang,itemToUpdate.merkBarang,null,itemToUpdate.psc,"","")
+            val a = CountModel(itemToUpdate!!.id,itemToUpdate.kodeBarang,itemToUpdate.merkBarang,null,itemToUpdate.psc,"","","")
             val isMerkPresent = checkMerkExisted(countModel.merkBarang!!)
             Log.i("NEWPOPUPPROB","isMerkPresent : ${isMerkPresent}")
             val isWarnaPresent = isKodeWarnaInLiveData(codeWarnaByMerk, countModel.kodeBarang!!)
@@ -504,8 +508,7 @@ class LogViewModel (
             Log.i("NEWPOPUPPROB","Baranglog from db pcs : ${barangLogfromdb.pcs}")
             val selisihpcs= countModel.psc-barangLogfromdb.pcs
             Log.i("NEWPOPUPPROB","selisih pcs : ${selisihpcs}")
-            val isPcsReadyInStok =
-                if (isIsiPresent) {
+            val isPcsReadyInStok = if (isIsiPresent) {
                 val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
                 val refWarna = getrefWanraByName(countModel.kodeBarang!!, refMerk)
                 val refDetailWarna = refWarna?.let { getrefDetailWanraByWarnaRefndIsi(it, countModel.isi!!) }
@@ -640,7 +643,7 @@ class LogViewModel (
 
     fun addNewCountItemBtn():CountModel{
         val a = _countModelList.value?.toMutableList() ?: mutableListOf()
-        val b = CountModel(getAutoIncrementId(),null,null,null,0,"","")
+        val b = CountModel(getAutoIncrementId(),null,null,null,0,"","","")
         a.add(b)
         _countModelList.value=a
         return b
@@ -695,7 +698,7 @@ class LogViewModel (
         }
     }
 /////////////////////////////////////Converter//////////////////////////////////////////////
-fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
+fun updateBarangLogToCountModel(barangLogList: List<BarangLog>,satuan:String){
     viewModelScope.launch{
         val list = barangLogList.map { barangLog ->
             CountModel(
@@ -705,7 +708,8 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
                 isi = barangLog.isi,
                 psc = barangLog.pcs,
                 logRef = barangLog.refLog, // Assuming `logRef` is equivalent to `refLog`
-                barangLogRef=barangLog.barangLogRef
+                barangLogRef=barangLog.barangLogRef,
+                satuan = satuan
             )
         }
         _countModelList.value = list
@@ -724,8 +728,9 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
     fun populateListOfLogBarang(logRef:String){
         viewModelScope.launch {
             val list = getBarangLogFromDao(logRef)
+            val satuan = withContext(Dispatchers.IO){dataSourceWarna.getSatuanWarnaByRef(list[0].warnaRef)}
             mutableLogBarang.value = list
-            updateBarangLogToCountModel(list)
+            updateBarangLogToCountModel(list,satuan)
         }
     }
 
@@ -909,10 +914,9 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>){
         var s =""
         if (countModelList.value!=null){
             for (i in countModelList.value!!){
-                s = s+"${i.merkBarang} ${i.kodeBarang}; ${i.isi} meter; ${i.psc} pcs\n"
+                s = s+"${i.merkBarang} ${i.kodeBarang}; ${i.isi} ${i.satuan}; ${i.psc} pcs\n"
             }
         }
-
         return s
     }
 

@@ -96,10 +96,8 @@ class ExportImportFragment : AuthFragment() {
         binding.viewModel = viewModel
 
         viewModel.isLoading.observe(viewLifecycleOwner) {
-            Log.i("ZipDB", "isLoading $it")
             if (it==true){
                 loading()
-
             }else{
                 loaded()
 
@@ -115,9 +113,9 @@ class ExportImportFragment : AuthFragment() {
             exportStockCSV("Daftar Log Toko Murah","LOG")
         }
         binding.btnImportMerk.setOnClickListener {
-            //importCSVStock()
-           viewModel.generateData()
-            //viewModel.tryDeleteLog()
+            importCSVStock()
+           //viewModel.generateData()
+
         }
         binding.btnExportDatabase.setOnClickListener {
             loading()
@@ -310,7 +308,6 @@ class ExportImportFragment : AuthFragment() {
            addFileToZip(zipOut, File(walPath), "")
            addFileToZip(zipOut, File(shmPath), "")
         }
-
         Log.i("ZipDB","zipFile ${zipFile.absolutePath}")
         Log.i("ZipDB","zipFile ${zipFile.name}")
        // viewModel.writingDone()
@@ -355,12 +352,9 @@ class ExportImportFragment : AuthFragment() {
                 loaded()
             }
         }
-
         // Show loading UI
         loading()
     }
-
-
 
     private fun exportDatabase(fileName: String) {
         val databaseFile = context?.getDatabasePath("inventory_table.db") ?: return

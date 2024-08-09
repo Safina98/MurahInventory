@@ -250,17 +250,21 @@ class InputStokViewModel (
                     if (item!=null){
                         //convert input model to newBarangLog
                         val barangNewLog = convertToBarangLog(inputStokLogModel,refMerk,refWarna,refDetailWarna,loggedInUsers,item.refLog)
-                        Log.e("InsertLogTry", "1 BarangLogDate ${barangNewLog.barangLogDate}")
-                        //val oldBarangLog = withContext(Dispatchers.IO) { dataSourceBarangLog.findByBarangLogRef(barangNewLog.barangLogRef) }
-                        //Log.i("InsertLogTry", "PCs ${barangNewLog.barangLogRef}")
                         updateDetailWarna(barangNewLog,item)
                         //updateBarangLogToDao(barangNewLog)
                         //getAllInputLogModel()
                 }
 
-                }else Toast.makeText(getApplication(),"Warna tidak ada di database. Input warna terlebih dulu",Toast.LENGTH_SHORT).show()
-            }else Toast.makeText(getApplication(),"Merk tidak ada di database. Input merk terlebih dulu",Toast.LENGTH_SHORT).show()
+                }else {
+                    Toast.makeText(getApplication(),"Warna tidak ada di database. Input warna terlebih dulu",Toast.LENGTH_SHORT).show()
+                    _isInputLogLoading.value=false
+                }
+            }else {
+                _isInputLogLoading.value=false
+                Toast.makeText(getApplication(),"Merk tidak ada di database. Input merk terlebih dulu",Toast.LENGTH_SHORT).show()
             }
+
+        }
 
     }
     fun updateDetailWarna(newBarangLog: BarangLog,oldBarangLog:BarangLog?) {
@@ -350,6 +354,7 @@ class InputStokViewModel (
             } catch (e: Exception) {
                 Toast.makeText(getApplication(),"$e",Toast.LENGTH_SHORT).show()
                 Log.e("InsertLogTry", "Error updating detail warna: ${e.message}", e)
+                _isInputLogLoading.value = false
             }
             updateRv4()
         }

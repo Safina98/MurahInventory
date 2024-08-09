@@ -129,11 +129,12 @@ class ExportImportViewModel(
     }
     private suspend fun insertCSVN(tokens: List<String>) {
          Log.i("INSERTCSVPROB","size: ${tokens.size}")
-        if (tokens.size == 28) {
+        if (tokens.size == 29) {
             importMerk(tokens)
         }else if (tokens.size ==5) {
             importUsers(tokens)
         }else {
+            //importMerk(tokens)
             importLog(tokens)
         }
         }
@@ -228,8 +229,6 @@ class ExportImportViewModel(
     fun importMerk(tokens: List<String>){
         Log.i("INSERTCSVPROB","token ${tokens}")
 
-
-
         val merkTable = MerkTable().apply {
             namaMerk = tokens[1].trim()
             refMerk = tokens[2].trim()
@@ -246,14 +245,14 @@ class ExportImportViewModel(
             satuanTotal = tokens[11].trim().toDoubleOrNull() ?: 0.0
             satuan = tokens[12].trim()
             warnaRef = tokens[13].trim()
-            warnaCreatedDate = parseDate(tokens[15].trim()) ?: Date()
-            warnaLastEditedDate = parseDate(tokens[16].trim()) ?: Date()
-            user = tokens[18].trim()
+            warnaCreatedDate = parseDate(tokens[14].trim()) ?: Date()
+            warnaLastEditedDate = parseDate(tokens[15].trim()) ?: Date()
+            user = tokens[16].trim()
             createdBy = tokens[17].trim()
             lastEditedBy = tokens[18].trim()
             refMerk = tokens[2].trim()
         }
-        Log.i("INSERTCSVPROB","warna table ${warnaTable}")
+
         val detailWarnaTable = DetailWarnaTable().apply {
             detailWarnaIsi = tokens[20].trim().toDoubleOrNull() ?: 0.0
             detailWarnaPcs = tokens[21].trim().toIntOrNull() ?: 0
@@ -264,10 +263,9 @@ class ExportImportViewModel(
             lastEditedBy = tokens[26].trim()
             warnaRef = tokens[13].trim()
             detailWarnaRef = tokens[27]
+            detailWarnaKet=tokens[28]
         }
 
-        //Log.i("INSERTCSVPROB","token ${tokens}")
-        Log.i("INSERTCSVPROB","detail warna table${detailWarnaTable}")
         dataSourceMerk.insertMerkTable(merkTable)
         dataSourceWarna.insertWarnaTable(warnaTable)
         dataSourceDetailWarna.insertDetailWarnaTable(detailWarnaTable)
@@ -293,30 +291,33 @@ class ExportImportViewModel(
                 }
                 Log.i("dataSize","${allItems.size}")
                 var i = 0
+                withContext(Dispatchers.IO){
+                    for (data in allItems) {
+                        val content = when (code.uppercase()) {
+                            "MERK" -> {
+                                val merkData = data as CombinedDataModel
+                                "${escapeCSVField(merkData.merkId.toString())}, ${escapeCSVField(merkData.namaMerk)}, ${escapeCSVField(merkData.refMerk)}, ${escapeCSVField(formatDate(merkData.merkCreatedDate))}, ${escapeCSVField(formatDate(merkData.merkLastEditedDate))}, ${escapeCSVField(merkData.merkUser)},${escapeCSVField(merkData.merkCreatedBy?:"")}, ${escapeCSVField(merkData.merkLastEditedBy?:"")}, ${escapeCSVField(merkData.warnaId.toString())}, ${escapeCSVField(merkData.kodeWarna)}, ${escapeCSVField(merkData.totalPcs.toString())}, ${escapeCSVField(merkData.satuanTotal.toString())}, ${escapeCSVField(merkData.satuan)}, ${escapeCSVField(merkData.warnaRef)}, ${escapeCSVField(formatDate(merkData.warnaCreatedDate))}, ${escapeCSVField(formatDate(merkData.warnaLastEditedDate))},${escapeCSVField(merkData.warnaUser)}, ${escapeCSVField(merkData.warnaCreatedBy?:"")}, ${escapeCSVField(merkData.warnaLastEditedBy?:"")}, ${escapeCSVField(merkData.detailWarnaId.toString())}, ${escapeCSVField(merkData.detailWarnaIsi.toString())}, ${escapeCSVField(merkData.detailWarnaPcs.toString())}, ${escapeCSVField(formatDate(merkData.detailWarnaDate))}, ${escapeCSVField(formatDate(merkData.detailWarnaLastEditedDate))}, ${escapeCSVField(merkData.detailWarnaUser)},${escapeCSVField(merkData.detailWarnaCreatedBy?:"")}, ${escapeCSVField(merkData.detailWarnaLastEditedBy?:"")},${escapeCSVField(merkData.detailWarnaRef?:"")},${merkData.a}"
+                            }
+                            "LOG" -> {
+                                val logData = data as CombinedLogData
+                                "${escapeCSVField(logData.logId.toString())}, ${escapeCSVField(logData.userName)}, ${escapeCSVField(logData.password)}, ${escapeCSVField(logData.namaToko)}, ${escapeCSVField(formatDate(logData.logDate))}, ${escapeCSVField(logData.keterangan)}, ${escapeCSVField(logData.merk)}, ${escapeCSVField(logData.kodeWarna)}, ${escapeCSVField(logData.logIsi.toString())}, ${escapeCSVField(logData.logPcs.toString())}, ${escapeCSVField(logData.detailWarnaRef?:"")}, ${escapeCSVField(logData.refLog)}, ${escapeCSVField(formatDate(logData.logLastEditedDate))}, ${escapeCSVField(logData.createdBy?:"")}, ${escapeCSVField(logData.lastEditedBy?:"")}, ${escapeCSVField(logData.logExtraBool.toString())}, ${escapeCSVField(logData.logExtraDouble.toString())}, ${escapeCSVField(logData.logExtraString)},${escapeCSVField(logData.logTipe)}, ${escapeCSVField(logData.barangLogId.toString())}, ${escapeCSVField(logData.refMerk)}, ${escapeCSVField(logData.warnaRef)}, ${escapeCSVField(logData.barangLogIsi.toString())}, ${escapeCSVField(logData.barangLogPcs.toString())}, ${escapeCSVField(formatDate(logData.barangLogDate))}, ${escapeCSVField(logData.barangLogRef)}, ${escapeCSVField(logData.barangLogExtraBool.toString())}, ${escapeCSVField(logData.barangLogExtraDouble.toString())}, ${escapeCSVField(logData.barangLogExtraString)},${escapeCSVField(logData.barangLogTipe)}"
+                            }
+                            "USERS"->{
+                                val userData = data as UsersTable
+                                "${userData.id}, ${userData.userName}, ${userData.password}, ${userData.usersRef},${userData.usersRole}"
+                            }
+                            else -> ""
+                        }
 
-                for (data in allItems) {
-                    val content = when (code.uppercase()) {
-                        "MERK" -> {
-                            val merkData = data as CombinedDataModel
-                            "${escapeCSVField(merkData.merkId.toString())}, ${escapeCSVField(merkData.namaMerk)}, ${escapeCSVField(merkData.refMerk)}, ${escapeCSVField(formatDate(merkData.merkCreatedDate))}, ${escapeCSVField(formatDate(merkData.merkLastEditedDate))}, ${escapeCSVField(merkData.merkUser)},${escapeCSVField(merkData.merkCreatedBy?:"")}, ${escapeCSVField(merkData.merkLastEditedBy?:"")}, ${escapeCSVField(merkData.warnaId.toString())}, ${escapeCSVField(merkData.kodeWarna)}, ${escapeCSVField(merkData.totalPcs.toString())}, ${escapeCSVField(merkData.satuanTotal.toString())}, ${escapeCSVField(merkData.satuan)}, ${escapeCSVField(merkData.warnaRef)}, ${escapeCSVField(formatDate(merkData.warnaCreatedDate))}, ${escapeCSVField(formatDate(merkData.warnaLastEditedDate))},${escapeCSVField(merkData.warnaUser)}, ${escapeCSVField(merkData.warnaCreatedBy?:"")}, ${escapeCSVField(merkData.warnaLastEditedBy?:"")}, ${escapeCSVField(merkData.detailWarnaId.toString())}, ${escapeCSVField(merkData.detailWarnaIsi.toString())}, ${escapeCSVField(merkData.detailWarnaPcs.toString())}, ${escapeCSVField(formatDate(merkData.detailWarnaDate))}, ${escapeCSVField(formatDate(merkData.detailWarnaLastEditedDate))}, ${escapeCSVField(merkData.detailWarnaUser)},${escapeCSVField(merkData.detailWarnaCreatedBy?:"")}, ${escapeCSVField(merkData.detailWarnaLastEditedBy?:"")},${escapeCSVField(merkData.detailWarnaRef?:"")},${merkData.a}"
-                        }
-                        "LOG" -> {
-                            val logData = data as CombinedLogData
-                            "${escapeCSVField(logData.logId.toString())}, ${escapeCSVField(logData.userName)}, ${escapeCSVField(logData.password)}, ${escapeCSVField(logData.namaToko)}, ${escapeCSVField(formatDate(logData.logDate))}, ${escapeCSVField(logData.keterangan)}, ${escapeCSVField(logData.merk)}, ${escapeCSVField(logData.kodeWarna)}, ${escapeCSVField(logData.logIsi.toString())}, ${escapeCSVField(logData.logPcs.toString())}, ${escapeCSVField(logData.detailWarnaRef?:"")}, ${escapeCSVField(logData.refLog)}, ${escapeCSVField(formatDate(logData.logLastEditedDate))}, ${escapeCSVField(logData.createdBy?:"")}, ${escapeCSVField(logData.lastEditedBy?:"")}, ${escapeCSVField(logData.logExtraBool.toString())}, ${escapeCSVField(logData.logExtraDouble.toString())}, ${escapeCSVField(logData.logExtraString)},${escapeCSVField(logData.logTipe)}, ${escapeCSVField(logData.barangLogId.toString())}, ${escapeCSVField(logData.refMerk)}, ${escapeCSVField(logData.warnaRef)}, ${escapeCSVField(logData.barangLogIsi.toString())}, ${escapeCSVField(logData.barangLogPcs.toString())}, ${escapeCSVField(formatDate(logData.barangLogDate))}, ${escapeCSVField(logData.barangLogRef)}, ${escapeCSVField(logData.barangLogExtraBool.toString())}, ${escapeCSVField(logData.barangLogExtraDouble.toString())}, ${escapeCSVField(logData.barangLogExtraString)},${escapeCSVField(logData.barangLogTipe)}"
-                        }
-                        "USERS"->{
-                            val userData = data as UsersTable
-                            "${userData.id}, ${userData.userName}, ${userData.password}, ${userData.usersRef},${userData.usersRole}"
-                        }
-                        else -> ""
+
+                        i = i+1
+                        bw.write(content)
+                        bw.newLine()
                     }
+                    Log.i("INSERTCSVPROB","i: $i")
 
-
-                    i = i+1
-                    bw.write(content)
-                    bw.newLine()
                 }
-                Log.i("INSERTCSVPROB","i: $i")
+
                 bw.close()
                 Toast.makeText(getApplication(), "Success", Toast.LENGTH_SHORT).show()
 
