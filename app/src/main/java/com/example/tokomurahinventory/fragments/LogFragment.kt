@@ -115,14 +115,10 @@ class LogFragment : AuthFragment(){
             }
         })
         viewModel.selectedStartDate.observe(viewLifecycleOwner) {
-           // viewModel.updateRv4()
         }
         viewModel.selectedEndDate.observe(viewLifecycleOwner) {
-            Log.i("SelectedDateProbs","observer start date: ${viewModel.selectedStartDate.value}")
-            Log.i("SelectedDateProbs","observer end date: $it")
             viewModel.updateRv4()
         }
-
 
         viewModel.isStartDatePickerClicked.observe(viewLifecycleOwner) {
             if (it==true){
@@ -141,18 +137,15 @@ class LogFragment : AuthFragment(){
     }
     override fun onStart() {
         super.onStart()
-        Log.i("DATEDIALOGPROB","show date dilaog called")
         //viewModel.setInitialStartDateAndEndDate()
         if (viewModel.allLog.value==null){
             viewModel.updateRv4()
         }
-
-    //viewModel.getAllLogTable()
+        binding.searchBarLog.setQuery("", false)
+        //viewModel.getAllLogTable()
     }
     private fun showDatePickerDialog() {
-
         if (isDialogShowing) return
-
         isDialogShowing = true
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.pop_up_date_picker, null)
         val datePickerStart = dialogView.findViewById<DatePicker>(R.id.datePickerStart)
@@ -177,6 +170,8 @@ class LogFragment : AuthFragment(){
                     set(endYear, endMonth, endDay, 23, 59, 58) // Set time to end of the day
                     set(Calendar.MILLISECOND, 999)
                 }.time
+                binding.searchBarLog.setQuery("", false)
+                binding.searchBarLog.clearFocus()
                 viewModel.updateDateRangeString(startDate,endDate)
                 viewModel.setStartAndEndDateRange(startDate,endDate)
                // viewModel.setEndDateRange(endDate)

@@ -435,7 +435,7 @@ class CombinedViewModel(
 
     fun onAddWarnaFabClick() {
         addWarnaFabM.value = true
-        Log.i("SplitFragmetProbs","addWarnaFabClick ${addWarnaFabM.value}")
+
     }
     fun onAddWarnaFabClicked() { addWarnaFabM.value = false }
     fun onNavigateToDetailWarna(refMerk: String) { navigateToDetailWarnaM.value = refMerk }

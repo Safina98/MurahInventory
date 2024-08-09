@@ -88,10 +88,6 @@ class LogViewModel (
     private val _navigateToLog = MutableLiveData<Boolean>()
     val navigateToLog: LiveData<Boolean> get() = _navigateToLog
 
-
-
-
-
     var mutableLog = MutableLiveData<LogTable?>()
     var mutableLogBarang = MutableLiveData<List<BarangLog>?>()
 
@@ -180,7 +176,6 @@ class LogViewModel (
     }
     fun updateRv4(){
         viewModelScope.launch {
-            Log.i("dataSize","updaterv4 called")
             performDataFiltering(selectedStartDate.value, selectedEndDate.value)
         }
     }
@@ -189,8 +184,6 @@ class LogViewModel (
         viewModelScope.launch {
             _isLogLoading.value = true
             _isLoadCrashed.value = false
-            Log.i("SelectedDateProbs","perform filtering start date: ${selectedStartDate.value}")
-            Log.i("SelectedDateProbs","perform filtering end date: ${selectedEndDate.value}")
             try {
                 val filteredData = withContext(Dispatchers.IO) {
                     dataSourceLog.getLogsByDateRange(startDate, endDate, MASUKKELUAR.KELUAR)
@@ -672,14 +665,16 @@ class LogViewModel (
 
     fun filterLog(query: String?) {
         val list = mutableListOf<LogTable>()
-        if (!query.isNullOrEmpty()&&_unFilteredLog.value!=null) {
-            list.addAll(_unFilteredLog.value!!.filter {
-                it.namaToko.lowercase(Locale.getDefault()).contains(query.lowercase(Locale.getDefault())) ||
-                        it.userName?.lowercase(Locale.getDefault())?.contains(query.lowercase(Locale.getDefault())) ?: false ||
-                        it.merk.lowercase(Locale.getDefault()).contains(query.lowercase(Locale.getDefault()))
-            })
-        } else {
-            list.addAll(_unFilteredLog.value!!)
+        if (_unFilteredLog.value!=null){
+            if (!query.isNullOrEmpty()) {
+                list.addAll(_unFilteredLog.value!!.filter {
+                    it.namaToko.lowercase(Locale.getDefault()).contains(query.lowercase(Locale.getDefault())) ||
+                            it.userName?.lowercase(Locale.getDefault())?.contains(query.lowercase(Locale.getDefault())) ?: false ||
+                            it.merk.lowercase(Locale.getDefault()).contains(query.lowercase(Locale.getDefault()))
+                })
+            } else {
+                list.addAll(_unFilteredLog.value!!)
+            }
         }
         _allLog.value = list
     }

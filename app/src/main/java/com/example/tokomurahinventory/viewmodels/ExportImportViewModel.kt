@@ -320,7 +320,6 @@ class ExportImportViewModel(
                 bw.close()
                 Toast.makeText(getApplication(), "Success", Toast.LENGTH_SHORT).show()
 
-
             } catch (e: IOException) {
                 e.printStackTrace()
                 Toast.makeText(getApplication(), "Failed", Toast.LENGTH_SHORT).show()

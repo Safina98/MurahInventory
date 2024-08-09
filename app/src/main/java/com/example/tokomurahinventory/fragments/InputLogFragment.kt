@@ -273,7 +273,6 @@ class InputLogFragment : AuthFragment() {
         val etPcs = dialogBinding.txtPcs
 
         val oldCountModel = inputStokLogModel?.copy()
-        Log.i("NEWPOPUPPROB","oldCOuntModel ${oldCountModel}")
         // Initialize the adapter for the AutoCompleteTextView
         val merkAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, emptyList())
         autoCompleteMerk.setAdapter(merkAdapter)
