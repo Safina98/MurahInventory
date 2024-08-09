@@ -508,7 +508,8 @@ class LogViewModel (
             Log.i("NEWPOPUPPROB","Baranglog from db pcs : ${barangLogfromdb.pcs}")
             val selisihpcs= countModel.psc-barangLogfromdb.pcs
             Log.i("NEWPOPUPPROB","selisih pcs : ${selisihpcs}")
-            val isPcsReadyInStok = if (isIsiPresent) {
+            val isPcsReadyInStok =
+                if (isIsiPresent) {
                 val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
                 val refWarna = getrefWanraByName(countModel.kodeBarang!!, refMerk)
                 val refDetailWarna = refWarna?.let { getrefDetailWanraByWarnaRefndIsi(it, countModel.isi!!) }
@@ -728,7 +729,10 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>,satuan:String){
     fun populateListOfLogBarang(logRef:String){
         viewModelScope.launch {
             val list = getBarangLogFromDao(logRef)
-            val satuan = withContext(Dispatchers.IO){dataSourceWarna.getSatuanWarnaByRef(list[0].warnaRef)}
+            var satuan=""
+            if (list.isNotEmpty()){
+                satuan = withContext(Dispatchers.IO){dataSourceWarna.getSatuanWarnaByRef(list[0].warnaRef)}
+            }
             mutableLogBarang.value = list
             updateBarangLogToCountModel(list,satuan)
         }
