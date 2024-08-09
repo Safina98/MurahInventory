@@ -97,7 +97,7 @@ class InputStokViewModel (
                     dataSourceWarna.selectStringWarnaByMerk(refMerk)
                 }
                 _codeWarnaByMerk.value = stringWarnaList
-            }else Toast.makeText(getApplication(),"Merk Tidak ada di database",Toast.LENGTH_SHORT).show()
+            }
         }
     }
     //get list isi for sugestion

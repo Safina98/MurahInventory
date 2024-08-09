@@ -174,12 +174,14 @@ class InputStokFragment : AuthFragment() {
         autoCompleteMerk.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+            }
+            override fun afterTextChanged(s: Editable?) {
                 val merk = s.toString()
                 if (merk.isNotEmpty()) {
                     viewModel.getWarnaByMerk(merk)
                 }
             }
-            override fun afterTextChanged(s: Editable?) {}
         })
         viewModel.codeWarnaByMerk.observe(viewLifecycleOwner) { warnaList ->
             warnaAdapter.clear()
