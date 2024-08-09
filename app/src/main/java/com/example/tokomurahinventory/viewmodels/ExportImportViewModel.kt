@@ -71,7 +71,6 @@ class ExportImportViewModel(
                 _isLoading.value=true
                 dataGenerator.populateMerk(allMerk)
 
-
                 _isLoading.value=false
             //dataGenerator.populateLog(allMerk)
             } catch (e: Exception) {

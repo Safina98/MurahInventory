@@ -345,15 +345,15 @@ class CombinedViewModel(
                 Log.i("UpdateWarnaProbs"," update warna ${warnaTable}")
                 warnaTable.warnaLastEditedDate = Date()
                 //getMerkFromdb by warna merk
-                val merk = getMerkByMerkRef(warnaTable.refMerk)
-                val warnaP = getWarnabuRef(warnaTable.warnaRef)
-                val user = getUserByUserName(warnaTable.lastEditedBy!!)
-                Log.i("UpdateWarnaProb","Merk $merk")
-                Log.i("UpdateWarnaProb","Warna $warnaP")
-                Log.i("UpdateWarnaProb","User ${user!!.userName}")
+               // val merk = getMerkByMerkRef(warnaTable.refMerk)
+                //val warnaP = getWarnabuRef(warnaTable.warnaRef)
+                //val user = getUserByUserName(warnaTable.lastEditedBy!!)
+              //  Log.i("UpdateWarnaProb","Merk $merk")
+               // Log.i("UpdateWarnaProb","Warna $warnaP")
+                //Log.i("UpdateWarnaProb","User ${user!!.userName}")
                 //get user by username from db by detail warna last edited by
                 //getDetailWarnaByWarnaRef(warnaTable.warnaRef)
-                updateWarnaToDao(warnaTable.toWarnaTable())
+                updateWarnaToDao(warnaTable.kodeWarna,warnaTable.satuan,warnaTable.lastEditedBy,warnaTable.warnaLastEditedDate,warnaTable.idWarna)
                 setRefWarna(warnaTable.warnaRef)
                 getStringWarna(warnaTable.warnaRef)
                 getWarnaByMerk(refMerkk.value)
@@ -421,10 +421,15 @@ class CombinedViewModel(
         }
     }
 
-    private suspend fun updateWarnaToDao(warna: WarnaTable) {
+    private suspend fun updateWarnaToDao(kodeWarna: String,
+                                         satuan: String,
+                                         lastEditedBy: String?,
+                                         lastEditedDate:Date,
+                                         warnaId:Int) {
         withContext(Dispatchers.IO) {
             //warnaDao.update(warna)
-            warnaDao.updateWarna(warna.kodeWarna,warna.satuan,warna.lastEditedBy,warna.warnaLastEditedDate,warna.idWarna)
+
+            warnaDao.updateWarna(kodeWarna,satuan,lastEditedBy,lastEditedDate,warnaId)
         }
     }
 

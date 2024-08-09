@@ -3,6 +3,7 @@ package com.example.tokomurahinventory.database
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.os.Build
+import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -30,7 +31,7 @@ abstract class DatabaseInventory: RoomDatabase()  {
     companion object{
         @Volatile
         private var INSTANCE: DatabaseInventory?=null
-        fun getInstance(context: Context):DatabaseInventory{
+        fun getInstance(context: Context): DatabaseInventory {
             synchronized(this) {
                 var instance = INSTANCE
                 if (instance == null) {
@@ -38,25 +39,28 @@ abstract class DatabaseInventory: RoomDatabase()  {
                         context.applicationContext,
                         DatabaseInventory::class.java,
                         "inventory_table.db"
-                    ) .addCallback(DatabaseCallback())
+                    )
+                        .addCallback(DatabaseCallback())
                         .fallbackToDestructiveMigration()
-                        .setQueryExecutor(Executors.newSingleThreadExecutor()) // To handle SQL queries
-                        .setTransactionExecutor(Executors.newSingleThreadExecutor()) // To handle transactions
+                        .setQueryExecutor(Executors.newSingleThreadExecutor())
+                        .setTransactionExecutor(Executors.newSingleThreadExecutor())
                         .build()
                     INSTANCE = instance
-                    //instance = Room.databaseBuilder(context.applicationContext,VendibleDatabase::class.java,"mymaindb").allowMainThreadQueries().build()
                 }
                 return instance
             }
         }
+
+    }
         private class DatabaseCallback : RoomDatabase.Callback() {
             override fun onOpen(db: SupportSQLiteDatabase) {
                 super.onOpen(db)
                 // Enable SQL logging
                 db.execSQL("PRAGMA foreign_keys=ON")
                 db.query("PRAGMA foreign_keys")
+                Log.i("QueryLog","callback")
                 db.enableWriteAheadLogging()
             }
         }
-    }
+
 }
