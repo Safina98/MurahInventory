@@ -12,11 +12,7 @@ import com.example.tokomurahinventory.viewmodels.UsersViewModel
 import java.util.Date
 
 object DialogUtils {
-    fun showConfirmationDialog(
-        context: Context,
-        viewModel: UsersViewModel,
-        item: UsersTable,
-        onConfirm: (UsersViewModel, UsersTable) -> Unit
+    fun showConfirmationDialog(context: Context, viewModel: UsersViewModel, item: UsersTable, onConfirm: (UsersViewModel, UsersTable) -> Unit
     ) {
         val dialogBuilder = AlertDialog.Builder(context)
         dialogBuilder.setTitle("Konfirmasi")
@@ -31,11 +27,7 @@ object DialogUtils {
         val alertDialog = dialogBuilder.create()
         alertDialog.show()
     }
-    fun showDeleteDialog(
-        fragment: Fragment,
-        viewModel: ViewModel,
-        item: Any,
-        onDelete: (ViewModel, Any) -> Unit
+    fun showDeleteDialog(fragment: Fragment, viewModel: ViewModel, item: Any, onDelete: (ViewModel, Any) -> Unit
     ) {
         val builder = AlertDialog.Builder(fragment.requireContext())
         builder.setMessage("Are you sure you want to delete?")

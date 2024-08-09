@@ -89,8 +89,10 @@ class UsersFragment : AuthFragment() {
                                 val isUserDeletingItSelf = (vm as UsersViewModel).checkIfUserDeletingItSelf(a.userName)
                                 if (isUserDeletingItSelf) {
                                     DialogUtils.showConfirmationDialog(
-                                        requireContext(), vm, a, {  confirmedViewModel, confirmedItem ->
-                                                                    (confirmedViewModel ).deleteUser(confirmedItem)
+                                        requireContext(), vm, a, {
+                                                confirmedViewModel, confirmedItem ->
+
+                                            (confirmedViewModel ).deleteUser(confirmedItem)
                                         }
                                     )
                                 } else {

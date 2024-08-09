@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.tokomurahinventory.database.UsersDao
 import com.example.tokomurahinventory.models.UsersTable
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
+import com.example.tokomurahinventory.utils.UserRoles
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -112,11 +113,15 @@ class UsersViewModel(
             //check if admin deleting it self
             // if admin deleting it self, give warning
             //check from database if there is mode than one admin in the database
-            if (isMoreThanOneAdminInDb()){
-                deleteUsersToDao(usersTable)
-            }else{
-             Toast.makeText(getApplication(),"Hanya ada 1 admin di database. Buat admin baru sebelum menghapus",Toast.LENGTH_SHORT).show()
-            }
+            if (usersTable.usersRole==UserRoles.ADMIN) {
+                if (isMoreThanOneAdminInDb()){
+                    deleteUsersToDao(usersTable)
+                }else{
+                    Toast.makeText(getApplication(),"Hanya ada 1 admin di database. Buat admin baru sebelum menghapus",Toast.LENGTH_SHORT).show()
+                }
+            }else deleteUsersToDao(usersTable)
+
+
             getAllUserTable()
         }
     }
