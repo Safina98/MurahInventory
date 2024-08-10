@@ -147,7 +147,7 @@ class UsersFragment : AuthFragment() {
         // Handle user data
         if (usersTable != null) {
             textNama.setText(usersTable.userName)
-            //textPassword.setText(usersTable.password)
+            textPassword.setText(usersTable.password)
             val userRoleArray = resources.getStringArray(R.array.user_role)
             val userRoleIndex = userRoleArray.indexOf(usersTable.usersRole)  // Assuming `role` is the property of `UsersTable`
             if (userRoleIndex >= 0) {

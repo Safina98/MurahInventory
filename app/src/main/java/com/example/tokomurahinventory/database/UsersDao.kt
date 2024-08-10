@@ -43,6 +43,9 @@ interface UsersDao {
     @Query("SELECT * FROM users_table WHERE userName = :username COLLATE NOCASE")
     suspend fun getUserByUsername(username: String): UsersTable?
 
+    @Query("SELECT * FROM users_table WHERE userName = :username AND password = :password COLLATE NOCASE")
+    suspend fun getUserByUserNameAndPassword(username: String,password: String): UsersTable?
+
     /////////////////////////Others table
     @Query("UPDATE merk_table SET createdBy = :defaultUser WHERE createdBy IS NULL")
     fun updateCreatedByForDeletedUser(defaultUser: String)

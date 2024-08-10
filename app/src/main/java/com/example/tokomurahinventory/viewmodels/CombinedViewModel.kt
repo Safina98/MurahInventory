@@ -120,11 +120,13 @@ class CombinedViewModel(
 
 
     init {
+
         if (_refMerk.value != null) {
             getWarnaByMerk(_refMerk.value)
         }
         getAllMerkTable()
     }
+
 
     fun setOrientationMode(orientationMode:Int){
         _orientationMode.value = orientationMode
@@ -350,15 +352,6 @@ class CombinedViewModel(
                 warnaTable.lastEditedBy = users
                 Log.i("UpdateWarnaProbs"," update warna ${warnaTable}")
                 warnaTable.warnaLastEditedDate = Date()
-                //getMerkFromdb by warna merk
-               // val merk = getMerkByMerkRef(warnaTable.refMerk)
-                //val warnaP = getWarnabuRef(warnaTable.warnaRef)
-                //val user = getUserByUserName(warnaTable.lastEditedBy!!)
-              //  Log.i("UpdateWarnaProb","Merk $merk")
-               // Log.i("UpdateWarnaProb","Warna $warnaP")
-                //Log.i("UpdateWarnaProb","User ${user!!.userName}")
-                //get user by username from db by detail warna last edited by
-                //getDetailWarnaByWarnaRef(warnaTable.warnaRef)
                 updateWarnaToDao(warnaTable.kodeWarna,warnaTable.satuan,warnaTable.lastEditedBy,warnaTable.warnaLastEditedDate,warnaTable.idWarna)
                 setRefWarna(warnaTable.warnaRef)
                 getStringWarna(warnaTable.warnaRef)

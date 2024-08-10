@@ -125,6 +125,9 @@ interface DetailWarnaDao {
     @Query("SELECT COUNT(*) FROM detail_warna_table WHERE detailWarnaRef = :refDetailWarna AND detailWarnaPcs >= :pcs_n")
     fun countMatchingRows(refDetailWarna: String, pcs_n: Int): Int
 
+    @Query("DELETE FROM detail_warna_table WHERE detailWarnaIsi = 0.0 AND detailWarnaPcs != 0")
+    suspend fun deleteItemsWithConditions()
+
     @Query("""
         SELECT 
             m.id AS merkId,

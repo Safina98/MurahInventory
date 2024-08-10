@@ -70,7 +70,7 @@ class UsersViewModel(
             if (!userExists) {
                 val newUser = UsersTable(
                     userName = nama,
-                    password = hashPassword(password),
+                    password =password,
                     usersRef = UUID.randomUUID().toString(),
                     usersRole = userRole
                 )
@@ -81,7 +81,7 @@ class UsersViewModel(
                 // e.g., show a toast message
                 onAddUserFabClick()
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(getApplication(), "Username already exists", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(getApplication(), "Username sudah ada", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -92,7 +92,7 @@ class UsersViewModel(
     fun updateUser(usersTable: UsersTable){
         uiScope.launch {
             if (!isPasswordHashed(usersTable.password)) {
-                usersTable.password = hashPassword(usersTable.password)
+               // usersTable.password = hashPassword(usersTable.password)
             }
             updateUsersToDao(usersTable)
             getAllUserTable()

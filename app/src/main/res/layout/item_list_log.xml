@@ -95,7 +95,7 @@
                 android:id="@+id/label_ket"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Keterangan: "
+                android:text="Operator Gudang: "
                 style="@style/txt_item_log_style"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/label_user" />
