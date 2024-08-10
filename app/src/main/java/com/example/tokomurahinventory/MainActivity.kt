@@ -133,8 +133,8 @@ class MainActivity : AppCompatActivity() {
             .setCancelable(false)
             .create()
         btnLogin.setOnClickListener {
-            val username = etUsername.text.toString()
-            val password = etPassword.text.toString()
+            val username = etUsername.text.toString().trim()
+            val password = etPassword.text.toString().trim()
             Log.d("AppDebug", "Attempting login with username: $username")
             if (username.isNotEmpty() && password.isNotEmpty()) {
                 authViewModel.authenticate(username, password, applicationContext) { isAuthenticated ->

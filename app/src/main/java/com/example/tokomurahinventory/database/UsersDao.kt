@@ -40,7 +40,7 @@ interface UsersDao {
     @Query("SELECT COUNT(*) FROM users_table WHERE userName = :username")
     fun checkUserExists(username: String): Int
 
-    @Query("SELECT * FROM users_table WHERE userName = :username")
+    @Query("SELECT * FROM users_table WHERE userName = :username COLLATE NOCASE")
     suspend fun getUserByUsername(username: String): UsersTable?
 
     /////////////////////////Others table

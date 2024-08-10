@@ -21,51 +21,53 @@
 
 
     </data>
-<androidx.cardview.widget.CardView
-    android:layout_width="match_parent"
-    android:layout_height="80dp"
-    android:onClick="@{()->clickListemer.onClick(merk)}"
-    android:onLongClick="@{(view)->longClickListemer.onLongClick(view,merk)}"
-    android:layout_margin="@dimen/small_margin"
-    >
-    <LinearLayout
+
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
+        android:layout_height="80dp"
         android:layout_margin="@dimen/small_margin"
-        >
+        android:backgroundTint="@color/merkCardBgColor"
+        android:onClick="@{()->clickListemer.onClick(merk)}"
+        android:onLongClick="@{(view)->longClickListemer.onLongClick(view,merk)}">
 
-        <TextView
-            style="@style/rv_item_text_style"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:fontFamily="@font/roboto"
-            android:text="@{merk.namaMerk}" />
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-        <ImageView
-            android:id="@+id/img_update"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_margin="@dimen/small_margin"
-            app:showIfAdmin="@{true}"
-            android:onClick="@{()->updateCLickListemer.onClick(merk)}"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-            android:background="@drawable/baseline_edit_24" />
+            <TextView
+                style="@style/rv_item_text_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/roboto"
+                android:text="@{merk.namaMerk}" />
 
-        <ImageView
-            app:showIfAdmin="@{true}"
-            android:id="@+id/img_delete"
-            android:layout_margin="@dimen/small_margin"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="@{()->deleteClickListemer.onClick(merk)}"
-            android:background="@drawable/baseline_delete_forever_24" />
-    </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
 
-    </LinearLayout>
-</androidx.cardview.widget.CardView>
+                <ImageView
+                    android:id="@+id/img_update"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/small_margin"
+                    android:background="@drawable/baseline_edit_24"
+                    android:onClick="@{()->updateCLickListemer.onClick(merk)}"
+
+                    app:showIfAdmin="@{true}" />
+
+                <ImageView
+                    android:id="@+id/img_delete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/small_margin"
+                    android:background="@drawable/baseline_delete_forever_24"
+                    android:onClick="@{()->deleteClickListemer.onClick(merk)}"
+                    app:showIfAdmin="@{true}" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 </layout>
