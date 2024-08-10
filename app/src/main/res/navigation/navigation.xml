@@ -68,12 +68,12 @@
     <fragment
         android:id="@+id/inputLogFragment"
         android:name="com.example.tokomurahinventory.fragments.InputLogFragment"
-        android:label="InputLogFragment" >
+        android:label="Tambah Barang Keluar">
         <action
             android:id="@+id/action_inputLogFragment_to_logFragment"
             app:destination="@id/logFragment"
             app:popUpTo="@id/logFragment"
-            app:popUpToInclusive="true"/>
+            app:popUpToInclusive="true" />
     </fragment>
 
 </navigation>

@@ -10,7 +10,7 @@
         <item name="colorSecondaryVariant">@color/black</item>
         <item name="colorOnSecondary">@color/white</item>
         <!-- Status bar color. -->
-        <item name="android:fontFamily">@font/playfair_display</item>
+        <item name="android:fontFamily">@font/roboto</item>
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <item name="android:textColor">@color/txtNightColor</item>
         <item name="textInputStyle">@style/CustomTextInputLayoutStyle</item>

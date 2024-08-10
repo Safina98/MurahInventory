@@ -120,8 +120,6 @@ class UsersViewModel(
                     Toast.makeText(getApplication(),"Hanya ada 1 admin di database. Buat admin baru sebelum menghapus",Toast.LENGTH_SHORT).show()
                 }
             }else deleteUsersToDao(usersTable)
-
-
             getAllUserTable()
         }
     }
@@ -132,7 +130,6 @@ class UsersViewModel(
             adminCount > 1
         }
     }
-
     private suspend fun insertUsersToDao(usersTable: UsersTable){
         withContext(Dispatchers.IO){
             dataSourceUsers.insert(usersTable)

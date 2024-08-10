@@ -270,7 +270,7 @@ class CombinedViewModel(
                     }
                     _allWarnaByMerk.value = list
                     _unFilteredWarna.value = list
-                    Log.i("WarnaProbs","allWarnaByMerk ${list}")
+                    //Log.i("WarnaProbs","allWarnaByMerk ${list}")
 
                 }
                 _isWarnaLoading.value = false
@@ -328,9 +328,15 @@ class CombinedViewModel(
                     this.user = createdBy
                 }
                 setRefWarna(warna.warnaRef)
-                Log.i("UpdateWarnaProbs","warna = ${warna}")
-                insertWarnaToDao(warna)
-                getWarnaByMerk(refMerkk.value)
+                Log.i("WarnaProbs","warna = ${warna}")
+                try {
+                    insertWarnaToDao(warna)
+                    getWarnaByMerk(refMerkk.value)
+                }
+                catch (e:Exception){
+                    _isWarnaLoading.value = false
+                }
+
                 //insertDetailWarna(0, 0.0)
             }else Toast.makeText(getApplication(), "Pilih merk", Toast.LENGTH_SHORT).show()
         }
@@ -407,11 +413,8 @@ class CombinedViewModel(
 
     private suspend fun insertWarnaToDao(warna: WarnaTable) {
         withContext(Dispatchers.IO) {
-            try {
-                warnaDao.insertNew(warna)
-            } catch (e: Exception) {
-                Log.e("WarnaProbs", "Error inserting warna", e)
-            }
+            warnaDao.insertNew(warna)
+
         }
     }
 

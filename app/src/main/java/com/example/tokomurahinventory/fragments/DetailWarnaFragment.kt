@@ -131,16 +131,15 @@ class DetailWarnaFragment : AuthFragment() {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Tambah Barang")
         val inflater = LayoutInflater.from(context)
-        val view = inflater.inflate(R.layout.pop_up_add_warna, null)
-        val textIsi = view.findViewById<EditText>(R.id.txt_warna)
-        val textPcs = view.findViewById<AutoCompleteTextView>(R.id.txt_satuan)
+        val view = inflater.inflate(R.layout.pop_up_detail_warna, null)
+        val textIsi = view.findViewById<EditText>(R.id.txt_isi)
+        val textPcs = view.findViewById<EditText>(R.id.txt_pcs)
         val input1 = view.findViewById<TextInputLayout>(R.id.layout_satu)
         val input2 = view.findViewById<TextInputLayout>(R.id.layout_dua)
-        val defaultpcs = 1
         if (detailWarnaModel!=null){
             textPcs.setText(detailWarnaModel.detailWarnaPcs.toString())
             textIsi.setText(detailWarnaModel.detailWarnaIsi.toString())
-        }else{ textPcs.setText(defaultpcs.toString())}
+        }
         textPcs.inputType = InputType.TYPE_CLASS_NUMBER
         textIsi.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
         input1.setHint("isi")
