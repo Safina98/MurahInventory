@@ -53,7 +53,7 @@ class AuthViewModel : ViewModel() {
             val userDao = DatabaseInventory.getInstance(context).usersDao
             val userCount = userDao.getUserCount()
             if (userCount == 0) {
-                val defaultUser = UsersTable(userName = "admin", password = hashPassword("1111"), usersRef = "adminRef", usersRole = UserRoles.ADMIN)
+                val defaultUser = UsersTable(userName = "admin", password = "1111", usersRef = "adminRef", usersRole = UserRoles.ADMIN)
                 userDao.insertUser(defaultUser)
             }
         }

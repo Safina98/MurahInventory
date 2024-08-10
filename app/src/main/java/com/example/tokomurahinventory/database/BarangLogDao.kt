@@ -250,7 +250,7 @@ interface BarangLogDao {
         barangLogs.forEach { barangLog ->
             // Insert BarangLog
             insert(barangLog)
-            val ket =  "Barang keluar sebanyak ${barangLog.pcs} pcs, ke toko ${logTable.namaToko}"
+            val ket =  "Barang keluar sebanyak ${barangLog.pcs} pcs untuk ${logTable.namaToko}"
             // Update detail_warna_table
            val a= updateDetailWarnaWithKet(
                 barangLog.warnaRef,

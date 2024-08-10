@@ -364,7 +364,7 @@ class LogViewModel (
                     barangLogRef = UUID.randomUUID().toString(),
                     barangLogTipe = MASUKKELUAR.KELUAR
                 )
-                val ket = "Barang keluar sebanyak ${barangLog.pcs} pcs ke toko $toko"
+                val ket = "Barang keluar sebanyak ${barangLog.pcs} pcs untuk $toko"
                 updateDetailWarnaAndInsertBarangLogToDao(barangLog,refWarna,isi,pcs,loggedInUsers,ket)
             }
         }
@@ -508,8 +508,7 @@ class LogViewModel (
             Log.i("NEWPOPUPPROB","Baranglog from db pcs : ${barangLogfromdb.pcs}")
             val selisihpcs= countModel.psc-barangLogfromdb.pcs
             Log.i("NEWPOPUPPROB","selisih pcs : ${selisihpcs}")
-            val isPcsReadyInStok = if (isIsiPresent) {
-                val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
+            val isPcsReadyInStok = if (isIsiPresent) { val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
                 val refWarna = getrefWanraByName(countModel.kodeBarang!!, refMerk)
                 val refDetailWarna = refWarna?.let { getrefDetailWanraByWarnaRefndIsi(it, countModel.isi!!) }
                 val pcs = itemToUpdate.psc
@@ -759,7 +758,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>,satuan:String){
             }
             itemsNotInCmList.forEach { item ->
                 Log.i("InsertLogTry", "Item ${item.isi} - ${item.isi} not found in cmList")
-                val detailWarnaKet="Barang keluar untuk toko $toko dibatalkan sebanyak ${item.pcs} pcs"
+                val detailWarnaKet="Barang keluar untuk $toko dibatalkan sebanyak ${item.pcs} pcs"
                 //updateDetailWarnaTODao(item.warnaRef,item.isi,-item.pcs,loggedInUsers)
                 //deleteBarangLogToDao(item.id)
                 updateDetailAndDeleteBarangLogToDao(item.warnaRef,item.isi,-item.pcs,loggedInUsers,item.id,detailWarnaKet)
@@ -810,7 +809,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>,satuan:String){
                                             warnaRef = oldBarangLog.warnaRef,
                                             detailWarnaIsi = oldBarangLog.isi,
                                             detailWarnaPcs = selisihPcs,
-                                            detailWarnaKet = "Stok barang keluar untuk toko ${toko} diubah dari ${oldBarangLog.pcs} pcs menjadi ${newBarangLog.pcs} pcs"
+                                            detailWarnaKet = "Stok barang keluar untuk ${toko} diubah dari ${oldBarangLog.pcs} pcs menjadi ${newBarangLog.pcs} pcs"
                                         )
                                     )
                                 }
@@ -825,7 +824,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>,satuan:String){
                                         warnaRef = oldBarangLog.warnaRef,
                                         detailWarnaIsi = oldBarangLog.isi,
                                         detailWarnaPcs = oldSelisihPcs,
-                                        detailWarnaKet = "Stok barang bertambah ${oldBarangLog.pcs} pcs. Barang keluar untuk toko $toko diubah menjadi  ${newBarangLog.pcs} pcs isi ${newBarangLog.isi}"
+                                        detailWarnaKet = "Stok barang bertambah ${oldBarangLog.pcs} pcs. Barang keluar untuk $toko menjadi  ${newBarangLog.pcs} pcs isi ${newBarangLog.isi}"
                                     )
                                 )
                                 detailWarnaUpdates.add(
@@ -833,7 +832,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>,satuan:String){
                                         warnaRef = newBarangLog.warnaRef,
                                         detailWarnaIsi = newBarangLog.isi,
                                         detailWarnaPcs = newSelisihPcs,
-                                        detailWarnaKet = "Barang keluar ${newBarangLog.pcs} pcs untuk toko $toko",
+                                        detailWarnaKet = "Barang keluar ${newBarangLog.pcs} pcs untuk $toko",
                                     )
                                 )
                             }
