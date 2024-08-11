@@ -11,9 +11,14 @@
     <color name="colorAccent">#03DAC5</color>
     <color name="txtDayColor">#211F1F</color>
     <color name="txtNightColor">#FFFFFF</color>
-    <!--<color name="merkCardBgColor">#A4B494</color>-->
+    <!--<color name="warnaCardBgColor">#75F7F7E8</color>ORIGINAL-->
+    <!-- <color name="warnaCardBgColor">#75ECCFD1</color>PINK -->
+    <!--<color name="warnaCardBgColor">#75EFDBB6</color> BEIGI-->
+    <!--<color name="warnaCardBgColor">#75E79B7D</color> PASTEL RED-->
+    <!--<color name="detailCardBgColor">#75D1D8C5</color> OFFWHITE-->
+    <!--<color name="warnaCardBgColor">#75E6DDC4</color>-->
     <color name="merkCardBgColor">#75B9D2D2</color>
     <color name="warnaCardBgColor">#75F7F7E8</color>
-    <color name="detailCardBgColor">#75DDE6ED</color>
+    <color name="detailCardBgColor">#75D1D8C5</color>
     <color name="box_background_color">#F5F5F5</color>
 </resources>

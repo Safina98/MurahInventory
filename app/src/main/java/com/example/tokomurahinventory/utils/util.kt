@@ -12,6 +12,7 @@ object UserRoles {
     const val ADMIN = "Admin"
     const val EDITOR = "Editor"
     const val VIEWER = "Viewer"
+
 }
 object Satuan {
     const val METER = "Meter"
@@ -35,15 +36,7 @@ val userNullString = "User kosong, log out dan log in kembali"
 val viewerNotAuthorized="Viewer not authorized to add Item, switch to editor or admin"
 val viewerAndEditorNotAuthorized="Viewer and Editor not authorized to edit or delete item, switch to admin"
 val DATE_FORMAT = SimpleDateFormat(FULL_DATE_FORMAT, Locale.getDefault())
-fun <T> LiveData<T>.observeOnce(lifecycleOwner: LifecycleOwner, observer: Observer<T>) {
-    val wrappedObserver = object : Observer<T> {
-        override fun onChanged(value: T) {
-            observer.onChanged(value)
-            removeObserver(this)
-        }
-    }
-    observe(lifecycleOwner, wrappedObserver)
-}
+
 fun formatDateToString(date: Date):String{
 
         val sdf = SimpleDateFormat(FULL_DATE_FORMAT, Locale.getDefault())

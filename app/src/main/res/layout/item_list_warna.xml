@@ -25,6 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="90dp"
         android:layout_margin="@dimen/small_margin"
+        android:backgroundTint="@color/warnaCardBgColor"
         android:onClick="@{()->clickListener.onClick(warna)}"
         android:onLongClick="@{(view)->longClickListener.onLongClick(view,warna)}">
 
@@ -41,8 +42,8 @@
                 android:layout_margin="@dimen/small_margin"
                 android:text="@{warna.kodeWarna}"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/textView_satuan"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView

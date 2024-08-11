@@ -23,6 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/small_margin"
+        android:backgroundTint="@color/detailCardBgColor"
         android:onClick="@{(view)->longClickLisntener.onLongClick(view,detailWarna)}">
 
         <androidx.constraintlayout.widget.ConstraintLayout

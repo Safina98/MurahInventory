@@ -44,6 +44,7 @@ object BindingAdapters {
         })
     }
 
+
     @JvmStatic
     @BindingAdapter("logDate")
     fun bindLogDate(textView: TextView, date: Date?) {

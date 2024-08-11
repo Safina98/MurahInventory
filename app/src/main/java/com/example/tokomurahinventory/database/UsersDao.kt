@@ -37,13 +37,13 @@ interface UsersDao {
     @Insert
     suspend fun insertUser(user: UsersTable)
 
-    @Query("SELECT COUNT(*) FROM users_table WHERE userName = :username")
+    @Query("SELECT COUNT(*) FROM users_table WHERE userName = :username COLLATE NOCASE")
     fun checkUserExists(username: String): Int
 
     @Query("SELECT * FROM users_table WHERE userName = :username COLLATE NOCASE")
     suspend fun getUserByUsername(username: String): UsersTable?
 
-    @Query("SELECT * FROM users_table WHERE userName = :username AND password = :password COLLATE NOCASE")
+    @Query("SELECT * FROM users_table WHERE userName = :username COLLATE NOCASE AND password = :password COLLATE NOCASE")
     suspend fun getUserByUserNameAndPassword(username: String,password: String): UsersTable?
 
     /////////////////////////Others table
