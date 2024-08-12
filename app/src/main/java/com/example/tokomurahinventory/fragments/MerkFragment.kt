@@ -69,14 +69,16 @@ class MerkFragment : AuthFragment() {
        binding.lifecycleOwner = viewLifecycleOwner
         val adapter  = MerkAdapter(
             MerkClickListener {
-                viewModel.isMerkClick.value = !(viewModel.isMerkClick.value!!)
-                viewModel.showOneMerk(viewModel.isMerkClick.value!!,it)
+                viewModel.toggleIsMerkClick()
+                viewModel.showOneMerkOld(viewModel.isMerkClick.value!!,it.refMerk)
                 if (viewModel.isMerkClick.value==true){
                     viewModel.setRefMerk(it.refMerk)
                    // viewModel.getWarnaByMerk(it.refMerk)
                     viewModel.getStringMerk(it.refMerk)
                 }else{
+                    viewModel.getStringMerk(null)
                     viewModel.setRefMerk(null)
+
                     //viewModel.getWarnaByMerk(it.refMerk)
                 }
 
@@ -228,6 +230,7 @@ class MerkFragment : AuthFragment() {
 
     override fun onStart() {
         super.onStart()
-        viewModel.getAllMerkTable()
+    viewModel.showOneMerk()
+    //viewModel.getAllMerkTable()
     }
 }

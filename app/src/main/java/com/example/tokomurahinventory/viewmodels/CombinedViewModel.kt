@@ -92,7 +92,7 @@ class CombinedViewModel(
     val _warna = MutableLiveData<String>()
     val warna :LiveData<String>get() = _warna
 
-    val _merk = MutableLiveData<String>()
+    val _merk = MutableLiveData<String>("")
     val merk :LiveData<String>get() = _merk
 
     val isMerkClick=MutableLiveData<Boolean>(false)
@@ -158,13 +158,13 @@ class CombinedViewModel(
         }
     }
 
-    fun showOneMerk(bool:Boolean,merkTable:MerkTable){
+    fun showOneMerkOld(bool:Boolean,ref:String){
         val list = mutableListOf<MerkTable>()
         if (_unFilteredMerk.value!=null) {
             Log.i("ShowHideItem","is  unfiltered not null")
             if (bool==true){
                 list.addAll(_unFilteredMerk.value!!.filter {
-                    it.refMerk.lowercase(Locale.getDefault()).contains(merkTable.refMerk)
+                    it.refMerk.lowercase(Locale.getDefault()).contains(ref)
                 })
             }else list.addAll(_unFilteredMerk.value?: listOf())
 
@@ -174,6 +174,15 @@ class CombinedViewModel(
         _allMerkTable.value = list
         _allMerkTable
 
+    }
+    fun toggleIsMerkClick(){
+        isMerkClick.value = !(isMerkClick.value!!)
+    }
+    fun showOneMerk(){
+        if (isMerkClick.value==true &&refMerkk.value!=null){
+            showOneMerkOld(isMerkClick.value!!, refMerkk.value!!)
+        }else
+            getAllMerkTable()
     }
     // Merk functions
     fun getAllMerkTable() {
@@ -195,15 +204,17 @@ class CombinedViewModel(
     }
 
     fun filterMerk(query: String?) {
-        val list = mutableListOf<MerkTable>()
-        if (!query.isNullOrEmpty()) {
-            list.addAll(_unFilteredMerk.value!!.filter {
-                it.namaMerk.lowercase(Locale.getDefault()).contains(query.toString().lowercase(Locale.getDefault()))
-            })
-        } else {
-            list.addAll(_unFilteredMerk.value?: listOf())
+        if (isMerkClick.value!=true){
+            val list = mutableListOf<MerkTable>()
+            if (!query.isNullOrEmpty()) {
+                list.addAll(_unFilteredMerk.value!!.filter {
+                    it.namaMerk.lowercase(Locale.getDefault()).contains(query.toString().lowercase(Locale.getDefault()))
+                })
+            } else {
+                list.addAll(_unFilteredMerk.value?: listOf())
+            }
+            _allMerkTable.value = list
         }
-        _allMerkTable.value = list
     }
 
     fun insertMerk(namaMerk: String) {
@@ -317,13 +328,16 @@ class CombinedViewModel(
             Log.i("SplitFragmetProbs","warna ${warna}")
         }
     }
-    fun getStringMerk(refMerk:String){
+    fun getStringMerk(refMerk:String?){
         viewModelScope.launch {
+
             val merk = withContext(Dispatchers.IO){
-                merkDao.getMerkNameByRef(refMerk)
+                if (refMerk!=null){
+                    merkDao.getMerkNameByRef(refMerk)
+            }else ""
             }
             _merk.value = merk
-            Log.i("SplitFragmetProbs","merk ${merk}")
+            Log.i("ShowHideItem","getStringMerk ${merk}")
         }
     }
 
