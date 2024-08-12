@@ -17,6 +17,7 @@ object UserRoles {
 object Satuan {
     const val METER = "Meter"
     const val YARD = "Yard"
+    const val PCS = "Pcs"
 }
 object MASUKKELUAR {
     const val MASUK = "Masuk"

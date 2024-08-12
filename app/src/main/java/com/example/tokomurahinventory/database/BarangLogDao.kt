@@ -305,8 +305,9 @@ interface BarangLogDao {
         ket: String
     ) {
         // Update the detail_warna_table
-        val a =updateDetailWarnaA(refWarna, detailWarnaIsi, detailWarnaPcs, lastEditedBy, lastEditedDate,ket)
-        Log.i("dataSize","rows affected $a")
+        Log.i("InsertDetailWarnaProb","refWarna :$refWarna, detailWarnaIsi:$detailWarnaIsi, detailWarnaPcs:$detailWarnaPcs, lastEditedBy:$lastEditedBy, lastEditedDate:$lastEditedDate,ket:$ket")
+        updateDetailWarnaA(refWarna, detailWarnaIsi, detailWarnaPcs, lastEditedBy, lastEditedDate,ket)
+
         // Insert into LogTable
         insert(log)
         // Insert into BarangLog and get the new ID

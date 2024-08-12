@@ -26,6 +26,7 @@ import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentWarnaBinding
 import com.example.tokomurahinventory.models.model.WarnaModel
 import com.example.tokomurahinventory.utils.DialogUtils
+import com.example.tokomurahinventory.utils.Satuan
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.CombinedViewModel
 import com.example.tokomurahinventory.viewmodels.CombinedViewModelFactory
@@ -213,7 +214,7 @@ class WarnaFragment : AuthFragment() {
         builder.setPositiveButton("OK") { dialog, which ->
             val kodeWarna = textWarna.text.toString()
             val kodeSatuan = textSatuan.text.toString()
-            if (kodeWarna.isNotEmpty() && kodeSatuan.isNotEmpty()){
+            if (kodeWarna.isNotEmpty() && kodeSatuan.isNotEmpty() &&(kodeSatuan==Satuan.METER||kodeSatuan==Satuan.YARD||kodeSatuan==Satuan.PCS)){
                 if (warnaTable == null) {
                     Log.i("WarnaProbs","warna is null, insert called")
                     viewModel.insertWarna(kodeWarna, kodeSatuan)

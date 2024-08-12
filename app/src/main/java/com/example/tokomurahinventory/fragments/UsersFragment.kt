@@ -118,7 +118,7 @@ class UsersFragment : AuthFragment() {
         })
 
         viewModel.usersList.observe(viewLifecycleOwner, Observer {
-            adapter.submitList(it)
+            adapter.submitList(it.sortedBy { it.userName })
             adapter.notifyDataSetChanged()
         })
         viewModel.addUserFab.observe(viewLifecycleOwner, Observer {
@@ -159,7 +159,7 @@ class UsersFragment : AuthFragment() {
         builder.setView(view)
         builder.setPositiveButton("OK") { _, _ ->
 
-            val nama = textNama.text.toString().trim()
+            val nama = textNama.text.toString().trim().lowercase()
             val password = textPassword.text.toString().trim()
             val selectedRole = spinnerRole.selectedItem.toString()
 

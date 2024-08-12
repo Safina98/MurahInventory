@@ -9,6 +9,7 @@
     <array name="satuan">
         <item>Meter</item>
         <item>Yard</item>
+        <item>Pcs</item>
     </array>
 
 </resources>

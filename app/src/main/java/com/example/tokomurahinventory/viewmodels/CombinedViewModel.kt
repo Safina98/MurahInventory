@@ -37,6 +37,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
+import kotlin.math.log
 
 class CombinedViewModel(
     val merkDao: MerkDao,
@@ -460,40 +461,48 @@ class CombinedViewModel(
             _isDetailWarnaLoading.value=true
             val detailWarnaTable = DetailWarnaTable()
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
-            val refMerk_ = getMerkRef()
+
+
             val ket = "Barang masuk sebanyak $pcs"
+            Log.i("InsertDetailWarnaProbs","logged in user ${loggedInUsers}")
             if (loggedInUsers != null) {
-                if (_refWarna.value!=null&&refMerk_!=null){
-                    detailWarnaTable.warnaRef = _refWarna.value!!
-                    detailWarnaTable.lastEditedBy = loggedInUsers
-                    detailWarnaTable.detailWarnaLastEditedDate = Date()
-                    detailWarnaTable.detailWarnaIsi = isi
-                    detailWarnaTable.detailWarnaPcs = pcs
-                    detailWarnaTable.user = loggedInUsers
-                    detailWarnaTable.detailWarnaKet = ket
-                    val detailWarnaTable1 = checkIfIsiExisted(isi, _refWarna.value!!)
-                    if (detailWarnaTable1 != null) {
-                        detailWarnaTable.detailWarnaRef = detailWarnaTable1.detailWarnaRef
-                        detailWarnaTable.createdBy = detailWarnaTable1.createdBy
-                        detailWarnaTable.detailWarnaDate = detailWarnaTable1.detailWarnaDate
-                        val log = createLog(detailWarnaTable)
-                        val barangLog = createBarangLog(detailWarnaTable,log,refMerk_,detailWarnaTable.detailWarnaRef)
-                        updateDetailWarnaAndInsertBarangLogAndLog(detailWarnaTable.warnaRef,detailWarnaTable.detailWarnaIsi,detailWarnaTable.detailWarnaPcs,detailWarnaTable.lastEditedBy,detailWarnaTable.detailWarnaLastEditedDate,log,barangLog,ket)
-                    } else {
-                        detailWarnaTable.detailWarnaRef = UUID.randomUUID().toString()
-                        detailWarnaTable.createdBy = loggedInUsers
-                        detailWarnaTable.detailWarnaDate = Date()
-                        val log = createLog(detailWarnaTable)
-                        val barangLog = createBarangLog(detailWarnaTable,log,refMerk_,detailWarnaTable.detailWarnaRef)
-                        insertDetailWarnaAndBarangLogAndLog(detailWarnaTable,log,barangLog)
-                    }
-                } else Toast.makeText(getApplication(), "Pilih kode warna", Toast.LENGTH_SHORT).show()
+                if (_refWarna.value!=null){
+                    //val refMerk_ = getMerkRef()
+                    val refMerk__ = getMerkRef()
+                    if (refMerk__!=null){
+                        detailWarnaTable.warnaRef = _refWarna.value!!
+                        detailWarnaTable.detailWarnaLastEditedDate = Date()
+                        detailWarnaTable.detailWarnaIsi = isi
+                        detailWarnaTable.detailWarnaPcs = pcs
+                        detailWarnaTable.detailWarnaKet = ket
+                        detailWarnaTable.lastEditedBy = loggedInUsers
+                        detailWarnaTable.user = loggedInUsers
+                        val detailWarnaTable1 = checkIfIsiExisted(isi, _refWarna.value!!)
+                        if (detailWarnaTable1 != null) {
+                            detailWarnaTable.detailWarnaRef = detailWarnaTable1.detailWarnaRef
+                            detailWarnaTable.createdBy = detailWarnaTable1.createdBy
+                            detailWarnaTable.detailWarnaDate = detailWarnaTable1.detailWarnaDate
+                            val log = createLog(detailWarnaTable)
+                            val barangLog = createBarangLog(detailWarnaTable,log,refMerk__,detailWarnaTable.detailWarnaRef)
+                            updateDetailWarnaAndInsertBarangLogAndLog(detailWarnaTable.warnaRef,detailWarnaTable.detailWarnaIsi,detailWarnaTable.detailWarnaPcs,detailWarnaTable.lastEditedBy,detailWarnaTable.detailWarnaLastEditedDate,log,barangLog,ket)
+                        } else {
+                            detailWarnaTable.detailWarnaRef = UUID.randomUUID().toString()
+                            detailWarnaTable.createdBy = loggedInUsers
+                            detailWarnaTable.detailWarnaDate = Date()
+                            val log = createLog(detailWarnaTable)
+                            val barangLog = createBarangLog(detailWarnaTable,log,refMerk__,detailWarnaTable.detailWarnaRef)
+                            insertDetailWarnaAndBarangLogAndLog(detailWarnaTable,log,barangLog)
+                        }
+                        getDetailWarnaByWarnaRef(refWarna.value!!)
+                        getWarnaByMerk(refMerkk.value)
+                    }else Toast.makeText(getApplication(), "Pilih kode warna", Toast.LENGTH_SHORT).show()
+
+                } else Toast.makeText(getApplication(), "Pilih kode Merk dan kode warna", Toast.LENGTH_SHORT).show()
 
             }else{
                 Toast.makeText(getApplication(), userNullString, Toast.LENGTH_SHORT).show()
             }
-            getDetailWarnaByWarnaRef(refWarna.value!!)
-            getWarnaByMerk(refMerkk.value)
+
         }
     }
 
@@ -549,8 +558,9 @@ class CombinedViewModel(
 
     }
 
-    private suspend fun getMerkRef():String{
+    private suspend fun getMerkRef():String?{
         return withContext(Dispatchers.IO){
+
             warnaDao.getMerkRefByWarnaRef(_refWarna.value!!)
         }
     }

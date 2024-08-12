@@ -15,11 +15,13 @@
             type="com.example.tokomurahinventory.adapters.LogDeleteListener" />
 
     </data>
+
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/small_margin"
-        >
+        android:backgroundTint="@color/warnaCardBgColor">
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -29,14 +31,14 @@
                 android:id="@+id/btn_delete_net"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:showIfAdmin="@{true}"
                 android:layout_margin="@dimen/small_margin"
                 android:background="@drawable/baseline_delete_forever_24"
                 android:onClick="@{()->deleteListener.onClick(log)}"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:showIfAdmin="@{true}" />
+
             <ImageView
-                app:showIfAdmin="@{true}"
                 android:id="@+id/img_update"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -44,68 +46,68 @@
                 android:background="@drawable/baseline_edit_24"
                 android:onClick="@{()->clickListemer.onClick(log)}"
                 app:layout_constraintEnd_toStartOf="@id/btn_delete_net"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:showIfAdmin="@{true}" />
 
             <TextView
                 android:id="@+id/txtDate"
+                style="@style/txt_item_log_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                style="@style/txt_item_log_style" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/label_pembeli"
+                style="@style/txt_item_log_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Pembeli: "
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/txtDate"
-                style="@style/txt_item_log_style"
-                />
+                app:layout_constraintTop_toBottomOf="@+id/txtDate" />
 
             <TextView
                 android:id="@+id/txt_pembeli"
+                style="@style/txt_item_log_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@{log.namaToko}"
-                style="@style/txt_item_log_style"
                 app:layout_constraintBaseline_toBaselineOf="@+id/label_pembeli"
                 app:layout_constraintStart_toEndOf="@+id/label_pembeli" />
 
             <TextView
                 android:id="@+id/label_user"
+                style="@style/txt_item_log_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="User:"
-                style="@style/txt_item_log_style"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/label_pembeli" />
 
             <TextView
                 android:id="@+id/textView10"
+                style="@style/txt_item_log_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@{log.userName}"
-                style="@style/txt_item_log_style"
                 app:layout_constraintBaseline_toBaselineOf="@+id/label_user"
                 app:layout_constraintStart_toEndOf="@+id/label_user" />
 
             <TextView
                 android:id="@+id/label_ket"
+                style="@style/txt_item_log_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Operator Gudang: "
-                style="@style/txt_item_log_style"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/label_user" />
 
             <TextView
                 android:id="@+id/txt_ket"
+                style="@style/txt_item_log_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@{log.keterangan}"
-                style="@style/txt_item_log_style"
                 app:layout_constraintBaseline_toBaselineOf="@+id/label_ket"
                 app:layout_constraintStart_toEndOf="@+id/label_ket" />
 
@@ -115,15 +117,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@{log.merk}"
-                app:layout_constraintTop_toBottomOf="@id/label_barang"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/label_barang" />
 
             <TextView
                 android:id="@+id/label_barang"
+                style="@style/txt_item_log_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="barang: "
-                style="@style/txt_item_log_style"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/label_ket" />
         </androidx.constraintlayout.widget.ConstraintLayout>

@@ -133,7 +133,7 @@ class MainActivity : AppCompatActivity() {
             .setCancelable(false)
             .create()
         btnLogin.setOnClickListener {
-            val username = etUsername.text.toString().trim()
+            val username = etUsername.text.toString().lowercase().trim()
             val password = etPassword.text.toString().trim()
             Log.d("AppDebug", "Attempting login with username: $username")
             if (username.isNotEmpty() && password.isNotEmpty()) {

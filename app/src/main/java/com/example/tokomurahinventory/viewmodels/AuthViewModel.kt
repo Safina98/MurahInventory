@@ -27,7 +27,7 @@ class AuthViewModel : ViewModel() {
     fun authenticate(username: String, password: String, context: Context, callback: (Boolean) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             val userDao = DatabaseInventory.getInstance(context).usersDao
-           // val user = userDao.getUserByUsername(username)
+            //val user = userDao.getUserByUsername(username)
             val user = userDao.getUserByUserNameAndPassword(username,password)
             Log.d("AppDebug", "user from view model: $user")
             val isAuthenticated = user != null //&& BCrypt.checkpw(password, user.password)
