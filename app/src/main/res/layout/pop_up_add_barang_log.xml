@@ -34,7 +34,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layout_dua"
-            android:hint="warna"
+            android:hint="kode warna"
             android:padding="@dimen/small_margin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">

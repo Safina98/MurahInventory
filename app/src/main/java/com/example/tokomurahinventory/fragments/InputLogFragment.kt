@@ -35,6 +35,10 @@ import com.example.tokomurahinventory.models.CountModel
 
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.utils.UpdateStatus
+import com.example.tokomurahinventory.utils.dataNotFoundMsgD
+import com.example.tokomurahinventory.utils.incorrectInputMsg
+import com.example.tokomurahinventory.utils.stokTidakCukup
+import com.example.tokomurahinventory.utils.succsessMsg
 import com.example.tokomurahinventory.viewmodels.LogViewModel
 import com.example.tokomurahinventory.viewmodels.LogViewModelFactory
 
@@ -358,15 +362,15 @@ class InputLogFragment : AuthFragment() {
                         viewModel.updateCountModel(inputStokLogModel,oldCountModel!!) { status ->
                             when (status) {
                                 UpdateStatus.SUCCESS -> {
-                                    Toast.makeText(requireContext(), "Berhasil", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(requireContext(), succsessMsg, Toast.LENGTH_SHORT).show()
                                     dialog.dismiss()
                                 }
-                                UpdateStatus.MERK_NOT_PRESENT -> Toast.makeText(requireContext(), "Merk tidak ada di database", Toast.LENGTH_SHORT).show()
-                                UpdateStatus.WARNA_NOT_PRESENT -> Toast.makeText(requireContext(), "Warna tidak ada di database", Toast.LENGTH_SHORT).show()
-                                UpdateStatus.ISI_NOT_PRESENT -> Toast.makeText(requireContext(), "Isi tidak ada di database", Toast.LENGTH_SHORT).show()
-                                UpdateStatus.PCS_NOT_READY_IN_STOCK -> Toast.makeText(requireContext(), "Jumlah barang tidak cukup", Toast.LENGTH_SHORT).show()
+                                UpdateStatus.MERK_NOT_PRESENT -> Toast.makeText(requireContext(), "Merk $dataNotFoundMsgD", Toast.LENGTH_SHORT).show()
+                                UpdateStatus.WARNA_NOT_PRESENT -> Toast.makeText(requireContext(), "Warna $dataNotFoundMsgD", Toast.LENGTH_SHORT).show()
+                                UpdateStatus.ISI_NOT_PRESENT -> Toast.makeText(requireContext(), "Isi $dataNotFoundMsgD", Toast.LENGTH_SHORT).show()
+                                UpdateStatus.PCS_NOT_READY_IN_STOCK -> Toast.makeText(requireContext(), stokTidakCukup, Toast.LENGTH_SHORT).show()
                                 else -> {
-                                    Toast.makeText(requireContext(), "Gagal mengubah data ", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(requireContext(), incorrectInputMsg, Toast.LENGTH_SHORT).show()
                                     // Optionally, you can log the status here if needed
                                 }
                             }

@@ -20,6 +20,9 @@ import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.utils.MASUKKELUAR
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.utils.UpdateStatus
+import com.example.tokomurahinventory.utils.dataNotFoundMsg
+import com.example.tokomurahinventory.utils.incorrectInputMsg
+import com.example.tokomurahinventory.utils.stokTidakCukup
 import com.example.tokomurahinventory.utils.userNullString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -272,7 +275,7 @@ class LogViewModel (
                 updateLogToDao(updatedLog)
                 //getAllLogTable()
                 onNavigateToLog()
-            }else Toast.makeText(getApplication(),"Insert Failed, please check the data",Toast.LENGTH_SHORT).show()
+            }else Toast.makeText(getApplication(), incorrectInputMsg,Toast.LENGTH_SHORT).show()
         }
     }
     fun addLog() {
@@ -330,13 +333,13 @@ class LogViewModel (
                         //yourDao.insertLogAndUpdateDetailWarna(newLog, barangLogs, loggedInUsers)
                         //getAllLogTable()
                         onNavigateToLog()
-                        Log.i("InsertLogTry", "addLog() and related operations completed successfully")
+                        Log.i("InsertLogTry", "Berhasil")
                     } catch (e: Exception) {
                         Log.e("InsertLogTry", "Error performing transaction: ${e.message}", e)
-                        Toast.makeText(getApplication(), "Insert Failed, please try again", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(getApplication(), incorrectInputMsg, Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    Toast.makeText(getApplication(), "Insert Failed, please check the data", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(getApplication(), incorrectInputMsg, Toast.LENGTH_SHORT).show()
                 }
             } else {
                 Toast.makeText(getApplication(), userNullString, Toast.LENGTH_SHORT).show()
@@ -566,7 +569,7 @@ class LogViewModel (
                             "", "Item with ID $id not found.")
                 }
             } else {
-                Toast.makeText(getApplication(), "Data tidak ada di database, coba lagi", Toast.LENGTH_SHORT).show()
+                Toast.makeText(getApplication(), dataNotFoundMsg, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -586,7 +589,7 @@ class LogViewModel (
                     Log.e("UpdateError", "Item with ID $id not found.")
                 }
             } else {
-                Toast.makeText(getApplication(), "Data tidak ada di database, coba lagi", Toast.LENGTH_SHORT).show()
+                Toast.makeText(getApplication(), dataNotFoundMsg, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -608,7 +611,7 @@ class LogViewModel (
                     itemToUpdate.psc = net
                     _countModelList.value = updatedList // Notify observers of the change
                 }else
-                    Toast.makeText(getApplication(),"Stok barang tidak cukup",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(getApplication(), stokTidakCukup,Toast.LENGTH_SHORT).show()
 
             } else {
                 Log.e("UpdateError", "Item with ID $id not found.")
@@ -633,7 +636,7 @@ class LogViewModel (
                     Log.e("UpdateError", "Item with ID $id not found.")
                 }
             } else {
-                Toast.makeText(getApplication(), "Data tidak ada di database, coba lagi", Toast.LENGTH_SHORT).show()
+                Toast.makeText(getApplication(), dataNotFoundMsg, Toast.LENGTH_SHORT).show()
             }
 
             // _codeWarnaByMerk.value = null
@@ -916,7 +919,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>,satuan:String){
         var s =""
         if (countModelList.value!=null){
             for (i in countModelList.value!!){
-                s = s+"${i.merkBarang} ${i.kodeBarang}; ${i.isi} ${i.satuan}; ${i.psc} pcs\n"
+                s = s+"${i.merkBarang} kode ${i.kodeBarang};  isi ${i.isi} ${i.satuan}; ${i.psc} pcs\n"
             }
         }
         return s

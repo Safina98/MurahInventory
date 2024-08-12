@@ -37,6 +37,11 @@ val userNullString = "User kosong, log out dan log in kembali"
 val viewerNotAuthorized="Viewer not authorized to add Item, switch to editor or admin"
 val viewerAndEditorNotAuthorized="Viewer and Editor not authorized to edit or delete item, switch to admin"
 val DATE_FORMAT = SimpleDateFormat(FULL_DATE_FORMAT, Locale.getDefault())
+val incorrectInputMsg = "terdapat data kosong atau duplikat, cek data kembali"
+val dataNotFoundMsg="Data tidak ada di database, coba lagi"
+val dataNotFoundMsgD="tidak ada di database, coba lagi"
+val stokTidakCukup="Stok barang tidak cukup"
+val succsessMsg = "Berhasil"
 
 fun formatDateToString(date: Date):String{
 
