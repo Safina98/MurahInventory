@@ -69,9 +69,21 @@ class MerkFragment : AuthFragment() {
        binding.lifecycleOwner = viewLifecycleOwner
         val adapter  = MerkAdapter(
             MerkClickListener {
-                viewModel.setRefMerk(it.refMerk)
-                viewModel.getWarnaByMerk(it.refMerk)
-                viewModel.getStringMerk(it.refMerk)
+                viewModel.isMerkClick.value = !(viewModel.isMerkClick.value!!)
+                viewModel.showOneMerk(viewModel.isMerkClick.value!!,it)
+                if (viewModel.isMerkClick.value==true){
+                    viewModel.setRefMerk(it.refMerk)
+                   // viewModel.getWarnaByMerk(it.refMerk)
+                    viewModel.getStringMerk(it.refMerk)
+                }else{
+                    viewModel.setRefMerk(null)
+                    //viewModel.getWarnaByMerk(it.refMerk)
+                }
+
+
+                //toogle extra bool
+                //if bool is true, select only one merk
+                //else select all merk
                 viewModel.setRefWarna("")
                 viewModel.getStringWarna("")
                // viewModel.onNavigateToWarna(it.refMerk)

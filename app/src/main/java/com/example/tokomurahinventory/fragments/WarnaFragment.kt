@@ -137,9 +137,9 @@ class WarnaFragment : AuthFragment() {
         })
         viewModel.refMerkk.observe(viewLifecycleOwner, Observer {
            // Log.i("SplitFragmetProbs","refMerkk ${it}")
-            it?.let {
+
                 viewModel.getWarnaByMerk(it)
-            }
+
         })
         viewModel.refWarna.observe(viewLifecycleOwner, Observer {})
 
