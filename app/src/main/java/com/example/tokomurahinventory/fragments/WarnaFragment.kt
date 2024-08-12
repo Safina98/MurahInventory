@@ -71,9 +71,19 @@ class WarnaFragment : AuthFragment() {
         val adapter = WarnaAdapter(
             WarnaClickListener {
                // Log.i("WarnaProb", "warna table : $it")
-                viewModel.setRefWarna(it.warnaRef)
-                viewModel.getStringWarna(it.warnaRef)
-                viewModel.getDetailWarnaByWarnaRef(it.warnaRef)
+                viewModel.toggleIsWarnaClick()
+                viewModel.showOneWarna(it.warnaRef)
+                if (viewModel.isWarnaClick.value==true){
+                    viewModel.setRefWarna(it.warnaRef)
+                    viewModel.getStringWarna(it.warnaRef)
+                }else{
+                    viewModel.setRefWarna(null)
+                    viewModel.getStringWarna(null)
+                    //viewModel.getWarnaByMerk(it.refMerk)
+                }
+
+
+                //viewModel.getDetailWarnaByWarnaRef(it.warnaRef)
                 //viewModel.onNavigateToDetailWarna(it.warnaRef)
             },
             WarnaLongListener {
@@ -137,15 +147,12 @@ class WarnaFragment : AuthFragment() {
         })
         viewModel.refMerkk.observe(viewLifecycleOwner, Observer {
            // Log.i("SplitFragmetProbs","refMerkk ${it}")
-
                 viewModel.getWarnaByMerk(it)
 
         })
-        viewModel.refWarna.observe(viewLifecycleOwner, Observer {})
+        //viewModel.refWarna.observe(viewLifecycleOwner, Observer {})
 
-        viewModel.warna.observe(viewLifecycleOwner, Observer {
-            Log.i("SplitFragmetProbs","warna ${it}")
-        })
+        //viewModel.warna.observe(viewLifecycleOwner, Observer {})
 
         viewModel.addWarnaFab.observe(viewLifecycleOwner, Observer {
             if (it == true) {
@@ -245,11 +252,13 @@ class WarnaFragment : AuthFragment() {
     override fun onStart() {
         super.onStart()
         //viewModel.getWarnaByMerk()
+        //viewModel.isShowOneWarna()
         Log.i("FRAGMENT LIFECYCLE", "onStart called")
     }
 
     override fun onResume() {
         super.onResume()
+        viewModel.isShowOneWarna()
         Log.i("FRAGMENT LIFECYCLE", "onResume called")
         //viewModel.getWarnaByMerk()
     }

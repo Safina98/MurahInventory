@@ -96,6 +96,8 @@ class CombinedViewModel(
     val merk :LiveData<String>get() = _merk
 
     val isMerkClick=MutableLiveData<Boolean>(false)
+    val isWarnaClick=MutableLiveData<Boolean>(false)
+
     //val warna = warnaDao.selectWarnaByWarnaRef(refWarna)
     //detail warna
     //val detailWarnaList = dataSourceDetailWarna.selectDetailWarnaByWarnaIdGroupByIsi(refWarna)
@@ -125,7 +127,7 @@ class CombinedViewModel(
     init {
 
         if (_refMerk.value != null) {
-            getWarnaByMerk(_refMerk.value)
+            //getWarnaByMerk(_refMerk.value)
         }
         getAllMerkTable()
     }
@@ -138,16 +140,18 @@ class CombinedViewModel(
     fun setRefMerk(ref:String?){
         _refMerk.value=ref
     }
-    fun setRefWarna(ref:String){
+    fun setRefWarna(ref:String?){
         _refWarna.value=ref
+        Log.i("ShowHideItem","set ref warna ${_refWarna.value}")
     }
-    fun getDetailWarnaByWarnaRef(warnaRef: String){
+    fun getDetailWarnaByWarnaRef(warnaRef: String?){
         viewModelScope.launch {
             _isDetailWarnaLoading.value = true
             _isLoadDetailWarnaCrashed.value = false
             try {
                 val  list = withContext(Dispatchers.IO){
-                    dataSourceDetailWarna.getDetailWarnaSummaryList(warnaRef)
+                    if (warnaRef!=null)dataSourceDetailWarna.getDetailWarnaSummaryList(warnaRef)
+                    else listOf<DetailWarnaModel>()
                 }
                 _detailWarnaList.value = list
                 _isDetailWarnaLoading.value = false
@@ -159,30 +163,69 @@ class CombinedViewModel(
     }
 
     fun showOneMerkOld(bool:Boolean,ref:String){
-        val list = mutableListOf<MerkTable>()
-        if (_unFilteredMerk.value!=null) {
-            Log.i("ShowHideItem","is  unfiltered not null")
-            if (bool==true){
-                list.addAll(_unFilteredMerk.value!!.filter {
-                    it.refMerk.lowercase(Locale.getDefault()).contains(ref)
-                })
-            }else list.addAll(_unFilteredMerk.value?: listOf())
-
-        } else {
+        viewModelScope.launch {
+            _isLoading.value=true
+            val list = mutableListOf<MerkTable>()
+            withContext(Dispatchers.IO){
+                if (_unFilteredMerk.value!=null) {
+                    Log.i("ShowHideItem","is  unfiltered not null")
+                    if (bool==true){
+                        list.addAll(_unFilteredMerk.value!!.filter {
+                            it.refMerk.lowercase(Locale.getDefault()).contains(ref)
+                        })
+                    }else list.addAll(_unFilteredMerk.value?: listOf())
+                }
+            }
+            _isLoading.value=false
+            _allMerkTable.value = list
 
         }
-        _allMerkTable.value = list
-        _allMerkTable
+    }
+    fun showOneWarna(ref:String){
+        val list = mutableListOf<WarnaModel>()
+        if (_unFilteredWarna.value!=null) {
+            Log.i("ShowHideItem","Warna is  unfiltered not null")
+            if (isWarnaClick.value==true){
+                list.addAll(_unFilteredWarna.value!!.filter {
+                    it.warnaRef.lowercase(Locale.getDefault()).contains(ref)
+                })
+                _allWarnaByMerk.value = list
+            }else getWarnaByMerk(refMerkk.value) //list.addAll(_unFilteredWarna.value?: listOf())
+
+        }
 
     }
     fun toggleIsMerkClick(){
         isMerkClick.value = !(isMerkClick.value!!)
     }
-    fun showOneMerk(){
+    fun toggleIsWarnaClick(){
+        isWarnaClick.value = !(isWarnaClick.value!!)
+    }
+    fun setIsWarnaClickFalse(){
+        isWarnaClick.value = false
+    }
+    fun isShowOneMerk(){
         if (isMerkClick.value==true &&refMerkk.value!=null){
             showOneMerkOld(isMerkClick.value!!, refMerkk.value!!)
         }else
             getAllMerkTable()
+    }
+    fun isShowOneWarna(){
+        viewModelScope.launch {
+            if (refMerkk.value!=null){
+                if (isWarnaClick.value==true &&refWarna.value!=null){
+                    getOneWarna(refWarna.value!!)
+                    //showOneWarna( refWarna.value!!)
+                }else
+                    getWarnaByMerk(refMerkk.value)
+            }
+            }
+    }
+    private suspend fun getOneWarna(refWarna: String){
+        val list =withContext(Dispatchers.IO){
+            warnaDao.getOneWarnaWithTotalPcsList(refWarna)
+        }
+        _allWarnaByMerk.value = list
     }
     // Merk functions
     fun getAllMerkTable() {
@@ -231,7 +274,14 @@ class CombinedViewModel(
                     this.refMerk = UUID.randomUUID().toString()
                     this.user = loggedInUsers
                     insertMerkToDao(this)
-                    getAllMerkTable()
+                    setRefMerk(null)
+                    getStringMerk(null)
+                    setRefWarna(null)
+                    getStringWarna(null)
+
+                    //isShowOneWarna()
+                    //_isLoading.value = false
+                getAllMerkTable()
                 } else {
                     Toast.makeText(getApplication(), userNullString, Toast.LENGTH_SHORT).show()
                 }
@@ -246,8 +296,11 @@ class CombinedViewModel(
             merkTable.merkLastEditedDate = Date()
             updateMerkToDao(merkTable)
             getAllMerkTable()
-            setRefMerk(merkTable.refMerk)
-            getStringMerk(merkTable.refMerk)
+            setRefMerk(null)
+            getStringMerk(null)
+            setRefWarna(null)
+            getStringWarna(null)
+            getDetailWarnaByWarnaRef(null)
         }
     }
 
@@ -256,7 +309,12 @@ class CombinedViewModel(
             _isLoading.value = true
             deleteMerkToDao(merkTable)
             getAllMerkTable()
-            getWarnaByMerk(refMerkk.value)
+            setRefMerk(null)
+            getStringMerk(null)
+            setRefWarna(null)
+            getStringWarna(null)
+            getDetailWarnaByWarnaRef(null)
+
         }
     }
 
@@ -319,10 +377,11 @@ class CombinedViewModel(
         }
     }
 
-    fun getStringWarna(warnaRef:String){
+    fun getStringWarna(warnaRef:String?){
         viewModelScope.launch {
             val warna = withContext(Dispatchers.IO){
-                warnaDao.getKodeWarnaByRef(warnaRef)
+                if (warnaRef!=null) warnaDao.getKodeWarnaByRef(warnaRef)
+                else ""
             }
             _warna.value = warna
             Log.i("SplitFragmetProbs","warna ${warna}")
@@ -342,15 +401,18 @@ class CombinedViewModel(
     }
 
     fun filterWarna(query: String?) {
-        val list = mutableListOf<WarnaModel>()
-        if (!query.isNullOrEmpty()) {
-            list.addAll(_unFilteredWarna.value!!.filter {
-                it.kodeWarna.lowercase(Locale.getDefault()).contains(query.toString().lowercase(Locale.getDefault()))
-            })
-        } else {
-            list.addAll(_unFilteredWarna.value!!)
+        if (isWarnaClick.value!=true){
+            val list = mutableListOf<WarnaModel>()
+            if (!query.isNullOrEmpty()) {
+                list.addAll(_unFilteredWarna.value!!.filter {
+                    it.kodeWarna.lowercase(Locale.getDefault()).contains(query.toString().lowercase(Locale.getDefault()))
+                })
+            } else {
+                list.addAll(_unFilteredWarna.value!!)
+            }
+            _allWarnaByMerk.value = list
         }
-        _allWarnaByMerk.value = list
+
     }
 
     fun insertWarna(kodeWarna: String, satuan: String) {
@@ -373,6 +435,8 @@ class CombinedViewModel(
                 try {
                     insertWarnaToDao(warna)
                     getWarnaByMerk(refMerkk.value)
+                    setRefWarna(null)
+                    getStringWarna(null)
                 }
                 catch (e:Exception){
                     _isWarnaLoading.value = false
@@ -392,8 +456,8 @@ class CombinedViewModel(
                 Log.i("UpdateWarnaProbs"," update warna ${warnaTable}")
                 warnaTable.warnaLastEditedDate = Date()
                 updateWarnaToDao(warnaTable.kodeWarna,warnaTable.satuan,warnaTable.lastEditedBy,warnaTable.warnaLastEditedDate,warnaTable.idWarna)
-                setRefWarna(warnaTable.warnaRef)
-                getStringWarna(warnaTable.warnaRef)
+                setRefWarna(null)
+                getStringWarna(null)
                 getWarnaByMerk(refMerkk.value)
             }catch (e:Exception){
                 Toast.makeText(getApplication(),"Gagal Mengubah data, coba lagi",Toast.LENGTH_SHORT).show()
@@ -439,7 +503,8 @@ class CombinedViewModel(
             _isWarnaLoading.value = true
             deleteWarnaToDao(warnaTable.toWarnaTable())
             getWarnaByMerk(refMerkk.value)
-            getDetailWarnaByWarnaRef(refWarna.value!!)
+            setRefWarna(null)
+            getStringWarna(null)
         }
     }
 
@@ -532,7 +597,9 @@ class CombinedViewModel(
                             insertDetailWarnaAndBarangLogAndLog(detailWarnaTable,log,barangLog)
                         }
                         getDetailWarnaByWarnaRef(refWarna.value!!)
-                        getWarnaByMerk(refMerkk.value)
+                        //getWarnaByMerk(refMerkk.value)
+                        isShowOneWarna()
+
                     }else Toast.makeText(getApplication(), "Pilih kode warna", Toast.LENGTH_SHORT).show()
 
                 } else Toast.makeText(getApplication(), "Pilih kode Merk dan kode warna", Toast.LENGTH_SHORT).show()

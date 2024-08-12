@@ -104,10 +104,9 @@ class DetailWarnaFragment : AuthFragment() {
             }
         }
         viewModel.refWarna.observe(viewLifecycleOwner) {
-            Log.i("SplitFragmetProbs", "refWarna ${it}")
-            it?.let {
+            //Log.i("ShowHideItem", "refWarna: ${it}")
                 viewModel.getDetailWarnaByWarnaRef(it)
-            }
+
         }
         //Obsert detail warna recycler view
         viewModel.detailWarnaList.observe(viewLifecycleOwner) {

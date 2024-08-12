@@ -102,6 +102,27 @@ interface WarnaDao {
     fun getWarnaWithTotalPcsList(refMerk: String): List<WarnaModel>
 
     @Query("""
+    SELECT 
+        w.idWarna,
+        w.refMerk,
+        w.kodeWarna,
+        w.totalPcs,
+        w.satuan,
+        w.warnaRef,
+        w.createdBy,
+        w.lastEditedBy,
+        w.warnaCreatedDate,
+        w.warnaLastEditedDate,
+        SUM(d.detailWarnaIsi*d.detailWarnaPcs) AS satuanTotal,
+        SUM(d.detailWarnaPcs) as totalDetailPcs
+    FROM warna_table w
+    LEFT JOIN detail_warna_table d ON w.warnaRef = d.warnaRef
+    WHERE w.warnaRef = :warnaRef
+    GROUP BY w.idWarna, w.refMerk, w.kodeWarna, w.totalPcs, w.satuanTotal, w.satuan, w.warnaRef, w.createdBy, w.lastEditedBy, w.warnaCreatedDate, w.warnaLastEditedDate
+""")
+    fun getOneWarnaWithTotalPcsList(warnaRef: String): List<WarnaModel>
+
+    @Query("""
         UPDATE warna_table
         SET
             kodeWarna = :kodeWarna,

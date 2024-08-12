@@ -44,6 +44,29 @@ object BindingAdapters {
         })
     }
 
+    @JvmStatic
+    @BindingAdapter("app:showIfWarnaClicked")
+    fun bindVisibilityIsWarnaClicked(view: View, isWarnaClick: Boolean) {
+        SharedPreferencesHelper.userRole.observe(view.context as LifecycleOwner, Observer { role ->
+            view.visibility = if (isWarnaClick && (role == UserRoles.ADMIN|| role == UserRoles.EDITOR)) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+        })
+    }
+    @JvmStatic
+    @BindingAdapter("app:showIfMerkClicked")
+    fun bindVisibilityIsMerlClicked(view: View, isWarnaClick: Boolean) {
+        SharedPreferencesHelper.userRole.observe(view.context as LifecycleOwner, Observer { role ->
+            view.visibility = if (isWarnaClick && (role == UserRoles.ADMIN)) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+        })
+    }
+
 
     @JvmStatic
     @BindingAdapter("logDate")

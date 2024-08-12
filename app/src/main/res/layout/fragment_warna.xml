@@ -79,7 +79,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_gravity="end|bottom"
-            app:showIfAdmin="@{true}"
+            app:showIfMerkClicked="@{viewModel.isMerkClick()}"
             android:layout_margin="16dp"
             android:onClick="@{()->viewModel.onAddWarnaFabClick()}"
             android:onLongClick="@{(view) -> viewModel.onWarnaLongClick(view)}"
