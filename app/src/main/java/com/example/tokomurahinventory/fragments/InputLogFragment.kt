@@ -81,12 +81,12 @@ class InputLogFragment : AuthFragment() {
             AddNetClickListener { countModel, position ->  },
             DeleteNetClickListener { countModel, position -> handleDeleteNetClick(countModel, position) },
             BarangLogMerkClickListener { countModel, position ->
-                setupDialog(countModel)
+                setupDialog(countModel,1)
                // handleBarangLogMerkClick(countModel, position)
                                        },
-            BarangLogKodeClickListener { countModel, position -> setupDialog(countModel) },
-            BarangLogIsiClickListener { countModel, position -> setupDialog(countModel) },
-            BarangLogPcsClickListener { countModel, position -> setupDialog(countModel) },
+            BarangLogKodeClickListener { countModel, position -> setupDialog(countModel,1) },
+            BarangLogIsiClickListener { countModel, position -> setupDialog(countModel,1) },
+            BarangLogPcsClickListener { countModel, position -> setupDialog(countModel,1) },
             viewModel,
             this
         )
@@ -97,7 +97,7 @@ class InputLogFragment : AuthFragment() {
         binding.btnAddNewCountmodel.setOnClickListener {
             clearEditText()
             val countModel = viewModel.addNewCountItemBtn()
-            setupDialog(countModel)
+            setupDialog(countModel,0)
         }
 
 
@@ -264,7 +264,7 @@ class InputLogFragment : AuthFragment() {
 
 
 
-    private fun setupDialog(inputStokLogModel: CountModel?) {
+    private fun setupDialog(inputStokLogModel: CountModel?, code: Int) {
         if (isDialogShowing) return
         isDialogShowing = true
 
@@ -290,16 +290,26 @@ class InputLogFragment : AuthFragment() {
         if (inputStokLogModel != null) {
             autoCompleteMerk.setText(inputStokLogModel.merkBarang)
             autoCompleteWarna.setText(inputStokLogModel.kodeBarang)
-            if (inputStokLogModel.isi!=null){autoCompleteIsi.setText(inputStokLogModel.isi.toString())}
-            if (inputStokLogModel.psc!=0)etPcs.setText(inputStokLogModel.psc.toString())
-            if (inputStokLogModel.merkBarang!=null)viewModel.getWarnaByMerkNew(inputStokLogModel.merkBarang!!)
-            if (inputStokLogModel.kodeBarang!=null)viewModel.getIsiByWarnaAndMerk(inputStokLogModel.merkBarang!!,inputStokLogModel.kodeBarang!!)
+            if (inputStokLogModel.isi != null) {
+                autoCompleteIsi.setText(inputStokLogModel.isi.toString())
+            }
+            if (inputStokLogModel.psc != 0) {
+                etPcs.setText(inputStokLogModel.psc.toString())
+            }
+            if (inputStokLogModel.merkBarang != null) {
+                viewModel.getWarnaByMerkNew(inputStokLogModel.merkBarang!!)
+            }
+            if (inputStokLogModel.kodeBarang != null) {
+                viewModel.getIsiByWarnaAndMerk(inputStokLogModel.merkBarang!!, inputStokLogModel.kodeBarang!!)
+            }
         }
+
         // Fetch and observe data
         viewModel.allMerkFromDb.observe(viewLifecycleOwner) { allMerk ->
             merkAdapter.clear()
             merkAdapter.addAll(allMerk.sortedBy { it })
         }
+
         autoCompleteMerk.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
@@ -318,9 +328,7 @@ class InputLogFragment : AuthFragment() {
 
         autoCompleteWarna.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-
-            }
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
                 val warna = s.toString()
                 val merk = autoCompleteMerk.text.toString()
@@ -333,15 +341,28 @@ class InputLogFragment : AuthFragment() {
         viewModel.isiByWarnaAndMerk.observe(viewLifecycleOwner) { isiList ->
             // Update the UI or another adapter if needed
             isiAdapter.clear()
-            isiAdapter.addAll(isiList?.sortedBy { it }?.map { it.toString() }?: emptyList())
+            isiAdapter.addAll(isiList?.sortedBy { it }?.map { it.toString() } ?: emptyList())
         }
 
         // Create and show the dialog
         val dialog = AlertDialog.Builder(requireContext())
             .setView(dialogBinding.root)
             .setPositiveButton("OK", null) // Set null for now, we will override the action
-            .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                if (code == 0) {
+                    inputStokLogModel?.let {
+                        viewModel.removeCountItem(it.id)
+                    }
+                }
+                dialog.dismiss()
+            }
             .setOnDismissListener {
+                // Handle item removal only when dialog is dismissed
+                if (code == 0) {
+                    inputStokLogModel?.let {
+                        viewModel.removeCountItem(it.id)
+                    }
+                }
                 isDialogShowing = false
             }
             .create()
@@ -359,11 +380,11 @@ class InputLogFragment : AuthFragment() {
                         inputStokLogModel.kodeBarang = kodeWarna
                         inputStokLogModel.isi = isi
                         inputStokLogModel.psc = pcs
-                        viewModel.updateCountModel(inputStokLogModel,oldCountModel!!) { status ->
+                        viewModel.updateCountModel(inputStokLogModel, oldCountModel!!) { status ->
                             when (status) {
                                 UpdateStatus.SUCCESS -> {
                                     Toast.makeText(requireContext(), succsessMsg, Toast.LENGTH_SHORT).show()
-                                    dialog.dismiss()
+                                    dialog.dismiss() // Dismiss the dialog after updating
                                 }
                                 UpdateStatus.MERK_NOT_PRESENT -> Toast.makeText(requireContext(), "Merk $dataNotFoundMsgD", Toast.LENGTH_SHORT).show()
                                 UpdateStatus.WARNA_NOT_PRESENT -> Toast.makeText(requireContext(), "Warna $dataNotFoundMsgD", Toast.LENGTH_SHORT).show()
@@ -381,9 +402,7 @@ class InputLogFragment : AuthFragment() {
                 }
             }
         }
-            dialog.setOnDismissListener {
-                isDialogShowing = false
-            }
+
         dialog.show()
     }
 

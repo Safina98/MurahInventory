@@ -400,7 +400,7 @@ class CombinedViewModel(
     }
 
     fun filterWarna(query: String?) {
-        if (isWarnaClick.value!=true){
+        if (isWarnaClick.value!=true &&isMerkClick.value==true){
             val list = mutableListOf<WarnaModel>()
             if (!query.isNullOrEmpty()) {
                 list.addAll(_unFilteredWarna.value!!.filter {

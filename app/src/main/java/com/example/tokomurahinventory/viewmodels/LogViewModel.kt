@@ -252,9 +252,9 @@ class LogViewModel (
                     id = mutableLog.value!!.id,
                     userName = loggedInUser,
                     password = "",
-                    namaToko = namaToko.value ?: "Failed",
+                    namaToko = namaToko.value ?: "Tidak diisi",
                     logCreatedDate = mutableLog.value!!.logCreatedDate, // assuming you have a date field
-                    keterangan = subKeterangan.value ?: "Failed",
+                    keterangan = subKeterangan.value ?: "Tidak diisi",
                     merk = s,
                     kodeWarna = "",
                     logIsi = 0.0,
@@ -293,9 +293,9 @@ class LogViewModel (
                         id = 0,
                         userName = loggedInUsers,
                         password = "",
-                        namaToko = namaToko.value ?: "Failed",
+                        namaToko = namaToko.value ?: "Tidak diisi",
                         logCreatedDate = Date(),
-                        keterangan = subKeterangan.value ?: "Failed",
+                        keterangan = subKeterangan.value ?: "Tidak diisi",
                         merk = s,
                         kodeWarna = "",
                         logIsi = 0.0,
@@ -628,6 +628,19 @@ class LogViewModel (
             }
 
             // _codeWarnaByMerk.value = null
+        }
+    }
+    fun removeCountItem(itemId: Int) {
+        val updatedList = _countModelList.value?.toMutableList() ?: mutableListOf()
+
+        val itemToRemove = updatedList.find { it.id == itemId }
+
+        if (itemToRemove != null) {
+            if (itemToRemove.merkBarang==null||itemToRemove.kodeBarang==null||itemToRemove.isi==null||itemToRemove.psc==0)
+            {
+                updatedList.remove(itemToRemove)
+                _countModelList.value = updatedList
+            }
         }
     }
 

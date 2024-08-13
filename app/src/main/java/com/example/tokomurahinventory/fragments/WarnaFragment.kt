@@ -144,11 +144,7 @@ class WarnaFragment : AuthFragment() {
 
         viewModel.allWarnaByMerk.observe(viewLifecycleOwner, Observer { newList ->
             newList?.let {
-                // Save the current scroll position
-
-                // Submit the new list to the adapter
                 adapter.submitList(it.sortedBy { it.kodeWarna })
-
                 // Restore the scroll position after the list is updated
                binding.rvWarna.post {
                     savedScrollPosition?.let { position ->
