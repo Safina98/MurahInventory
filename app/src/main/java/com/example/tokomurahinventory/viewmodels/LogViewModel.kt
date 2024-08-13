@@ -415,8 +415,6 @@ class LogViewModel (
     fun updateCountModel(countModel: CountModel, oldCountModel: CountModel, callback: (UpdateStatus) -> Unit) {
         viewModelScope.launch {
             // Log initial state
-            Log.i("NEWPOPUPPROB", "countModel pcs : ${countModel.psc}")
-            Log.i("NEWPOPUPPROB", "OldCountModel pcs : ${oldCountModel.psc}")
 
             val updatedList = _countModelList.value?.toMutableList() ?: mutableListOf()
             val itemToUpdate = updatedList.find { it.id == countModel.id }
@@ -426,25 +424,14 @@ class LogViewModel (
                 return@launch
             }
 
-            // Log item to update
-            Log.i("NEWPOPUPPROB", "item to update ${itemToUpdate}")
-
             // Perform validation checks
             val isMerkPresent = checkMerkExisted(countModel.merkBarang!!)
             val isWarnaPresent = isKodeWarnaInLiveData(codeWarnaByMerk, countModel.kodeBarang!!)
             val isIsiPresent = isIsiInLiveData(isiByWarnaAndMerk, countModel.isi!!)
 
-            Log.i("NEWPOPUPPROB", "isMerkPresent : $isMerkPresent")
-            Log.i("NEWPOPUPPROB", "isWarnaPresent : $isWarnaPresent")
-            Log.i("NEWPOPUPPROB", "isIsiPresent : $isIsiPresent")
-
             // Fetch data from database
             val barangLogfromdb = withContext(Dispatchers.IO) { dataSourceBarangLog.findByBarangLogRef(countModel.barangLogRef) } ?: BarangLog()
             val selisihpcs = countModel.psc - barangLogfromdb.pcs
-
-            Log.i("NEWPOPUPPROB", "Baranglog from db pcs : ${barangLogfromdb.pcs}")
-            Log.i("NEWPOPUPPROB", "selisih pcs : $selisihpcs")
-
 
             val isPcsReadyInStok = if (isIsiPresent) {
                 val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
@@ -511,7 +498,8 @@ class LogViewModel (
             Log.i("NEWPOPUPPROB","Baranglog from db pcs : ${barangLogfromdb.pcs}")
             val selisihpcs= countModel.psc-barangLogfromdb.pcs
             Log.i("NEWPOPUPPROB","selisih pcs : ${selisihpcs}")
-            val isPcsReadyInStok = if (isIsiPresent) { val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
+            val isPcsReadyInStok =
+                if (isIsiPresent) { val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
                 val refWarna = getrefWanraByName(countModel.kodeBarang!!, refMerk)
                 val refDetailWarna = refWarna?.let { getrefDetailWanraByWarnaRefndIsi(it, countModel.isi!!) }
                 val pcs = itemToUpdate.psc

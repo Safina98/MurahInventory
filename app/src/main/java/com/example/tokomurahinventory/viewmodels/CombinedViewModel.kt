@@ -193,7 +193,6 @@ class CombinedViewModel(
             }else getWarnaByMerk(refMerkk.value) //list.addAll(_unFilteredWarna.value?: listOf())
 
         }
-
     }
     fun toggleIsMerkClick(){
         isMerkClick.value = !(isMerkClick.value!!)

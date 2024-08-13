@@ -16,6 +16,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tokomurahinventory.R
 import com.example.tokomurahinventory.adapters.DeleteWarnaClickListener
 import com.example.tokomurahinventory.adapters.UpdateWarnaClickListener
@@ -33,7 +34,7 @@ import com.example.tokomurahinventory.viewmodels.CombinedViewModelFactory
 import com.google.android.material.textfield.TextInputLayout
 
 class WarnaFragment : AuthFragment() {
-
+    private var savedScrollPosition: Int? = null
     private lateinit var binding: FragmentWarnaBinding
     //private lateinit var viewModel: WarnaViewModel
     private lateinit var viewModel: CombinedViewModel
@@ -69,20 +70,22 @@ class WarnaFragment : AuthFragment() {
         binding.lifecycleOwner = viewLifecycleOwner
 
         val adapter = WarnaAdapter(
-            WarnaClickListener {
+            WarnaClickListener {warna,position->
                // Log.i("WarnaProb", "warna table : $it")
+                if (viewModel.isWarnaClick.value==false){
+                    onItemClicked(position)
+                }
                 viewModel.toggleIsWarnaClick()
-                viewModel.showOneWarna(it.warnaRef)
+
+                viewModel.showOneWarna(warna.warnaRef)
                 if (viewModel.isWarnaClick.value==true){
-                    viewModel.setRefWarna(it.warnaRef)
-                    viewModel.getStringWarna(it.warnaRef)
+                    viewModel.setRefWarna(warna.warnaRef)
+                    viewModel.getStringWarna(warna.warnaRef)
                 }else{
                     viewModel.setRefWarna(null)
                     viewModel.getStringWarna(null)
                     //viewModel.getWarnaByMerk(it.refMerk)
                 }
-
-
                 //viewModel.getDetailWarnaByWarnaRef(it.warnaRef)
                 //viewModel.onNavigateToDetailWarna(it.warnaRef)
             },
@@ -139,12 +142,22 @@ class WarnaFragment : AuthFragment() {
             Log.i("SplitFragmetProbs","merk ${it}")
         })
 
-        viewModel.allWarnaByMerk.observe(viewLifecycleOwner, Observer {
-            it?.let {
+        viewModel.allWarnaByMerk.observe(viewLifecycleOwner, Observer { newList ->
+            newList?.let {
+                // Save the current scroll position
+
+                // Submit the new list to the adapter
                 adapter.submitList(it.sortedBy { it.kodeWarna })
-                adapter.notifyDataSetChanged()
+
+                // Restore the scroll position after the list is updated
+               binding.rvWarna.post {
+                    savedScrollPosition?.let { position ->
+                        restoreScrollPosition(position)
+                    }
+                }
             }
         })
+
         viewModel.refMerkk.observe(viewLifecycleOwner, Observer {
            // Log.i("SplitFragmetProbs","refMerkk ${it}")
                 viewModel.getWarnaByMerk(it)
@@ -261,5 +274,15 @@ class WarnaFragment : AuthFragment() {
         viewModel.isShowOneWarna()
         Log.i("FRAGMENT LIFECYCLE", "onResume called")
         //viewModel.getWarnaByMerk()
+    }
+    fun onItemClicked(position: Int) {
+        // Save the position of the clicked item
+        savedScrollPosition = position
+
+        // Your existing code for handling the item click
+    }
+    private fun restoreScrollPosition(position: Int) {
+        val layoutManager = binding.rvWarna.layoutManager as LinearLayoutManager
+        layoutManager.scrollToPositionWithOffset(position, 0)
     }
 }

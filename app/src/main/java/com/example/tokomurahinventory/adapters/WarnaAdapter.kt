@@ -16,8 +16,9 @@ class WarnaAdapter (private val warnaClickListener: WarnaClickListener,
                     private val deleteWarnaClickListener: DeleteWarnaClickListener
 ) : ListAdapter<WarnaModel, WarnaAdapter.MyViewHolder>(WarnaStockDiffCallback()){
     class MyViewHolder private constructor(val binding: ItemListWarnaBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: WarnaModel, clickListener: WarnaClickListener, longListener: WarnaLongListener,updateWarnaClickListener: UpdateWarnaClickListener,deleteWarnaClickListener: DeleteWarnaClickListener) {
+        fun bind(item: WarnaModel, clickListener: WarnaClickListener, longListener: WarnaLongListener,updateWarnaClickListener: UpdateWarnaClickListener,deleteWarnaClickListener: DeleteWarnaClickListener,position:Int) {
             binding.warna = item
+            binding.position = position
             binding.clickListener = clickListener
             binding.updateClickListemer = updateWarnaClickListener
             binding.deleteClickListener = deleteWarnaClickListener
@@ -39,7 +40,7 @@ class WarnaAdapter (private val warnaClickListener: WarnaClickListener,
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        holder.bind(getItem(position), warnaClickListener, warnaLongListener, updateWarnaClickListener,deleteWarnaClickListener)
+        holder.bind(getItem(position), warnaClickListener, warnaLongListener, updateWarnaClickListener,deleteWarnaClickListener,position)
     }
 }
 
@@ -53,8 +54,8 @@ class WarnaStockDiffCallback: DiffUtil.ItemCallback<WarnaModel>(){
         return oldItem == newItem
     }
 }
-class WarnaClickListener(val clickListener: (warna: WarnaModel) -> Unit) {
-    fun onClick(Warna: WarnaModel) = clickListener(Warna)
+class WarnaClickListener(val clickListener: (warna: WarnaModel, position: Int) -> Unit) {
+    fun onClick(warna: WarnaModel, position: Int) = clickListener(warna, position)
 }
 class  WarnaLongListener(val longListener: (Warna: WarnaModel) -> Unit){
     fun onLongClick(v: View, Warna: WarnaModel): Boolean {
