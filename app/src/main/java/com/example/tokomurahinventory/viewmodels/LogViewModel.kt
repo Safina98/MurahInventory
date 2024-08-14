@@ -474,69 +474,6 @@ class LogViewModel (
             }
         }
     }
-
-    // In LogViewModel
-    fun updateCountModelOld(countModel: CountModel, oldCountModel:CountModel,callback: (UpdateStatus) -> Unit) {
-        viewModelScope.launch {
-            // Perform validation
-            Log.i("NEWPOPUPPROB","countModel pcs : ${countModel.psc}")
-            Log.i("NEWPOPUPPROB","OldCountModel pcs : ${oldCountModel.psc}")
-            Log.i("NEWPOPUPPROB","oldCOuntModel ${oldCountModel}")
-
-
-            val updatedList = _countModelList.value?.toMutableList()
-            val itemToUpdate = updatedList?.find { it.id == countModel.id }
-            Log.i("NEWPOPUPPROB","item to update ${itemToUpdate}")
-            val a = CountModel(itemToUpdate!!.id,itemToUpdate.kodeBarang,itemToUpdate.merkBarang,null,itemToUpdate.psc,"","","")
-            val isMerkPresent = checkMerkExisted(countModel.merkBarang!!)
-            Log.i("NEWPOPUPPROB","isMerkPresent : ${isMerkPresent}")
-            val isWarnaPresent = isKodeWarnaInLiveData(codeWarnaByMerk, countModel.kodeBarang!!)
-            Log.i("NEWPOPUPPROB","isWarnaPresent : ${isWarnaPresent}")
-            val isIsiPresent = isIsiInLiveData(isiByWarnaAndMerk, countModel.isi!!)
-            Log.i("NEWPOPUPPROB","isIsiPresent : ${isIsiPresent}")
-            val barangLogfromdb= withContext(Dispatchers.IO){dataSourceBarangLog.findByBarangLogRef(countModel.barangLogRef)}?: BarangLog()
-            Log.i("NEWPOPUPPROB","Baranglog from db pcs : ${barangLogfromdb.pcs}")
-            val selisihpcs= countModel.psc-barangLogfromdb.pcs
-            Log.i("NEWPOPUPPROB","selisih pcs : ${selisihpcs}")
-            val isPcsReadyInStok =
-                if (isIsiPresent) { val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
-                val refWarna = getrefWanraByName(countModel.kodeBarang!!, refMerk)
-                val refDetailWarna = refWarna?.let { getrefDetailWanraByWarnaRefndIsi(it, countModel.isi!!) }
-                val pcs = itemToUpdate.psc
-                checkIfPcsReadyInStok(refDetailWarna!!, selisihpcs)
-            } else false
-                if (isMerkPresent && isWarnaPresent && isIsiPresent &&isPcsReadyInStok ) {
-                    if (itemToUpdate != null) {
-
-                            itemToUpdate.merkBarang = countModel.merkBarang!!
-                            itemToUpdate.kodeBarang = countModel.kodeBarang
-                            itemToUpdate.isi = countModel.isi!!
-                            itemToUpdate.psc = countModel.psc
-                            merkMutable.value = countModel.merkBarang
-                            _countModelList.value = updatedList // Notify observers of the change
-                            callback(UpdateStatus.SUCCESS) // Notify success
-
-
-                    // Update the item if validation passes
-
-                } else {
-                    Log.i("NEWPOPUPPROB","oldCOuntModel ${oldCountModel}")
-                    updatedList.remove(itemToUpdate)
-                    updatedList.add(oldCountModel)
-                    _countModelList.value = updatedList
-                    when {
-                        !isMerkPresent -> callback(UpdateStatus.MERK_NOT_PRESENT)
-                        !isWarnaPresent -> callback(UpdateStatus.WARNA_NOT_PRESENT)
-                        !isIsiPresent -> callback(UpdateStatus.ISI_NOT_PRESENT)
-                        !isPcsReadyInStok -> callback(UpdateStatus.PCS_NOT_READY_IN_STOCK)
-                    }
-                }
-        }
-            else {
-                callback(UpdateStatus.ITEM_NOT_FOUND) // Notify failure
-            }
-        }
-    }
     //try update count model
 
     // Function to update the merk value

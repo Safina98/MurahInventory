@@ -2,16 +2,21 @@ package com.example.tokomurahinventory.fragments
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.text.InputType
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
@@ -25,6 +30,7 @@ import androidx.room.Room
 import com.example.tokomurahinventory.R
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.databinding.FragmentExportImportBinding
+import com.example.tokomurahinventory.databinding.PopUpAutocompleteTextviewBinding
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.utils.UserRoles
 import com.example.tokomurahinventory.viewmodels.ExportImportViewModel
@@ -34,6 +40,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.*
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.zip.*
 
 
@@ -42,6 +50,8 @@ class ExportImportFragment : AuthFragment() {
     private lateinit var viewModel: ExportImportViewModel
     private val PERMISSION_REQUEST_CODE = 200
     private  val TAG = "ZipDB"
+    private var dialog: AlertDialog? = null
+
 
     var resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         Log.i("Insert Csv", "result Launcher")
@@ -94,14 +104,17 @@ class ExportImportFragment : AuthFragment() {
             requestPermission()
         }
         binding.viewModel = viewModel
+        viewModel.allMerkFromDb.observe(viewLifecycleOwner) { }
 
         viewModel.isLoading.observe(viewLifecycleOwner) {
             if (it==true){
                 loading()
             }else{
                 loaded()
-
             }
+        }
+        binding.btnExportMerkpdf.setOnClickListener{
+            showPopUpDialog()
         }
         binding.btnExportMerk.setOnClickListener {
             exportStockCSV("Daftar Merk Toko Murah","MERK")
@@ -192,7 +205,6 @@ class ExportImportFragment : AuthFragment() {
             loaded()
             Toast.makeText(context, "Error selecting file", Toast.LENGTH_SHORT).show()
         }
-
     }
 
     private val resultLauncherNew = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -201,7 +213,6 @@ class ExportImportFragment : AuthFragment() {
             lifecycleScope.launch {
                 withContext(Dispatchers.IO) {
                     val tempFile = readFileFromUri(requireContext(), it)
-
                     Log.i("ZipDB", "file ${tempFile?.name}")
                     Log.i("ZipDB", "file path ${tempFile?.absolutePath}")
                     if (tempFile?.exists() == true) {
@@ -222,7 +233,6 @@ class ExportImportFragment : AuthFragment() {
                     }
                 }
                 // Ensure progress bar is hidden after processing
-
             }
         }
     }
@@ -394,6 +404,76 @@ class ExportImportFragment : AuthFragment() {
         return File(databasePath)
     }
 
+
+
+
+
+    fun showPopUpDialog() {
+        // Dismiss any existing dialog
+        dialog?.dismiss()
+        // Determine title and suggestions based on the code
+        val title ="Merk"
+        val suggestions =  viewModel.allMerkFromDb.value?.toTypedArray() ?: emptyArray()
+        // Inflate the layout using DataBindingUtil
+        val binding = DataBindingUtil.inflate<PopUpAutocompleteTextviewBinding>(
+            LayoutInflater.from(context),
+            R.layout.pop_up_autocomplete_textview,
+            null,
+            false
+        )
+            // Access AutoCompleteTextView within TextInputLayout
+            val autoCompleteTextView: AutoCompleteTextView = binding.autocompleteText
+            autoCompleteTextView.apply {
+                val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, suggestions)
+                setAdapter(adapter)
+
+            }
+        dialog = AlertDialog.Builder(requireContext())
+            .setTitle(title)
+            .setView(binding.root)
+            .setPositiveButton("Pilih") { dialog, _ ->
+               // viewModel.updateMerk(position, input)
+                val input = autoCompleteTextView.text.toString().trim()
+                exportPDFBook(input)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Batal") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .apply { show() }
+    }
+
+    //create pdf file
+    private fun exportPDFBook(merk:String) {
+        val fileName = merk
+        val file = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+            File(context?.getExternalFilesDir(null), "Stok "+fileName+".pdf")
+        } else {
+            TODO("VERSION.SDK_INT < FROYO")
+        }
+        Log.i("filepath",""+file.path.toString())
+        viewModel.generatePDF(file,merk)
+        val photoURI:Uri = FileProvider.getUriForFile(this.requireContext(), requireContext().applicationContext.packageName + ".provider",file)
+        val shareIntent: Intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_STREAM, photoURI)
+            type = "application/pdf"
+        }
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        try {
+            startActivity(Intent.createChooser(shareIntent, "book"))
+        }catch (e : java.lang.Exception){
+            Log.i("error_msg",e.toString())
+        }
+    }
+
+
+
+
+
+
+
     fun loading(){
         binding.progressBar.visibility = View.VISIBLE
         binding.labelProgres.visibility = View.VISIBLE
@@ -405,6 +485,7 @@ class ExportImportFragment : AuthFragment() {
         binding.importHeader.visibility = View.GONE
         binding.btnImportMerkNew.visibility = View.GONE
         binding.btnExportDatabase.visibility = View.GONE
+        binding.btnExportMerkpdf.visibility =View.GONE
     }
     fun loaded(){
         val userRole = SharedPreferencesHelper.getUserRole(requireContext())
@@ -415,6 +496,7 @@ class ExportImportFragment : AuthFragment() {
         binding.btnExportMerk   .visibility = View.VISIBLE
         binding.exportHeader.visibility = View.VISIBLE
         binding.btnExportDatabase.visibility = View.VISIBLE
+        binding.btnExportMerkpdf.visibility =View.VISIBLE
        if (userRole==UserRoles.ADMIN) {
            binding.importHeader.visibility = View.VISIBLE
            binding.btnImportMerkNew.visibility = View.VISIBLE
@@ -422,6 +504,7 @@ class ExportImportFragment : AuthFragment() {
        }
 
     }
+
 
 
 

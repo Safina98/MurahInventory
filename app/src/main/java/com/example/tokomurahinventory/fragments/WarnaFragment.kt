@@ -50,10 +50,8 @@ class WarnaFragment : AuthFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.i("FRAGMENT LIFECYCLE", "onCreateView called")
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_warna, container, false)
-        Log.i("FRAGMENT LIFECYCLE", "onCreate called")
         val application = requireNotNull(this.activity).application
         val merkDao = DatabaseInventory.getInstance(application).merkDao
         val warnaDao = DatabaseInventory.getInstance(application).warnaDao
@@ -105,7 +103,7 @@ class WarnaFragment : AuthFragment() {
         binding.rvWarna.adapter = adapter
 
         viewModel.isWarnaLoading.observe(viewLifecycleOwner) { isLoading ->
-            Log.i("LoadLogProbs", "isLoading observer : $isLoading")
+
             if (isLoading) {
                 binding.progressBarWarna.visibility = View.VISIBLE
                 binding.rvWarna.visibility = View.GONE
@@ -139,7 +137,7 @@ class WarnaFragment : AuthFragment() {
             viewModel.getWarnaByMerk(null)
         }
         viewModel.merk.observe(viewLifecycleOwner, Observer {
-            Log.i("SplitFragmetProbs","merk ${it}")
+
         })
 
         viewModel.allWarnaByMerk.observe(viewLifecycleOwner, Observer { newList ->

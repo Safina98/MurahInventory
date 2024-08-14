@@ -2,6 +2,11 @@ package com.example.tokomurahinventory.viewmodels
 
 import android.app.Application
 import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Typeface
+import android.graphics.pdf.PdfDocument
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
@@ -29,6 +34,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.BufferedWriter
 import java.io.File
+import java.io.FileOutputStream
 import java.io.FileWriter
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -59,7 +65,18 @@ class ExportImportViewModel(
     private val _csvWriteComplete = MutableLiveData<Unit?>()
     val csvWriteComplete: LiveData<Unit?> get() = _csvWriteComplete
 
+    val allMerkFromDb = dataSourceMerk.selectAllNamaMerk()
+
+
     private val dataGenerator: DataGenerator = DataGenerator(dataSourceBarangLog,dataSourceDetailWarna,dataSourceLog,dataSourceMerk,dataSourceWarna)
+
+    //click export merk
+    //muncul pop up autocomplete untuk pilih merk
+    //pilih ok
+    //show loading
+    //write pdf
+    //show intent
+    //finnished
 
     fun generateData() {
         viewModelScope.launch {
@@ -330,7 +347,7 @@ class ExportImportViewModel(
         }
     }
     fun escapeCSVField(field: String): String {
-        return field.replace("\"", "\"\"").replace("\r\n", " ").replace("\n", " ").replace("\r", " ").replace(",","")
+        return field.replace("\"", "\"\"").replace("\r\n", " ").replace("\n", " ").replace("\r", " ").replace(","," ")
     }
     fun formatDate(date: Date): String {
         val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale("in", "ID"))
@@ -382,8 +399,92 @@ class ExportImportViewModel(
         return csvDir // Return the directory containing the CSV files
     }
 
+    fun generatePDF(file: File, merk: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            withContext(Dispatchers.IO) {
+                val pdfDocument = PdfDocument()
+                var pageNumber = 1
+                var page = createNewPage(pdfDocument, pageNumber)
+                var canvas: Canvas = page.canvas
+                val paint = Paint().apply {
+                    color = Color.BLACK
+                    textSize = 16f
+                }
+                val paintBold = Paint().apply {
+                    color = Color.BLACK
+                    textSize = 18f
+                    typeface = Typeface.DEFAULT_BOLD
+                }
+                val paintHeader = Paint().apply {
+                    color = Color.BLACK
+                    textSize = 20f
+                    typeface = Typeface.DEFAULT_BOLD
+                }
+                var y = 30f
+                var x =30f
 
+                canvas.drawText("Stok $merk", x, y, paintHeader)
+                y += 30f
+                val refMerk = dataSourceMerk.getMerkRefByName(merk)!!
+                val warnaByMerk = dataSourceWarna.getWarnaWithTotalPcsList(refMerk).sortedBy { it.kodeWarna }
 
+                for (i in warnaByMerk) {
+                    y += 30f
+                    x =30f
+                    // Check if the content fits on the current page
+                    if (y + 50f > page.info.pageHeight) { // Adjust threshold as needed
+                        pdfDocument.finishPage(page)
+                        pageNumber++
+                        page = createNewPage(pdfDocument, pageNumber)
+                        canvas = page.canvas
+                        y = 30f
+                    }
+
+                    val detail = dataSourceDetailWarna.getDetailWarnaSummaryList(i.warnaRef)
+                    canvas.drawText("Kode ${i.kodeWarna}; ", x, y, paintBold)
+                    y += 20f
+                    canvas.drawText("Total pcs: ${i.totalDetailPcs} Total isi: ${i.satuanTotal} ${i.satuan}", x, y, paint)
+                    y += 5f
+
+                    for (j in detail) {
+                        // Check if the content fits on the current page
+                        x=40f
+                        if (y + 50f > page.info.pageHeight) { // Adjust threshold as needed
+                            pdfDocument.finishPage(page)
+                            pageNumber++
+                            page = createNewPage(pdfDocument, pageNumber)
+                            canvas = page.canvas
+                            y = 30f
+                        }
+                        y += 20f
+                        canvas.drawText("Isi ${j.detailWarnaIsi} ${j.satuan}; Stok: ${j.detailWarnaPcs} pcs", x, y, paint)
+
+                    }
+                }
+
+                // Finish the last page
+                pdfDocument.finishPage(page)
+
+                // Save the PDF document
+                try {
+                    FileOutputStream(file).use { outputStream ->
+                        pdfDocument.writeTo(outputStream)
+                    }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                } finally {
+                    pdfDocument.close()
+                }
+            }
+            _isLoading.value = false
+        }
+    }
+
+    fun createNewPage(pdfDocument: PdfDocument, pageNumber: Int): PdfDocument.Page {
+        val pageInfo = PdfDocument.PageInfo.Builder(595, 841, pageNumber).create()
+        return pdfDocument.startPage(pageInfo)
+    }
 
 
 }

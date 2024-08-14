@@ -15,6 +15,25 @@
         tools:context=".fragments.ExportImportFragment">
 
         <TextView
+            android:id="@+id/export_stok_per_merk"
+            style="@style/export_import_txt_header_style"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PDF"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            style="@style/rv_input_Log_big_text_style"
+            android:id="@+id/btn_export_merkpdf"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Export Per Merk"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/export_stok_per_merk" />
+
+
+        <TextView
             android:id="@+id/export_header"
             style="@style/export_import_txt_header_style"
             android:layout_width="wrap_content"
@@ -22,16 +41,17 @@
             android:text="Export Data"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/btn_export_merkpdf" />
 
         <TextView
             style="@style/rv_input_Log_big_text_style"
             android:id="@+id/btn_export_merk"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Export merk"
+            android:text="Export Semua barang"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/export_header" />
+
 
         <TextView
             style="@style/rv_input_Log_big_text_style"

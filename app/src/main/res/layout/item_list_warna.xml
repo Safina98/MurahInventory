@@ -44,10 +44,12 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/small_margin"
                 android:text="@{warna.kodeWarna}"
+                android:ellipsize="end"
+                android:maxLines="1"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/textView_satuan"
+                app:layout_constraintEnd_toStartOf="@id/textView2"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="@id/img_update" />
 
             <TextView
                 android:id="@+id/textView2"
@@ -57,7 +59,7 @@
                 android:layout_margin="@dimen/small_margin"
                 android:text='@{String.valueOf(warna.totalDetailPcs)}'
                 app:layout_constraintEnd_toStartOf="@id/textViewPcs"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintBottom_toTopOf="@id/textView_satuan" />
 
             <TextView
                 android:id="@+id/textViewPcs"
@@ -66,8 +68,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/small_margin"
                 android:text="Pcs"
-                app:layout_constraintEnd_toStartOf="@id/img_update"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/textView_satuan" />
 
             <TextView
                 android:id="@+id/textView_satuan"
@@ -87,7 +89,7 @@
                 android:layout_margin="@dimen/small_margin"
                 android:text="@{warna.satuan}"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/img_update" />
+                app:layout_constraintEnd_toEndOf="parent" />
 
             <ImageView
                 android:id="@+id/img_update"
@@ -96,7 +98,6 @@
                 android:layout_margin="@dimen/small_margin"
                 android:background="@drawable/baseline_edit_24"
                 android:onClick="@{()->updateClickListemer.onClick(warna)}"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/img_delete"
                 app:layout_constraintTop_toTopOf="parent"
                 app:showIfAdmin="@{true}" />
@@ -108,7 +109,6 @@
                 android:layout_margin="@dimen/small_margin"
                 android:background="@drawable/baseline_delete_forever_24"
                 android:onClick="@{()->deleteClickListener.onClick(warna)}"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:showIfAdmin="@{true}" />
