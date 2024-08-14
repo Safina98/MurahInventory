@@ -447,11 +447,8 @@ class ExportImportFragment : AuthFragment() {
     //create pdf file
     private fun exportPDFBook(merk:String) {
         val fileName = merk
-        val file = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-            File(context?.getExternalFilesDir(null), "Stok "+fileName+".pdf")
-        } else {
-            TODO("VERSION.SDK_INT < FROYO")
-        }
+        val file = File(context?.getExternalFilesDir(null), "Stok "+fileName+".pdf")
+
         Log.i("filepath",""+file.path.toString())
         viewModel.generatePDF(file,merk)
         val photoURI:Uri = FileProvider.getUriForFile(this.requireContext(), requireContext().applicationContext.packageName + ".provider",file)
