@@ -88,6 +88,7 @@ interface LogDao {
     fun updateDetailWarna(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,loggedInUsers:String?,ket:String): Int
     @Query("DELETE FROM log_table WHERE logDate < :date")
     fun deleteLogsBefore(date: Date)
+
     @Transaction
     suspend fun deleteLogAndUpdateDetailWarna(
         log: LogTable,

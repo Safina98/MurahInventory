@@ -266,15 +266,24 @@ class LogViewModel (
                     createdBy = mutableLog.value!!.createdBy,
                     logTipe = mutableLog.value!!.logTipe
                 )
-                val cmList = countModelList.value!!
-                Log.i("InsertLogTry","logbarang created date =${updatedLog.logCreatedDate}")
-                Log.i("InsertLogTry","logbarang created date =${updatedLog.logLastEditedDate}")
-                updateLogBarang(updatedLog.refLog,updatedLog.namaToko)
-                //compare old countModel with the current one for delete purpose
-                compare(updatedLog.refLog, cmList,updatedLog.namaToko) //check
-                updateLogToDao(updatedLog)
+                try{
+                    val cmList = countModelList.value!!
+                    if (cmList.isNotEmpty()){
+                        updateLogBarang(updatedLog.refLog,updatedLog.namaToko)
+                        //compare old countModel with the current one for delete purpose
+                        compare(updatedLog.refLog, cmList,updatedLog.namaToko) //check
+                        updateLogToDao(updatedLog)
+                        onNavigateToLog()
+                    }else{
+                        Toast.makeText(getApplication(), incorrectInputMsg,Toast.LENGTH_SHORT).show()
+                    }
+
+                }catch(e:Exception) {
+                    Toast.makeText(getApplication(), incorrectInputMsg,Toast.LENGTH_SHORT).show()
+                }
+
                 //getAllLogTable()
-                onNavigateToLog()
+
             }else Toast.makeText(getApplication(), incorrectInputMsg,Toast.LENGTH_SHORT).show()
         }
     }

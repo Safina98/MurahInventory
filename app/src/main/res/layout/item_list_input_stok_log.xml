@@ -53,8 +53,9 @@
                 android:text="@{inputStokLog.kodeWarna}"
                 android:ellipsize="end"
                 android:maxLines="1"
+                android:gravity="start"
                 app:layout_constraintStart_toEndOf="@id/txt_merk"
-                app:layout_constraintEnd_toStartOf="@id/txt_satuan"
+                app:layout_constraintEnd_toStartOf="@id/txt_isi"
                 app:layout_constraintTop_toBottomOf="@id/txt_tanggal" />
 
             <TextView
@@ -71,7 +72,7 @@
                 style="@style/rv_input_Log_big_text_style_with_bigMargin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{inputStokLog.satuan    }"
+                android:text="@{inputStokLog.satuan}"
                 app:layout_constraintEnd_toStartOf="@id/txt_pcs"
                 app:layout_constraintTop_toBottomOf="@id/txt_tanggal" />
 

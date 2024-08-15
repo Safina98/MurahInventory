@@ -334,20 +334,14 @@ class ExportImportFragment : AuthFragment() {
     }
     private fun shareDatabaseBackup(context: Context) {
         //viewModel.writingInProgress()
-
         CoroutineScope(Dispatchers.Main).launch {
             try {
                 // Perform background work
                 val zipFile = withContext(Dispatchers.IO) {
                     zipDatabaseFiles(context, "inventory_table.db")
                 }
-
                 // Update UI with the result
-                val fileUri: Uri = FileProvider.getUriForFile(
-                    context,
-                    "${context.packageName}.provider",
-                    zipFile
-                )
+                val fileUri: Uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", zipFile)
                 val shareIntent: Intent = Intent(Intent.ACTION_SEND).apply {
                     putExtra(Intent.EXTRA_STREAM, fileUri)
                     type = "application/zip"
@@ -403,9 +397,6 @@ class ExportImportFragment : AuthFragment() {
         val databasePath = context.getDatabasePath("inventory_table.db").absolutePath
         return File(databasePath)
     }
-
-
-
 
 
     fun showPopUpDialog() {
@@ -466,11 +457,6 @@ class ExportImportFragment : AuthFragment() {
     }
 
 
-
-
-
-
-
     fun loading(){
         binding.progressBar.visibility = View.VISIBLE
         binding.labelProgres.visibility = View.VISIBLE
@@ -483,6 +469,7 @@ class ExportImportFragment : AuthFragment() {
         binding.btnImportMerkNew.visibility = View.GONE
         binding.btnExportDatabase.visibility = View.GONE
         binding.btnExportMerkpdf.visibility =View.GONE
+        binding.exportStokPerMerk.visibility = View.GONE
     }
     fun loaded(){
         val userRole = SharedPreferencesHelper.getUserRole(requireContext())
@@ -494,6 +481,7 @@ class ExportImportFragment : AuthFragment() {
         binding.exportHeader.visibility = View.VISIBLE
         binding.btnExportDatabase.visibility = View.VISIBLE
         binding.btnExportMerkpdf.visibility =View.VISIBLE
+        binding.exportStokPerMerk.visibility = View.VISIBLE
        if (userRole==UserRoles.ADMIN) {
            binding.importHeader.visibility = View.VISIBLE
            binding.btnImportMerkNew.visibility = View.VISIBLE
