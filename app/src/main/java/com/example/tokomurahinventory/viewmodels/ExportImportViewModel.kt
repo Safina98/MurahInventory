@@ -486,5 +486,7 @@ class ExportImportViewModel(
         return pdfDocument.startPage(pageInfo)
     }
 
-
+    fun setIsCsvCompleteToNull(){
+        _csvWriteComplete.value=null
+    }
 }

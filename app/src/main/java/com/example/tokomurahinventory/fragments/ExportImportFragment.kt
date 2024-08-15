@@ -178,6 +178,7 @@ class ExportImportFragment : AuthFragment() {
         viewModel.writeCSV(file,code)
         viewModel.csvWriteComplete.observe(viewLifecycleOwner, Observer {
             if (it!=null){
+                Log.i("csvWriteComplete","csvWriteComplete: " +it)
                 val photoURI: Uri = FileProvider.getUriForFile(this.requireContext(), requireContext().applicationContext.packageName + ".provider",file)
                 val shareIntent: Intent = Intent().apply {
                     action = Intent.ACTION_SEND
@@ -190,6 +191,7 @@ class ExportImportFragment : AuthFragment() {
                 }catch (e : Exception){
                     Log.i("error_msg",e.toString())
                 }
+                viewModel.setIsCsvCompleteToNull()
             }
         })
     }
