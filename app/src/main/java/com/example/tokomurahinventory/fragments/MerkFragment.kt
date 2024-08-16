@@ -69,10 +69,12 @@ class MerkFragment : AuthFragment() {
        binding.lifecycleOwner = viewLifecycleOwner
         val adapter  = MerkAdapter(
             MerkClickListener {
+                clearSearchQuery()
                 viewModel.setIsWarnaClickFalse()
                 viewModel.toggleIsMerkClick()
                 viewModel.showOneMerkOld(viewModel.isMerkClick.value!!,it.refMerk)
                 if (viewModel.isMerkClick.value==true){
+                    //clearSearchQuery()
                     viewModel.setRefMerk(it.refMerk)
                    // viewModel.getWarnaByMerk(it.refMerk)
                     viewModel.getStringMerk(it.refMerk)
@@ -227,6 +229,12 @@ class MerkFragment : AuthFragment() {
         val alert = builder.create()
         alert.show()
     }
+    // Method to clear the search query
+    fun clearSearchQuery() {
+        binding.searchBarMerk.setQuery("", false)
+        binding.searchBarMerk.clearFocus()
+    }
+
 
 
     override fun onStart() {
@@ -234,4 +242,6 @@ class MerkFragment : AuthFragment() {
     viewModel.isShowOneMerk()
     //viewModel.getAllMerkTable()
     }
+
+
 }

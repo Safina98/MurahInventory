@@ -99,7 +99,7 @@ class LogViewModel (
         //getAllLogTable()
         user.value = loggedInUser
         updateDateRangeString(_selectedStartDate.value, _selectedEndDate.value)
-        setInitialStartDateAndEndDate()
+        //setInitialStartDateAndEndDate()
     }
 
 
@@ -273,18 +273,23 @@ class LogViewModel (
                         //compare old countModel with the current one for delete purpose
                         compare(updatedLog.refLog, cmList,updatedLog.namaToko) //check
                         updateLogToDao(updatedLog)
+                        updateRv4()
                         onNavigateToLog()
                     }else{
+                        _isLogLoading.value = false
                         Toast.makeText(getApplication(), incorrectInputMsg,Toast.LENGTH_SHORT).show()
                     }
 
                 }catch(e:Exception) {
+                    _isLogLoading.value = false
                     Toast.makeText(getApplication(), incorrectInputMsg,Toast.LENGTH_SHORT).show()
                 }
 
                 //getAllLogTable()
 
-            }else Toast.makeText(getApplication(), incorrectInputMsg,Toast.LENGTH_SHORT).show()
+            }else {
+                _isLogLoading.value = false
+                Toast.makeText(getApplication(), incorrectInputMsg,Toast.LENGTH_SHORT).show()}
         }
     }
     fun addLog() {
@@ -337,20 +342,30 @@ class LogViewModel (
 
                     try {
                         Log.i("InsertLogTry", "try inserting data")
-                        insertLogAndUpdateDetailWarna(newLog,barangLogs,loggedInUsers)
 
+                        if(barangLogs.isNotEmpty()) {
+                            insertLogAndUpdateDetailWarna(newLog, barangLogs, loggedInUsers)
+                            onNavigateToLog()
+                            updateRv4()
+                        }else
+                        {Toast.makeText(getApplication(), incorrectInputMsg, Toast.LENGTH_SHORT).show()
+                            _isLogLoading.value = false
+                        }
                         //yourDao.insertLogAndUpdateDetailWarna(newLog, barangLogs, loggedInUsers)
                         //getAllLogTable()
-                        onNavigateToLog()
+
                         Log.i("InsertLogTry", "Berhasil")
                     } catch (e: Exception) {
+                        _isLogLoading.value = false
                         Log.e("InsertLogTry", "Error performing transaction: ${e.message}", e)
                         Toast.makeText(getApplication(), incorrectInputMsg, Toast.LENGTH_SHORT).show()
                     }
                 } else {
+                    _isLogLoading.value = false
                     Toast.makeText(getApplication(), incorrectInputMsg, Toast.LENGTH_SHORT).show()
                 }
             } else {
+                _isLogLoading.value = false
                 Toast.makeText(getApplication(), userNullString, Toast.LENGTH_SHORT).show()
             }
         }
@@ -736,9 +751,6 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>,satuan:String){
         }
     }
 
-
-
-
         fun updateDetailWarna(newBarangLog: BarangLog,toko: String) {
             viewModelScope.launch {
                 val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
@@ -840,8 +852,10 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>,satuan:String){
 
 
     fun areAllCountModelValuesNotNull(countModelList: LiveData<List<CountModel>?>): Boolean {
+        Log.i("addLogProb", "${countModelList.value}")
         val countModelItems = countModelList.value ?: return false
         for (countModel in countModelItems) {
+            Log.i("addLogProb", "$countModel")
             if (countModel.kodeBarang == null || countModel.merkBarang == null || countModel.isi == null ||countModel.psc==0) {
                 return false
             }

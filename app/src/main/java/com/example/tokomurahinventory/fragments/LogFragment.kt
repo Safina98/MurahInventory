@@ -117,7 +117,7 @@ class LogFragment : AuthFragment(){
         viewModel.selectedStartDate.observe(viewLifecycleOwner) {
         }
         viewModel.selectedEndDate.observe(viewLifecycleOwner) {
-            viewModel.updateRv4()
+            //viewModel.updateRv4()
         }
 
         viewModel.isStartDatePickerClicked.observe(viewLifecycleOwner) {
@@ -137,16 +137,18 @@ class LogFragment : AuthFragment(){
     }
     override fun onStart() {
         super.onStart()
-        //viewModel.setInitialStartDateAndEndDate()
+        viewModel.setInitialStartDateAndEndDate()
         if (viewModel.allLog.value==null){
             viewModel.updateRv4()
         }
         binding.searchBarLog.setQuery("", false)
         //viewModel.getAllLogTable()
     }
+
     private fun showDatePickerDialog() {
         if (isDialogShowing) return
         isDialogShowing = true
+        clearSearchQuery()
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.pop_up_date_picker, null)
         val datePickerStart = dialogView.findViewById<DatePicker>(R.id.datePickerStart)
         val datePickerEnd = dialogView.findViewById<DatePicker>(R.id.datePickerEnd)
@@ -170,10 +172,10 @@ class LogFragment : AuthFragment(){
                     set(endYear, endMonth, endDay, 23, 59, 58) // Set time to end of the day
                     set(Calendar.MILLISECOND, 999)
                 }.time
-                binding.searchBarLog.setQuery("", false)
-                binding.searchBarLog.clearFocus()
+
                 viewModel.updateDateRangeString(startDate,endDate)
                 viewModel.setStartAndEndDateRange(startDate,endDate)
+                viewModel.updateRv4()
                // viewModel.setEndDateRange(endDate)
             }
             .setNegativeButton("Cancel", null)
@@ -182,5 +184,9 @@ class LogFragment : AuthFragment(){
             isDialogShowing = false
         }
         dialog.show()
+    }
+    fun clearSearchQuery() {
+        binding.searchBarLog.setQuery("", false)
+        binding.searchBarLog.clearFocus()
     }
 }

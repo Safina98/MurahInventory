@@ -394,12 +394,10 @@ class ExportImportFragment : AuthFragment() {
             Log.e("ShareError", "Error sharing database file", e)
         }
     }
-
     fun getDatabaseFile(context: Context): File {
         val databasePath = context.getDatabasePath("inventory_table.db").absolutePath
         return File(databasePath)
     }
-
 
     fun showPopUpDialog() {
         // Dismiss any existing dialog

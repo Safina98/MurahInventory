@@ -70,6 +70,7 @@ class WarnaFragment : AuthFragment() {
         val adapter = WarnaAdapter(
             WarnaClickListener {warna,position->
                // Log.i("WarnaProb", "warna table : $it")
+                clearSearchQuery()
                 if (viewModel.isWarnaClick.value==false){
                     onItemClicked(position)
                 }
@@ -77,6 +78,7 @@ class WarnaFragment : AuthFragment() {
 
                 viewModel.showOneWarna(warna.warnaRef)
                 if (viewModel.isWarnaClick.value==true){
+
                     viewModel.setRefWarna(warna.warnaRef)
                     viewModel.getStringWarna(warna.warnaRef)
                 }else{
@@ -134,10 +136,11 @@ class WarnaFragment : AuthFragment() {
             }
         }
         binding.textWarnaCrashed.setOnClickListener{
+            Log.i("showwarnaprob","txtwarna crased click listener called")
             viewModel.getWarnaByMerk(null)
         }
         viewModel.merk.observe(viewLifecycleOwner, Observer {
-
+            clearSearchQuery()
         })
 
         viewModel.allWarnaByMerk.observe(viewLifecycleOwner, Observer { newList ->
@@ -154,6 +157,7 @@ class WarnaFragment : AuthFragment() {
 
         viewModel.refMerkk.observe(viewLifecycleOwner, Observer {
            // Log.i("SplitFragmetProbs","refMerkk ${it}")
+            Log.i("showwarnaprob","refwarna change")
                 viewModel.getWarnaByMerk(it)
 
         })
@@ -249,6 +253,10 @@ class WarnaFragment : AuthFragment() {
 
         alert.show()
     }
+    fun clearSearchQuery() {
+        binding.searchBarWarna.setQuery("", false)
+        binding.searchBarWarna.clearFocus()
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -266,7 +274,7 @@ class WarnaFragment : AuthFragment() {
     override fun onResume() {
         super.onResume()
         viewModel.isShowOneWarna()
-        Log.i("FRAGMENT LIFECYCLE", "onResume called")
+        Log.i(":showwarnaprob", "onResume called")
         //viewModel.getWarnaByMerk()
     }
     fun onItemClicked(position: Int) {

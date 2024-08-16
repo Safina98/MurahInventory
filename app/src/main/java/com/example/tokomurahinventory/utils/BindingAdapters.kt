@@ -66,6 +66,24 @@ object BindingAdapters {
             }
         })
     }
+    @JvmStatic
+    @BindingAdapter("isWarnaClick", "isMerkClick")
+    fun showSearchIfMerkClick(view: View, isWarnaClick: Boolean, isMerkClick: Boolean) {
+        view.visibility = if (!isWarnaClick && isMerkClick) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+    }
+    @JvmStatic
+    @BindingAdapter("app:hideSearchIfMerkClicked")
+    fun hideSearchIfMerkClick(view: View, isWarnaClick: Boolean) {
+        view.visibility = if (isWarnaClick) {
+            View.GONE
+        } else {
+            View.VISIBLE
+        }
+    }
 
 
     @JvmStatic

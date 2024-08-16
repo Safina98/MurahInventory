@@ -184,13 +184,17 @@ class CombinedViewModel(
     fun showOneWarna(ref:String){
         val list = mutableListOf<WarnaModel>()
         if (_unFilteredWarna.value!=null) {
-            Log.i("ShowHideItem","Warna is  unfiltered not null")
+            Log.i("showwarnaprob","showonewarna")
             if (isWarnaClick.value==true){
+                Log.i("showwarnaprob","showonewarna iswarnaclick true")
                 list.addAll(_unFilteredWarna.value!!.filter {
                     it.warnaRef.lowercase(Locale.getDefault()).contains(ref)
                 })
                 _allWarnaByMerk.value = list
-            }else getWarnaByMerk(refMerkk.value) //list.addAll(_unFilteredWarna.value?: listOf())
+            }else {
+                Log.i("showwarnaprob","showonewarna iswarnaclick false")
+                getWarnaByMerk(refMerkk.value)
+            } //list.addAll(_unFilteredWarna.value?: listOf())
 
         }
     }
@@ -211,11 +215,14 @@ class CombinedViewModel(
     }
     fun isShowOneWarna(){
         viewModelScope.launch {
+            Log.i("ShowWarnaProb", "isShowOneWarna called")
             if (refMerkk.value!=null){
                 if (isWarnaClick.value==true &&refWarna.value!=null){
                     getOneWarna(refWarna.value!!)
-                    //showOneWarna( refWarna.value!!)
+                    Log.i("ShowWarnaProb", "isShowOneWarna is warna click true and ref warna not null")
+                //showOneWarna( refWarna.value!!)
                 }else
+                    Log.i("showwarnaprob","showonewarna iswarnaclick ${isWarnaClick.value} or refwarna ${refWarna.value} ")
                     getWarnaByMerk(refMerkk.value)
             }
             }
@@ -354,19 +361,22 @@ class CombinedViewModel(
             _isWarnaLoading.value = true
             _isLoadWarnaCrashed.value = false
             try {
-                if (_refMerk.value!=null){
-                    Log.i("WarnaProbs","refMerk not null")
-                    val list = withContext(Dispatchers.IO) {
-                        warnaDao.getWarnaWithTotalPcsList(_refMerk.value!!)
-                    }
-                    _allWarnaByMerk.value = list
-                    _unFilteredWarna.value = list
-                    //Log.i("WarnaProbs","allWarnaByMerk ${list}")
-                }else {
-                    Log.i("WarnaProbs","refMerk null")
-                    _allWarnaByMerk.value = listOf<WarnaModel>()
+                if (isWarnaClick.value==false){
+                    if (_refMerk.value!=null ){
+                        Log.i("showwarnaprob","getwarnaByMerkCalled")
+                        val list = withContext(Dispatchers.IO) {
+                            warnaDao.getWarnaWithTotalPcsList(_refMerk.value!!)
+                        }
+                        _allWarnaByMerk.value = list
+                        _unFilteredWarna.value = list
+                        //Log.i("WarnaProbs","allWarnaByMerk ${list}")
+                    }else {
+                        Log.i("WarnaProbs","refMerk null")
+                        _allWarnaByMerk.value = listOf<WarnaModel>()
 
+                    }
                 }
+
                 _isWarnaLoading.value = false
             }catch (e:Exception){
                 Log.i("WarnaProbs","exception:$e")
@@ -430,7 +440,7 @@ class CombinedViewModel(
                     this.user = createdBy
                 }
                 setRefWarna(warna.warnaRef)
-                Log.i("WarnaProbs","warna = ${warna}")
+                Log.i("showwarnaprob","insert warna = ${warna}")
                 try {
                     insertWarnaToDao(warna)
                     getWarnaByMerk(refMerkk.value)
@@ -452,7 +462,7 @@ class CombinedViewModel(
             try {
                 val users = SharedPreferencesHelper.getLoggedInUser(getApplication()) ?:""
                 warnaTable.lastEditedBy = users
-                Log.i("UpdateWarnaProbs"," update warna ${warnaTable}")
+                Log.i("showwarnaprob"," update warna ${warnaTable}")
                 warnaTable.warnaLastEditedDate = Date()
                 updateWarnaToDao(warnaTable.kodeWarna,warnaTable.satuan,warnaTable.lastEditedBy,warnaTable.warnaLastEditedDate,warnaTable.idWarna)
                 setRefWarna(null)
@@ -501,6 +511,7 @@ class CombinedViewModel(
         viewModelScope.launch {
             _isWarnaLoading.value = true
             deleteWarnaToDao(warnaTable.toWarnaTable())
+            Log.i("showwarnaprob","delete warna")
             getWarnaByMerk(refMerkk.value)
             setRefWarna(null)
             getStringWarna(null)

@@ -52,7 +52,8 @@ class InputStokFragment : AuthFragment() {
         val dataSourceWarna = DatabaseInventory.getInstance(application).warnaDao
         val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?: ""
         val viewModelFactory = InputStokViewModelFactory(dataSourceBarangLog,dataSourceDetailWarna,dataSourceMerk,dataSourceWarna,loggedInUser,application)
-        binding.lifecycleOwner =this
+        binding.lifecycleOwner = viewLifecycleOwner
+
         val viewModel = ViewModelProvider(this,viewModelFactory)
             .get(InputStokViewModel::class.java)
         binding.viewModel = viewModel
@@ -62,9 +63,11 @@ class InputStokFragment : AuthFragment() {
             }, InputStokLogLongListener{
 
             }, UpdateInputStokLogClickListener{
+                clearSearchQuery()
                  setupDialog(it)
                 //viewModel.updateInputStok(it)
             }, DeleteInputStokLogClickListener {
+                clearSearchQuery()
                 DialogUtils.showDeleteDialog(this, viewModel, it, { vm, item -> (vm as InputStokViewModel).deleteInputStok(item as InputStokLogModel) })
             }
         )
@@ -103,10 +106,11 @@ class InputStokFragment : AuthFragment() {
         binding.textCrashed.setOnClickListener{
             viewModel.updateRv4()
         }
-        viewModel.inputLogModel.observe(viewLifecycleOwner, Observer {
+        viewModel.inputLogModel.observe(viewLifecycleOwner, Observer {it?.let{
             adapter.submitList(it.sortedByDescending { it.barangLogInsertedDate })
             adapter.notifyDataSetChanged()
-            Log.i("dataSize","${it.size}")
+        }
+            Log.i("InputStokLogProbs","data size: ${it.size}")
         })
         binding.searchBarLog.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -119,6 +123,7 @@ class InputStokFragment : AuthFragment() {
         })
         viewModel.isStartDatePickerClicked.observe(viewLifecycleOwner) {
             if (it==true){
+                //clearSearchQuery()
                 showDatePickerDialog()
                 viewModel.onStartDatePickerClicked()
             }
@@ -126,17 +131,16 @@ class InputStokFragment : AuthFragment() {
         viewModel.selectedStartDate.observe(viewLifecycleOwner) {
             //viewModel.updateRv4()
         }
-        viewModel.selectedEndDate.observe(viewLifecycleOwner) {
-            viewModel.updateRv4()
+        viewModel.selectedEndDate.observe(this.viewLifecycleOwner) {it?.let{
+            Log.i("InputStokLogProbs", "EndDate observer $it")
+            //viewModel.updateRv4()
+            }
         }
 
         return binding.root
     }
 
-    override fun onStart() {
-        super.onStart()
-        //viewModel.getAllInputLogModel()
-    }
+
     private fun setupDialog(inputStokLogModel: InputStokLogModel?) {
         if (isDialogShowing) return
 
@@ -233,6 +237,7 @@ class InputStokFragment : AuthFragment() {
     private fun showDatePickerDialog() {
         if (isDialogShowing) return
         isDialogShowing = true
+        clearSearchQuery()
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.pop_up_date_picker, null)
         val datePickerStart = dialogView.findViewById<DatePicker>(R.id.datePickerStart)
         val datePickerEnd = dialogView.findViewById<DatePicker>(R.id.datePickerEnd)
@@ -258,6 +263,7 @@ class InputStokFragment : AuthFragment() {
                 }.time
                 viewModel.updateDateRangeString(startDate,endDate)
                 viewModel.setStartDateRange(startDate,endDate)
+                viewModel.updateRv4()
                 //viewModel.setEndDateRange(endDate)
             }
             .setNegativeButton("Cancel", null)
@@ -270,7 +276,18 @@ class InputStokFragment : AuthFragment() {
     }
     override fun onResume() {
         super.onResume()
-        Log.i("FRAGMENT LIFECYCLE", "onResume called")
+        Log.i("InputStokLogProbs", "onResume called")
+        clearSearchQuery()
+        viewModel.updateRv4()
         viewModel.setInitialStartDateAndEndDate()
+    }
+    fun clearSearchQuery() {
+        binding.searchBarLog.setQuery("", false)
+        binding.searchBarLog.clearFocus()
+    }
+    override fun onPause() {
+        super.onPause()
+        Log.i("InputStokLogProbs", "onPause called")
+       // viewModel.clearUiScope()
     }
 }

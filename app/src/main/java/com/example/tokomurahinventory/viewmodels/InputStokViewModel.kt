@@ -85,6 +85,8 @@ class InputStokViewModel (
         }.time
         _selectedStartDate.value = startDate
         _selectedEndDate.value=endDate
+        Log.i("InputStokLogProbs", "_selectedStartDate ${_selectedStartDate.value}")
+        Log.i("InputStokLogProbs", "_selectedEndDate ${_selectedEndDate.value}")
         updateDateRangeString(null,null)
     }
 
@@ -138,6 +140,9 @@ class InputStokViewModel (
     //update rv by date
     fun updateRv4(){
         uiScope.launch {
+            Log.i("InputStokLogProbs", "updateRv4 called")
+            Log.i("InputStokLogProbs", "startDate: ${selectedStartDate.value}")
+            Log.i("InputStokLogProbs", "endDate: ${selectedEndDate.value}")
             performDataFiltering(selectedStartDate.value, selectedEndDate.value)
         }
     }
@@ -147,6 +152,9 @@ class InputStokViewModel (
             _isInputLogLoading.value = true
             _isLoadCrashed.value=false
             try {
+                Log.i("InputStokLogProbs", "perform filtering called")
+                Log.i("InputStokLogProbs", "startDate: $startDate")
+                Log.i("InputStokLogProbs", "endDate: $endDate")
                 val filteredData = withContext(Dispatchers.IO) {
                     dataSourceBarangLog.getLogMasukByDateRange(
                         startDate,
@@ -171,6 +179,7 @@ class InputStokViewModel (
         uiScope.launch {
             _selectedStartDate.value = startDate
             _selectedEndDate.value = endDate
+
         }
     }
 
@@ -349,6 +358,7 @@ class InputStokViewModel (
                     detailWarnaUpdates,
                     loggedInUsers,
                 )
+                updateRv4()
 
                 //getAllInputLogModel()
             } catch (e: Exception) {
@@ -356,7 +366,7 @@ class InputStokViewModel (
                 Log.e("InsertLogTry", "Error updating detail warna: ${e.message}", e)
                 _isInputLogLoading.value = false
             }
-            updateRv4()
+
         }
     }
 
@@ -447,6 +457,10 @@ class InputStokViewModel (
     fun onStartDatePickerClicked(){ _isStartDatePickerClicked.value = false }
     override fun onCleared() {
         super.onCleared()
+        clearUiScope()
+    }
+
+    fun clearUiScope(){
         viewModelJob.cancel()
     }
 }

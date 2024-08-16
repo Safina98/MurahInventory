@@ -245,7 +245,7 @@ interface BarangLogDao {
     ) {
         // Insert the LogTable entry
         insert(logTable)
-        Log.i("dataSize", "dao trans")
+        Log.i("addLogProb", "$barangLogs")
         // Insert BarangLog entries and update detail_warna_table
         barangLogs.forEach { barangLog ->
             // Insert BarangLog

@@ -68,7 +68,7 @@ class InputLogFragment : AuthFragment() {
         val dataSourceWarna =  DatabaseInventory.getInstance(application).warnaDao
         val dataSourceDetailWarna =  DatabaseInventory.getInstance(application).detailWarnaDao
         // val viewModelFactory = LogViewModelFactory(application)
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
         val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?: ""
         viewModel = ViewModelProvider(
             requireActivity(),
@@ -90,16 +90,14 @@ class InputLogFragment : AuthFragment() {
             viewModel,
             this
         )
-
-
         binding.rvAddBarang.adapter = adapter
 
         binding.btnAddNewCountmodel.setOnClickListener {
             clearEditText()
-            val countModel = viewModel.addNewCountItemBtn()
-            setupDialog(countModel,0)
+            if (isDialogShowing==false)
+            {val countModel = viewModel.addNewCountItemBtn()
+            setupDialog(countModel,0)}
         }
-
 
         viewModel.countModelList.observe(viewLifecycleOwner) { it?.let {
             Log.i("InsertLogTry",it.toString())
@@ -115,7 +113,6 @@ class InputLogFragment : AuthFragment() {
                 viewModel.onNavigatedToLog()
             }
         })
-
 
         return binding.root
     }
@@ -260,8 +257,6 @@ class InputLogFragment : AuthFragment() {
     private fun hideLoadingIndicator() {
         progressBar.visibility = View.GONE
     }
-
-
 
 
     private fun setupDialog(inputStokLogModel: CountModel?, code: Int) {
