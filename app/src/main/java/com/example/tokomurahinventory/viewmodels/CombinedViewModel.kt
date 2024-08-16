@@ -3,7 +3,6 @@ package com.example.tokomurahinventory.viewmodels
 
 import android.annotation.SuppressLint
 import android.app.Application
-import android.content.Context
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -37,7 +36,6 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
-import kotlin.math.log
 
 class CombinedViewModel(
     val merkDao: MerkDao,
@@ -96,7 +94,8 @@ class CombinedViewModel(
     val merk :LiveData<String>get() = _merk
 
     val isMerkClick=MutableLiveData<Boolean>(false)
-    val isWarnaClick=MutableLiveData<Boolean>(false)
+    val _isWarnaClick=MutableLiveData<Boolean>(false)
+   // val isWarnaClick:LiveData<Boolean>get() = _isWarnaClick
 
     //val warna = warnaDao.selectWarnaByWarnaRef(refWarna)
     //detail warna
@@ -185,7 +184,7 @@ class CombinedViewModel(
         val list = mutableListOf<WarnaModel>()
         if (_unFilteredWarna.value!=null) {
             Log.i("showwarnaprob","showonewarna")
-            if (isWarnaClick.value==true){
+            if (_isWarnaClick.value==true){
                 Log.i("showwarnaprob","showonewarna iswarnaclick true")
                 list.addAll(_unFilteredWarna.value!!.filter {
                     it.warnaRef.lowercase(Locale.getDefault()).contains(ref)
@@ -202,10 +201,10 @@ class CombinedViewModel(
         isMerkClick.value = !(isMerkClick.value!!)
     }
     fun toggleIsWarnaClick(){
-        isWarnaClick.value = !(isWarnaClick.value!!)
+        _isWarnaClick.value = !(_isWarnaClick.value!!)
     }
     fun setIsWarnaClickFalse(){
-        isWarnaClick.value = false
+        _isWarnaClick.value = false
     }
     fun isShowOneMerk(){
         if (isMerkClick.value==true &&refMerkk.value!=null){
@@ -217,12 +216,12 @@ class CombinedViewModel(
         viewModelScope.launch {
             Log.i("ShowWarnaProb", "isShowOneWarna called")
             if (refMerkk.value!=null){
-                if (isWarnaClick.value==true &&refWarna.value!=null){
+                if (_isWarnaClick.value==true &&refWarna.value!=null){
                     getOneWarna(refWarna.value!!)
                     Log.i("ShowWarnaProb", "isShowOneWarna is warna click true and ref warna not null")
                 //showOneWarna( refWarna.value!!)
                 }else
-                    Log.i("showwarnaprob","showonewarna iswarnaclick ${isWarnaClick.value} or refwarna ${refWarna.value} ")
+                    Log.i("showwarnaprob","showonewarna iswarnaclick ${_isWarnaClick.value} or refwarna ${refWarna.value} ")
                     getWarnaByMerk(refMerkk.value)
             }
             }
@@ -279,6 +278,7 @@ class CombinedViewModel(
                     this.merkLastEditedDate = Date()
                     this.refMerk = UUID.randomUUID().toString()
                     this.user = loggedInUsers
+                    isMerkClick.value=false
                     insertMerkToDao(this)
                     setRefMerk(null)
                     getStringMerk(null)
@@ -301,6 +301,7 @@ class CombinedViewModel(
             merkTable.lastEditedBy = SharedPreferencesHelper.getLoggedInUser(getApplication())
             merkTable.merkLastEditedDate = Date()
             updateMerkToDao(merkTable)
+            isMerkClick.value=false
             getAllMerkTable()
             setRefMerk(null)
             getStringMerk(null)
@@ -315,6 +316,7 @@ class CombinedViewModel(
             _isLoading.value = true
             deleteMerkToDao(merkTable)
             getAllMerkTable()
+            isMerkClick.value=false
             setRefMerk(null)
             getStringMerk(null)
             setRefWarna(null)
@@ -361,7 +363,7 @@ class CombinedViewModel(
             _isWarnaLoading.value = true
             _isLoadWarnaCrashed.value = false
             try {
-                if (isWarnaClick.value==false){
+                if (_isWarnaClick.value==false){
                     if (_refMerk.value!=null ){
                         Log.i("showwarnaprob","getwarnaByMerkCalled")
                         val list = withContext(Dispatchers.IO) {
@@ -410,7 +412,7 @@ class CombinedViewModel(
     }
 
     fun filterWarna(query: String?) {
-        if (isWarnaClick.value!=true &&isMerkClick.value==true){
+        if (_isWarnaClick.value!=true &&isMerkClick.value==true){
             val list = mutableListOf<WarnaModel>()
             if (!query.isNullOrEmpty()) {
                 list.addAll(_unFilteredWarna.value!!.filter {
@@ -443,6 +445,7 @@ class CombinedViewModel(
                 Log.i("showwarnaprob","insert warna = ${warna}")
                 try {
                     insertWarnaToDao(warna)
+                    _isWarnaClick.value=false
                     getWarnaByMerk(refMerkk.value)
                     setRefWarna(null)
                     getStringWarna(null)
@@ -465,9 +468,15 @@ class CombinedViewModel(
                 Log.i("showwarnaprob"," update warna ${warnaTable}")
                 warnaTable.warnaLastEditedDate = Date()
                 updateWarnaToDao(warnaTable.kodeWarna,warnaTable.satuan,warnaTable.lastEditedBy,warnaTable.warnaLastEditedDate,warnaTable.idWarna)
-                setRefWarna(null)
-                getStringWarna(null)
-                getWarnaByMerk(refMerkk.value)
+                //setRefWarna(null)
+                if (_isWarnaClick.value==true)
+                    getStringWarna(warnaTable.warnaRef)
+                else{
+                    setRefWarna(null)
+                    getStringWarna(null)
+                }
+                isShowOneWarna()
+            //getWarnaByMerk(refMerkk.value)
             }catch (e:Exception){
                 Toast.makeText(getApplication(),"Gagal Mengubah data, coba lagi",Toast.LENGTH_SHORT).show()
                 Log.i("UpdateWarnaProbs"," error${e}}")
@@ -511,6 +520,7 @@ class CombinedViewModel(
         viewModelScope.launch {
             _isWarnaLoading.value = true
             deleteWarnaToDao(warnaTable.toWarnaTable())
+            _isWarnaClick.value=false
             Log.i("showwarnaprob","delete warna")
             getWarnaByMerk(refMerkk.value)
             setRefWarna(null)

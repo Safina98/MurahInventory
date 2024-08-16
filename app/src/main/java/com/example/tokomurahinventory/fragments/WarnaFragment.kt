@@ -71,13 +71,13 @@ class WarnaFragment : AuthFragment() {
             WarnaClickListener {warna,position->
                // Log.i("WarnaProb", "warna table : $it")
                 clearSearchQuery()
-                if (viewModel.isWarnaClick.value==false){
+                if (viewModel._isWarnaClick.value==false){
                     onItemClicked(position)
                 }
                 viewModel.toggleIsWarnaClick()
 
                 viewModel.showOneWarna(warna.warnaRef)
-                if (viewModel.isWarnaClick.value==true){
+                if (viewModel._isWarnaClick.value==true){
 
                     viewModel.setRefWarna(warna.warnaRef)
                     viewModel.getStringWarna(warna.warnaRef)
@@ -100,6 +100,7 @@ class WarnaFragment : AuthFragment() {
                 DialogUtils.showDeleteDialog(this, viewModel, it, { vm, item -> (vm as CombinedViewModel).deleteWarna(item as WarnaModel) })
             }
         )
+
 
 
         binding.rvWarna.adapter = adapter

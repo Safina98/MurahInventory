@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             app:queryHint="Search here..."
             app:iconifiedByDefault="false"
-            app:isWarnaClick="@{viewModel.isWarnaClick}"
+            app:isWarnaClick="@{viewModel._isWarnaClick}"
             app:isMerkClick="@{viewModel.isMerkClick}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
