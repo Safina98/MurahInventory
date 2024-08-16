@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tokomurahinventory.databinding.ItemListWarnaBinding
 import com.example.tokomurahinventory.models.model.WarnaModel
+import java.util.Locale
 
 
 class WarnaAdapter (private val warnaClickListener: WarnaClickListener,
@@ -23,6 +24,7 @@ class WarnaAdapter (private val warnaClickListener: WarnaClickListener,
             binding.updateClickListemer = updateWarnaClickListener
             binding.deleteClickListener = deleteWarnaClickListener
             binding.longClickListener = longListener
+            binding.textViewSatuan.text = String.format(Locale.US,"%.2f", item.satuanTotal)
             binding.executePendingBindings()
         }
 

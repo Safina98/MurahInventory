@@ -31,6 +31,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -220,9 +222,10 @@ class CombinedViewModel(
                     getOneWarna(refWarna.value!!)
                     Log.i("ShowWarnaProb", "isShowOneWarna is warna click true and ref warna not null")
                 //showOneWarna( refWarna.value!!)
-                }else
+                }else{
                     Log.i("showwarnaprob","showonewarna iswarnaclick ${_isWarnaClick.value} or refwarna ${refWarna.value} ")
                     getWarnaByMerk(refMerkk.value)
+                }
             }
             }
     }
@@ -598,11 +601,13 @@ class CombinedViewModel(
                     if (refMerk__!=null){
                         detailWarnaTable.warnaRef = _refWarna.value!!
                         detailWarnaTable.detailWarnaLastEditedDate = Date()
-                        detailWarnaTable.detailWarnaIsi = isi
+                        val roundedValue = BigDecimal(isi).setScale(2, RoundingMode.HALF_EVEN).toDouble()
+                        detailWarnaTable.detailWarnaIsi = roundedValue
                         detailWarnaTable.detailWarnaPcs = pcs
                         detailWarnaTable.detailWarnaKet = ket
                         detailWarnaTable.lastEditedBy = loggedInUsers
                         detailWarnaTable.user = loggedInUsers
+
                         val detailWarnaTable1 = checkIfIsiExisted(isi, _refWarna.value!!)
                         if (detailWarnaTable1 != null) {
                             detailWarnaTable.detailWarnaRef = detailWarnaTable1.detailWarnaRef

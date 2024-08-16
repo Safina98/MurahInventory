@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tokomurahinventory.databinding.ItemListDetailWarnaBinding
 import com.example.tokomurahinventory.models.model.DetailWarnaModel
-
+import java.util.Locale
 
 
 class DetailWarnaAdapter(
@@ -24,6 +24,7 @@ class DetailWarnaAdapter(
             binding.updateClickListemer = updateDetailWarnaClickListener
             binding.deleteClickListemer = deleteDetailWarnaClickListener
             binding.longClickLisntener =longListener
+            binding.textView4.text = String.format(Locale.US,"%.2f", item.detailWarnaIsi)
             //binding.clickListener = clickListener
             binding.executePendingBindings()
         }

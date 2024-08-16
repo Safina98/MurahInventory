@@ -38,7 +38,6 @@ interface WarnaDao {
     @Query("SELECT kodeWarna FROM warna_table WHERE refMerk = :refMerk")
     fun selectStringWarnaByMerk(refMerk:String):List<String>
 
-
     @Query("SELECT kodeWarna FROM warna_table WHERE warnaRef = :refWarna")
     fun selectWarnaByWarnaRef(refWarna:String):LiveData<String>
 
@@ -56,8 +55,6 @@ interface WarnaDao {
 
     @Query("SELECT EXISTS(SELECT 1 FROM warna_table WHERE kodeWarna = :kodeWarna AND refMerk=:refMerk)")
     suspend fun isDataExists(kodeWarna: String, refMerk: String): Boolean
-
-
 
     @Query("""
     SELECT 
@@ -139,8 +136,6 @@ interface WarnaDao {
         lastEditedDate:Date,
         warnaId:Int
     )
-
-
 }
 
 
