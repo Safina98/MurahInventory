@@ -19,8 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/big_margin"
             android:text="@{viewModel.warna}"
-            android:layout_marginBottom="@dimen/enormous_margin"
-            android:textSize="@dimen/fragment_title_text"
+            style="@style/warna_detail_header"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -51,6 +50,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_margin="@dimen/small_margin"
+            android:layout_marginTop="@dimen/big_margin"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

@@ -279,6 +279,7 @@ class CombinedViewModel(
                     this.refMerk = UUID.randomUUID().toString()
                     this.user = loggedInUsers
                     isMerkClick.value=false
+                    _isWarnaClick.value=false
                     insertMerkToDao(this)
                     setRefMerk(null)
                     getStringMerk(null)
@@ -302,6 +303,7 @@ class CombinedViewModel(
             merkTable.merkLastEditedDate = Date()
             updateMerkToDao(merkTable)
             isMerkClick.value=false
+            _isWarnaClick.value=false
             getAllMerkTable()
             setRefMerk(null)
             getStringMerk(null)
@@ -317,6 +319,7 @@ class CombinedViewModel(
             deleteMerkToDao(merkTable)
             getAllMerkTable()
             isMerkClick.value=false
+            _isWarnaClick.value=false
             setRefMerk(null)
             getStringMerk(null)
             setRefWarna(null)
