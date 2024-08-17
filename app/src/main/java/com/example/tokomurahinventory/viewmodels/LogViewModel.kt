@@ -240,6 +240,8 @@ class LogViewModel (
     fun updateLog(){
         viewModelScope.launch {
             _isLogLoading.value = true
+            //created by itu barang masuk
+            //lastedited by itu barang keluar
 
             val s = getStringS()
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())

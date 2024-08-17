@@ -10,7 +10,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.BarangLogDao
-import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.database.DetailWarnaDao
 import com.example.tokomurahinventory.database.LogDao
 import com.example.tokomurahinventory.database.MerkDao
@@ -19,7 +18,6 @@ import com.example.tokomurahinventory.models.BarangLog
 import com.example.tokomurahinventory.models.DetailWarnaTable
 import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.models.MerkTable
-import com.example.tokomurahinventory.models.UsersTable
 import com.example.tokomurahinventory.models.model.WarnaModel
 import com.example.tokomurahinventory.models.WarnaTable
 import com.example.tokomurahinventory.models.model.DetailWarnaModel
@@ -49,10 +47,6 @@ class CombinedViewModel(
     val dataSourceLog: LogDao,
     application: Application
 ) : BaseAndroidViewModel(application) {
-
-
-    private var viewModelJob = Job()
-    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     // Merk related
     private var _allMerkTable = MutableLiveData<List<MerkTable>>()
@@ -370,7 +364,6 @@ class CombinedViewModel(
                         _unFilteredWarna.value = list
                         //Log.i("WarnaProbs","allWarnaByMerk ${list}")
                     }else {
-                        Log.i("WarnaProbs","refMerk null")
                         _allWarnaByMerk.value = listOf<WarnaModel>()
 
                     }
@@ -392,19 +385,16 @@ class CombinedViewModel(
                 else ""
             }
             _warna.value = warna
-            Log.i("SplitFragmetProbs","warna ${warna}")
         }
     }
     fun getStringMerk(refMerk:String?){
         viewModelScope.launch {
-
             val merk = withContext(Dispatchers.IO){
                 if (refMerk!=null){
                     merkDao.getMerkNameByRef(refMerk)
             }else ""
             }
             _merk.value = merk
-            Log.i("ShowHideItem","getStringMerk ${merk}")
         }
     }
 
@@ -420,14 +410,11 @@ class CombinedViewModel(
             }
             _allWarnaByMerk.value = list
         }
-
     }
 
     fun insertWarna(kodeWarna: String, satuan: String) {
         viewModelScope.launch {
             _isWarnaLoading.value = true
-            Log.i("WarnaProbs","InserWarna called")
-            Log.i("WarnaProbs","refMerkk = ${refMerkk.value}")
             if (refMerkk.value!=null){
                 val warna = WarnaTable().apply {
                     this.refMerk = refMerkk.value!!
@@ -497,16 +484,6 @@ class CombinedViewModel(
             warnaLastEditedDate = Date()
         )
     }
-    private suspend fun getMerkByMerkRef(ref:String):String{
-        return withContext(Dispatchers.IO){
-            merkDao.getMerkNameByRef(ref)
-        }
-    }
-    private suspend fun getWarnabuRef(ref:String):String{
-        return withContext(Dispatchers.IO){
-            warnaDao.getKodeWarnaByRef(ref)
-        }
-    }
 
 
     fun deleteWarna(warnaTable: WarnaModel) {
@@ -564,17 +541,11 @@ class CombinedViewModel(
     @SuppressLint("NullSafeMutableLiveData")
     fun onNavigatetedToWarna(){ navigateToWarnaM.value = null }
 
-    private fun constructYesterdayDate(): Date? {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_YEAR, -2)
-        val date = calendar.time
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return date
-    }
-
     fun insertDetailWarna(pcs: Int, isi: Double) {
         viewModelScope.launch {
             _isDetailWarnaLoading.value=true
+            //created by itu  barang masuk,
+            //last editedbu itu barang keluar
             val detailWarnaTable = DetailWarnaTable()
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             val ket = "Barang masuk sebanyak $pcs"
@@ -590,20 +561,17 @@ class CombinedViewModel(
                         detailWarnaTable.detailWarnaIsi = roundedValue
                         detailWarnaTable.detailWarnaPcs = pcs
                         detailWarnaTable.detailWarnaKet = ket
-                        detailWarnaTable.lastEditedBy = loggedInUsers
                         detailWarnaTable.user = loggedInUsers
-
+                        detailWarnaTable.createdBy = detailWarnaTable.createdBy
                         val detailWarnaTable1 = checkIfIsiExisted(isi, _refWarna.value!!)
                         if (detailWarnaTable1 != null) {
                             detailWarnaTable.detailWarnaRef = detailWarnaTable1.detailWarnaRef
-                            detailWarnaTable.createdBy = detailWarnaTable1.createdBy
                             detailWarnaTable.detailWarnaDate = detailWarnaTable1.detailWarnaDate
                             val log = createLog(detailWarnaTable)
                             val barangLog = createBarangLog(detailWarnaTable,log,refMerk__,detailWarnaTable.detailWarnaRef)
                             updateDetailWarnaAndInsertBarangLogAndLog(detailWarnaTable.warnaRef,detailWarnaTable.detailWarnaIsi,detailWarnaTable.detailWarnaPcs,detailWarnaTable.lastEditedBy,detailWarnaTable.detailWarnaLastEditedDate,log,barangLog,ket)
                         } else {
                             detailWarnaTable.detailWarnaRef = UUID.randomUUID().toString()
-                            detailWarnaTable.createdBy = loggedInUsers
                             detailWarnaTable.detailWarnaDate = Date()
                             val log = createLog(detailWarnaTable)
                             val barangLog = createBarangLog(detailWarnaTable,log,refMerk__,detailWarnaTable.detailWarnaRef)
@@ -626,11 +594,12 @@ class CombinedViewModel(
 
     fun deleteDetailWarna(detailWarnaModel: DetailWarnaModel){
         viewModelScope.launch {
-            deleteDetailWarna(detailWarnaModel.detailWarnaIsi,detailWarnaModel.warnaRef)
-            getDetailWarnaByWarnaRef(refWarna.value!!)
-            //getWarnaByMerk(refMerkk.value)
-            isShowOneWarna()
-
+            if (detailWarnaModel.detailWarnaPcs<=1){
+                deleteDetailWarna(detailWarnaModel.detailWarnaIsi,detailWarnaModel.warnaRef)
+                getDetailWarnaByWarnaRef(refWarna.value!!)
+                //getWarnaByMerk(refMerkk.value)
+                isShowOneWarna()
+            }
         }
     }
 
@@ -691,9 +660,8 @@ class CombinedViewModel(
         }
     }
 
-    private suspend fun getMerkRef():String?{
+    private suspend fun getMerkRef():String{
         return withContext(Dispatchers.IO){
-
             warnaDao.getMerkRefByWarnaRef(_refWarna.value!!)
         }
     }
