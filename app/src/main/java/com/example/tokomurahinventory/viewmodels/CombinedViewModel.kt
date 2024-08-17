@@ -49,8 +49,7 @@ class CombinedViewModel(
     val dataSourceLog: LogDao,
     application: Application
 ) : BaseAndroidViewModel(application) {
-    //TODO delete
-    val userDao = DatabaseInventory.getInstance(application).usersDao
+
 
     private var viewModelJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
@@ -78,11 +77,9 @@ class CombinedViewModel(
 
     private val _unFilteredWarna = MutableLiveData<List<WarnaModel>>()
 
-
     //Add detail warna fab
     private val _addDetailWarnaFab = MutableLiveData<Boolean>()
     val addDetailWarnaFab: LiveData<Boolean> get() = _addDetailWarnaFab
-
 
     val _refMerk = MutableLiveData<String>()
     val refMerkk :LiveData<String> get() = _refMerk
@@ -97,14 +94,11 @@ class CombinedViewModel(
 
     val isMerkClick=MutableLiveData<Boolean>(false)
     val _isWarnaClick=MutableLiveData<Boolean>(false)
-   // val isWarnaClick:LiveData<Boolean>get() = _isWarnaClick
 
-    //val warna = warnaDao.selectWarnaByWarnaRef(refWarna)
     //detail warna
     //val detailWarnaList = dataSourceDetailWarna.selectDetailWarnaByWarnaIdGroupByIsi(refWarna)
     val _detailWarnaList = MutableLiveData<List<DetailWarnaModel>>()
     val detailWarnaList :LiveData<List<DetailWarnaModel>> get() = _detailWarnaList
-    //val detailWarnaList = dataSourceDetailWarna.getDetailWarnaSummary(refWarna)
 
     val _orientationMode = MutableLiveData<Int>()
     val orientationMode:LiveData<Int> get() =  _orientationMode
@@ -126,10 +120,6 @@ class CombinedViewModel(
 
 
     init {
-
-        if (_refMerk.value != null) {
-            //getWarnaByMerk(_refMerk.value)
-        }
         getAllMerkTable()
     }
 
@@ -150,7 +140,7 @@ class CombinedViewModel(
             _isDetailWarnaLoading.value = true
             _isLoadDetailWarnaCrashed.value = false
             try {
-                val  list = withContext(Dispatchers.IO){
+                val list = withContext(Dispatchers.IO){
                     if (warnaRef!=null)dataSourceDetailWarna.getDetailWarnaSummaryList(warnaRef)
                     else listOf<DetailWarnaModel>()
                 }
@@ -179,9 +169,9 @@ class CombinedViewModel(
             }
             _isLoading.value=false
             _allMerkTable.value = list
-
         }
     }
+
     fun showOneWarna(ref:String){
         val list = mutableListOf<WarnaModel>()
         if (_unFilteredWarna.value!=null) {
@@ -199,6 +189,7 @@ class CombinedViewModel(
 
         }
     }
+
     fun toggleIsMerkClick(){
         isMerkClick.value = !(isMerkClick.value!!)
     }
@@ -516,11 +507,7 @@ class CombinedViewModel(
             warnaDao.getKodeWarnaByRef(ref)
         }
     }
-    private suspend fun getUserByUserName(ref:String):UsersTable?{
-        return withContext(Dispatchers.IO){
-            userDao.getUserByUsername(ref)
-        }
-    }
+
 
     fun deleteWarna(warnaTable: WarnaModel) {
         viewModelScope.launch {
@@ -590,8 +577,6 @@ class CombinedViewModel(
             _isDetailWarnaLoading.value=true
             val detailWarnaTable = DetailWarnaTable()
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
-
-
             val ket = "Barang masuk sebanyak $pcs"
             Log.i("InsertDetailWarnaProbs","logged in user ${loggedInUsers}")
             if (loggedInUsers != null) {
@@ -635,6 +620,16 @@ class CombinedViewModel(
             }else{
                 Toast.makeText(getApplication(), userNullString, Toast.LENGTH_SHORT).show()
             }
+
+        }
+    }
+
+    fun deleteDetailWarna(detailWarnaModel: DetailWarnaModel){
+        viewModelScope.launch {
+            deleteDetailWarna(detailWarnaModel.detailWarnaIsi,detailWarnaModel.warnaRef)
+            getDetailWarnaByWarnaRef(refWarna.value!!)
+            //getWarnaByMerk(refMerkk.value)
+            isShowOneWarna()
 
         }
     }
@@ -689,6 +684,11 @@ class CombinedViewModel(
             dataSourceBarangLog.insertDetailWarnaAndLogAndBarangLogFromDetailWarna(detailWarnaTable,logTable,barangLog)
         }
 
+    }
+    private suspend fun deleteDetailWarna(isi:Double,warnaRef: String){
+        withContext(Dispatchers.IO){
+            dataSourceDetailWarna.deleteAnItemDetailWarna(isi,warnaRef)
+        }
     }
 
     private suspend fun getMerkRef():String?{

@@ -63,7 +63,6 @@
                 style="@style/rv_input_Log_big_text_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{String.valueOf(inputStokLog.isi)}"
                 app:layout_constraintEnd_toStartOf="@id/txt_satuan"
                 app:layout_constraintTop_toBottomOf="@id/txt_tanggal" />
 

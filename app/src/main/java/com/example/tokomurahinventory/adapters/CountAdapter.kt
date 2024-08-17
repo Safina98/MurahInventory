@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.tokomurahinventory.databinding.ItemListBarangLogNewBinding
 import com.example.tokomurahinventory.models.CountModel
 import com.example.tokomurahinventory.viewmodels.LogViewModel
+import java.util.Locale
 
 class CountAdapter(
     private val clickListener: AddNetClickListener,
@@ -46,6 +47,7 @@ class CountAdapter(
             binding.position = position
             binding.viewModel = viewModel
             binding.lifecycleOwner = lifecycleOwner
+            binding.inputIsi.text= String.format(Locale.US,"%.2f", item.isi)
             binding.executePendingBindings()
         }
 

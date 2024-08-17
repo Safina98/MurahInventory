@@ -22,8 +22,8 @@ class DetailWarnaAdapter(
         fun bind(item: DetailWarnaModel, clickListener: DetailWarnaClickListener, longListener: DetailWarnaLongListener,updateDetailWarnaClickListener: UpdateDetailWarnaClickListener,deleteDetailWarnaClickListener: DeleteDetailWarnaClickListener) {
             binding.detailWarna = item
             binding.updateClickListemer = updateDetailWarnaClickListener
-            binding.deleteClickListemer = deleteDetailWarnaClickListener
-            binding.longClickLisntener =longListener
+            binding.deleteClickListener = deleteDetailWarnaClickListener
+            binding.longClickListener =longListener
             binding.textView4.text = String.format(Locale.US,"%.2f", item.detailWarnaIsi)
             //binding.clickListener = clickListener
             binding.executePendingBindings()

@@ -32,6 +32,7 @@ class InputStokLogAdapter(
             binding.deleteListener= deleteInputStokLogClickListener
             binding.longListener = longListener
             binding.txtTanggal.text = formattedDate
+            binding.txtIsi.text=String.format(Locale.US,"%.2f", item.isi)
             binding.executePendingBindings()
         }
 

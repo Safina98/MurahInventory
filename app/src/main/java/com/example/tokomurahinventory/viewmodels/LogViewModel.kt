@@ -880,7 +880,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>,satuan:String){
         var s =""
         if (countModelList.value!=null){
             for (i in countModelList.value!!){
-                s = s+"${i.merkBarang} kode ${i.kodeBarang};  isi ${i.isi} ${i.satuan}; ${i.psc} pcs\n"
+                s = s+"${i.merkBarang} kode ${i.kodeBarang};  isi ${String.format(Locale.US,"%.2f", i.isi)} ${i.satuan}; ${i.psc} pcs\n"
             }
         }
         return s

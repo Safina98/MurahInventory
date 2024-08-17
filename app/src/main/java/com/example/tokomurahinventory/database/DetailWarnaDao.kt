@@ -22,8 +22,8 @@ interface DetailWarnaDao {
     @Update
     fun update(detailWarnaTable: DetailWarnaTable)
 
-    @Query("DELETE FROM detail_warna_table WHERE id=:id")
-    fun deleteAnItemDetailWarna(id:Int)
+    @Query("DELETE FROM detail_warna_table WHERE detailWarnaIsi=:isi AND warnaRef=:warnaRef")
+    fun deleteAnItemDetailWarna(isi:Double,warnaRef: String)
 
     @Query("DELETE FROM detail_warna_table WHERE warnaRef = :warnaRef and detailWarnaIsi =:isi")
     fun deteteDetailWarnaByIsi(warnaRef: String,isi: Double)

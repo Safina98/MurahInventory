@@ -65,7 +65,7 @@ class DetailWarnaFragment : AuthFragment() {
             }, UpdateDetailWarnaClickListener {
                 showAddDetailWarnaDialog(viewModel,it,-1)
             }, DeleteDetailWarnaClickListener {
-                DialogUtils.showDeleteDialog(this, viewModel, it, { vm, item -> (vm as DetailWarnaViewModel).deleteDetailWarna(item as DetailWarnaModel) })
+                DialogUtils.showDeleteDialog(this, viewModel, it, { vm, item -> (vm as CombinedViewModel).deleteDetailWarna(item as DetailWarnaModel) })
             }
         )
         binding.rvDetailWarna.adapter = adapter

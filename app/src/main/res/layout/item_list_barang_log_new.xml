@@ -8,8 +8,7 @@
             type="com.example.tokomurahinventory.models.CountModel" />
         <variable
             name="viewModel"
-            type="com.example.tokomurahinventory.viewmodels.LogViewModel"
-            />
+            type="com.example.tokomurahinventory.viewmodels.LogViewModel" />
         <variable
             name="clickListener"
             type="com.example.tokomurahinventory.adapters.AddNetClickListener" />
@@ -64,7 +63,6 @@
             android:layout_width="60dp"
             style="@style/txt_item_log_style"
             android:onClick="@{() -> isiistener.onAddNetClick(item, position)}"
-            app:textOrIsi="@{item.isi}"
             />
         <TextView
             android:id="@+id/input_pcs"
@@ -82,6 +80,5 @@
             android:layout_height="wrap_content"
             android:onClick="@{()->delteListener.onDeleteNetClick(item,position)}"
             android:background="@drawable/baseline_delete_forever_24" />
-
     </LinearLayout>
 </layout>
