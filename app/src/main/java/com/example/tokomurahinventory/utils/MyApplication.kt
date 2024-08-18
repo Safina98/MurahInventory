@@ -13,16 +13,23 @@ class MyApplication : Application() {
         super.onCreate()
 
         // Initialize WorkManager
+        //WorkManager.initialize(this, WorkManagerInitializer.getConfiguration(this))
+        scheduleOneTimeUpdateLastEditedDetailWarna()
+        // Schedule the one-time worker to update detail warna
+        scheduleOneTimeUpdateDetailWarna()
 
-
-        // Schedule the periodic cleanup
-       // schedulePeriodicCleanup()
-        //scheduleOneTimeCleanup()
         schedulePeriodicCleanup()
     }
-    private fun scheduleOneTimeCleanup() {
-        val workRequest = OneTimeWorkRequestBuilder<CleanupWorker>()
-            .setInitialDelay(1, TimeUnit.MINUTES) // Delay to start after 5 minutes
+    private fun scheduleOneTimeUpdateDetailWarna() {
+        val workRequest = OneTimeWorkRequestBuilder<UpdateDetailWarnaWorker>()
+            .setInitialDelay(1, TimeUnit.MINUTES) // Adjust the delay as needed
+            .build()
+        WorkManager.getInstance(this)
+            .enqueue(workRequest)
+    }
+    private fun scheduleOneTimeUpdateLastEditedDetailWarna() {
+        val workRequest = OneTimeWorkRequestBuilder<UpdateLastEditedWorker>()
+            .setInitialDelay(5, TimeUnit.SECONDS) // Adjust the delay as needed
             .build()
         WorkManager.getInstance(this)
             .enqueue(workRequest)

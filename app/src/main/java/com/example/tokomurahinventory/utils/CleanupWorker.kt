@@ -2,11 +2,13 @@ package com.example.tokomurahinventory.utils
 
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.viewModelScope
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory.database.LogDao
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.util.Calendar
@@ -50,4 +52,6 @@ class CleanupWorker(
         // Obtain your DAO instance from the database
         return DatabaseInventory.getInstance(applicationContext).logDao
     }
+
+
 }

@@ -65,6 +65,8 @@ interface DetailWarnaDao {
             d.lastEditedBy,
             d.detailWarnaDate,
             d.detailWarnaLastEditedDate,
+            d.dateIn,
+            d.dateOut,
             d.user,
             SUM(d.detailWarnaPcs) as detailWarnaPcs,
             d.detailWarnaKet as detailWarnaKet
@@ -89,8 +91,13 @@ interface DetailWarnaDao {
         WHERE warnaRef = :refWarna 
         AND detailWarnaIsi = :detailWarnaIsi
     """)
-    fun updateDetailWarnaA(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,lastEditedBy:String,lastEditedDate:Date): Int
+    fun updateDetailWarnaA(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,lastEditedBy:String,lastEditedDate:Date?): Int
 
+    @Query("UPDATE detail_warna_table SET dateOut=:outDate WHERE detailWarnaRef=:detailWarnaRef")
+    fun updateOutDateDetailWarna(detailWarnaRef:String?, outDate:Date?):Int
+
+    @Query("UPDATE detail_warna_table SET lastEditedBy=:name WHERE detailWarnaRef=:detailWarnaRef")
+    fun updateLastEditedByDetailWarna(detailWarnaRef:String?, name:String?):Int
 
     @Query("SELECT * FROM detail_warna_table WHERE detailWarnaIsi = :isi AND detailWarnaRef = :detailWarnaRef")
     fun getDetailWarnaByIsiAndRef(isi: Double, detailWarnaRef: String): List<DetailWarnaTable>
@@ -160,7 +167,9 @@ interface DetailWarnaDao {
             d.createdBy AS detailWarnaCreatedBy,
             d.lastEditedBy AS detailWarnaLastEditedBy,
             d.detailWarnaRef,
-            d.detailWarnaKet AS a
+            d.detailWarnaKet AS a,
+            d.dateIn,
+            d.dateOut
         FROM detail_warna_table AS d
         JOIN warna_table AS w ON d.warnaRef = w.warnaRef
         JOIN merk_table AS m ON w.refMerk = m.refMerk

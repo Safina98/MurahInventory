@@ -50,3 +50,12 @@ fun formatDateToString(date: Date):String{
         return sdf.format(dateToDisplay)
 
 }
+fun formatDateToStringNullable(date: Date?):String{
+
+    val sdf = SimpleDateFormat(FULL_DATE_FORMAT, Locale.getDefault())
+
+    return if (date!=null) sdf.format(date) else {
+        "-"
+    }
+
+}

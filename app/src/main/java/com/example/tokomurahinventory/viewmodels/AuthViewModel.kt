@@ -59,6 +59,16 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    fun getAdminPassword(username: String, context: Context, callback: (String?) -> Unit) {
+        viewModelScope.launch {
+            val userDao = DatabaseInventory.getInstance(context).usersDao
+            val password = withContext(Dispatchers.IO) {
+                userDao.getPassword(username)
+            }
+            callback(password)
+        }
+    }
+
 
 
 

@@ -18,7 +18,7 @@ import com.example.tokomurahinventory.models.WarnaTable
 import java.util.concurrent.Executors
 
 
-@Database(entities = [MerkTable::class,WarnaTable::class,DetailWarnaTable::class,UsersTable::class,LogTable::class,BarangLog::class],version=1, exportSchema = true)
+@Database(entities = [MerkTable::class,WarnaTable::class,DetailWarnaTable::class,UsersTable::class,LogTable::class,BarangLog::class],version=2, exportSchema = true)
 @TypeConverters(Converters::class)
 abstract class DatabaseInventory: RoomDatabase()  {
     abstract val merkDao :MerkDao
@@ -41,7 +41,7 @@ abstract class DatabaseInventory: RoomDatabase()  {
                         "inventory_table.db"
                     )
                         .addCallback(DatabaseCallback())
-                        .fallbackToDestructiveMigration()
+                        .addMigrations(Migrations.MIGRATION_1_2)
                         .setQueryExecutor(Executors.newSingleThreadExecutor())
                         .setTransactionExecutor(Executors.newSingleThreadExecutor())
                         .build()

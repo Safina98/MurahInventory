@@ -1,6 +1,7 @@
 package com.example.tokomurahinventory
 
 
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Bundle
@@ -12,6 +13,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -31,6 +33,7 @@ import com.example.tokomurahinventory.utils.AppLifecycleObserver
 import com.example.tokomurahinventory.utils.CleanupWorker
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.AuthViewModel
+import org.w3c.dom.Text
 import java.util.concurrent.TimeUnit
 
 
@@ -132,6 +135,7 @@ class MainActivity : AppCompatActivity() {
             .setView(dialogView)
             .setCancelable(false)
             .create()
+
         btnLogin.setOnClickListener {
             val username = etUsername.text.toString().lowercase().trim()
             val password = etPassword.text.toString().trim()
@@ -155,8 +159,6 @@ class MainActivity : AppCompatActivity() {
 
         dialog!!.show()
     }
-
-
 
 
     override fun onResume() {

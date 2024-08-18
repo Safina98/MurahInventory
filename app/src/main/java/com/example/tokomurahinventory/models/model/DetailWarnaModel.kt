@@ -12,6 +12,8 @@ data class DetailWarnaModel(
     var user:String?,
     var detailWarnaDate:Date,
     var detailWarnaLastEditedDate: Date,
-    var detailWarnaKet:String?=""
+    var detailWarnaKet:String?="",
+    var dateIn:Date?=null,
+    var dateOut:Date?=null
 )
 

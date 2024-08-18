@@ -544,8 +544,6 @@ class CombinedViewModel(
     fun insertDetailWarna(pcs: Int, isi: Double) {
         viewModelScope.launch {
             _isDetailWarnaLoading.value=true
-            //created by itu  barang masuk,
-            //last editedbu itu barang keluar
             val detailWarnaTable = DetailWarnaTable()
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             val ket = "Barang masuk sebanyak $pcs"
@@ -561,17 +559,21 @@ class CombinedViewModel(
                         detailWarnaTable.detailWarnaIsi = roundedValue
                         detailWarnaTable.detailWarnaPcs = pcs
                         detailWarnaTable.detailWarnaKet = ket
+                        detailWarnaTable.lastEditedBy = loggedInUsers
+                        detailWarnaTable.dateIn=Date()
                         detailWarnaTable.user = loggedInUsers
-                        detailWarnaTable.createdBy = detailWarnaTable.createdBy
+
                         val detailWarnaTable1 = checkIfIsiExisted(isi, _refWarna.value!!)
                         if (detailWarnaTable1 != null) {
                             detailWarnaTable.detailWarnaRef = detailWarnaTable1.detailWarnaRef
+                            detailWarnaTable.createdBy = detailWarnaTable1.createdBy
                             detailWarnaTable.detailWarnaDate = detailWarnaTable1.detailWarnaDate
                             val log = createLog(detailWarnaTable)
                             val barangLog = createBarangLog(detailWarnaTable,log,refMerk__,detailWarnaTable.detailWarnaRef)
                             updateDetailWarnaAndInsertBarangLogAndLog(detailWarnaTable.warnaRef,detailWarnaTable.detailWarnaIsi,detailWarnaTable.detailWarnaPcs,detailWarnaTable.lastEditedBy,detailWarnaTable.detailWarnaLastEditedDate,log,barangLog,ket)
                         } else {
                             detailWarnaTable.detailWarnaRef = UUID.randomUUID().toString()
+                            detailWarnaTable.createdBy = loggedInUsers
                             detailWarnaTable.detailWarnaDate = Date()
                             val log = createLog(detailWarnaTable)
                             val barangLog = createBarangLog(detailWarnaTable,log,refMerk__,detailWarnaTable.detailWarnaRef)
@@ -637,7 +639,8 @@ class CombinedViewModel(
         lastEditedDate: Date,
         logTable: LogTable,
         barangLog: BarangLog,
-        ket:String
+        ket:String,
+
     ) {
         withContext(Dispatchers.IO){
             dataSourceBarangLog.performUpdateDetailWarnaAndInsertLogAndBarangLogFromDetailWarna(refWarna, detailWarnaIsi, detailWarnaPcs, lastEditedBy, lastEditedDate, logTable, barangLog,ket)

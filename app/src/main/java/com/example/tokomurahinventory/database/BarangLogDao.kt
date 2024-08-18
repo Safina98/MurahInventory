@@ -13,6 +13,7 @@ import com.example.tokomurahinventory.models.CountModel
 import com.example.tokomurahinventory.models.DetailWarnaTable
 import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.models.model.InputStokLogModel
+import com.example.tokomurahinventory.utils.MASUKKELUAR
 import java.util.Date
 import kotlin.math.log
 
@@ -143,6 +144,11 @@ interface BarangLogDao {
     fun updateDetailWarna(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,loggedInUsers:String?,lastEditedDate: Date): Int
     @Query(" UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs-:detailWarnaPcs,lastEditedBy =:loggedInUsers,detailWarnaLastEditedDate=:lastEditedDate,detailWarnaKet=:ket WHERE warnaRef = :refWarna AND detailWarnaIsi = :detailWarnaIsi")
     fun updateDetailWarnaWithKet(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,loggedInUsers:String?,lastEditedDate: Date,ket:String): Int
+    @Query(" UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs-:detailWarnaPcs,lastEditedBy =:loggedInUsers,detailWarnaLastEditedDate=:lastEditedDate,detailWarnaKet=:ket,dateOut =:lastEditedDate WHERE warnaRef = :refWarna AND detailWarnaIsi = :detailWarnaIsi")
+    fun updateDetailWarnaWithKetDateOut(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,loggedInUsers:String?,lastEditedDate: Date,ket:String): Int
+    @Query(" UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs-:detailWarnaPcs,lastEditedBy =:loggedInUsers,detailWarnaLastEditedDate=:lastEditedDate,detailWarnaKet=:ket,dateIn =:lastEditedDate WHERE warnaRef = :refWarna AND detailWarnaIsi = :detailWarnaIsi")
+    fun updateDetailWarnaWithKetDateIn(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,loggedInUsers:String?,lastEditedDate: Date,ket:String): Int
+
     @Insert
     fun insert(detailWarnaTable: DetailWarnaTable)
     @Insert
@@ -152,11 +158,12 @@ interface BarangLogDao {
         SET detailWarnaPcs = detailWarnaPcs + :detailWarnaPcs, 
             lastEditedBy = :lastEditedBy, 
             detailWarnaLastEditedDate = :lastEditedDate ,
-            detailWarnaKet=:ket
+            detailWarnaKet=:ket,
+            dateIn=:lastEditedDate
         WHERE warnaRef = :refWarna 
         AND detailWarnaIsi = :detailWarnaIsi
     """)
-    fun updateDetailWarnaA(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,lastEditedBy:String?,lastEditedDate:Date,ket:String): Int
+    fun updateDetailWarnaA(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,lastEditedBy:String?,lastEditedDate:Date?,ket:String): Int
 
 
     @Transaction
@@ -166,7 +173,8 @@ interface BarangLogDao {
         detailWarnaPcs: Int,
         loggedInUsers: String?,
         id: Int,
-        detailWarnaKet:String
+        detailWarnaKet:String,
+        tipe:String
     ) {
         // Retrieve the current pcs value for the given refWarna and detailWarnaIsi
         val currentPcs = getCurrentDetailWarnaPcs(refWarna, detailWarnaIsi)
@@ -178,7 +186,12 @@ interface BarangLogDao {
         if (newPcs >= 0) {
             // Perform the update
            // updateDetailWarna(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers, Date())
-            updateDetailWarnaWithKet(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers, Date(),detailWarnaKet)
+            if (tipe==MASUKKELUAR.KELUAR){
+                updateDetailWarnaWithKetDateOut(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers, Date(),detailWarnaKet)
+            }else{
+                updateDetailWarnaWithKetDateIn(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers, Date(),detailWarnaKet)
+            }
+
             // Perform the delete operation
             delete(id)
         } else {
@@ -199,7 +212,8 @@ interface BarangLogDao {
         refLog: String,
         barangLogRef: String,
         detailWarnaUpdates: List<DetailWarnaTable>,
-        loggedInUsers: String?
+        loggedInUsers: String?,
+        tipe: String
     ) {
         Log.e("InsertLogTry", "4 BarangLogDate ${barangLogDate}")
         updateLastEditedLog(loggedInUsers,Date(),loggedInUsers?:"",refLog)
@@ -211,7 +225,12 @@ interface BarangLogDao {
             val newPcs = currentPcs - update.detailWarnaPcs
 
             if (newPcs >= 0) {
-                updateDetailWarnaWithKet(update.warnaRef, update.detailWarnaIsi, update.detailWarnaPcs, loggedInUsers, Date(),update.detailWarnaKet?:"")
+                //updateDetailWarnaWithKet(update.warnaRef, update.detailWarnaIsi, update.detailWarnaPcs, loggedInUsers, Date(),update.detailWarnaKet?:"")
+                if (tipe==MASUKKELUAR.KELUAR){
+                    updateDetailWarnaWithKetDateOut(update.warnaRef, update.detailWarnaIsi, update.detailWarnaPcs, loggedInUsers, Date(),update.detailWarnaKet?:"")
+                }else{
+                    updateDetailWarnaWithKetDateIn(update.warnaRef, update.detailWarnaIsi, update.detailWarnaPcs, loggedInUsers, Date(),update.detailWarnaKet?:"")
+                }
             } else {
                 // Log the error and throw an exception to roll back the transaction
                 Log.e("InsertLogTry", "Update failed: Negative pcs value detected for warnaRef ${update.warnaRef} and detailWarnaIsi ${update.detailWarnaIsi}")
@@ -233,7 +252,7 @@ interface BarangLogDao {
         val barangLogId = insert(barangLog)
 
         // Update one entry in detail_warna_table
-        updateDetailWarnaWithKet(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers,Date(),ket)
+        updateDetailWarnaWithKetDateOut(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers,Date(),ket)
     }
 
     @Transaction
@@ -252,7 +271,7 @@ interface BarangLogDao {
             insert(barangLog)
             val ket =  "Barang keluar sebanyak ${barangLog.pcs} pcs untuk ${logTable.namaToko}"
             // Update detail_warna_table
-           val a= updateDetailWarnaWithKet(
+           val a= updateDetailWarnaWithKetDateOut(
                 barangLog.warnaRef,
                 barangLog.isi,
                 barangLog.pcs,
@@ -299,7 +318,7 @@ interface BarangLogDao {
         detailWarnaIsi: Double,
         detailWarnaPcs: Int,
         lastEditedBy: String?,
-        lastEditedDate: Date,
+        lastEditedDate: Date?,
         log: LogTable,
         barangLog: BarangLog,
         ket: String

@@ -23,14 +23,17 @@ interface UsersDao {
     @Query("DELETE FROM users_table WHERE id=:id")
     fun deleteAnItemUser(id:Int)
 
-    @Query("SELECT * FROM users_table")
+    @Query("SELECT * FROM users_table WHERE userName!='default'")
     fun selectAllUsers():LiveData<List<UsersTable>>
 
-    @Query("SELECT * FROM users_table")
+    @Query("SELECT * FROM users_table WHERE userName!='default'")
     fun selectAllUsersList():List<UsersTable>
 
     @Query("SELECT COUNT(*) FROM users_table WHERE userName = :userName AND password = :password")
     fun getUser(userName: String, password: String): Int
+
+    @Query("SELECT password FROM users_table WHERE userName = :userName")
+    fun getPassword(userName: String): String
 
     @Query("SELECT COUNT(*) FROM users_table")
     fun getUserCount(): Int

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="180dp"
+    android:layout_height="200dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
@@ -25,7 +25,7 @@
         android:id="@+id/labelCreatedBy"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Di Input oleh:"
+        android:text="Pengguna:"
         style="@style/txt_item_log_style"
         app:layout_constraintTop_toBottomOf="@id/labelCreatedDate"
         app:layout_constraintStart_toStartOf="parent"
@@ -60,7 +60,7 @@
         android:id="@+id/labelLastEditedBy"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Terakhir diubah oleh: "
+        android:text="Pengguna: "
         style="@style/txt_item_log_style"
         app:layout_constraintTop_toBottomOf="@id/labelLastEditedDate"
         app:layout_constraintStart_toStartOf="parent"
@@ -73,6 +73,23 @@
         app:layout_constraintTop_toBottomOf="@id/labelLastEditedDate"
         app:layout_constraintStart_toEndOf="@id/labelLastEditedBy"
         />
+    <TextView
+        android:id="@+id/labelLastEditedDateOld"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Terakhir diubah pada: "
+        style="@style/txt_item_log_style"
+        app:layout_constraintTop_toBottomOf="@id/labelLastEditedBy"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+    <TextView
+        android:id="@+id/textLastEditedDateOld"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/txt_item_log_style"
+        app:layout_constraintTop_toBottomOf="@id/labelLastEditedBy"
+        app:layout_constraintStart_toEndOf="@id/labelLastEditedDate"
+        />
 
     <TextView
         android:id="@+id/labelKet"
@@ -80,7 +97,7 @@
         android:layout_height="wrap_content"
         android:text="Keterangan: "
         style="@style/txt_item_log_style"
-        app:layout_constraintTop_toBottomOf="@id/labelLastEditedBy"
+        app:layout_constraintTop_toBottomOf="@id/labelLastEditedDateOld"
         app:layout_constraintStart_toStartOf="parent"
         />
     <TextView

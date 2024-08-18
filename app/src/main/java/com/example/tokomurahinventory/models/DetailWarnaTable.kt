@@ -70,5 +70,9 @@ data class DetailWarnaTable(
     @ColumnInfo(name = "detailWarnaBool")
     var detailWarnaBool:Boolean?=false,
     @ColumnInfo(name = "detailWarnaDouble")
-    var detailWarnaDouble:String?=""
+    var detailWarnaDouble:String?="",
+    @ColumnInfo(name = "dateIn")
+    var dateIn: Date? = null,
+    @ColumnInfo(name = "dateOut")
+    var dateOut: Date? = null
 )

@@ -960,7 +960,8 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>,satuan:String){
                 refLog,
                 barangLogRef,
                 detailWarnaUpdates,
-                loggedInUsers
+                loggedInUsers,
+                MASUKKELUAR.KELUAR
             )
 
         }
@@ -987,7 +988,7 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>,satuan:String){
     private suspend fun updateDetailAndDeleteBarangLogToDao(refWarna:String, detailWarnaIsi:Double, detailWarnaPcs:Int, loggedInUsers:String?, id:Int,detailWarnaKet:String){
         withContext(Dispatchers.IO){
             try {
-                dataSourceBarangLog.updateDetailAndDeleteBarangLog(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers, id,detailWarnaKet)
+                dataSourceBarangLog.updateDetailAndDeleteBarangLog(refWarna, detailWarnaIsi, detailWarnaPcs, loggedInUsers, id,detailWarnaKet,MASUKKELUAR.KELUAR)
             } catch (e: Exception) {
                 Log.i("INSERTLOGTRY","updateDetailDeleteLog failed")
                 Log.i("INSERTLOGTRY","$e")

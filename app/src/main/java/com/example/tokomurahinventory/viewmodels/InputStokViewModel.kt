@@ -401,7 +401,7 @@ class InputStokViewModel (
                                                                  detailWarnaKet:String){
         withContext(Dispatchers.IO){
             //dataSourceBarangLog.delete(barangLogId)
-            dataSourceBarangLog.updateDetailAndDeleteBarangLog(refWarna,detailWarnaIsi,detailWarnaPcs,loggedInUsers,id,detailWarnaKet)
+            dataSourceBarangLog.updateDetailAndDeleteBarangLog(refWarna,detailWarnaIsi,detailWarnaPcs,loggedInUsers,id,detailWarnaKet,MASUKKELUAR.MASUK)
         }
     }
 
@@ -448,7 +448,8 @@ class InputStokViewModel (
                 refLog,
                 barangLogRef,
                 detailWarnaUpdates,
-                loggedInUsers
+                loggedInUsers,
+                MASUKKELUAR.MASUK
             )
         }
     }

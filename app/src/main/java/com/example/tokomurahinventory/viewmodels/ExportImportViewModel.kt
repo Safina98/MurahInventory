@@ -28,7 +28,9 @@ import com.example.tokomurahinventory.models.WarnaTable
 import com.example.tokomurahinventory.models.model.CombinedDataModel
 import com.example.tokomurahinventory.models.model.CombinedLogData
 import com.example.tokomurahinventory.utils.DataGenerator
+import com.example.tokomurahinventory.utils.MASUKKELUAR
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
+import com.example.tokomurahinventory.utils.formatDateToStringNullable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -37,6 +39,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.FileWriter
 import java.io.IOException
+import java.lang.reflect.WildcardType
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -146,7 +149,7 @@ class ExportImportViewModel(
     }
     private suspend fun insertCSVN(tokens: List<String>) {
          Log.i("INSERTCSVPROB","size: ${tokens.size}")
-        if (tokens.size == 29) {
+        if (tokens.size == 31) {
             importMerk(tokens)
         }else if (tokens.size ==5) {
             importUsers(tokens)
@@ -281,6 +284,8 @@ class ExportImportViewModel(
             warnaRef = tokens[13].trim()
             detailWarnaRef = tokens[27]
             detailWarnaKet=tokens[28]
+            dateIn=if (tokens[29]=="-"||tokens[29]==null) {null} else parseDate(tokens[29])
+            dateIn=if (tokens[30]=="-"||tokens[30]==null) {null} else parseDate(tokens[30])
         }
 
         dataSourceMerk.insertMerkTable(merkTable)
@@ -313,7 +318,7 @@ class ExportImportViewModel(
                         val content = when (code.uppercase()) {
                             "MERK" -> {
                                 val merkData = data as CombinedDataModel
-                                "${escapeCSVField(merkData.merkId.toString())}, ${escapeCSVField(merkData.namaMerk)}, ${escapeCSVField(merkData.refMerk)}, ${escapeCSVField(formatDate(merkData.merkCreatedDate))}, ${escapeCSVField(formatDate(merkData.merkLastEditedDate))}, ${escapeCSVField(merkData.merkUser)},${escapeCSVField(merkData.merkCreatedBy?:"")}, ${escapeCSVField(merkData.merkLastEditedBy?:"")}, ${escapeCSVField(merkData.warnaId.toString())}, ${escapeCSVField(merkData.kodeWarna)}, ${escapeCSVField(merkData.totalPcs.toString())}, ${escapeCSVField(merkData.satuanTotal.toString())}, ${escapeCSVField(merkData.satuan)}, ${escapeCSVField(merkData.warnaRef)}, ${escapeCSVField(formatDate(merkData.warnaCreatedDate))}, ${escapeCSVField(formatDate(merkData.warnaLastEditedDate))},${escapeCSVField(merkData.warnaUser)}, ${escapeCSVField(merkData.warnaCreatedBy?:"")}, ${escapeCSVField(merkData.warnaLastEditedBy?:"")}, ${escapeCSVField(merkData.detailWarnaId.toString())}, ${escapeCSVField(merkData.detailWarnaIsi.toString())}, ${escapeCSVField(merkData.detailWarnaPcs.toString())}, ${escapeCSVField(formatDate(merkData.detailWarnaDate))}, ${escapeCSVField(formatDate(merkData.detailWarnaLastEditedDate))}, ${escapeCSVField(merkData.detailWarnaUser)},${escapeCSVField(merkData.detailWarnaCreatedBy?:"")}, ${escapeCSVField(merkData.detailWarnaLastEditedBy?:"")},${escapeCSVField(merkData.detailWarnaRef?:"")},${escapeCSVField(merkData.a?:"")}"
+                                "${escapeCSVField(merkData.merkId.toString())}, ${escapeCSVField(merkData.namaMerk)}, ${escapeCSVField(merkData.refMerk)}, ${escapeCSVField(formatDate(merkData.merkCreatedDate)?:"")}, ${escapeCSVField(formatDate(merkData.merkLastEditedDate)?:"")}, ${escapeCSVField(merkData.merkUser)},${escapeCSVField(merkData.merkCreatedBy?:"")}, ${escapeCSVField(merkData.merkLastEditedBy?:"")}, ${escapeCSVField(merkData.warnaId.toString())}, ${escapeCSVField(merkData.kodeWarna)}, ${escapeCSVField(merkData.totalPcs.toString())}, ${escapeCSVField(merkData.satuanTotal.toString())}, ${escapeCSVField(merkData.satuan)}, ${escapeCSVField(merkData.warnaRef)}, ${escapeCSVField(formatDate(merkData.warnaCreatedDate)?:"")}, ${escapeCSVField(formatDate(merkData.warnaLastEditedDate)?:"")},${escapeCSVField(merkData.warnaUser)}, ${escapeCSVField(merkData.warnaCreatedBy?:"")}, ${escapeCSVField(merkData.warnaLastEditedBy?:"")}, ${escapeCSVField(merkData.detailWarnaId.toString())}, ${escapeCSVField(merkData.detailWarnaIsi.toString())}, ${escapeCSVField(merkData.detailWarnaPcs.toString())}, ${escapeCSVField(formatDate(merkData.detailWarnaDate)?:"")}, ${escapeCSVField(formatDate(merkData.detailWarnaLastEditedDate)?:"")}, ${escapeCSVField(merkData.detailWarnaUser)},${escapeCSVField(merkData.detailWarnaCreatedBy?:"")}, ${escapeCSVField(merkData.detailWarnaLastEditedBy?:"")},${escapeCSVField(merkData.detailWarnaRef?:"")},${escapeCSVField(merkData.a?:"")},${escapeCSVField(formatDate(merkData.dateIn))},${escapeCSVField(formatDate(merkData.dateOut))}"
                             }
                             "LOG" -> {
                                 val logData = data as CombinedLogData
@@ -346,12 +351,12 @@ class ExportImportViewModel(
             _csvWriteComplete.postValue(Unit)  // Notify observers
         }
     }
-    fun escapeCSVField(field: String): String {
-        return field.replace("\"", "\"\"").replace("\r\n", " ").replace("\n", " ").replace("\r", " ").replace(","," ")
+    fun escapeCSVField(field: String?): String? {
+        return field?.replace("\"", "\"\"")?.replace("\r\n", " ")?.replace("\n", " ")?.replace("\r", " ")?.replace(","," ")
     }
-    fun formatDate(date: Date): String {
+    fun formatDate(date: Date?): String? {
         val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale("in", "ID"))
-        return formatter.format(date)
+        return if (date!=null) formatter.format(date) else null
     }
 
     fun getMerkHeader(code:String):String{
@@ -363,7 +368,6 @@ class ExportImportViewModel(
             else ->""
         }
     }
-
 
     fun exportDataToCSV(context: Context, merks: List<MerkTable>, warnas: List<WarnaTable>, detailWarnas: List<DetailWarnaTable>): File {
         val csvDir = File(context.getExternalFilesDir(null), "csv_exports")
@@ -489,4 +493,6 @@ class ExportImportViewModel(
     fun setIsCsvCompleteToNull(){
         _csvWriteComplete.value=null
     }
+
+
 }

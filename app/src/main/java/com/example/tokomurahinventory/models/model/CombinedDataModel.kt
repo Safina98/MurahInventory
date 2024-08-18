@@ -31,5 +31,7 @@ data class CombinedDataModel(
     val detailWarnaCreatedBy: String?="",
     val detailWarnaLastEditedBy: String?="",
     val detailWarnaRef:String,
-    val a:String?=""
+    val a:String?="",
+    val dateOut:Date?=null,
+    val dateIn:Date?=null
 )
