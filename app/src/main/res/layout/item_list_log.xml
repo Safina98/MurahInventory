@@ -48,6 +48,14 @@
                 app:layout_constraintEnd_toStartOf="@id/btn_delete_net"
                 app:layout_constraintTop_toTopOf="parent"
                 app:showIfAdmin="@{true}" />
+            <TextView
+                android:id="@+id/txtTipe"
+                style="@style/txt_item_log_style"
+                android:text="@{log.logTipe}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/txtDate"
@@ -55,7 +63,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@id/txtTipe" />
 
             <TextView
                 android:id="@+id/label_pembeli"

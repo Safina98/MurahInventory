@@ -42,6 +42,8 @@ interface BarangLogDao {
     @Query("SELECT detailWarnaPcs FROM detail_warna_table WHERE warnaRef = :warnaRef AND detailWarnaIsi = :detailWarnaIsi")
     suspend fun getCurrentDetailWarnaPcs(warnaRef: String, detailWarnaIsi: Double): Int
 
+    @Query("SELECT * FROM barang_log WHERE detailWarnaRef = :detailWarnaRef")
+    fun selectBarangLogByLogDetailWarnaRef(detailWarnaRef:String): List<BarangLog>
 
     @Query("SELECT * FROM barang_log")
     fun selectAllLog(): LiveData<List<BarangLog>>

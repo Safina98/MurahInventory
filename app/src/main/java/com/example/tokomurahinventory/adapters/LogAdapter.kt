@@ -15,15 +15,19 @@ class LogAdapter(
     private val logClickListener: LogClickListener,
     private val logLongListener: LogLongListener,
     private val logDeleteListener: LogDeleteListener,
+    private val isTipeVisible:Boolean
 ) : ListAdapter<LogTable, LogAdapter.MyViewHolder>(LogStockDiffCallback()) {
 
     class MyViewHolder private constructor(val binding: ItemListLogBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: LogTable, clickListener: LogClickListener, longListener: LogLongListener, logDeleteListener: LogDeleteListener) {
+        fun bind(item: LogTable, clickListener: LogClickListener, longListener: LogLongListener, logDeleteListener: LogDeleteListener,isTipeVisible: Boolean) {
             binding.log = item
-            val formattedDate = DATE_FORMAT.format(item.logCreatedDate)
+            val formattedDate = DATE_FORMAT.format(item.logLastEditedDate)
             binding.txtDate.text = formattedDate
             binding.clickListemer = clickListener
             binding.deleteListener = logDeleteListener
+            if (!isTipeVisible){
+                binding.txtTipe.visibility=View.GONE
+            }
             binding.executePendingBindings()
         }
 
@@ -41,7 +45,7 @@ class LogAdapter(
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        holder.bind(getItem(position), logClickListener, logLongListener,logDeleteListener)
+        holder.bind(getItem(position), logClickListener, logLongListener,logDeleteListener,isTipeVisible)
     }
 }
 

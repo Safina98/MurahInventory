@@ -75,5 +75,9 @@
             app:popUpTo="@id/logFragment"
             app:popUpToInclusive="true" />
     </fragment>
+    <fragment
+        android:id="@+id/allTransactionFragment"
+        android:name="com.example.tokomurahinventory.fragments.AllTransactionFragment"
+        android:label="Semua Log" />
 
 </navigation>

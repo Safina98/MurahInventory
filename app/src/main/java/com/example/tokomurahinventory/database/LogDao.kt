@@ -35,6 +35,9 @@ interface LogDao {
     @Query("SELECT * FROM LOG_TABLE WHERE logTipe =:tipe AND (:startDate IS NULL OR logDate >= :startDate) AND (:endDate IS NULL OR logDate <= :endDate) ")
     fun selectAllLogList(tipe:String,startDate: Date?, endDate: Date?):List<LogTable>
 
+
+
+
     @Query("DELETE FROM log_table WHERE id =:id")
     fun delete(id:Int)
 

@@ -562,20 +562,22 @@ class CombinedViewModel(
                         detailWarnaTable.lastEditedBy = loggedInUsers
                         detailWarnaTable.dateIn=Date()
                         detailWarnaTable.user = loggedInUsers
+                        val satuan = detailWarnaList.value?.get(0)?.satuan
+                        val stringMerk= getStringS(merk.value!!,warna.value!!,roundedValue,satuan,pcs)
 
-                        val detailWarnaTable1 = checkIfIsiExisted(isi, _refWarna.value!!)
+                        val detailWarnaTable1 = checkIfIsiExisted(roundedValue, _refWarna.value!!)
                         if (detailWarnaTable1 != null) {
                             detailWarnaTable.detailWarnaRef = detailWarnaTable1.detailWarnaRef
                             detailWarnaTable.createdBy = detailWarnaTable1.createdBy
                             detailWarnaTable.detailWarnaDate = detailWarnaTable1.detailWarnaDate
-                            val log = createLog(detailWarnaTable)
+                            val log = createLog(detailWarnaTable,stringMerk)
                             val barangLog = createBarangLog(detailWarnaTable,log,refMerk__,detailWarnaTable.detailWarnaRef)
                             updateDetailWarnaAndInsertBarangLogAndLog(detailWarnaTable.warnaRef,detailWarnaTable.detailWarnaIsi,detailWarnaTable.detailWarnaPcs,detailWarnaTable.lastEditedBy,detailWarnaTable.detailWarnaLastEditedDate,log,barangLog,ket)
                         } else {
                             detailWarnaTable.detailWarnaRef = UUID.randomUUID().toString()
                             detailWarnaTable.createdBy = loggedInUsers
                             detailWarnaTable.detailWarnaDate = Date()
-                            val log = createLog(detailWarnaTable)
+                            val log = createLog(detailWarnaTable,stringMerk)
                             val barangLog = createBarangLog(detailWarnaTable,log,refMerk__,detailWarnaTable.detailWarnaRef)
                             insertDetailWarnaAndBarangLogAndLog(detailWarnaTable,log,barangLog)
                         }
@@ -605,7 +607,7 @@ class CombinedViewModel(
         }
     }
 
-    fun createLog(detailWarnaTable: DetailWarnaTable):LogTable{
+    fun createLog(detailWarnaTable: DetailWarnaTable,stringMerk:String):LogTable{
         val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
         return  LogTable().apply {
             refLog = UUID.randomUUID().toString()
@@ -615,9 +617,17 @@ class CombinedViewModel(
             userName = loggedInUsers
             logCreatedDate = Date()
             logLastEditedDate = Date()
+            merk =stringMerk
 
         }
     }
+
+    fun getStringS(merk:String?,kodeWarna:String?,isi: Double?,satuan: String?,pcs: Int?):String{
+        var s ="${merk} kode ${kodeWarna};  isi ${String.format(Locale.US,"%.2f",isi)} ${satuan}; ${pcs} pcs\n"
+        return s
+    }
+
+
     fun createBarangLog(detailWarnaTable: DetailWarnaTable,log:LogTable,refMerk_: String,detailWarmaRef: String):BarangLog{
         return BarangLog().apply {
             refLog = log.refLog

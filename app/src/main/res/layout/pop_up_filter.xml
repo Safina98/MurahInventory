@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_satu"
+            android:hint="merk"
+            android:padding="@dimen/small_margin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <AutoCompleteTextView
+                android:id="@+id/txt_merk"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_margin="@dimen/small_margin"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_dua"
+            android:hint="kode warna"
+            android:padding="@dimen/small_margin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <AutoCompleteTextView
+                android:id="@+id/txt_warna"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_margin="@dimen/small_margin"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_tiga"
+            android:hint="isi"
+            android:padding="@dimen/small_margin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <AutoCompleteTextView
+                android:id="@+id/txt_isi"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_margin="@dimen/small_margin"
+                android:inputType="numberDecimal" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
+</layout>

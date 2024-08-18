@@ -31,6 +31,13 @@ interface DetailWarnaDao {
     @Query("SELECT * from detail_warna_table WHERE warnaRef =:warnaRef GROUP BY detailWarnaIsi")
     fun selectDetailWarnaByWarnaIdGroupByIsi(warnaRef:String):LiveData<List<DetailWarnaTable>>
 
+    @Query("""
+        SELECT * 
+        FROM detail_warna_table
+        WHERE warnaRef = :warnaRef
+        AND (:isi IS NULL OR detailWarnaIsi = :isi)
+    """)
+    fun getDetailWarnaListByWarnaRefAndIsi(warnaRef: String, isi: Double?): List<DetailWarnaTable>
 
     @Query("""SELECT * FROM detail_warna_table WHERE detailWarnaRef = :detailWarnaRef""")
     fun getDetailWarnaByDetailWarnaRef(detailWarnaRef: String):DetailWarnaTable

@@ -18,6 +18,11 @@
         android:id="@+id/inputStokFragment"
         android:icon="@drawable/baseline_storage_24"
         android:title="Log Barang Masuk" />
+
+    <item
+        android:id="@+id/allTransactionFragment"
+        android:icon="@drawable/baseline_storage_24"
+        android:title="Semua Log" />
     <item
         android:id="@+id/exportImportFragment"
         android:icon="@drawable/baseline_import_export_24"

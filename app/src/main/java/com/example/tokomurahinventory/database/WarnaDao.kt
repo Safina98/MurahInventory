@@ -50,6 +50,9 @@ interface WarnaDao {
     @Query("SELECT kodeWarna FROM warna_table WHERE warnaRef = :warnaRef")
     fun getKodeWarnaByRef(warnaRef:String):String
 
+    @Query("SELECT * FROM warna_table WHERE warnaRef = :warnaRef")
+    fun getWarnaTableByRef(warnaRef:String):WarnaTable
+
     @Query("SELECT satuan FROM warna_table WHERE warnaRef = :warnaRef")
     fun getSatuanWarnaByRef(warnaRef:String):String
 
