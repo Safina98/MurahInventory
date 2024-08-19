@@ -27,6 +27,9 @@ class LogAdapter(
             binding.deleteListener = logDeleteListener
             if (!isTipeVisible){
                 binding.txtTipe.visibility=View.GONE
+            }else{
+                binding.imgUpdate.visibility=View.GONE
+                binding.btnDeleteNet.visibility=View.GONE
             }
             binding.executePendingBindings()
         }

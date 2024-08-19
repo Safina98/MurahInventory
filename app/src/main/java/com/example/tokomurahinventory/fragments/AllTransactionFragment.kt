@@ -91,13 +91,10 @@ class AllTransactionFragment : Fragment() {
             adapter.submitList(it)
             adapter.notifyDataSetChanged()
             Log.i("AllTransProbs", "Data size: ${it.size}")
-
-            //adapter.submitList(it)
-            //adapter.notifyDataSetChanged()
-            //Log.i("AllTransProbs","${it.size}")
         }}
 
         binding.btnFilter.setOnClickListener {
+            clearSearchQuery()
             setupDialog(null,1)
         }
         viewModel.isLogLoading.observe(viewLifecycleOwner) { isLoading ->
@@ -275,39 +272,7 @@ class AllTransactionFragment : Fragment() {
                 val selectedItem = tipeSpinner.selectedItem.toString()
                 viewModel. updateRv(namaMerk,kodeWarna,isi,selectedItem)
                 dialog.dismiss()
-                /*
-                if (inputStokLogModel != null) {
-                    val namaMerk = autoCompleteMerk.text.toString().trim()
-                    val kodeWarna = autoCompleteWarna.text.toString().trim()
-                    val isi = autoCompleteIsi.text.toString().trim().toDoubleOrNull()
-                    //val pcs = etPcs.text.toString().trim().toIntOrNull()
-                    if (namaMerk.isNotEmpty() && kodeWarna.isNotEmpty() && isi != null && pcs != null) {
-                        inputStokLogModel.merkBarang = namaMerk
-                        inputStokLogModel.kodeBarang = kodeWarna
-                        inputStokLogModel.isi = isi
-                        inputStokLogModel.psc = pcs
 
-                        viewModel.updateCountModel(inputStokLogModel, oldCountModel!!) { status ->
-                            when (status) {
-                                UpdateStatus.SUCCESS -> {
-                                    Toast.makeText(requireContext(), succsessMsg, Toast.LENGTH_SHORT).show()
-                                    dialog.dismiss() // Dismiss the dialog after updating
-                                }
-                                UpdateStatus.MERK_NOT_PRESENT -> Toast.makeText(requireContext(), "Merk $dataNotFoundMsgD", Toast.LENGTH_SHORT).show()
-                                UpdateStatus.WARNA_NOT_PRESENT -> Toast.makeText(requireContext(), "Warna $dataNotFoundMsgD", Toast.LENGTH_SHORT).show()
-                                UpdateStatus.ISI_NOT_PRESENT -> Toast.makeText(requireContext(), "Isi $dataNotFoundMsgD", Toast.LENGTH_SHORT).show()
-                                UpdateStatus.PCS_NOT_READY_IN_STOCK -> Toast.makeText(requireContext(), stokTidakCukup, Toast.LENGTH_SHORT).show()
-                                else -> {
-                                    Toast.makeText(requireContext(), incorrectInputMsg, Toast.LENGTH_SHORT).show()
-                                    // Optionally, you can log the status here if needed
-                                }
-                            }
-                        }
-                    } else {
-                        Toast.makeText(context, "Gagal mengubah data ", Toast.LENGTH_SHORT).show()
-                    }
-                }
-                 */
             }
         }
 
@@ -353,6 +318,14 @@ class AllTransactionFragment : Fragment() {
         }
         dialog.show()
     }
+    fun clearSearchQuery() {
+        binding.searchBarLog.setQuery("", false)
+        binding.searchBarLog.clearFocus()
+    }
 
+    override fun onStart() {
+        super.onStart()
+        clearSearchQuery()
+    }
 
 }

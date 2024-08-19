@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private val authViewModel: AuthViewModel by viewModels()
     private var dialog: AlertDialog? = null
+    private var isInputUNShowing: Boolean = false
     private lateinit var appLifecycleObserver: AppLifecycleObserver
     private var originalOrientation: Int = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -130,6 +131,10 @@ class MainActivity : AppCompatActivity() {
         val etPassword = dialogView.findViewById<EditText>(R.id.etPassword)
         val btnLogin = dialogView.findViewById<Button>(R.id.btnLogin)
         val spinner = dialogView.findViewById<Spinner>(R.id.spinner_role)
+        val txtForgetPassword = dialogView.findViewById<TextView>(R.id.txt_forget_password)
+        txtForgetPassword.setOnClickListener {
+            showPopUpInputUserName()
+        }
         spinner.visibility = View.GONE
         dialog = AlertDialog.Builder(this)
             .setView(dialogView)
@@ -160,6 +165,70 @@ class MainActivity : AppCompatActivity() {
         dialog!!.show()
     }
 
+    fun showPopUpInputUserName() {
+        if (isFinishing || isDestroyed || isInputUNShowing) {
+            Log.d("AppDebug", "Activity is finishing or destroyed, or dialog is already showing. Not showing login dialog.")
+            return
+        }
+        isInputUNShowing = true
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.pop_up_autocomplete_textview, null)
+        val usernameEt = dialogView.findViewById<TextView>(R.id.autocomplete_text)
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setTitle("Enter Username")
+            .setPositiveButton("OK") { dialogInterface, _ ->
+                val enteredUsername = usernameEt.text.toString().trim()
+                Log.d("AppDebug", "Entered Username: $enteredUsername")
+
+                authViewModel.getAdminPassword(enteredUsername, this) { originalPassword ->
+                    if (originalPassword != null) {
+                        val trimmedPassword = originalPassword.dropWhile { it == '0' }
+                        val passwordToUse = if (trimmedPassword.isEmpty()) "0" else trimmedPassword
+                        val p = passwordToUse.toInt() * 328481
+
+                        Log.d("AppDebug", "Encrypted Password: $p")  // Log the encrypted password
+                        val intent = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_EMAIL, arrayOf("safinas413@gmail.com"))
+                            putExtra(Intent.EXTRA_SUBJECT, "Encrypted Password")
+                            putExtra(Intent.EXTRA_TEXT, "Kode: $p")
+                        }
+                        if (intent.resolveActivity(packageManager) != null) {
+                            startActivity(Intent.createChooser(intent, "Send Message"))
+                            Log.d("AppDebug", "WhatsApp intent started successfully.")
+                            dialogInterface.dismiss()  // Dismiss the dialog only if the intent is successfully started
+                        } else {
+                            Log.e("WhatsAppError", "No WhatsApp client available to send the message.")
+
+                        }
+
+                    } else {
+                        Log.e("PasswordError", "Failed to retrieve password")
+                        // Don't dismiss the dialog if the password is null
+                    }
+                }
+            }
+            .setNegativeButton("Cancel") { dialogInterface, _ ->
+                Log.d("AppDebug", "Cancel clicked")
+                dialogInterface.dismiss()
+            }
+            .setOnDismissListener {
+                isInputUNShowing = false
+                Log.d("AppDebug", "Dialog dismissed")
+            }
+            .create()
+
+        dialog.show()
+    }
+
+
+
+
+    fun sendEncryptedPassword(userName:String) {
+
+    }
+
+
 
     override fun onResume() {
         super.onResume()
@@ -180,6 +249,15 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    fun encryptPassword(){
+        //check if the first string is 0
+            //if yes check if the second string is 0
+                //if yes check if the third string is 0
+                    // if yes check if the fourth string is 0
+                        //if yes then create a random number
+        // if no then times it with 287
+    }
+
 
     override fun onDestroy() {
         super.onDestroy()
@@ -194,5 +272,6 @@ class MainActivity : AppCompatActivity() {
     fun resetOrientation() {
         requestedOrientation = originalOrientation
     }
+
     
 }

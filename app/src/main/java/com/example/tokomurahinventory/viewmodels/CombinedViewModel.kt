@@ -598,11 +598,13 @@ class CombinedViewModel(
 
     fun deleteDetailWarna(detailWarnaModel: DetailWarnaModel){
         viewModelScope.launch {
-            if (detailWarnaModel.detailWarnaPcs<=1){
+            if (detailWarnaModel.detailWarnaPcs==0){
                 deleteDetailWarna(detailWarnaModel.detailWarnaIsi,detailWarnaModel.warnaRef)
                 getDetailWarnaByWarnaRef(refWarna.value!!)
                 //getWarnaByMerk(refMerkk.value)
                 isShowOneWarna()
+            }else{
+                Toast.makeText(getApplication(),"Stok tidak kosong, tidak dapat menghapus data",Toast.LENGTH_SHORT).show()
             }
         }
     }

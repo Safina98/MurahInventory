@@ -12,17 +12,17 @@
     <item
         android:id="@+id/logFragment"
         android:icon="@drawable/baseline_storage_24"
-        android:title="Log Barang Keluar" />
+        android:title="Barang Keluar" />
 
     <item
         android:id="@+id/inputStokFragment"
         android:icon="@drawable/baseline_storage_24"
-        android:title="Log Barang Masuk" />
+        android:title="Barang Masuk" />
 
     <item
         android:id="@+id/allTransactionFragment"
         android:icon="@drawable/baseline_storage_24"
-        android:title="Semua Log" />
+        android:title="Cari Barang" />
     <item
         android:id="@+id/exportImportFragment"
         android:icon="@drawable/baseline_import_export_24"

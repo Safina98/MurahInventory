@@ -78,6 +78,6 @@
     <fragment
         android:id="@+id/allTransactionFragment"
         android:name="com.example.tokomurahinventory.fragments.AllTransactionFragment"
-        android:label="Semua Log" />
+        android:label="Cari Barang" />
 
 </navigation>
