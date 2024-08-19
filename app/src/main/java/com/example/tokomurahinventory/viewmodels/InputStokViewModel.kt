@@ -199,6 +199,7 @@ class InputStokViewModel (
     fun resetDate(){
         setInitialStartDateAndEndDate()
         updateDateRangeString(null,null)
+        updateRv4()
     }
 
     fun deleteInputStok(inputStokLogModel: InputStokLogModel){

@@ -13,9 +13,13 @@ import com.example.tokomurahinventory.database.MerkDao
 import com.example.tokomurahinventory.database.UsersDao
 import com.example.tokomurahinventory.database.WarnaDao
 import com.example.tokomurahinventory.models.LogTable
+import com.example.tokomurahinventory.utils.MASUKKELUAR
+import com.example.tokomurahinventory.utils.MASUKKELUARSPINNER
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 class AllTransViewModel(val dataSourceMerk: MerkDao,
@@ -40,8 +44,44 @@ class AllTransViewModel(val dataSourceMerk: MerkDao,
     val isLogLoading: LiveData<Boolean> get() = _isLogLoading
     private val _isLoadCrashed = MutableLiveData<Boolean>(false)
     val isLoadCrashed: LiveData<Boolean> get() = _isLoadCrashed
-
     private val _unFilteredLog = MutableLiveData<List<LogTable>>()
+
+    private val _selectedStartDate = MutableLiveData<Date?>()
+    val selectedStartDate: LiveData<Date?> get() = _selectedStartDate
+
+    private val _selectedEndDate = MutableLiveData<Date?>()
+    val selectedEndDate: LiveData<Date?> get() = _selectedEndDate
+
+    val _dateRangeString = MutableLiveData<String>("Pilih Tanggal")
+    val mutableMerk=MutableLiveData<String?>("")
+    val mutableKode=MutableLiveData<String?>("")
+    val mutableIsi=MutableLiveData<String?>("")
+    val mutableTipe=MutableLiveData<String>("Semua")
+
+
+
+    private fun formatDateRange(startDate: Date?, endDate: Date?): String {
+        return if (startDate != null && endDate != null) {
+            val dateFormat = SimpleDateFormat("EEEE, d MMMM yyyy", Locale("in", "ID"))
+            val startDateString = dateFormat.format(startDate)
+            val endDateString = dateFormat.format(endDate)
+            "$startDateString - $endDateString"
+        } else {
+            "Pilih Tanggal"
+        }
+    }
+    fun updateDateRangeString(startDate: Date?, endDate: Date?) {
+        _dateRangeString.value = formatDateRange(startDate, endDate)
+    }
+    fun setStartAndEndDateRange(startDate: Date?,endDate: Date?){
+        viewModelScope.launch {
+            _selectedStartDate.value = startDate
+            _selectedEndDate.value = endDate
+            Log.i("AllTransProbs","start date:${_selectedStartDate.value}")
+            Log.i("AllTransProbs","end date:${_selectedEndDate.value}")
+        }
+    }
+
     fun getWarnaByMerkNew(merk:String){
         viewModelScope.launch {
             val refMerk = withContext(Dispatchers.IO){dataSourceMerk.getMerkRefByName(merk)}
@@ -67,49 +107,47 @@ class AllTransViewModel(val dataSourceMerk: MerkDao,
         }
     }
 
-    fun updateRv(merk:String,kode:String,isi:Double?){
+    fun updateRv(merk: String, kode: String, isi: Double?, selectedSpinner: String?) {
         viewModelScope.launch {
             _isLogLoading.value = true
             _isLoadCrashed.value = false
-            performFiltering(merk,kode,isi)
-        }
-    }
+            val tipe = getTipeFromSpinner(selectedSpinner)
+            val startDate=_selectedStartDate.value
+            val endDate=_selectedEndDate.value
+            Log.i("AllTransProbs","update rv start date:${startDate}")
+            Log.i("AllTransProbs","update rv end date:${endDate}")
+            Log.i("AllTransProbs", "tipe $tipe")
 
-    private suspend fun performFiltering(merk:String,kode:String,isi:Double?){
-        withContext(Dispatchers.IO) {
             try {
-                val logList= mutableListOf<LogTable>()
-                val refMerk = dataSourceMerk.getMerkRefByName(merk)
-                if (refMerk!=null){
-                    val refWarna = dataSourceWarna.getWarnaRefByName(kode,refMerk)
-                    if(refWarna!=null) {
-                        val detailWarnaList = dataSourceDetailWarna.getDetailWarnaListByWarnaRefAndIsi(refWarna,isi)
-                        for (detailWarna in detailWarnaList){
-                            val barangLogList = dataSourceBarangLog.selectBarangLogByLogDetailWarnaRef(detailWarna!!.detailWarnaRef)
-                            for ( i in barangLogList){
-                                val log = dataSourceLog.getLogById(i.refLog)
-                                logList.add(log)
-                            }
-                            withContext(Dispatchers.Main) {
-                                _isLogLoading.value = false
-                                _filteredLog.value = logList
-                                _unFilteredLog.value = logList
-                            }
-                        }
-
-                    }else{}
-                }else{}
-
-            }catch (e:Exception){
-                withContext(Dispatchers.Main) {
-                    _isLogLoading.value = false
-                    _isLoadCrashed.value = true
-                    Log.i("AllTransProbs","${e}")
-                }
+                val logList = withContext(Dispatchers.IO){dataSourceLog.getLogs(merk, kode, isi, tipe,startDate,endDate)}
+                setMutableValues(merk,kode,isi,selectedSpinner)
+                updateDateRangeString(startDate,endDate)
+                _filteredLog.value = logList
+                _unFilteredLog.value = logList
+            } catch (e: Exception) {
+                _isLoadCrashed.value = true
+                Log.e("AllTransProbs", "$e")
+            } finally {
+                _isLogLoading.value = false
             }
-
         }
     }
+    private fun getTipeFromSpinner(selectedSpinner: String?): String? {
+        return when (selectedSpinner) {
+            MASUKKELUARSPINNER.MASUK -> MASUKKELUAR.MASUK
+            MASUKKELUARSPINNER.KELUAR -> MASUKKELUAR.KELUAR
+            else -> null
+        }
+    }
+
+    fun setMutableValues(merk:String,kode: String,isi: Double?,tipe:String?){
+        mutableMerk.value = merk
+        mutableKode.value=kode
+        mutableIsi.value=if (isi!=null) String.format(Locale.US,"%.2f", isi) else{""}
+        mutableTipe.value=tipe
+    }
+
+
 
     fun filterLogQuery(query: String?) {
         val list = mutableListOf<LogTable>()

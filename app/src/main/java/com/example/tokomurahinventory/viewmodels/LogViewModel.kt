@@ -157,7 +157,8 @@ class LogViewModel (
     }
     fun resetDate(){
         setInitialStartDateAndEndDate()
-        updateDateRangeString(null,null)
+        updateDateRangeString(null,null )
+        updateRv4()
     }
 
     private fun formatDateRange(startDate: Date?, endDate: Date?): String {

@@ -23,6 +23,11 @@ object MASUKKELUAR {
     const val MASUK = "Masuk"
     const val KELUAR = "Keluar"
 }
+object MASUKKELUARSPINNER {
+    const val SEMUA="Semua"
+    const val MASUK = "Barang Masuk"
+    const val KELUAR = "Barang Keluar"
+}
 enum class UpdateStatus {
     SUCCESS,
     MERK_NOT_PRESENT,

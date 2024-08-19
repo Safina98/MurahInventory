@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+        <variable
+            name="viewModel"
+            type="com.example.tokomurahinventory.viewmodels.AllTransViewModel" />
 
     </data>
 
@@ -9,10 +13,20 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Filter"
+            style="@style/rv_input_Log_big_text_style"
+            android:layout_margin="@dimen/big_margin"
+            />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layout_satu"
             android:hint="merk"
+            android:layout_marginStart="@dimen/small_margin"
+            android:layout_marginEnd="@dimen/small_margin"
             android:padding="@dimen/small_margin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -29,6 +43,8 @@
             android:id="@+id/layout_dua"
             android:hint="kode warna"
             android:padding="@dimen/small_margin"
+            android:layout_marginStart="@dimen/small_margin"
+            android:layout_marginEnd="@dimen/small_margin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -44,6 +60,8 @@
             android:id="@+id/layout_tiga"
             android:hint="isi"
             android:padding="@dimen/small_margin"
+            android:layout_marginStart="@dimen/small_margin"
+            android:layout_marginEnd="@dimen/small_margin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -54,6 +72,33 @@
                 android:layout_margin="@dimen/small_margin"
                 android:inputType="numberDecimal" />
         </com.google.android.material.textfield.TextInputLayout>
+        <Spinner
+            android:id="@+id/spinner_tipe"
+            android:entries="@array/masuk_keluar_spinner"
+            android:layout_margin="@dimen/small_margin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_margin="@dimen/small_margin"
+                android:id="@+id/calender_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/baseline_calendar_month_24" />
+
+            <TextView
+                android:id="@+id/txt_date"
+                android:layout_margin="@dimen/small_margin"
+                style="@style/txt_item_log_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                 />
+
+        </LinearLayout>
 
     </LinearLayout>
 </layout>

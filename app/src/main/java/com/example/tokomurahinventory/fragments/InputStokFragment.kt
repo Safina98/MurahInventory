@@ -110,7 +110,7 @@ class InputStokFragment : AuthFragment() {
             adapter.submitList(it.sortedByDescending { it.barangLogInsertedDate })
             adapter.notifyDataSetChanged()
         }
-            Log.i("InputStokLogProbs","data size: ${it.size}")
+            Log.i("DataSize","data size: ${it.size}")
         })
         binding.searchBarLog.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {

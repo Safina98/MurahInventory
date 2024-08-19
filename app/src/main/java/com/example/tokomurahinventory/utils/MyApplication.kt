@@ -14,11 +14,11 @@ class MyApplication : Application() {
 
         // Initialize WorkManager
         //WorkManager.initialize(this, WorkManagerInitializer.getConfiguration(this))
-        scheduleOneTimeUpdateLastEditedDetailWarna()
+        //scheduleOneTimeUpdateLastEditedDetailWarna()
         // Schedule the one-time worker to update detail warna
-       scheduleOneTimeUpdateDetailWarna()
+       //scheduleOneTimeUpdateDetailWarna()
         //scheduleOneTimeUpdateLog()
-        scheduleWorkerAgain()
+        //scheduleWorkerAgain()
         schedulePeriodicCleanup()
     }
     private fun scheduleOneTimeUpdateDetailWarna() {

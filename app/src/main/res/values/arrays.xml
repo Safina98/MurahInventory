@@ -12,4 +12,10 @@
         <item>Pcs</item>
     </array>
 
+    <array name="masuk_keluar_spinner">
+        <item>Semua</item>
+        <item>Barang Masuk</item>
+        <item>Barang Keluar</item>
+    </array>
+
 </resources>

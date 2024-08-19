@@ -36,7 +36,7 @@ class UpdateLogMerkStringWorker(
         val dataSourceWarna = DatabaseInventory.getInstance(applicationContext).warnaDao
         val dataSourceMerk = DatabaseInventory.getInstance(applicationContext).merkDao
 
-        val allLogMasuk = dataSourceLog.selectAllLogList(MASUKKELUAR.MASUK, null, null)
+        val allLogMasuk = dataSourceLog.selectAllLogListWithFilters(MASUKKELUAR.MASUK, null, null)
         Log.i("AllTransProbs", "Log size: ${allLogMasuk.size}")
 
         for (log in allLogMasuk) {

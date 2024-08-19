@@ -10,12 +10,11 @@
 
     </data>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         tools:context=".fragments.AllTransactionFragment">
-
 
         <ProgressBar
             android:id="@+id/progress_bar_log"
@@ -40,11 +39,109 @@
             app:layout_constraintBottom_toBottomOf="parent"
             android:visibility="gone" />
 
-        <Button
+        <TextView
             android:id="@+id/btn_filter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            style="@style/rv_input_Log_big_text_style"
             android:text="Filter" />
+
+        <ImageView
+            android:id="@+id/filter_ig"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/small_margin"
+            android:text="Filter"
+            app:layout_constraintEnd_toStartOf="@id/btn_filter"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/baseline_tune_24" />
+
+        <TextView
+            android:id="@+id/lbl_merk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            style="@style/txt_item_log_style"
+            android:text="Merk:" />
+        <TextView
+            android:id="@+id/txt_merk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/lbl_merk"
+            app:layout_constraintTop_toTopOf="parent"
+            style="@style/txt_item_log_style"
+            android:text="@={viewModel.mutableMerk}" />
+        <TextView
+            android:id="@+id/lbl_kode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txt_merk"
+            style="@style/txt_item_log_style"
+            android:text="Kode:" />
+        <TextView
+            android:id="@+id/txt_kode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/lbl_kode"
+            app:layout_constraintTop_toBottomOf="@id/txt_merk"
+            style="@style/txt_item_log_style"
+            android:text="@={viewModel.mutableKode}" />
+        <TextView
+            android:id="@+id/lbl_isi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/txt_kode"
+            app:layout_constraintTop_toBottomOf="@id/txt_merk"
+            style="@style/mutable_filter_lbl"
+            android:text="isi" />
+        <TextView
+            android:id="@+id/txt_isi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/lbl_isi"
+            app:layout_constraintTop_toBottomOf="@id/txt_merk"
+            style="@style/txt_item_log_style"
+            android:text="@={viewModel.mutableIsi}" />
+        <TextView
+            android:id="@+id/lbl_tangal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txt_isi"
+            style="@style/txt_item_log_style"
+            android:text="Tanggal" />
+        <TextView
+            android:id="@+id/txt_tanggal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/lbl_tangal"
+            app:layout_constraintTop_toBottomOf="@id/txt_isi"
+            style="@style/txt_item_log_style"
+            android:text="@={viewModel._dateRangeString}" />
+
+        <TextView
+            android:id="@+id/lbl_tipe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txt_tanggal"
+            style="@style/txt_item_log_style"
+            android:text="Tipe:" />
+        <TextView
+            android:id="@+id/txt_tipe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/lbl_tipe"
+            app:layout_constraintTop_toBottomOf="@id/txt_tanggal"
+            style="@style/txt_item_log_style"
+            android:text="@={viewModel.mutableTipe}" />
+
+
+
         <androidx.appcompat.widget.SearchView
             android:id="@+id/search_bar_log"
             android:layout_width="match_parent"
@@ -52,14 +149,21 @@
             app:iconifiedByDefault="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txt_tipe"
             app:queryHint="Search here..." />
+
+
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_log"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_margin="@dimen/small_margin"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/search_bar_log"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             />
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

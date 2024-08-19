@@ -126,8 +126,8 @@ class ExportImportFragment : AuthFragment() {
             exportStockCSV("Daftar Log Toko Murah","LOG")
         }
         binding.btnImportMerk.setOnClickListener {
-            importCSVStock()
-           //viewModel.generateData()
+            //importCSVStock()
+           viewModel.generateData()
             //viewModel.updatedateOutDetailWarna()
 
         }

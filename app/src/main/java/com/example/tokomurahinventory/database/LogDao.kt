@@ -32,8 +32,35 @@ interface LogDao {
     @Query("SELECT * FROM LOG_TABLE WHERE refLog = :logRef")
     fun getLogById(logRef:String):LogTable
 
+    @Query("SELECT * FROM LOG_TABLE WHERE refLog = :logRef AND (:tipe IS NULL OR logTipe = :tipe)")
+    fun getLogWithFilters(logRef:String,tipe: String?):LogTable
+
+
+    @Query("""
+        SELECT l.* FROM log_table l
+        JOIN barang_log bl ON l.refLog = bl.refLog
+        JOIN detail_warna_table dw ON bl.detailWarnaRef = dw.detailWarnaRef
+        JOIN warna_table w ON dw.warnaRef = w.warnaRef
+        JOIN merk_table m ON w.refMerk = m.refMerk
+        WHERE m.namaMerk = :namaMerk
+        AND w.kodeWarna = :kodeWarna
+        AND (:isi IS NULL OR dw.detailWarnaIsi = :isi)
+        AND (:tipe IS NULL OR l.logTipe = :tipe)
+        AND (:startDate IS NULL OR logLastEditedDate >= :startDate)
+        AND (:endDate IS NULL OR logLastEditedDate <= :endDate)
+    """)
+    suspend fun getLogs(
+        namaMerk: String,
+        kodeWarna: String,
+        isi: Double?,
+        tipe: String?,
+        startDate: Date?,
+        endDate: Date?
+    ): List<LogTable>
+
+
     @Query("SELECT * FROM LOG_TABLE WHERE logTipe =:tipe AND (:startDate IS NULL OR logDate >= :startDate) AND (:endDate IS NULL OR logDate <= :endDate) ")
-    fun selectAllLogList(tipe:String,startDate: Date?, endDate: Date?):List<LogTable>
+    fun selectAllLogListWithFilters(tipe:String,startDate: Date?, endDate: Date?):List<LogTable>
 
 
 

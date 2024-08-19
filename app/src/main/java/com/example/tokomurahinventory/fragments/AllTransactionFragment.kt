@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.DatePicker
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
@@ -39,12 +40,14 @@ import com.example.tokomurahinventory.viewmodels.AllTransViewModelFactory
 import com.example.tokomurahinventory.viewmodels.ExportImportViewModel
 import com.example.tokomurahinventory.viewmodels.ExportImportViewModelFactory
 import com.example.tokomurahinventory.viewmodels.LogViewModel
+import java.util.Calendar
 
 
 class AllTransactionFragment : Fragment() {
     private lateinit var binding: FragmentAllTransactionBinding
     private lateinit var viewModel: AllTransViewModel
     private var isDialogShowing = false
+    private var isDateDialogShowing = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -67,6 +70,7 @@ class AllTransactionFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         viewModel = ViewModelProvider(this,viewModelFactory)
             .get(AllTransViewModel::class.java)
+        binding.viewModel=viewModel
         val adapter  = LogAdapter(
             LogClickListener {
             },
@@ -83,9 +87,14 @@ class AllTransactionFragment : Fragment() {
         viewModel.isiByWarnaAndMerk.observe(viewLifecycleOwner){it?.let {}}
 
         viewModel.filteredLog.observe(viewLifecycleOwner){it?.let {
-            Log.i("AllTransProbs","$it")
+            //Log.i("AllTransProbs","$it")
             adapter.submitList(it)
-            Log.i("AllTransProbs","${it.size}")
+            adapter.notifyDataSetChanged()
+            Log.i("AllTransProbs", "Data size: ${it.size}")
+
+            //adapter.submitList(it)
+            //adapter.notifyDataSetChanged()
+            //Log.i("AllTransProbs","${it.size}")
         }}
 
         binding.btnFilter.setOnClickListener {
@@ -141,10 +150,35 @@ class AllTransactionFragment : Fragment() {
 
         val dialogBinding = DataBindingUtil.inflate<PopUpFilterBinding>(
             LayoutInflater.from(context), R.layout.pop_up_filter, null, false)
-
+        binding.viewModel=viewModel
         val autoCompleteMerk = dialogBinding.txtMerk
         val autoCompleteWarna = dialogBinding.txtWarna
         val autoCompleteIsi = dialogBinding.txtIsi
+        val tipeSpinner = dialogBinding.spinnerTipe
+        val textDate=dialogBinding.txtDate
+
+        viewModel._dateRangeString.observe(viewLifecycleOwner, Observer {
+            it?.let {
+                textDate.setText(it)
+            }
+        })
+        if (viewModel.mutableMerk.value!=null ||viewModel.mutableMerk.value!="") {
+            autoCompleteMerk.setText(viewModel.mutableMerk.value)
+        }
+        if (viewModel.mutableKode.value!=null ||viewModel.mutableKode.value!="") {
+            autoCompleteWarna.setText(viewModel.mutableKode.value)
+        }
+        if (viewModel.mutableIsi.value!=null ||viewModel.mutableIsi.value!=""||viewModel.mutableIsi.value!="-") {
+            autoCompleteIsi.setText(viewModel.mutableIsi.value)
+        }
+        if (viewModel.mutableTipe.value!=null ||viewModel.mutableTipe.value!="") {
+            //set selected item for spinner
+        }
+
+
+        textDate.setOnClickListener {
+            showDatePickerDialog()
+        }
         //val etPcs = dialogBinding.txtPcs
 
         val oldCountModel = inputStokLogModel?.copy()
@@ -238,7 +272,8 @@ class AllTransactionFragment : Fragment() {
                 val namaMerk = autoCompleteMerk.text.toString().trim()
                 val kodeWarna = autoCompleteWarna.text.toString().trim()
                 val isi = autoCompleteIsi.text.toString().trim().toDoubleOrNull()
-                viewModel. updateRv(namaMerk,kodeWarna,isi)
+                val selectedItem = tipeSpinner.selectedItem.toString()
+                viewModel. updateRv(namaMerk,kodeWarna,isi,selectedItem)
                 dialog.dismiss()
                 /*
                 if (inputStokLogModel != null) {
@@ -278,5 +313,46 @@ class AllTransactionFragment : Fragment() {
 
         dialog.show()
     }
+    private fun showDatePickerDialog() {
+        if (isDateDialogShowing) return
+        isDateDialogShowing = true
+        //clearSearchQuery()
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.pop_up_date_picker, null)
+        val datePickerStart = dialogView.findViewById<DatePicker>(R.id.datePickerStart)
+        val datePickerEnd = dialogView.findViewById<DatePicker>(R.id.datePickerEnd)
+        val dialog = AlertDialog.Builder(requireContext())
+            .setTitle("Select Date Range")
+            .setView(dialogView)
+            .setPositiveButton("OK") { _, _ ->
+                val startYear = datePickerStart.year
+                val startMonth = datePickerStart.month
+                val startDay = datePickerStart.dayOfMonth
+                val endYear = datePickerEnd.year
+                val endMonth = datePickerEnd.month
+                val endDay = datePickerEnd.dayOfMonth
+
+                val startDate = Calendar.getInstance().apply {
+                    set(startYear, startMonth, startDay, 0, 0, 1) // Set time to start of the day
+                    set(Calendar.MILLISECOND, 0)
+                }.time
+
+                val endDate = Calendar.getInstance().apply {
+                    set(endYear, endMonth, endDay, 23, 59, 58) // Set time to end of the day
+                    set(Calendar.MILLISECOND, 999)
+                }.time
+
+                viewModel.updateDateRangeString(startDate,endDate)
+                viewModel.setStartAndEndDateRange(startDate,endDate)
+                //viewModel.updateRv4()
+                // viewModel.setEndDateRange(endDate)
+            }
+            .setNegativeButton("Cancel", null)
+            .create()
+        dialog.setOnDismissListener {
+            isDateDialogShowing = false
+        }
+        dialog.show()
+    }
+
 
 }
