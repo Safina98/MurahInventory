@@ -40,6 +40,7 @@ import java.io.FileOutputStream
 import java.io.FileWriter
 import java.io.IOException
 import java.lang.reflect.WildcardType
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -114,7 +115,7 @@ class ExportImportViewModel(
     }
     suspend fun getAllUsersData(): List<UsersTable> {
         return withContext(Dispatchers.IO){
-            dataSourceUsers.selectAllUsersList()
+            dataSourceUsers.selectAllUsersListForExport()
         }
     }
 
@@ -145,7 +146,11 @@ class ExportImportViewModel(
     }
     fun parseDate(dateStr: String): Date {
         val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale("in", "ID"))
-        return formatter.parse(dateStr) ?: Date()
+        return try {
+            formatter.parse(dateStr) ?: Date()
+        } catch (e: ParseException) {
+            Date()  // Return today's date if parsing fails
+        }
     }
     private suspend fun insertCSVN(tokens: List<String>) {
          Log.i("INSERTCSVPROB","size: ${tokens.size}")
@@ -228,12 +233,13 @@ class ExportImportViewModel(
             barangLogExtraString = tokens[28].trim()
             barangLogTipe = tokens[29].trim()
         }
+        if (barangLog.detailWarnaRef!=""){
+            Log.i("INSERTCSVPROB","log table ${logTable}")
+            dataSourceLog.insertLogTable(logTable)
+            Log.i("INSERTCSVPROB","log barang ${barangLog}")
+            dataSourceBarangLog.insertBarangLogTable(barangLog)
+        }
 
-        Log.i("INSERTCSVPROB","log table ${logTable}")
-        dataSourceLog.insertLogTable(logTable)
-        Log.i("INSERTCSVPROB","log barang ${barangLog}")
-
-        dataSourceBarangLog.insertBarangLogTable(barangLog)
     }
     private suspend fun importUsers(tokens: List<String>){
         val users=UsersTable().apply {
@@ -272,22 +278,24 @@ class ExportImportViewModel(
             lastEditedBy = tokens[18].trim()
             refMerk = tokens[2].trim()
         }
-
+        Log.i("INSERTCSVPROB","warna table ${warnaTable}")
         val detailWarnaTable = DetailWarnaTable().apply {
             detailWarnaIsi = tokens[20].trim().toDoubleOrNull() ?: 0.0
             detailWarnaPcs = tokens[21].trim().toIntOrNull() ?: 0
-            detailWarnaDate = parseDate(tokens[22].trim()) ?: Date()
-            detailWarnaLastEditedDate = parseDate(tokens[23].trim()) ?: Date()
-            user = tokens[24].trim()
-            createdBy = tokens[25].trim()
-            lastEditedBy = tokens[26].trim()
+            Log.i("INSERTCSVPROB","detail warna date token 29 :${tokens[29]}")
+            detailWarnaDate = if (tokens[29]=="-"||tokens[29]==""||tokens[30]=="null") { Date() } else parseDate(tokens[22].trim()) ?: Date()
+            Log.i("INSERTCSVPROB","detail warna last edited date token 30 :${tokens[30]}")
+            detailWarnaLastEditedDate = if (tokens[30]=="-"||tokens[30]==""||tokens[30]==":null") {Date()} else parseDate(tokens[23].trim()) ?: Date()
+            user = if (tokens[24].trim()=="") null else tokens[24].trim()
+            createdBy = if (tokens[25].trim()=="") null else tokens[25].trim()
+            lastEditedBy = if (tokens[26].trim()=="") null else tokens[26].trim()
             warnaRef = tokens[13].trim()
             detailWarnaRef = tokens[27]
             detailWarnaKet=tokens[28]
-            dateIn=if (tokens[29]=="-"||tokens[29]==null) {null} else parseDate(tokens[29])
-            dateIn=if (tokens[30]=="-"||tokens[30]==null) {null} else parseDate(tokens[30])
+            dateIn=if (tokens[29]=="-"||tokens[29]=="") {null} else parseDate(tokens[29])
+            dateIn=if (tokens[30]=="-"||tokens[30]=="") {null} else parseDate(tokens[30])
         }
-
+        Log.i("INSERTCSVPROB","detailwarna table ${detailWarnaTable}")
         dataSourceMerk.insertMerkTable(merkTable)
         dataSourceWarna.insertWarnaTable(warnaTable)
         dataSourceDetailWarna.insertDetailWarnaTable(detailWarnaTable)

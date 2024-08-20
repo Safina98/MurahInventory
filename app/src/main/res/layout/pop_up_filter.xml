@@ -39,6 +39,21 @@
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@android:color/darker_gray" />
+        <TextView
+            android:id="@+id/lbl_opsional"
+            android:layout_marginLeft="@dimen/medium_margin"
+            android:text="Opsional"
+            android:textColor="@android:color/darker_gray"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layout_dua"
             android:hint="kode warna"
@@ -100,7 +115,7 @@
         </LinearLayout>
         <TextView
             android:id="@+id/txt_reset"
-            android:layout_marginLeft="@dimen/small_margin"
+            android:layout_marginLeft="@dimen/medium_margin"
             android:text="reset tanggal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>

@@ -188,8 +188,8 @@ interface DetailWarnaDao {
             d.lastEditedBy AS detailWarnaLastEditedBy,
             d.detailWarnaRef,
             d.detailWarnaKet AS a,
-            d.dateIn,
-            d.dateOut
+            d.dateIn AS dateIn,
+            d.dateOut AS dateOut
         FROM detail_warna_table AS d
         JOIN warna_table AS w ON d.warnaRef = w.warnaRef
         JOIN merk_table AS m ON w.refMerk = m.refMerk

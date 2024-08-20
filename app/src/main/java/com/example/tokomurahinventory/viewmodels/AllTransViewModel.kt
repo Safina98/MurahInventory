@@ -122,12 +122,13 @@ class AllTransViewModel(val dataSourceMerk: MerkDao,
         }
     }
 
-    fun checkIfDataExist(merk:String,warna: String,isi:Double?, callback: (UpdateStatus) -> Unit) {
+    fun checkIfDataExist(merk:String,warna: String?,isi:Double?, callback: (UpdateStatus) -> Unit) {
         viewModelScope.launch {
             // Log initial stat
             val isMerkPresent = checkMerkExisted(merk)
-            val isWarnaPresent = isKodeWarnaInLiveData(codeWarnaByMerk, warna)
+            val isWarnaPresent = if(!warna.isNullOrEmpty())isKodeWarnaInLiveData(codeWarnaByMerk, warna!!) else true
             val isIsiPresent = if (isi!=null)isIsiInLiveData(isiByWarnaAndMerk, isi) else true
+            Log.i("AllTransProbs","Warna:$warna")
             // Fetch data from database
             if (isMerkPresent && isWarnaPresent && isIsiPresent) {
                 // Update item in list
@@ -146,20 +147,16 @@ class AllTransViewModel(val dataSourceMerk: MerkDao,
         }
     }
 
-    fun updateRv(merk: String, kode: String, isi: Double?, selectedSpinner: String?) {
+    fun updateRv(merk: String, kode: String?, isi: Double?, selectedSpinner: String?) {
         viewModelScope.launch {
             _isLogLoading.value = true
             _isLoadCrashed.value = false
             val tipe = getTipeFromSpinner(selectedSpinner)
             val startDate=_selectedStartDate.value
             val endDate=_selectedEndDate.value
-            Log.i("AllTransProbs","update rv start date:${startDate}")
-            Log.i("AllTransProbs","update rv end date:${endDate}")
-            Log.i("AllTransProbs", "tipe $tipe")
-
             try {
                 val logList = withContext(Dispatchers.IO){dataSourceLog.getLogs(merk, kode, isi, tipe,startDate,endDate)}
-                setMutableValues(merk,kode,isi,selectedSpinner)
+                setMutableValues(merk,kode?:"Semua",isi,selectedSpinner)
                 if (startDate==null){
                     updateDateRangeString(null,null)
                 }

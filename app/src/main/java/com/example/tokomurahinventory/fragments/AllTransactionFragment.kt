@@ -86,7 +86,7 @@ class AllTransactionFragment : Fragment() {
 
         viewModel.filteredLog.observe(viewLifecycleOwner){it?.let {
             //Log.i("AllTransProbs","$it")
-            adapter.submitList(it)
+            adapter.submitList(it.sortedByDescending { it.logLastEditedDate })
             adapter.notifyDataSetChanged()
             Log.i("AllTransProbs", "Data size: ${it.size}")
         }}
@@ -166,7 +166,7 @@ class AllTransactionFragment : Fragment() {
         if (viewModel.mutableMerk.value!=null &&viewModel.mutableMerk.value!="") {
             autoCompleteMerk.setText(viewModel.mutableMerk.value)
         }
-        if (viewModel.mutableKode.value!=null &&viewModel.mutableKode.value!="") {
+        if (viewModel.mutableKode.value!=null &&viewModel.mutableKode.value!=""&&viewModel.mutableKode.value!="Semua") {
             autoCompleteWarna.setText(viewModel.mutableKode.value)
         }
         if (viewModel.mutableIsi.value!=null &&viewModel.mutableIsi.value!=""&&viewModel.mutableIsi.value!="-"&&viewModel.mutableIsi.value!="Semua") {
@@ -258,13 +258,14 @@ class AllTransactionFragment : Fragment() {
             val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             positiveButton.setOnClickListener {
                 val namaMerk = autoCompleteMerk.text.toString().trim()
-                val kodeWarna = autoCompleteWarna.text.toString().trim()
+                var kodeWarna:String? = autoCompleteWarna.text.toString().trim()
                 val isi = autoCompleteIsi.text.toString().trim().toDoubleOrNull()
                 val selectedItem = tipeSpinner.selectedItem.toString()
                 //viewModel. updateRv(namaMerk,kodeWarna,isi,selectedItem)
                 viewModel.checkIfDataExist(namaMerk,kodeWarna,isi) { status ->
                     when (status) {
                         UpdateStatus.SUCCESS -> {
+                            if (kodeWarna!!.isEmpty()) kodeWarna=null
                             viewModel.updateRv(namaMerk,kodeWarna,isi,selectedItem)
                             dialog.dismiss() // Dismiss the dialog after updating
                         }

@@ -43,7 +43,7 @@ interface LogDao {
         JOIN warna_table w ON dw.warnaRef = w.warnaRef
         JOIN merk_table m ON w.refMerk = m.refMerk
         WHERE m.namaMerk = :namaMerk
-        AND w.kodeWarna = :kodeWarna
+        AND (:kodeWarna IS NULL OR w.kodeWarna = :kodeWarna)
         AND (:isi IS NULL OR dw.detailWarnaIsi = :isi)
         AND (:tipe IS NULL OR l.logTipe = :tipe)
         AND (:startDate IS NULL OR logLastEditedDate >= :startDate)
@@ -51,7 +51,7 @@ interface LogDao {
     """)
     suspend fun getLogs(
         namaMerk: String,
-        kodeWarna: String,
+        kodeWarna: String?,
         isi: Double?,
         tipe: String?,
         startDate: Date?,
