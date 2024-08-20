@@ -118,7 +118,6 @@ class ExportImportViewModel(
             dataSourceUsers.selectAllUsersListForExport()
         }
     }
-
     fun insertCSVBatch(tokensList: List<List<String>>) {
         viewModelScope.launch {
             try {
@@ -253,7 +252,7 @@ class ExportImportViewModel(
         dataSourceUsers.insertUsersTable(users)
     }
     fun importMerk(tokens: List<String>){
-        Log.i("INSERTCSVPROB","token ${tokens}")
+        //Log.i("INSERTCSVPROB","token ${tokens}")
 
         val merkTable = MerkTable().apply {
             namaMerk = tokens[1].trim()
@@ -264,7 +263,7 @@ class ExportImportViewModel(
             createdBy = tokens[6].trim()
             lastEditedBy = tokens[7].trim()
         }
-        Log.i("INSERTCSVPROB","merk table ${merkTable}")
+        //Log.i("INSERTCSVPROB","merk table ${merkTable}")
         val warnaTable = WarnaTable().apply {
             kodeWarna = tokens[9].trim()
             totalPcs = tokens[10].trim().toIntOrNull() ?: 0
@@ -278,24 +277,27 @@ class ExportImportViewModel(
             lastEditedBy = tokens[18].trim()
             refMerk = tokens[2].trim()
         }
-        Log.i("INSERTCSVPROB","warna table ${warnaTable}")
+        //Log.i("INSERTCSVPROB","warna table ${warnaTable}")
         val detailWarnaTable = DetailWarnaTable().apply {
             detailWarnaIsi = tokens[20].trim().toDoubleOrNull() ?: 0.0
             detailWarnaPcs = tokens[21].trim().toIntOrNull() ?: 0
-            Log.i("INSERTCSVPROB","detail warna date token 29 :${tokens[29]}")
-            detailWarnaDate = if (tokens[29]=="-"||tokens[29]==""||tokens[30]=="null") { Date() } else parseDate(tokens[22].trim()) ?: Date()
-            Log.i("INSERTCSVPROB","detail warna last edited date token 30 :${tokens[30]}")
-            detailWarnaLastEditedDate = if (tokens[30]=="-"||tokens[30]==""||tokens[30]==":null") {Date()} else parseDate(tokens[23].trim()) ?: Date()
-            user = if (tokens[24].trim()=="") null else tokens[24].trim()
+            Log.i("INSERTCSVPROB","detail warna date token 29 :${tokens[22]}")
+            detailWarnaDate = if (tokens[22]=="-"||tokens[22]==""||tokens[22]=="null") { Date() } else parseDate(tokens[22].trim()) ?: Date()
+            Log.i("INSERTCSVPROB","detail warna last edited date token 30 :${tokens[23]}")
+            detailWarnaLastEditedDate = if (tokens[23]=="-"||tokens[23]==""||tokens[23]==":null") {Date()} else parseDate(tokens[23].trim()) ?: Date()
+            user = if (tokens[24].trim()=="") tokens[25] else tokens[24].trim()
             createdBy = if (tokens[25].trim()=="") null else tokens[25].trim()
             lastEditedBy = if (tokens[26].trim()=="") null else tokens[26].trim()
             warnaRef = tokens[13].trim()
             detailWarnaRef = tokens[27]
             detailWarnaKet=tokens[28]
             dateIn=if (tokens[29]=="-"||tokens[29]=="") {null} else parseDate(tokens[29])
-            dateIn=if (tokens[30]=="-"||tokens[30]=="") {null} else parseDate(tokens[30])
+            dateOut=if (tokens[30]=="-"||tokens[30]=="") {null} else parseDate(tokens[30])
         }
-        Log.i("INSERTCSVPROB","detailwarna table ${detailWarnaTable}")
+        if (tokens[26].trim()!=""){
+            Log.i("INSERTCSVPROB","token ${tokens}")
+        }
+        //Log.i("INSERTCSVPROB","detailwarna table ${detailWarnaTable}")
         dataSourceMerk.insertMerkTable(merkTable)
         dataSourceWarna.insertWarnaTable(warnaTable)
         dataSourceDetailWarna.insertDetailWarnaTable(detailWarnaTable)
@@ -502,6 +504,9 @@ class ExportImportViewModel(
 
     fun setIsCsvCompleteToNull(){
         _csvWriteComplete.value=null
+    }
+    fun stopLoading() {
+        _isLoading.value = false // Hide loading indicator
     }
 
 

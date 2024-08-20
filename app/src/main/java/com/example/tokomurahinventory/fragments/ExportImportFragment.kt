@@ -59,24 +59,42 @@ class ExportImportFragment : AuthFragment() {
     var resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         Log.i("Insert Csv", "result Launcher")
         if (result.resultCode == Activity.RESULT_OK) {
-            val data: Intent? = result.data
-            var isFirstLine = true
-            Log.i("InsertCsv", "result Launcher if " + data?.data?.path.toString())
-            val tokensList = mutableListOf<List<String>>()
-            try {
-                context?.contentResolver?.openInputStream(data!!.data!!)?.bufferedReader()
-                    ?.forEachLine { line ->
-                        if (!isFirstLine) {
-                            val tokens: List<String> = line.split(",")
-                            tokensList.add(tokens)
-                        }
-                        isFirstLine = false
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+                if (data != null && data.data != null) {
+                    // File was selected, process the file
+                    //val data: Intent? = result.data
+                    var isFirstLine = true
+                    Log.i("InsertCsv", "result Launcher if " + data?.data?.path.toString())
+                    val tokensList = mutableListOf<List<String>>()
+                    try {
+                        context?.contentResolver?.openInputStream(data!!.data!!)?.bufferedReader()
+                            ?.forEachLine { line ->
+                                if (!isFirstLine) {
+                                    val tokens: List<String> = line.split(",")
+                                    tokensList.add(tokens)
+                                }
+                                isFirstLine = false
+                            }
+                        viewModel.insertCSVBatch(tokensList)
+                    } catch (e: java.lang.Exception) {
+                        Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show()
+                        Log.e("Insert Csv", "Error reading CSV: $e")
                     }
-                viewModel.insertCSVBatch(tokensList)
-            } catch (e: java.lang.Exception) {
-                Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show()
-                Log.e("Insert Csv", "Error reading CSV: $e")
+                } else {
+                    // No file was selected
+                    //viewModel.stopLoading()
+                    Toast.makeText(context, "No file selected", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                // User cancelled the file selection
+                viewModel.stopLoading()
+                Toast.makeText(context, "File selection cancelled", Toast.LENGTH_SHORT).show()
             }
+
+
+
+
         }
     }
     override fun onCreateView(
@@ -236,11 +254,11 @@ class ExportImportFragment : AuthFragment() {
     }
 
     private val resultLauncherNew = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        uri?.let {
+        if (uri != null) {
             Log.i("ZipDB", "result Launcher new")
             lifecycleScope.launch {
                 withContext(Dispatchers.IO) {
-                    val tempFile = readFileFromUri(requireContext(), it)
+                    val tempFile = readFileFromUri(requireContext(), uri)
                     Log.i("ZipDB", "file ${tempFile?.name}")
                     Log.i("ZipDB", "file path ${tempFile?.absolutePath}")
                     if (tempFile?.exists() == true) {
@@ -261,9 +279,18 @@ class ExportImportFragment : AuthFragment() {
                     }
                 }
                 // Ensure progress bar is hidden after processing
+                withContext(Dispatchers.Main) {
+                    loaded()
+                }
             }
+        } else {
+            // User didn't pick any file and went back to the app
+            Log.i("ZipDB", "No file selected")
+            loaded() // Hide loading indicator
+            Toast.makeText(requireContext(), "No file selected", Toast.LENGTH_SHORT).show()
         }
     }
+
 
 
     private fun extractZipFile(zipFile: File) {
