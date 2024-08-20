@@ -12,9 +12,12 @@ import com.example.tokomurahinventory.database.LogDao
 import com.example.tokomurahinventory.database.MerkDao
 import com.example.tokomurahinventory.database.UsersDao
 import com.example.tokomurahinventory.database.WarnaDao
+import com.example.tokomurahinventory.models.BarangLog
+import com.example.tokomurahinventory.models.CountModel
 import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.utils.MASUKKELUAR
 import com.example.tokomurahinventory.utils.MASUKKELUARSPINNER
+import com.example.tokomurahinventory.utils.UpdateStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -56,7 +59,8 @@ class AllTransViewModel(val dataSourceMerk: MerkDao,
     val mutableMerk=MutableLiveData<String?>("")
     val mutableKode=MutableLiveData<String?>("")
     val mutableIsi=MutableLiveData<String?>("")
-    val mutableTipe=MutableLiveData<String>("Semua")
+    val mutableTipe=MutableLiveData<String>("")
+    val mutableDate = MutableLiveData<String>("")
 
 
 
@@ -70,8 +74,19 @@ class AllTransViewModel(val dataSourceMerk: MerkDao,
             "Pilih Tanggal"
         }
     }
+    private fun formatDateRangeM(startDate: Date?, endDate: Date?): String {
+        return if (startDate != null && endDate != null) {
+            val dateFormat = SimpleDateFormat("EEEE, d MMMM yyyy", Locale("in", "ID"))
+            val startDateString = dateFormat.format(startDate)
+            val endDateString = dateFormat.format(endDate)
+            "$startDateString - $endDateString"
+        } else {
+            "Semua"
+        }
+    }
     fun updateDateRangeString(startDate: Date?, endDate: Date?) {
         _dateRangeString.value = formatDateRange(startDate, endDate)
+        mutableDate.value=formatDateRangeM(startDate,endDate)
     }
     fun setStartAndEndDateRange(startDate: Date?,endDate: Date?){
         viewModelScope.launch {
@@ -107,6 +122,30 @@ class AllTransViewModel(val dataSourceMerk: MerkDao,
         }
     }
 
+    fun checkIfDataExist(merk:String,warna: String,isi:Double?, callback: (UpdateStatus) -> Unit) {
+        viewModelScope.launch {
+            // Log initial stat
+            val isMerkPresent = checkMerkExisted(merk)
+            val isWarnaPresent = isKodeWarnaInLiveData(codeWarnaByMerk, warna)
+            val isIsiPresent = if (isi!=null)isIsiInLiveData(isiByWarnaAndMerk, isi) else true
+            // Fetch data from database
+            if (isMerkPresent && isWarnaPresent && isIsiPresent) {
+                // Update item in list
+                callback(UpdateStatus.SUCCESS)
+            } else {
+                // Revert changes and notify of failure
+                callback(
+                    when {
+                        !isMerkPresent -> UpdateStatus.MERK_NOT_PRESENT
+                        !isWarnaPresent -> UpdateStatus.WARNA_NOT_PRESENT
+                        !isIsiPresent -> UpdateStatus.ISI_NOT_PRESENT
+                        else -> UpdateStatus.ITEM_NOT_FOUND
+                    }
+                )
+            }
+        }
+    }
+
     fun updateRv(merk: String, kode: String, isi: Double?, selectedSpinner: String?) {
         viewModelScope.launch {
             _isLogLoading.value = true
@@ -121,7 +160,10 @@ class AllTransViewModel(val dataSourceMerk: MerkDao,
             try {
                 val logList = withContext(Dispatchers.IO){dataSourceLog.getLogs(merk, kode, isi, tipe,startDate,endDate)}
                 setMutableValues(merk,kode,isi,selectedSpinner)
-                updateDateRangeString(startDate,endDate)
+                if (startDate==null){
+                    updateDateRangeString(null,null)
+                }
+
                 _filteredLog.value = logList
                 _unFilteredLog.value = logList
             } catch (e: Exception) {
@@ -132,6 +174,7 @@ class AllTransViewModel(val dataSourceMerk: MerkDao,
             }
         }
     }
+    
     private fun getTipeFromSpinner(selectedSpinner: String?): String? {
         return when (selectedSpinner) {
             MASUKKELUARSPINNER.MASUK -> MASUKKELUAR.MASUK
@@ -143,8 +186,12 @@ class AllTransViewModel(val dataSourceMerk: MerkDao,
     fun setMutableValues(merk:String,kode: String,isi: Double?,tipe:String?){
         mutableMerk.value = merk
         mutableKode.value=kode
-        mutableIsi.value=if (isi!=null) String.format(Locale.US,"%.2f", isi) else{""}
+        mutableIsi.value=if (isi!=null) String.format(Locale.US,"%.2f", isi) else{"Semua"}
         mutableTipe.value=tipe
+
+    }
+    fun setDateStringIfDateNull(){
+
     }
 
 
@@ -164,6 +211,34 @@ class AllTransViewModel(val dataSourceMerk: MerkDao,
             }
         }
         _filteredLog.value = list
+    }
+    private suspend fun checkMerkExisted(namaMerk: String):Boolean{
+        return withContext(Dispatchers.IO){
+            dataSourceMerk.isDataExists(namaMerk)
+        }
+    }
+    //Untuk cek kode ada di list
+    fun isKodeWarnaInLiveData(liveData: LiveData<List<String>?>, value: String): Boolean {
+        return liveData.value?.contains(value) == true
+    }
+    //Untuk Check isi ada di list
+    fun isIsiInLiveData(liveData: LiveData<List<Double>?>, value: Double): Boolean {
+        return liveData.value?.contains(value) == true
+    }
+    private suspend fun getrefMerkByName(name:String):String{
+        return withContext(Dispatchers.IO){
+            dataSourceMerk.getMerkRefByName(name)!!
+        }
+    }
+    private suspend fun getrefWanraByName(name:String,refMerk:String):String?{
+        return withContext(Dispatchers.IO){
+            dataSourceWarna.getWarnaRefByName(name,refMerk)
+        }
+    }
+    private suspend fun getrefDetailWanraByWarnaRefndIsi(name:String,isi:Double):String?{
+        return withContext(Dispatchers.IO){
+            dataSourceDetailWarna.getDetailWarnaRefByIsiAndWarnaRef(name,isi)
+        }
     }
 
 }

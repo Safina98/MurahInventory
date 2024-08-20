@@ -51,6 +51,9 @@ class ExportImportFragment : AuthFragment() {
     private val PERMISSION_REQUEST_CODE = 200
     private  val TAG = "ZipDB"
     private var dialog: AlertDialog? = null
+    private var exportInProgress = false
+    private var currentExportFileName: String? = null
+    private var currentExportCode: String? = null
 
 
     var resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -123,11 +126,12 @@ class ExportImportFragment : AuthFragment() {
             exportStockCSV("Daftar Users Toko Murah","USERS")
         }
         binding.btnExportLog.setOnClickListener {
+            Log.i("ExportProbs","btn export click")
             exportStockCSV("Daftar Log Toko Murah","LOG")
         }
         binding.btnImportMerk.setOnClickListener {
-            //importCSVStock()
-           viewModel.generateData()
+            importCSVStock()
+           //viewModel.generateData()
             //viewModel.updatedateOutDetailWarna()
 
         }
@@ -171,31 +175,52 @@ class ExportImportFragment : AuthFragment() {
         // requesting permissions if not provided.
         ActivityCompat.requestPermissions(requireActivity(),arrayOf<String>(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE), PERMISSION_REQUEST_CODE)
     }
-    private fun exportStockCSV(fileName:String, code:String) {
-        val fileName = fileName
-        //var file:File
-        val file = File(context?.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName + ".csv")
-        Log.i("FilePath","else path: " +file.path.toString())
-        viewModel.writeCSV(file,code)
-        viewModel.csvWriteComplete.observe(viewLifecycleOwner, Observer {
-            if (it!=null){
-                Log.i("csvWriteComplete","csvWriteComplete: " +it)
-                val photoURI: Uri = FileProvider.getUriForFile(this.requireContext(), requireContext().applicationContext.packageName + ".provider",file)
+    private fun exportStockCSV(fileNamee: String, code: String) {
+        if (exportInProgress) {
+            Log.i("ExportProbs", "Export already in progress.")
+            return
+        }
+
+        exportInProgress = true
+        val fileName = fileNamee
+        currentExportFileName = fileName
+        currentExportCode = code
+
+        Log.i("ExportProbs", "fun export stok filename $fileName")
+        Log.i("ExportProbs", "fun export stok kode $code")
+
+        val file = File(context?.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "$fileName.csv")
+        Log.i("FilePath", "else path: " + file.path.toString())
+
+        viewModel.writeCSV(file, code)
+
+        viewModel.csvWriteComplete.observe(viewLifecycleOwner, Observer { success ->
+            if (success != null && fileName == currentExportFileName && code == currentExportCode) {
+                Log.i("csvWriteComplete", "csvWriteComplete: $success")
+                exportInProgress = false  // Mark export as completed
+
+                val photoURI: Uri = FileProvider.getUriForFile(
+                    this.requireContext(),
+                    requireContext().applicationContext.packageName + ".provider",
+                    file
+                )
+                Log.i("ExportProbs", "fun export stok file name ${file.name}")
                 val shareIntent: Intent = Intent().apply {
                     action = Intent.ACTION_SEND
                     putExtra(Intent.EXTRA_STREAM, photoURI)
-                    type = "text/*"
+                    type = "text/csv"
                 }
                 shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 try {
-                    startActivity(Intent.createChooser(shareIntent, "Stok"))
-                }catch (e : Exception){
-                    Log.i("error_msg",e.toString())
+                    startActivity(Intent.createChooser(shareIntent, code))
+                } catch (e: Exception) {
+                    Log.i("error_msg", e.toString())
                 }
                 viewModel.setIsCsvCompleteToNull()
             }
         })
     }
+
     private fun importZipFile() {
         loading()
         Log.i("ZipDB", "importZipFile started")

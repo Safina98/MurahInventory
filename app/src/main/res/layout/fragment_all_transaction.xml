@@ -121,7 +121,7 @@
             app:layout_constraintStart_toEndOf="@id/lbl_tangal"
             app:layout_constraintTop_toBottomOf="@id/txt_isi"
             style="@style/txt_item_log_style"
-            android:text="@={viewModel._dateRangeString}" />
+            android:text="@={viewModel.mutableDate}" />
 
         <TextView
             android:id="@+id/lbl_tipe"

@@ -139,11 +139,13 @@ class UsersFragment : AuthFragment() {
         val textNama = view.findViewById<EditText>(R.id.etUsername)
         val textPassword = view.findViewById<EditText>(R.id.etPassword)
         val passwordInputLayout = view.findViewById<TextInputLayout>(R.id.tilPassword)
+        val textfgpass = view.findViewById<TextView>(R.id.txt_forget_password)
         val btn = view.findViewById<Button>(R.id.btnLogin)
         val txtLogin = view.findViewById<TextView>(R.id.tvLogin)
         val spinnerRole = view.findViewById<Spinner>(R.id.spinner_role)
         btn.visibility = View.GONE
         txtLogin.visibility = View.GONE
+        textfgpass.visibility = View.GONE
         // Handle user data
         if (usersTable != null) {
             textNama.setText(usersTable.userName)

@@ -13,12 +13,7 @@ class MyApplication : Application() {
         super.onCreate()
 
         // Initialize WorkManager
-        //WorkManager.initialize(this, WorkManagerInitializer.getConfiguration(this))
-        //scheduleOneTimeUpdateLastEditedDetailWarna()
-        // Schedule the one-time worker to update detail warna
-       //scheduleOneTimeUpdateDetailWarna()
-        //scheduleOneTimeUpdateLog()
-        //scheduleWorkerAgain()
+
         schedulePeriodicCleanup()
     }
     private fun scheduleOneTimeUpdateDetailWarna() {
@@ -30,14 +25,14 @@ class MyApplication : Application() {
     }
     private fun scheduleOneTimeUpdateLog() {
         val workRequest = OneTimeWorkRequestBuilder<UpdateLogMerkStringWorker>()
-            .setInitialDelay(15, TimeUnit.SECONDS) // Adjust the delay as needed
+            .setInitialDelay(3, TimeUnit.SECONDS) // Adjust the delay as needed
             .build()
         WorkManager.getInstance(this)
             .enqueue(workRequest)
     }
     fun scheduleWorkerAgain() {
         val workRequest = OneTimeWorkRequestBuilder<UpdateLogMerkStringWorker>()
-            .setInitialDelay(0, TimeUnit.SECONDS) // No delay for immediate execution
+            .setInitialDelay(3, TimeUnit.MINUTES) // No delay for immediate execution
             .build()
 
         WorkManager.getInstance(this)
@@ -45,11 +40,20 @@ class MyApplication : Application() {
     }
     private fun scheduleOneTimeUpdateLastEditedDetailWarna() {
         val workRequest = OneTimeWorkRequestBuilder<UpdateLastEditedWorker>()
-            .setInitialDelay(5, TimeUnit.SECONDS) // Adjust the delay as needed
+            .setInitialDelay(15, TimeUnit.SECONDS) // Adjust the delay as needed
             .build()
         WorkManager.getInstance(this)
             .enqueue(workRequest)
     }
+
+    private fun scheduleOneTimeUpdateLastEditedDateDetailWarna() {
+        val workRequest = OneTimeWorkRequestBuilder<UpdateLastEditedWorker>()
+            .setInitialDelay(15, TimeUnit.SECONDS) // Adjust the delay as needed
+            .build()
+        WorkManager.getInstance(this)
+            .enqueue(workRequest)
+    }
+
     private fun schedulePeriodicCleanup() {
         val workRequest = PeriodicWorkRequestBuilder<CleanupWorker>(1, TimeUnit.DAYS)
             .build()

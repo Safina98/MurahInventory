@@ -28,6 +28,11 @@ import com.example.tokomurahinventory.databinding.PopUpAddBarangLogBinding
 import com.example.tokomurahinventory.models.model.InputStokLogModel
 import com.example.tokomurahinventory.utils.DialogUtils
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
+import com.example.tokomurahinventory.utils.UpdateStatus
+import com.example.tokomurahinventory.utils.dataNotFoundMsgD
+import com.example.tokomurahinventory.utils.incorrectInputMsg
+import com.example.tokomurahinventory.utils.stokTidakCukup
+import com.example.tokomurahinventory.utils.succsessMsg
 import com.example.tokomurahinventory.viewmodels.InputStokViewModel
 import com.example.tokomurahinventory.viewmodels.InputStokViewModelFactory
 import java.util.Calendar
@@ -49,9 +54,10 @@ class InputStokFragment : AuthFragment() {
         val dataSourceBarangLog = DatabaseInventory.getInstance(application).barangLogDao
         val dataSourceDetailWarna = DatabaseInventory.getInstance(application).detailWarnaDao
         val dataSourceMerk = DatabaseInventory.getInstance(application).merkDao
+        val dataSourceLog = DatabaseInventory.getInstance(application).logDao
         val dataSourceWarna = DatabaseInventory.getInstance(application).warnaDao
         val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?: ""
-        val viewModelFactory = InputStokViewModelFactory(dataSourceBarangLog,dataSourceDetailWarna,dataSourceMerk,dataSourceWarna,loggedInUser,application)
+        val viewModelFactory = InputStokViewModelFactory(dataSourceBarangLog,dataSourceDetailWarna,dataSourceMerk,dataSourceWarna,loggedInUser,dataSourceLog,application)
         binding.lifecycleOwner = viewLifecycleOwner
 
         val viewModel = ViewModelProvider(this,viewModelFactory)
@@ -59,7 +65,6 @@ class InputStokFragment : AuthFragment() {
         binding.viewModel = viewModel
         val adapter  = InputStokLogAdapter(
             InputStokLogClickListener {
-
             }, InputStokLogLongListener{
 
             }, UpdateInputStokLogClickListener{
@@ -151,6 +156,7 @@ class InputStokFragment : AuthFragment() {
             null,
             false
         )
+        val oldCountModel = inputStokLogModel?.copy()
         val autoCompleteMerk = dialogBinding.txtMerk
         val autoCompleteWarna = dialogBinding.txtWarna
         val autoCompleteIsi = dialogBinding.txtIsi
@@ -170,6 +176,7 @@ class InputStokFragment : AuthFragment() {
             autoCompleteIsi.setText(inputStokLogModel.isi.toString())
             etPcs.setText(inputStokLogModel.pcs.toString())
         }
+        viewModel.getWarnaByMerkNew(inputStokLogModel!!.namaMerk)
         // Fetch and observe data
         viewModel.allMerkFromDb.observe(viewLifecycleOwner) { allMerk ->
             merkAdapter.clear()
@@ -208,30 +215,63 @@ class InputStokFragment : AuthFragment() {
         }
 
         // Show dialog
-        AlertDialog.Builder(requireContext())
+        val dialog = AlertDialog.Builder(requireContext())
             .setView(dialogBinding.root)
-            .setPositiveButton("OK") { dialog, _ ->
-                if (inputStokLogModel!=null){
-                    val namaMerk = autoCompleteMerk.text.toString().trim()
-                    val kodeWarna = autoCompleteMerk.text.toString().trim()
-                    val isi = autoCompleteIsi.text.toString().trim().toDoubleOrNull()
-                    val pcs = etPcs.text.toString().trim().toIntOrNull()
-                    if (namaMerk.isNotEmpty()&&kodeWarna.isNotEmpty()&&isi!=null&& pcs!=null) {
-                        inputStokLogModel.namaMerk= autoCompleteMerk.text.toString().trim()
-                        inputStokLogModel.kodeWarna= autoCompleteWarna.text.toString().trim()
-                        inputStokLogModel.isi= autoCompleteIsi.text.toString().trim().toDouble()
-                        inputStokLogModel.pcs= etPcs.text.toString().trim().toInt()
-                        Log.i("InsertLogTry","pop up dialog ${inputStokLogModel.pcs}")
-                        viewModel.updateInputStok(inputStokLogModel)
-                    }else Toast.makeText(context,"Gagal mengubah data", Toast.LENGTH_SHORT).show()
-
-                }
-                dialog.dismiss() }
             .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
-        .setOnDismissListener {
-            isDialogShowing = false
+            .setOnDismissListener {
+                isDialogShowing = false
+            }
+            .create()
+
+        dialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK") { _, _ ->
+            // This click listener won't be triggered automatically; we handle it manually below
         }
-            .show()
+
+        dialog.show()
+
+// Manually set the positive button click listener
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            if (inputStokLogModel != null) {
+                val namaMerk = autoCompleteMerk.text.toString().trim()
+                val kodeWarna = autoCompleteWarna.text.toString().trim()
+                val isi = autoCompleteIsi.text.toString().trim().toDoubleOrNull()
+                val pcs = etPcs.text.toString().trim().toIntOrNull()
+
+                if (namaMerk.isNotEmpty() && kodeWarna.isNotEmpty() && isi != null && pcs != null) {
+                    viewModel.checkIfDataExist(namaMerk, kodeWarna, isi, pcs,inputStokLogModel,oldCountModel!!) { status ->
+                        when (status) {
+                            UpdateStatus.SUCCESS -> {
+                                Toast.makeText(requireContext(), succsessMsg, Toast.LENGTH_SHORT).show()
+                                inputStokLogModel.namaMerk = namaMerk
+                                inputStokLogModel.kodeWarna = kodeWarna
+                                inputStokLogModel.isi = isi
+                                inputStokLogModel.pcs = pcs
+                                viewModel.updateInputStok(inputStokLogModel)
+                                dialog.dismiss() // Dismiss the dialog after updating
+                            }
+                            UpdateStatus.MERK_NOT_PRESENT -> {
+                                Toast.makeText(requireContext(), "Merk $dataNotFoundMsgD", Toast.LENGTH_SHORT).show()
+                            }
+                            UpdateStatus.WARNA_NOT_PRESENT -> {
+                                Toast.makeText(requireContext(), "Warna $dataNotFoundMsgD", Toast.LENGTH_SHORT).show()
+                            }
+                            UpdateStatus.ISI_NOT_PRESENT -> {
+                                Toast.makeText(requireContext(), "Isi $dataNotFoundMsgD", Toast.LENGTH_SHORT).show()
+                            }
+                            UpdateStatus.PCS_NOT_READY_IN_STOCK -> {
+                                Toast.makeText(requireContext(), stokTidakCukup, Toast.LENGTH_SHORT).show()
+                            }
+                            else -> {
+                                Toast.makeText(requireContext(), incorrectInputMsg, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                } else {
+                    Toast.makeText(context, "Gagal mengubah data", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
     }
 
     private fun showDatePickerDialog() {

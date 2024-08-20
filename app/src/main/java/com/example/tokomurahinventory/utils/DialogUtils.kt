@@ -72,10 +72,12 @@ object DialogUtils {
         val textCreatedDate = view.findViewById<TextView>(R.id.textCreatedDate)
         val textLastEditedDate = view.findViewById<TextView>(R.id.textLastEditedDate)
         val textKet = view.findViewById<TextView>(R.id.textKet)
+        val textDateOld = view.findViewById<TextView>(R.id.textLastEditedDateOld)
         textCreatedBy.setText(dm.createdBy)
         textLastEditedBy.setText(dm.lastEditedBy)
         textCreatedDate.setText(formatDateToStringNullable(dm.dateIn))
         textLastEditedDate.setText(formatDateToStringNullable(dm.dateOut))
+        textDateOld.setText(formatDateToStringNullable(dm.detailWarnaLastEditedDate))
         textKet.setText(dm.detailWarnaKet)
         builder.setView(view)
         builder.setPositiveButton("OK") { dialog, which ->

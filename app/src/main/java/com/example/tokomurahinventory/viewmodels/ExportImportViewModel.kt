@@ -238,7 +238,7 @@ class ExportImportViewModel(
     private suspend fun importUsers(tokens: List<String>){
         val users=UsersTable().apply {
             userName = tokens[1].trim()
-            password = tokens[2].trim()
+            password = if (tokens[2].trim()=="0") "0000" else tokens[2].trim()
             usersRef = tokens[3].trim()
             usersRole = tokens[4].trim()
         }
@@ -296,7 +296,7 @@ class ExportImportViewModel(
 
     fun writeCSV(file: File, code: String) {
         viewModelScope.launch {
-            Log.i("INSERTCSVPROB","write csv called")
+            Log.i("ExportProbs","write csv called")
             _csvWriteComplete.value = null
             _isLoading.value = true
             try {
@@ -305,6 +305,8 @@ class ExportImportViewModel(
                 val bw = BufferedWriter(fw)
                 bw.write(content)
                 bw.newLine()
+
+                Log.i("ExportProbs","write csv stok kode $code")
                 val allItems = when (code.uppercase()) {
                     "MERK" -> getAllCombinedData()
                     "LOG" -> getAllCombinedLogData()
@@ -326,7 +328,7 @@ class ExportImportViewModel(
                             }
                             "USERS"->{
                                 val userData = data as UsersTable
-                                "${userData.id}, ${userData.userName}, ${userData.password}, ${userData.usersRef},${userData.usersRole}"
+                                "${userData.id}, ${escapeCSVField(userData.userName)}, ${escapeCSVField(userData.password)}, ${escapeCSVField(userData.usersRef)},${escapeCSVField(userData.usersRole)}"
                             }
                             else -> ""
                         }

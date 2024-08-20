@@ -38,8 +38,10 @@ class UpdateLastEditedWorker(
         val dataSourceLog = DatabaseInventory.getInstance(applicationContext).logDao
         val dataSourceBarangLog = DatabaseInventory.getInstance(applicationContext).barangLogDao
         val dataSourceDetailWarna = DatabaseInventory.getInstance(applicationContext).detailWarnaDao
-        val allDetailWarna = dataSourceDetailWarna.getAllDetailWarnas()
-        for(dw in allDetailWarna){
+        Log.i("WorkerProbs", "function perform update called")
+        dataSourceDetailWarna.updateDateOutNotInKeluar(null)
+
+       /* for(dw in allDetailWarna){
             dw.lastEditedBy=null
             dataSourceDetailWarna.update(dw)
         }
@@ -51,7 +53,11 @@ class UpdateLastEditedWorker(
             }
             Log.i("DetailDateProbs", "barang log size ${barangLogList.size}")
         }
+
+        */
     }
+
+
 
 
 }

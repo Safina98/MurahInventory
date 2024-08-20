@@ -36,8 +36,9 @@
     </style>
     <style name="mutable_filter_lbl">
         <item name="android:textSize">18sp</item>
+        <item name="android:layout_marginLeft">@dimen/enormous_margin</item>
         <item name="android:layout_margin">@dimen/small_margin</item>
-        <item name="android:layout_marginLeft">@dimen/big_margin</item>
+
     </style>
     <style name="plus_min_btn">
         <item name="android:layout_width">48dp</item>

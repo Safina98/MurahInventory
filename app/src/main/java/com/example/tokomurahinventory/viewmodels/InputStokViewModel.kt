@@ -6,8 +6,10 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.example.tokomurahinventory.database.BarangLogDao
 import com.example.tokomurahinventory.database.DetailWarnaDao
+import com.example.tokomurahinventory.database.LogDao
 import com.example.tokomurahinventory.database.MerkDao
 import com.example.tokomurahinventory.database.WarnaDao
 import com.example.tokomurahinventory.models.BarangLog
@@ -15,6 +17,7 @@ import com.example.tokomurahinventory.models.DetailWarnaTable
 import com.example.tokomurahinventory.models.model.InputStokLogModel
 import com.example.tokomurahinventory.utils.MASUKKELUAR
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
+import com.example.tokomurahinventory.utils.UpdateStatus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -31,6 +34,7 @@ class InputStokViewModel (
     val dataSourceDetailWarna:DetailWarnaDao,
     private val dataSourceMerk: MerkDao,
     val dataSourceWarna: WarnaDao,
+    val dataSourceLog: LogDao,
     val loggedInUser:String,
     application: Application):AndroidViewModel(application) {
 
@@ -239,9 +243,14 @@ class InputStokViewModel (
             barangLogTipe = MASUKKELUAR.MASUK // Set default value or handle if required
         )
     }
+    fun getStringS(merk:String?,kodeWarna:String?,isi: Double?,satuan: String?,pcs: Int?):String{
+        var s ="${merk} kode ${kodeWarna};  isi ${String.format(Locale.US,"%.2f",isi)} ${satuan}; ${pcs} pcs\n"
+        return s
+    }
     fun updateInputStok(inputStokLogModel: InputStokLogModel){
         uiScope.launch {
             _isInputLogLoading.value = true
+            val s = getStringS(inputStokLogModel.namaMerk,inputStokLogModel.kodeWarna,inputStokLogModel.isi,inputStokLogModel.satuan,inputStokLogModel.pcs)
             //get logged in user for last edited
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             val refMerk = getrefMerkByName(inputStokLogModel.namaMerk.uppercase())
@@ -260,7 +269,8 @@ class InputStokViewModel (
                     if (item!=null){
                         //convert input model to newBarangLog
                         val barangNewLog = convertToBarangLog(inputStokLogModel,refMerk,refWarna,refDetailWarna,loggedInUsers,item.refLog)
-                        updateDetailWarna(barangNewLog,item)
+                        updateDetailWarna(barangNewLog,item,s)
+
                         //updateBarangLogToDao(barangNewLog)
                         //getAllInputLogModel()
                 }
@@ -277,7 +287,35 @@ class InputStokViewModel (
         }
 
     }
-    fun updateDetailWarna(newBarangLog: BarangLog,oldBarangLog:BarangLog?) {
+    fun checkIfDataExist(merk:String,warna: String,isi:Double,pcs: Int,input: InputStokLogModel,oldCountModel: InputStokLogModel, callback: (UpdateStatus) -> Unit) {
+        viewModelScope.launch {
+            // Log initial stat
+            val isMerkPresent = checkMerkExisted(merk)
+            val isWarnaPresent = isKodeWarnaInLiveData(codeWarnaByMerk, warna)
+            //val isIsiPresent = isIsiInLiveData(isiByWarnaAndMerk, isi)
+            // Fetch data from database
+            // Fetch data from database
+
+            val refDetailWarna=withContext(Dispatchers.IO){dataSourceBarangLog.getRefDetailWarnaByRefBarangLog(input.inputBarangLogRef)}
+            val isPcsReadyInStok = if (oldCountModel.isi==isi) checkIfPcsReadyInStok(refDetailWarna,pcs,isi) else checkIfPcsReadyInStokNew(refDetailWarna,oldCountModel.pcs,isi)
+            if (isMerkPresent && isWarnaPresent &&isPcsReadyInStok) {
+                // Update item in list
+                callback(UpdateStatus.SUCCESS)
+            } else {
+                // Revert changes and notify of failure
+                callback(
+                    when {
+                        !isMerkPresent -> UpdateStatus.MERK_NOT_PRESENT
+                        !isWarnaPresent -> UpdateStatus.WARNA_NOT_PRESENT
+                        !isPcsReadyInStok -> UpdateStatus.PCS_NOT_READY_IN_STOCK
+                        else -> UpdateStatus.ITEM_NOT_FOUND
+                    }
+                )
+            }
+        }
+    }
+
+    fun updateDetailWarna(newBarangLog: BarangLog,oldBarangLog:BarangLog?,s:String) {
         uiScope.launch {
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             var selisihPcs = 0
@@ -358,6 +396,7 @@ class InputStokViewModel (
                     newBarangLog.barangLogRef,
                     detailWarnaUpdates,
                     loggedInUsers,
+                    s
                 )
                 updateRv4()
 
@@ -368,6 +407,55 @@ class InputStokViewModel (
                 _isInputLogLoading.value = false
             }
 
+        }
+    }
+    private suspend fun checkMerkExisted(namaMerk: String):Boolean{
+        return withContext(Dispatchers.IO){
+            dataSourceMerk.isDataExists(namaMerk)
+        }
+    }
+    //Untuk cek kode ada di list
+    fun isKodeWarnaInLiveData(liveData: LiveData<List<String>?>, value: String): Boolean {
+        return liveData.value?.contains(value) == true
+    }
+    //Untuk Check isi ada di list
+    fun isIsiInLiveData(liveData: LiveData<List<Double>?>, value: Double): Boolean {
+        return liveData.value?.contains(value) == true
+    }
+    private suspend fun checkIfPcsReadyInStok(refDetailWarna: String, pcs_n: Int, isi: Double): Boolean {
+        return withContext(Dispatchers.IO) {
+            val currentPcs = dataSourceBarangLog.getDetailWarnaPcsByRef(refDetailWarna)
+            var result =false
+           if (pcs_n>=currentPcs){ result=true}
+            else{
+                val subs = (currentPcs-pcs_n)
+                Log.d("PcsCheck", "subs: $subs")
+                result =subs>=0
+            }
+            Log.d("PcsCheck", "currentPcs: $currentPcs, pcs_n: $pcs_n, result: $result")
+            return@withContext result
+        }
+    }
+    private suspend fun checkIfPcsReadyInStokNew(refDetailWarna: String, pcs_n: Int, isi: Double): Boolean {
+        return withContext(Dispatchers.IO) {
+            val currentPcs = dataSourceBarangLog.getDetailWarnaPcsByRef(refDetailWarna)
+            val subs = (currentPcs-pcs_n)
+            Log.d("PcsCheck", "new subs: $subs")
+            val result =subs>=0
+
+            Log.d("PcsCheck", "new currentPcs: $currentPcs, pcs_n: $pcs_n, result: $result")
+            return@withContext result
+        }
+    }
+    fun getWarnaByMerkNew(merk:String){
+        viewModelScope.launch {
+            val refMerk = withContext(Dispatchers.IO){dataSourceMerk.getMerkRefByName(merk)}
+            if (refMerk != null) {
+                val stringWarnaList = withContext(Dispatchers.IO) {
+                    dataSourceWarna.selectStringWarnaByMerk(refMerk)
+                }
+                _codeWarnaByMerk.value = stringWarnaList
+            }
         }
     }
 
@@ -436,22 +524,30 @@ class InputStokViewModel (
                                                        refLog: String,
                                                        barangLogRef: String,
                                                        detailWarnaUpdates: List<DetailWarnaTable>,
-                                                       loggedInUsers: String?){
+                                                       loggedInUsers: String?,
+                                                       s:String){
         return withContext(Dispatchers.IO){
             Log.e("InsertLogTry", "3 BarangLogDate ${barangLogDate}")
-            dataSourceBarangLog.updateBarangLogAndDetails(
-                refMerk,
-                warnaRef,
-                detailWarnaRef,
-                isi,
-                pcs,
-                barangLogDate,
-                refLog,
-                barangLogRef,
-                detailWarnaUpdates,
-                loggedInUsers,
-                MASUKKELUAR.MASUK
-            )
+            try {
+                dataSourceBarangLog.updateBarangLogAndDetails(
+                    refMerk,
+                    warnaRef,
+                    detailWarnaRef,
+                    isi,
+                    pcs,
+                    barangLogDate,
+                    refLog,
+                    barangLogRef,
+                    detailWarnaUpdates,
+                    loggedInUsers,
+                    MASUKKELUAR.MASUK,
+                    s
+                )
+
+            }catch (e:Exception){
+
+            }
+
         }
     }
     //Navigation

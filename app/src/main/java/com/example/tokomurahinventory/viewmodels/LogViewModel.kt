@@ -962,7 +962,8 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>,satuan:String){
                 barangLogRef,
                 detailWarnaUpdates,
                 loggedInUsers,
-                MASUKKELUAR.KELUAR
+                MASUKKELUAR.KELUAR,
+                null
             )
 
         }

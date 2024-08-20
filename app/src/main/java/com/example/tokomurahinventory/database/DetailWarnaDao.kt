@@ -46,6 +46,19 @@ interface DetailWarnaDao {
     fun getAllDetailWarnas(): List<DetailWarnaTable>
 
     @Query("""
+        UPDATE detail_warna_table
+        SET dateOut = :date
+        WHERE detailWarnaRef NOT IN (
+            SELECT DISTINCT dwt.detailWarnaRef
+            FROM detail_warna_table dwt
+            LEFT JOIN barang_log bl ON dwt.detailWarnaRef = bl.detailWarnaRef
+            LEFT JOIN log_table lt ON bl.refLog = lt.refLog
+            WHERE lt.logTipe = 'Keluar' AND bl.detailWarnaRef IS NOT NULL
+        )
+    """)
+    suspend fun updateDateOutNotInKeluar(date: Date?)
+
+    @Query("""
         SELECT 
             d.detailWarnaIsi,
             d.warnaRef,

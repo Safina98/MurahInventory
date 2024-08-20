@@ -81,9 +81,7 @@ class AllTransactionFragment : Fragment() {
         binding.rvLog.adapter = adapter
 
         viewModel.codeWarnaByMerk.observe(viewLifecycleOwner) { it?.let {}}
-        viewModel.allMerkFromDb.observe(viewLifecycleOwner){it?.let {
-
-        }}
+        viewModel.allMerkFromDb.observe(viewLifecycleOwner){it?.let {}}
         viewModel.isiByWarnaAndMerk.observe(viewLifecycleOwner){it?.let {}}
 
         viewModel.filteredLog.observe(viewLifecycleOwner){it?.let {
@@ -94,6 +92,10 @@ class AllTransactionFragment : Fragment() {
         }}
 
         binding.btnFilter.setOnClickListener {
+            clearSearchQuery()
+            setupDialog(null,1)
+        }
+        binding.filterIg.setOnClickListener {
             clearSearchQuery()
             setupDialog(null,1)
         }
@@ -153,29 +155,36 @@ class AllTransactionFragment : Fragment() {
         val autoCompleteIsi = dialogBinding.txtIsi
         val tipeSpinner = dialogBinding.spinnerTipe
         val textDate=dialogBinding.txtDate
+        val calendarIcon=dialogBinding.calenderIcon
+        val txtReset=dialogBinding.txtReset
 
         viewModel._dateRangeString.observe(viewLifecycleOwner, Observer {
             it?.let {
                 textDate.setText(it)
             }
         })
-        if (viewModel.mutableMerk.value!=null ||viewModel.mutableMerk.value!="") {
+        if (viewModel.mutableMerk.value!=null &&viewModel.mutableMerk.value!="") {
             autoCompleteMerk.setText(viewModel.mutableMerk.value)
         }
-        if (viewModel.mutableKode.value!=null ||viewModel.mutableKode.value!="") {
+        if (viewModel.mutableKode.value!=null &&viewModel.mutableKode.value!="") {
             autoCompleteWarna.setText(viewModel.mutableKode.value)
         }
-        if (viewModel.mutableIsi.value!=null ||viewModel.mutableIsi.value!=""||viewModel.mutableIsi.value!="-") {
+        if (viewModel.mutableIsi.value!=null &&viewModel.mutableIsi.value!=""&&viewModel.mutableIsi.value!="-"&&viewModel.mutableIsi.value!="Semua") {
             autoCompleteIsi.setText(viewModel.mutableIsi.value)
         }
-        if (viewModel.mutableTipe.value!=null ||viewModel.mutableTipe.value!="") {
-            //set selected item for spinner
+        val tipeArray = resources.getStringArray(R.array.masuk_keluar_spinner)
+        viewModel.mutableTipe.value?.takeIf { it.isNotEmpty() }?.let { selectedValue ->
+            val position = tipeArray.indexOf(selectedValue)
+            if (position != -1) tipeSpinner.setSelection(position)
+        } ?: Log.e("SpinnerError", "Selected value is null or empty.")
+
+        textDate.setOnClickListener { showDatePickerDialog() }
+        calendarIcon.setOnClickListener{ showDatePickerDialog() }
+        txtReset.setOnClickListener {
+            viewModel.updateDateRangeString(null,null)
+            viewModel.setStartAndEndDateRange(null,null)
         }
 
-
-        textDate.setOnClickListener {
-            showDatePickerDialog()
-        }
         //val etPcs = dialogBinding.txtPcs
 
         val oldCountModel = inputStokLogModel?.copy()
@@ -189,24 +198,6 @@ class AllTransactionFragment : Fragment() {
 
         val isiAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, mutableListOf())
         autoCompleteIsi.setAdapter(isiAdapter)
-
-
-        if (inputStokLogModel != null) {
-            autoCompleteMerk.setText(inputStokLogModel.merkBarang)
-            autoCompleteWarna.setText(inputStokLogModel.kodeBarang)
-            if (inputStokLogModel.isi != null) {
-                autoCompleteIsi.setText(inputStokLogModel.isi.toString())
-            }
-            if (inputStokLogModel.psc != 0) {
-                //etPcs.setText(inputStokLogModel.psc.toString())
-            }
-            if (inputStokLogModel.merkBarang != null) {
-                viewModel.getWarnaByMerkNew(inputStokLogModel.merkBarang!!)
-            }
-            if (inputStokLogModel.kodeBarang != null) {
-                viewModel.getIsiByWarnaAndMerk(inputStokLogModel.merkBarang!!, inputStokLogModel.kodeBarang!!)
-            }
-        }
 
         // Fetch and observe data
         viewModel.allMerkFromDb.observe(viewLifecycleOwner) { allMerk ->
@@ -270,9 +261,23 @@ class AllTransactionFragment : Fragment() {
                 val kodeWarna = autoCompleteWarna.text.toString().trim()
                 val isi = autoCompleteIsi.text.toString().trim().toDoubleOrNull()
                 val selectedItem = tipeSpinner.selectedItem.toString()
-                viewModel. updateRv(namaMerk,kodeWarna,isi,selectedItem)
-                dialog.dismiss()
-
+                //viewModel. updateRv(namaMerk,kodeWarna,isi,selectedItem)
+                viewModel.checkIfDataExist(namaMerk,kodeWarna,isi) { status ->
+                    when (status) {
+                        UpdateStatus.SUCCESS -> {
+                            viewModel.updateRv(namaMerk,kodeWarna,isi,selectedItem)
+                            dialog.dismiss() // Dismiss the dialog after updating
+                        }
+                        UpdateStatus.MERK_NOT_PRESENT -> Toast.makeText(requireContext(), "Merk $dataNotFoundMsgD", Toast.LENGTH_SHORT).show()
+                        UpdateStatus.WARNA_NOT_PRESENT -> Toast.makeText(requireContext(), "Warna $dataNotFoundMsgD", Toast.LENGTH_SHORT).show()
+                        UpdateStatus.ISI_NOT_PRESENT -> Toast.makeText(requireContext(), "Isi $dataNotFoundMsgD", Toast.LENGTH_SHORT).show()
+                        UpdateStatus.PCS_NOT_READY_IN_STOCK -> Toast.makeText(requireContext(), stokTidakCukup, Toast.LENGTH_SHORT).show()
+                        else -> {
+                            Toast.makeText(requireContext(), incorrectInputMsg, Toast.LENGTH_SHORT).show()
+                            // Optionally, you can log the status here if needed
+                        }
+                    }
+                }
             }
         }
 

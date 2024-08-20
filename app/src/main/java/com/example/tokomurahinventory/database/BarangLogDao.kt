@@ -40,8 +40,11 @@ interface BarangLogDao {
     fun selectCountModelByLogRef(refLog: String): List<CountModel>
 
     @Query("SELECT detailWarnaPcs FROM detail_warna_table WHERE warnaRef = :warnaRef AND detailWarnaIsi = :detailWarnaIsi")
-    suspend fun getCurrentDetailWarnaPcs(warnaRef: String, detailWarnaIsi: Double): Int
-
+    suspend fun getCurrentDetailWarnaPcs(warnaRef: String, detailWarnaIsi: Double): Int?
+    @Query("SELECT detailWarnaRef FROM barang_log WHERE barangLogRef=:barangLogRef")
+    suspend fun getRefDetailWarnaByRefBarangLog(barangLogRef: String): String
+    @Query("SELECT detailWarnaPcs FROM detail_warna_table WHERE detailWarnaRef=:detailWarnaRef")
+    suspend fun getDetailWarnaPcsByRef(detailWarnaRef: String): Int
     @Query("SELECT * FROM barang_log WHERE detailWarnaRef = :detailWarnaRef")
     fun selectBarangLogByLogDetailWarnaRef(detailWarnaRef:String): List<BarangLog>
 
@@ -136,12 +139,11 @@ interface BarangLogDao {
     @Query("""
         UPDATE log_table SET lastEditedBy = :lastEditedBy, logLastEditedDate = :logLastEditedDate, userName = :userName WHERE refLog = :refLog
     """)
-    suspend fun updateLastEditedLog(
-        lastEditedBy: String?,
-        logLastEditedDate: Date,
-        userName: String,
-        refLog: String
-    )
+    suspend fun updateLastEditedLog(lastEditedBy: String?, logLastEditedDate: Date, userName: String, refLog: String)
+    @Query("""
+        UPDATE log_table SET lastEditedBy = :lastEditedBy, logLastEditedDate = :logLastEditedDate, userName = :userName,merk=:s WHERE refLog = :refLog
+    """)
+    suspend fun updateLastEditedAndStringLog(lastEditedBy: String?, logLastEditedDate: Date, userName: String, refLog: String,s:String)
     @Query(" UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs-:detailWarnaPcs,lastEditedBy =:loggedInUsers,detailWarnaLastEditedDate=:lastEditedDate WHERE warnaRef = :refWarna AND detailWarnaIsi = :detailWarnaIsi")
     fun updateDetailWarna(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,loggedInUsers:String?,lastEditedDate: Date): Int
     @Query(" UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs-:detailWarnaPcs,lastEditedBy =:loggedInUsers,detailWarnaLastEditedDate=:lastEditedDate,detailWarnaKet=:ket WHERE warnaRef = :refWarna AND detailWarnaIsi = :detailWarnaIsi")
@@ -182,7 +184,7 @@ interface BarangLogDao {
         val currentPcs = getCurrentDetailWarnaPcs(refWarna, detailWarnaIsi)
 
         // Calculate the new pcs value after the update
-        val newPcs = currentPcs - detailWarnaPcs
+        val newPcs = currentPcs!! - detailWarnaPcs
 
         // Check if the new pcs value would be negative
         if (newPcs >= 0) {
@@ -215,16 +217,22 @@ interface BarangLogDao {
         barangLogRef: String,
         detailWarnaUpdates: List<DetailWarnaTable>,
         loggedInUsers: String?,
-        tipe: String
+        tipe: String,
+        s:String?
     ) {
         Log.e("InsertLogTry", "4 BarangLogDate ${barangLogDate}")
-        updateLastEditedLog(loggedInUsers,Date(),loggedInUsers?:"",refLog)
+        if (s!=null){
+            updateLastEditedAndStringLog(loggedInUsers,Date(),loggedInUsers?:"",refLog,s)
+        }else{
+            updateLastEditedLog(loggedInUsers,Date(),loggedInUsers?:"",refLog)
+        }
+
         // Update BarangLog Table
         updateByBarangLogRef(refMerk, warnaRef, detailWarnaRef, isi, pcs, barangLogDate, refLog, barangLogRef)
         // Perform DetailWarnaTable updates
         detailWarnaUpdates.forEach { update ->
             val currentPcs = getCurrentDetailWarnaPcs(update.warnaRef, update.detailWarnaIsi)
-            val newPcs = currentPcs - update.detailWarnaPcs
+            val newPcs = currentPcs!! - update.detailWarnaPcs
 
             if (newPcs >= 0) {
                 //updateDetailWarnaWithKet(update.warnaRef, update.detailWarnaIsi, update.detailWarnaPcs, loggedInUsers, Date(),update.detailWarnaKet?:"")
