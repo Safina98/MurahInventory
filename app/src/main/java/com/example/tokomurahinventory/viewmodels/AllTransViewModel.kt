@@ -12,8 +12,6 @@ import com.example.tokomurahinventory.database.LogDao
 import com.example.tokomurahinventory.database.MerkDao
 import com.example.tokomurahinventory.database.UsersDao
 import com.example.tokomurahinventory.database.WarnaDao
-import com.example.tokomurahinventory.models.BarangLog
-import com.example.tokomurahinventory.models.CountModel
 import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.utils.MASUKKELUAR
 import com.example.tokomurahinventory.utils.MASUKKELUARSPINNER
@@ -62,7 +60,11 @@ class AllTransViewModel(val dataSourceMerk: MerkDao,
     val mutableTipe=MutableLiveData<String>("")
     val mutableDate = MutableLiveData<String>("")
 
+    private var offset = 0
+    private val limit = 50
+    private var hasMoreData = true
 
+    //val logs = MutableLiveData<List<LogTable>>()
 
     private fun formatDateRange(startDate: Date?, endDate: Date?): String {
         return if (startDate != null && endDate != null) {
@@ -146,23 +148,30 @@ class AllTransViewModel(val dataSourceMerk: MerkDao,
             }
         }
     }
+    fun loadMoreData(){
+        if (!hasMoreData) return // Stop if no more data to load
+        val kode=if (mutableKode.value=="Semua") null else mutableKode.value
+       performFiltering(mutableMerk.value?:"",kode,mutableIsi.value?.toDoubleOrNull(),mutableTipe.value)
+    }
     fun reloadData(){
-        val merk = mutableMerk.value?:""
-        var kode=if (mutableKode.value=="Semua") null else mutableKode.value
-
-        val isi = mutableIsi.value?.toDoubleOrNull()
-        val tipe=mutableTipe.value
-        Log.i("AllTransProbs","Merk: $merk")
-        Log.i("AllTransProbs","Kode: $kode")
-        Log.i("AllTransProbs","Isi: $isi")
-        Log.i("AllTransProbs","Tipe: $tipe")
-
+        val kode=if (mutableKode.value=="Semua") null else mutableKode.value
         updateRv(mutableMerk.value?:"",kode,mutableIsi.value?.toDoubleOrNull(),mutableTipe.value)
+    }
+    fun resetLogs() {
+        offset = 0
+        _filteredLog.value = emptyList()
+        _unFilteredLog.value= emptyList()
+        hasMoreData=true
     }
 
     fun updateRv(merk: String, kode: String?, isi: Double?, selectedSpinner: String?) {
         viewModelScope.launch {
             _isLogLoading.value = true
+            performFiltering(merk,kode,isi,selectedSpinner)
+        }
+    }
+    private fun performFiltering(merk: String, kode: String?, isi: Double?, selectedSpinner: String?){
+        viewModelScope.launch {
             _isLoadCrashed.value = false
             val tipe = getTipeFromSpinner(selectedSpinner)
             val startDate=_selectedStartDate.value
@@ -172,9 +181,17 @@ class AllTransViewModel(val dataSourceMerk: MerkDao,
                 updateDateRangeString(null,null)
             }
             try {
-                val logList = withContext(Dispatchers.IO){dataSourceLog.getLogs(merk, kode, isi, tipe,startDate,endDate)}
-                _filteredLog.value = logList
-                _unFilteredLog.value = logList
+                val newLogs = withContext(Dispatchers.IO){dataSourceLog.getLogs(merk, kode, isi, tipe,startDate,endDate,limit,offset)}
+                val currentLogs = _unFilteredLog.value.orEmpty()
+                Log.e("AllTransProbs", "data size:${newLogs.size} ")
+                if (newLogs.size < limit) {
+                    hasMoreData = false
+                }
+                _filteredLog.value = currentLogs + newLogs
+                _unFilteredLog.value=currentLogs + newLogs
+                offset += limit
+                //_filteredLog.value = logList
+                //_unFilteredLog.value = logList
             } catch (e: Exception) {
                 _isLoadCrashed.value = true
                 Log.e("AllTransProbs", "$e")

@@ -49,7 +49,7 @@ interface LogDao {
         AND (:startDate IS NULL OR logLastEditedDate >= :startDate)
         AND (:endDate IS NULL OR logLastEditedDate <= :endDate)
     """)
-    suspend fun getLogs(
+    suspend fun getLogsOld(
         namaMerk: String,
         kodeWarna: String?,
         isi: Double?,
@@ -58,12 +58,35 @@ interface LogDao {
         endDate: Date?
     ): List<LogTable>
 
+    @Query("""
+    SELECT l.* FROM log_table l
+    JOIN barang_log bl ON l.refLog = bl.refLog
+    JOIN detail_warna_table dw ON bl.detailWarnaRef = dw.detailWarnaRef
+    JOIN warna_table w ON dw.warnaRef = w.warnaRef
+    JOIN merk_table m ON w.refMerk = m.refMerk
+    WHERE m.namaMerk = :namaMerk
+    AND (:kodeWarna IS NULL OR w.kodeWarna = :kodeWarna)
+    AND (:isi IS NULL OR dw.detailWarnaIsi = :isi)
+    AND (:tipe IS NULL OR l.logTipe = :tipe)
+    AND (:startDate IS NULL OR logLastEditedDate >= :startDate)
+    AND (:endDate IS NULL OR logLastEditedDate <= :endDate)
+    ORDER BY logLastEditedDate DESC
+    LIMIT :limit OFFSET :offset
+""")
+    suspend fun getLogs(
+        namaMerk: String,
+        kodeWarna: String?,
+        isi: Double?,
+        tipe: String?,
+        startDate: Date?,
+        endDate: Date?,
+        limit: Int,
+        offset: Int
+    ): List<LogTable>
+
 
     @Query("SELECT * FROM LOG_TABLE WHERE logTipe =:tipe AND (:startDate IS NULL OR logDate >= :startDate) AND (:endDate IS NULL OR logDate <= :endDate) ")
     fun selectAllLogListWithFilters(tipe:String,startDate: Date?, endDate: Date?):List<LogTable>
-
-
-
 
     @Query("DELETE FROM log_table WHERE id =:id")
     fun delete(id:Int)

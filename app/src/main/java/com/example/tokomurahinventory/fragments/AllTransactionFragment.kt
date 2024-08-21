@@ -16,6 +16,8 @@ import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.tokomurahinventory.R
 import com.example.tokomurahinventory.adapters.LogAdapter
 import com.example.tokomurahinventory.adapters.LogClickListener
@@ -48,6 +50,7 @@ class AllTransactionFragment : Fragment() {
     private lateinit var viewModel: AllTransViewModel
     private var isDialogShowing = false
     private var isDateDialogShowing = false
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -90,6 +93,22 @@ class AllTransactionFragment : Fragment() {
             adapter.notifyDataSetChanged()
             Log.i("AllTransProbs", "Data size: ${it.size}")
         }}
+
+        binding.rvLog.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                val visibleItemCount = layoutManager.childCount
+                val totalItemCount = layoutManager.itemCount
+                val pastVisibleItems = layoutManager.findFirstVisibleItemPosition()
+
+                if ((visibleItemCount + pastVisibleItems) >= (totalItemCount-5)) {
+                    // Load more logs
+                    viewModel.loadMoreData()
+                }
+            }
+        })
+
 
         binding.btnFilter.setOnClickListener {
             clearSearchQuery()
@@ -271,6 +290,7 @@ class AllTransactionFragment : Fragment() {
                 viewModel.checkIfDataExist(namaMerk,kodeWarna,isi) { status ->
                     when (status) {
                         UpdateStatus.SUCCESS -> {
+                            viewModel.resetLogs()
                             if (kodeWarna!!.isEmpty()) kodeWarna=null
                             viewModel.updateRv(namaMerk,kodeWarna,isi,selectedItem)
                             dialog.dismiss() // Dismiss the dialog after updating
