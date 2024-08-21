@@ -146,6 +146,19 @@ class AllTransViewModel(val dataSourceMerk: MerkDao,
             }
         }
     }
+    fun reloadData(){
+        val merk = mutableMerk.value?:""
+        var kode=if (mutableKode.value=="Semua") null else mutableKode.value
+
+        val isi = mutableIsi.value?.toDoubleOrNull()
+        val tipe=mutableTipe.value
+        Log.i("AllTransProbs","Merk: $merk")
+        Log.i("AllTransProbs","Kode: $kode")
+        Log.i("AllTransProbs","Isi: $isi")
+        Log.i("AllTransProbs","Tipe: $tipe")
+
+        updateRv(mutableMerk.value?:"",kode,mutableIsi.value?.toDoubleOrNull(),mutableTipe.value)
+    }
 
     fun updateRv(merk: String, kode: String?, isi: Double?, selectedSpinner: String?) {
         viewModelScope.launch {
@@ -154,13 +167,12 @@ class AllTransViewModel(val dataSourceMerk: MerkDao,
             val tipe = getTipeFromSpinner(selectedSpinner)
             val startDate=_selectedStartDate.value
             val endDate=_selectedEndDate.value
+            setMutableValues(merk,kode?:"Semua",isi,selectedSpinner)
+            if (startDate==null){
+                updateDateRangeString(null,null)
+            }
             try {
                 val logList = withContext(Dispatchers.IO){dataSourceLog.getLogs(merk, kode, isi, tipe,startDate,endDate)}
-                setMutableValues(merk,kode?:"Semua",isi,selectedSpinner)
-                if (startDate==null){
-                    updateDateRangeString(null,null)
-                }
-
                 _filteredLog.value = logList
                 _unFilteredLog.value = logList
             } catch (e: Exception) {

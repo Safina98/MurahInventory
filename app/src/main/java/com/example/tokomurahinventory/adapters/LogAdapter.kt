@@ -3,12 +3,15 @@ package com.example.tokomurahinventory.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tokomurahinventory.databinding.ItemListLogBinding
 import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.utils.DATE_FORMAT
+import com.example.tokomurahinventory.utils.SharedPreferencesHelper
+import com.example.tokomurahinventory.utils.UserRoles
 
 
 class LogAdapter(
@@ -29,7 +32,13 @@ class LogAdapter(
                 binding.txtTipe.visibility=View.GONE
             }else{
                 binding.imgUpdate.visibility=View.GONE
-                binding.btnDeleteNet.visibility=View.GONE
+                binding.btnDeleteNet.visibility =View.GONE
+            }
+            if (!isTipeVisible) {
+                SharedPreferencesHelper.userRole.observe(binding.root.context as LifecycleOwner) { role ->
+                    binding.imgUpdate.visibility = if (role == UserRoles.ADMIN) View.VISIBLE else View.GONE
+                    binding.btnDeleteNet.visibility=if (role == UserRoles.ADMIN) View.VISIBLE else View.GONE
+                }
             }
             binding.executePendingBindings()
         }

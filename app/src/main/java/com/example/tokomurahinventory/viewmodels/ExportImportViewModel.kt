@@ -90,8 +90,8 @@ class ExportImportViewModel(
                 Log.i("GeneratingDummy","staring")
                 val allMerk = withContext(Dispatchers.IO){dataSourceMerk.selectAllMerkList()}
                 _isLoading.value=true
-                dataGenerator.populateMerk(allMerk)
-
+                //dataGenerator.populateMerk(allMerk)
+                dataGenerator.populateLog(allMerk)
                 _isLoading.value=false
             //dataGenerator.populateLog(allMerk)
             } catch (e: Exception) {

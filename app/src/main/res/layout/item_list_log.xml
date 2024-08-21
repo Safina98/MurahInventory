@@ -36,7 +36,7 @@
                 android:onClick="@{()->deleteListener.onClick(log)}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:showIfAdmin="@{true}" />
+                 />
 
             <ImageView
                 android:id="@+id/img_update"
@@ -47,7 +47,7 @@
                 android:onClick="@{()->clickListemer.onClick(log)}"
                 app:layout_constraintEnd_toStartOf="@id/btn_delete_net"
                 app:layout_constraintTop_toTopOf="parent"
-                app:showIfAdmin="@{true}" />
+                 />
             <TextView
                 android:id="@+id/txtTipe"
                 style="@style/txt_item_log_style"

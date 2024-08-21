@@ -273,6 +273,7 @@ interface BarangLogDao {
 
     ) {
         // Insert the LogTable entry
+
         insert(logTable)
         Log.i("addLogProb", "$barangLogs")
         // Insert BarangLog entries and update detail_warna_table

@@ -100,7 +100,7 @@
             android:visibility="gone" />
 
         <TextView
-            app:showIfAdmin="@{true}"
+            app:showIfAdminAndNotLoading="@{viewModel.isLoading}"
             android:id="@+id/import_header"
             style="@style/export_import_txt_header_style"
             android:layout_width="wrap_content"
@@ -111,7 +111,7 @@
             app:layout_constraintTop_toBottomOf="@id/btn_export_database" />
 
         <TextView
-            app:showIfAdmin="@{true}"
+            app:showIfAdminAndNotLoading="@{viewModel.isLoading}"
             style="@style/rv_input_Log_big_text_style"
             android:id="@+id/btn_import_merk"
             android:layout_width="wrap_content"
@@ -120,7 +120,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/import_header" />
         <TextView
-            app:showIfAdmin="@{true}"
+            app:showIfAdminAndNotLoading="@{viewModel.isLoading}"
             style="@style/rv_input_Log_big_text_style"
             android:id="@+id/btn_import_merk_new"
             android:layout_width="wrap_content"

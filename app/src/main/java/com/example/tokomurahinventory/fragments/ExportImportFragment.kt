@@ -149,7 +149,7 @@ class ExportImportFragment : AuthFragment() {
         }
         binding.btnImportMerk.setOnClickListener {
             importCSVStock()
-           //viewModel.generateData()
+          // viewModel.generateData()
             //viewModel.updatedateOutDetailWarna()
 
         }
@@ -290,8 +290,6 @@ class ExportImportFragment : AuthFragment() {
             Toast.makeText(requireContext(), "No file selected", Toast.LENGTH_SHORT).show()
         }
     }
-
-
 
     private fun extractZipFile(zipFile: File) {
         lifecycleScope.launch(Dispatchers.IO) {

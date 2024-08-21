@@ -831,7 +831,6 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>,satuan:String){
                             )
                         )
                     }
-
                     // Call the DAO transaction method
                     updateBarangLogAndDetailWarna(
                         newBarangLog.refMerk,

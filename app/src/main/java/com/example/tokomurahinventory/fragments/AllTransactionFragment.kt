@@ -131,6 +131,12 @@ class AllTransactionFragment : Fragment() {
                 // RecyclerView visibility will be handled by the isLogLoading observer
             }
         }
+        binding.textCrashed.setOnClickListener {
+            viewModel.reloadData()
+        }
+        binding.lblMerk.setOnClickListener {
+            viewModel.reloadData()
+        }
         binding.searchBarLog.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return true

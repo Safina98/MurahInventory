@@ -179,12 +179,11 @@ class MainActivity : AppCompatActivity() {
             .setPositiveButton("OK") { dialogInterface, _ ->
                 val enteredUsername = usernameEt.text.toString().trim()
                 Log.d("AppDebug", "Entered Username: $enteredUsername")
-
                 authViewModel.getAdminPassword(enteredUsername, this) { originalPassword ->
                     if (originalPassword != null) {
                         val trimmedPassword = originalPassword.dropWhile { it == '0' }
                         val passwordToUse = if (trimmedPassword.isEmpty()) "0" else trimmedPassword
-                        val p = passwordToUse.toInt() * 328481
+                        val p = passwordToUse.toLong() * 328481L  // Use Long for multiplication
 
                         Log.d("AppDebug", "Encrypted Password: $p")  // Log the encrypted password
                         val intent = Intent(Intent.ACTION_SEND).apply {
@@ -199,7 +198,6 @@ class MainActivity : AppCompatActivity() {
                             dialogInterface.dismiss()  // Dismiss the dialog only if the intent is successfully started
                         } else {
                             Log.e("WhatsAppError", "No WhatsApp client available to send the message.")
-
                         }
 
                     } else {
@@ -238,25 +236,13 @@ class MainActivity : AppCompatActivity() {
 
     fun logout() {
         Log.d("AppDebug", "Logout action triggered.")
-        // Navigate to start destination and clear back stack
-        //val navHostFragment = supportFragmentManager.findFragmentById(R.id.myNavHostFragment) as NavHostFragment
-        //val navController = navHostFragment.navController
-        //navController.popBackStack(navController.graph.startDestinationId, false)
-        //navController.navigate(navController.graph.startDestinationId)
 
         SharedPreferencesHelper.clearUsername(this)
         authViewModel.setAuthenticationState(null)
 
     }
 
-    fun encryptPassword(){
-        //check if the first string is 0
-            //if yes check if the second string is 0
-                //if yes check if the third string is 0
-                    // if yes check if the fourth string is 0
-                        //if yes then create a random number
-        // if no then times it with 287
-    }
+
 
 
     override fun onDestroy() {
