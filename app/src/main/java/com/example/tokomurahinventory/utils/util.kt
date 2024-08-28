@@ -49,11 +49,9 @@ val stokTidakCukup="Stok barang tidak cukup"
 val succsessMsg = "Berhasil"
 
 fun formatDateToString(date: Date):String{
-
         val sdf = SimpleDateFormat(FULL_DATE_FORMAT, Locale.getDefault())
         val dateToDisplay = date ?: Date() // Use today's date if date is null
         return sdf.format(dateToDisplay)
-
 }
 fun formatDateToStringNullable(date: Date?):String{
 

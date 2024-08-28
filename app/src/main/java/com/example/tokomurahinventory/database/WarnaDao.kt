@@ -139,6 +139,8 @@ interface WarnaDao {
         lastEditedDate:Date,
         warnaId:Int
     )
+    @Query("SELECT satuan FROM warna_table WHERE warnaRef=:warnaRef")
+    fun getSatuanByRefWarna(warnaRef: String):String
 }
 
 

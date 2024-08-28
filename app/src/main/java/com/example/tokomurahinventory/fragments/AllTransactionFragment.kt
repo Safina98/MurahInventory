@@ -91,10 +91,12 @@ class AllTransactionFragment : Fragment() {
             //Log.i("AllTransProbs","$it")
             adapter.submitList(it.sortedByDescending { it.logLastEditedDate })
             adapter.notifyDataSetChanged()
-            Log.i("AllTransProbs", "Data size: ${it.size}")
+            Log.i("DataSize", "Data size: ${it.size}")
         }}
 
         binding.rvLog.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            private var isLoading = false
+
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 val layoutManager = recyclerView.layoutManager as LinearLayoutManager
@@ -102,12 +104,20 @@ class AllTransactionFragment : Fragment() {
                 val totalItemCount = layoutManager.itemCount
                 val pastVisibleItems = layoutManager.findFirstVisibleItemPosition()
 
-                if ((visibleItemCount + pastVisibleItems) >= (totalItemCount-5)) {
-                    // Load more logs
+                if (!isLoading && (visibleItemCount + pastVisibleItems) >= totalItemCount && dy > 0) {
+                    isLoading = true // Set the flag to prevent multiple triggers
                     viewModel.loadMoreData()
                 }
             }
+
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    isLoading = false // Reset the flag when scrolling stops
+                }
+            }
         })
+
 
 
         binding.btnFilter.setOnClickListener {

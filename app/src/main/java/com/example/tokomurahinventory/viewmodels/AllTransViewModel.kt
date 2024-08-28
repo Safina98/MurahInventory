@@ -63,6 +63,8 @@ class AllTransViewModel(val dataSourceMerk: MerkDao,
     private var offset = 0
     private val limit = 50
     private var hasMoreData = true
+    private var isLoadingData = false
+    private var currentOffset = 0
 
     //val logs = MutableLiveData<List<LogTable>>()
 
@@ -148,10 +150,15 @@ class AllTransViewModel(val dataSourceMerk: MerkDao,
             }
         }
     }
-    fun loadMoreData(){
-        if (!hasMoreData) return // Stop if no more data to load
-        val kode=if (mutableKode.value=="Semua") null else mutableKode.value
-       performFiltering(mutableMerk.value?:"",kode,mutableIsi.value?.toDoubleOrNull(),mutableTipe.value)
+    fun loadMoreData() {
+        if (!hasMoreData) return
+
+        performFiltering(
+            mutableMerk.value ?: "",
+            mutableKode.value?.takeIf { it != "Semua" },
+            mutableIsi.value?.toDoubleOrNull(),
+            mutableTipe.value
+        )
     }
     fun reloadData(){
         val kode=if (mutableKode.value=="Semua") null else mutableKode.value
@@ -170,28 +177,49 @@ class AllTransViewModel(val dataSourceMerk: MerkDao,
             performFiltering(merk,kode,isi,selectedSpinner)
         }
     }
-    private fun performFiltering(merk: String, kode: String?, isi: Double?, selectedSpinner: String?){
+    private fun performFiltering(
+        merk: String,
+        kode: String?,
+        isi: Double?,
+        selectedSpinner: String?
+    ) {
         viewModelScope.launch {
+            Log.e("AllTransProbs", "Perform filtering called ")
+
             _isLoadCrashed.value = false
             val tipe = getTipeFromSpinner(selectedSpinner)
-            val startDate=_selectedStartDate.value
-            val endDate=_selectedEndDate.value
-            setMutableValues(merk,kode?:"Semua",isi,selectedSpinner)
-            if (startDate==null){
-                updateDateRangeString(null,null)
+            val startDate = _selectedStartDate.value
+            val endDate = _selectedEndDate.value
+            setMutableValues(merk, kode ?: "Semua", isi, selectedSpinner)
+            if (startDate == null) {
+                updateDateRangeString(null, null)
             }
             try {
-                val newLogs = withContext(Dispatchers.IO){dataSourceLog.getLogs(merk, kode, isi, tipe,startDate,endDate,limit,offset)}
-                val currentLogs = _unFilteredLog.value.orEmpty()
-                Log.e("AllTransProbs", "data size:${newLogs.size} ")
+                val newLogs = withContext(Dispatchers.IO) {
+                    dataSourceLog.getLogs(merk, kode, isi, tipe, startDate, endDate, limit, offset)
+                }
+
+                // Update offset only if new logs are fetched
+                if (newLogs.isNotEmpty()) {
+                    offset += limit
+                }
+
+                // Check if fewer than the limit were returned, meaning no more data is available
                 if (newLogs.size < limit) {
                     hasMoreData = false
                 }
-                _filteredLog.value = currentLogs + newLogs
-                _unFilteredLog.value=currentLogs + newLogs
-                offset += limit
-                //_filteredLog.value = logList
-                //_unFilteredLog.value = logList
+                Log.i("AllTransProbs", "New logs fetched: ${newLogs.map { it.id }}")
+
+
+                // Add only new, non-duplicate logs
+                val currentLogs = _unFilteredLog.value.orEmpty()
+                val uniqueNewLogs = newLogs.filterNot { newLog -> currentLogs.any { it.refLog == newLog.refLog } }
+
+                _filteredLog.value = currentLogs + uniqueNewLogs
+                _unFilteredLog.value = currentLogs + uniqueNewLogs
+
+                Log.i("AllTransProbs", "Data size: ${_unFilteredLog.value?.size}")
+
             } catch (e: Exception) {
                 _isLoadCrashed.value = true
                 Log.e("AllTransProbs", "$e")
@@ -200,7 +228,8 @@ class AllTransViewModel(val dataSourceMerk: MerkDao,
             }
         }
     }
-    
+
+
     private fun getTipeFromSpinner(selectedSpinner: String?): String? {
         return when (selectedSpinner) {
             MASUKKELUARSPINNER.MASUK -> MASUKKELUAR.MASUK

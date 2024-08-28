@@ -149,9 +149,6 @@ class ExportImportFragment : AuthFragment() {
         }
         binding.btnImportMerk.setOnClickListener {
             importCSVStock()
-          // viewModel.generateData()
-            //viewModel.updatedateOutDetailWarna()
-
         }
         binding.btnExportDatabase.setOnClickListener {
             loading()

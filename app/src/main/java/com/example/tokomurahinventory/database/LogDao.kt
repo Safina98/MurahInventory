@@ -59,7 +59,7 @@ interface LogDao {
     ): List<LogTable>
 
     @Query("""
-    SELECT l.* FROM log_table l
+    SELECT DISTINCT l.* FROM log_table l
     JOIN barang_log bl ON l.refLog = bl.refLog
     JOIN detail_warna_table dw ON bl.detailWarnaRef = dw.detailWarnaRef
     JOIN warna_table w ON dw.warnaRef = w.warnaRef

@@ -90,8 +90,8 @@ class ExportImportViewModel(
                 Log.i("GeneratingDummy","staring")
                 val allMerk = withContext(Dispatchers.IO){dataSourceMerk.selectAllMerkList()}
                 _isLoading.value=true
-                //dataGenerator.populateMerk(allMerk)
-                dataGenerator.populateLog(allMerk)
+                //dataGenerator.populateMerk(getApplication(),allMerk)
+                dataGenerator.populateLog(getApplication(),allMerk)
                 _isLoading.value=false
             //dataGenerator.populateLog(allMerk)
             } catch (e: Exception) {
@@ -99,9 +99,7 @@ class ExportImportViewModel(
                 Log.i("GeneratingDummy","$e")
             }
         }
-
     }
-
 
     suspend fun getAllCombinedData(): List<CombinedDataModel> {
         return withContext(Dispatchers.IO){

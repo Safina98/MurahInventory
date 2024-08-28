@@ -96,6 +96,28 @@ interface DetailWarnaDao {
         GROUP BY d.detailWarnaIsi, d.warnaRef, w.satuan
     """)
     fun getDetailWarnaSummaryList(warnaRef: String): List<DetailWarnaModel>
+    @Query("""
+        SELECT 
+            d.detailWarnaIsi,
+            d.warnaRef,
+            w.satuan,
+            d.createdBy,
+            d.lastEditedBy,
+            d.detailWarnaDate,
+            d.detailWarnaLastEditedDate,
+            d.dateIn,
+            d.dateOut,
+            d.user,
+            SUM(d.detailWarnaPcs) as detailWarnaPcs,
+            d.detailWarnaKet as detailWarnaKet
+        FROM detail_warna_table d
+        INNER JOIN warna_table w ON d.warnaRef = w.warnaRef
+        WHERE d.warnaRef = :warnaRef AND d.detailWarnaIsi !=0.0 AND d.detailWarnaPcs !=0
+        GROUP BY d.detailWarnaIsi, d.warnaRef, w.satuan
+    """)
+    fun getDetailWarnaSummaryList0(warnaRef: String): List<DetailWarnaModel>
+
+
 
     @Query(" UPDATE detail_warna_table SET detailWarnaPcs = detailWarnaPcs-:detailWarnaPcs,lastEditedBy =:loggedInUsers WHERE warnaRef = :refWarna AND detailWarnaIsi = :detailWarnaIsi")
     fun updateDetailWarna(refWarna:String, detailWarnaIsi: Double, detailWarnaPcs:Int,loggedInUsers:String?): Int
@@ -125,6 +147,8 @@ interface DetailWarnaDao {
     @Query("""SELECT d.detailWarnaIsi FROM detail_warna_table d WHERE d.warnaRef = :warnaRef AND d.detailWarnaIsi!=0.0 """)
     fun getIsiDetailWarnaByWarna(warnaRef: String): List<Double>
 
+    @Query("""SELECT d.detailWarnaIsi FROM detail_warna_table d WHERE d.warnaRef = :warnaRef AND d.detailWarnaIsi!=0.0 """)
+    fun getIsiDetailWarnaByWarna0(warnaRef: String): List<Double>
 
 
     @Query("SELECT detailWarnaRef FROM detail_warna_table WHERE warnaRef = :warnaRef and detailWarnaIsi =:isi")

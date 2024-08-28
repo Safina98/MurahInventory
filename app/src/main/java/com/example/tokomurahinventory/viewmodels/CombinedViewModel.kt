@@ -135,7 +135,7 @@ class CombinedViewModel(
             _isLoadDetailWarnaCrashed.value = false
             try {
                 val list = withContext(Dispatchers.IO){
-                    if (warnaRef!=null)dataSourceDetailWarna.getDetailWarnaSummaryList(warnaRef)
+                    if (warnaRef!=null)dataSourceDetailWarna.getDetailWarnaSummaryList0(warnaRef)
                     else listOf<DetailWarnaModel>()
                 }
                 _detailWarnaList.value = list
@@ -219,6 +219,11 @@ class CombinedViewModel(
             warnaDao.getOneWarnaWithTotalPcsList(refWarna)
         }
         _allWarnaByMerk.value = list
+    }
+    private suspend fun getSatuan(refWarna: String):String{
+        return withContext(Dispatchers.IO){
+            warnaDao.getSatuanByRefWarna(refWarna)
+        }
     }
     // Merk functions
     fun getAllMerkTable() {
@@ -547,12 +552,16 @@ class CombinedViewModel(
             val detailWarnaTable = DetailWarnaTable()
             val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
             val ket = "Barang masuk sebanyak $pcs"
-            Log.i("InsertDetailWarnaProbs","logged in user ${loggedInUsers}")
+            Log.e("InsertDetailWarnaProbs","logged in user ${loggedInUsers}")
+            Log.e("InsertDetailWarnaProbs","isi ${isi}")
+            Log.e("InsertDetailWarnaProbs","pcs $pcs")
             if (loggedInUsers != null) {
                 if (_refWarna.value!=null){
                     //val refMerk_ = getMerkRef()
+
                     val refMerk__ = getMerkRef()
                     if (refMerk__!=null){
+
                         detailWarnaTable.warnaRef = _refWarna.value!!
                         detailWarnaTable.detailWarnaLastEditedDate = Date()
                         val roundedValue = BigDecimal(isi).setScale(2, RoundingMode.HALF_EVEN).toDouble()
@@ -562,10 +571,11 @@ class CombinedViewModel(
                         detailWarnaTable.lastEditedBy = loggedInUsers
                         detailWarnaTable.dateIn=Date()
                         detailWarnaTable.user = loggedInUsers
-                        val satuan = detailWarnaList.value?.get(0)?.satuan
+                        val satuan = getSatuan(refWarna.value!!)
+                        // val satuan = detailWarnaList.value?.get(0)?.satuan
                         val stringMerk= getStringS(merk.value!!,warna.value!!,roundedValue,satuan,pcs)
-
                         val detailWarnaTable1 = checkIfIsiExisted(roundedValue, _refWarna.value!!)
+
                         if (detailWarnaTable1 != null) {
                             detailWarnaTable.detailWarnaRef = detailWarnaTable1.detailWarnaRef
                             detailWarnaTable.createdBy = detailWarnaTable1.createdBy
@@ -579,13 +589,22 @@ class CombinedViewModel(
                             detailWarnaTable.detailWarnaDate = Date()
                             val log = createLog(detailWarnaTable,stringMerk)
                             val barangLog = createBarangLog(detailWarnaTable,log,refMerk__,detailWarnaTable.detailWarnaRef)
-                            insertDetailWarnaAndBarangLogAndLog(detailWarnaTable,log,barangLog)
+                            Log.e("InsertDetailWarnaProbs","detail warna table $detailWarnaTable")
+                            Log.e("InsertDetailWarnaProbs","log $log")
+                            Log.e("InsertDetailWarnaProbs","baranglog $barangLog")
+                            try {
+                                insertDetailWarnaAndBarangLogAndLog(detailWarnaTable,log,barangLog)
+                            }catch (e:Exception){
+                                Log.e("InsertDetailWarnaProbs","exception $e")
+                            }
+
                         }
                         getDetailWarnaByWarnaRef(refWarna.value!!)
                         //getWarnaByMerk(refMerkk.value)
                         isShowOneWarna()
 
                     }else Toast.makeText(getApplication(), "Pilih kode warna", Toast.LENGTH_SHORT).show()
+
 
                 } else Toast.makeText(getApplication(), "Pilih kode Merk dan kode warna", Toast.LENGTH_SHORT).show()
 
@@ -665,6 +684,7 @@ class CombinedViewModel(
         barangLog: BarangLog
     ) {
         withContext(Dispatchers.IO){
+
             dataSourceBarangLog.insertDetailWarnaAndLogAndBarangLogFromDetailWarna(detailWarnaTable,logTable,barangLog)
         }
 
