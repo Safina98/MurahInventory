@@ -23,7 +23,9 @@ import com.example.tokomurahinventory.models.WarnaTable
 import com.example.tokomurahinventory.models.model.DetailWarnaModel
 import com.example.tokomurahinventory.utils.MASUKKELUAR
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
+import com.example.tokomurahinventory.utils.merkAlredyExisted
 import com.example.tokomurahinventory.utils.userNullString
+import com.example.tokomurahinventory.utils.warnaAlredyExisted
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -258,51 +260,75 @@ class CombinedViewModel(
         }
     }
 
+    private suspend fun checkIfMerkAlreadyExist(namaMerk: String):Boolean{
+      return  withContext(Dispatchers.IO){
+            val a = merkDao.checkIfMerkExist(namaMerk)
+          if (a!=null) false else true
+        }
+    }
+
     fun insertMerk(namaMerk: String) {
         viewModelScope.launch {
             _isLoading.value = true
-             MerkTable().apply {
-                this.namaMerk = namaMerk
-                val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
-                if (loggedInUsers != null) {
-                    this.lastEditedBy = loggedInUsers
-                    this.createdBy = loggedInUsers
-                    this.merkCreatedDate = Date()
-                    this.merkLastEditedDate = Date()
-                    this.refMerk = UUID.randomUUID().toString()
-                    this.user = loggedInUsers
-                    isMerkClick.value=false
-                    _isWarnaClick.value=false
-                    insertMerkToDao(this)
-                    setRefMerk(null)
-                    getStringMerk(null)
-                    setRefWarna(null)
-                    getStringWarna(null)
+            //check if namamerk ada di database
+            val ismerkNotDuplicate=checkIfMerkAlreadyExist(namaMerk)
+            //kalau ada toas
+            if (ismerkNotDuplicate){
+                MerkTable().apply {
+                    this.namaMerk = namaMerk
+                    val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
+                    if (loggedInUsers != null) {
+                        this.lastEditedBy = loggedInUsers
+                        this.createdBy = loggedInUsers
+                        this.merkCreatedDate = Date()
+                        this.merkLastEditedDate = Date()
+                        this.refMerk = UUID.randomUUID().toString()
+                        this.user = loggedInUsers
+                        isMerkClick.value=false
+                        _isWarnaClick.value=false
+                        insertMerkToDao(this)
+                        setRefMerk(null)
+                        getStringMerk(null)
+                        setRefWarna(null)
+                        getStringWarna(null)
 
-                    //isShowOneWarna()
-                    //_isLoading.value = false
-                getAllMerkTable()
-                } else {
-                    Toast.makeText(getApplication(), userNullString, Toast.LENGTH_SHORT).show()
+                        //isShowOneWarna()
+                        //_isLoading.value = false
+                        getAllMerkTable()
+                    } else {
+                        _isLoading.value=false
+                        Toast.makeText(getApplication(), userNullString, Toast.LENGTH_SHORT).show()
+                    }
                 }
+            }else{
+                _isLoading.value=false
+                Toast.makeText(getApplication(), merkAlredyExisted, Toast.LENGTH_SHORT).show()
             }
+
         }
     }
 
     fun updateMerk(merkTable: MerkTable) {
         viewModelScope.launch {
             _isLoading.value=true
-            merkTable.lastEditedBy = SharedPreferencesHelper.getLoggedInUser(getApplication())
-            merkTable.merkLastEditedDate = Date()
-            updateMerkToDao(merkTable)
-            isMerkClick.value=false
-            _isWarnaClick.value=false
-            getAllMerkTable()
-            setRefMerk(null)
-            getStringMerk(null)
-            setRefWarna(null)
-            getStringWarna(null)
-            getDetailWarnaByWarnaRef(null)
+            val ismerkNotDuplicate=checkIfMerkAlreadyExist(merkTable.namaMerk)
+            //kalau ada toas
+            if (ismerkNotDuplicate) {
+                merkTable.lastEditedBy = SharedPreferencesHelper.getLoggedInUser(getApplication())
+                merkTable.merkLastEditedDate = Date()
+                updateMerkToDao(merkTable)
+                isMerkClick.value=false
+                _isWarnaClick.value=false
+                getAllMerkTable()
+                setRefMerk(null)
+                getStringMerk(null)
+                setRefWarna(null)
+                getStringWarna(null)
+                getDetailWarnaByWarnaRef(null)
+            }else{
+                _isLoading.value=false
+                Toast.makeText(getApplication(), merkAlredyExisted, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -416,41 +442,58 @@ class CombinedViewModel(
             _allWarnaByMerk.value = list
         }
     }
+    private suspend fun checkIfWarnaAlredyExist(kodeWarna: String,refMerk: String):Boolean{
+        return withContext(Dispatchers.IO){
+            val w = warnaDao.getWarnaRefByName(kodeWarna,refMerk)
+            if (w==null) true else false
+        }
+    }
 
     fun insertWarna(kodeWarna: String, satuan: String) {
         viewModelScope.launch {
             _isWarnaLoading.value = true
-            if (refMerkk.value!=null){
-                val warna = WarnaTable().apply {
-                    this.refMerk = refMerkk.value!!
-                    this.kodeWarna = kodeWarna
-                    this.satuan = satuan
-                    this.warnaRef = UUID.randomUUID().toString()
-                    this.createdBy = SharedPreferencesHelper.getLoggedInUser(getApplication())
-                    this.lastEditedBy = createdBy
-                    this.user = createdBy
-                }
-                setRefWarna(warna.warnaRef)
-                Log.i("showwarnaprob","insert warna = ${warna}")
-                try {
-                    insertWarnaToDao(warna)
-                    _isWarnaClick.value=false
-                    getWarnaByMerk(refMerkk.value)
-                    setRefWarna(null)
-                    getStringWarna(null)
-                }
-                catch (e:Exception){
-                    _isWarnaLoading.value = false
-                }
 
-                //insertDetailWarna(0, 0.0)
-            }else Toast.makeText(getApplication(), "Pilih merk", Toast.LENGTH_SHORT).show()
+            if (refMerkk.value!=null){
+                val isNotWarnaDuplicate = checkIfWarnaAlredyExist(kodeWarna,refMerkk.value!!)
+                if (isNotWarnaDuplicate){
+                    val warna = WarnaTable().apply {
+                        this.refMerk = refMerkk.value!!
+                        this.kodeWarna = kodeWarna
+                        this.satuan = satuan
+                        this.warnaRef = UUID.randomUUID().toString()
+                        this.createdBy = SharedPreferencesHelper.getLoggedInUser(getApplication())
+                        this.lastEditedBy = createdBy
+                        this.user = createdBy
+                    }
+                    setRefWarna(warna.warnaRef)
+                    Log.i("showwarnaprob","insert warna = ${warna}")
+                    try {
+                        insertWarnaToDao(warna)
+                        _isWarnaClick.value=false
+                        getWarnaByMerk(refMerkk.value)
+                        setRefWarna(null)
+                        getStringWarna(null)
+                    }
+                    catch (e:Exception){
+                        _isWarnaLoading.value = false
+                    }
+
+                    //insertDetailWarna(0, 0.0)
+                } else{
+                    Toast.makeText(getApplication(), warnaAlredyExisted, Toast.LENGTH_SHORT).show()
+                    _isWarnaLoading.value=false
+                }
+            }
+                else Toast.makeText(getApplication(), "Pilih merk", Toast.LENGTH_SHORT).show()
+
         }
     }
 
     fun updateWarna(warnaTable: WarnaModel) {
         viewModelScope.launch {
             _isWarnaLoading.value = true
+            val isNotWarnaDuplicate = checkIfWarnaAlredyExist(warnaTable.kodeWarna,refMerkk.value!!)
+            if (isNotWarnaDuplicate){
             try {
                 val users = SharedPreferencesHelper.getLoggedInUser(getApplication()) ?:""
                 warnaTable.lastEditedBy = users
@@ -470,6 +513,11 @@ class CombinedViewModel(
                 Toast.makeText(getApplication(),"Gagal Mengubah data, coba lagi",Toast.LENGTH_SHORT).show()
                 Log.i("UpdateWarnaProbs"," error${e}}")
             }
+            }else{
+                Toast.makeText(getApplication(), warnaAlredyExisted, Toast.LENGTH_SHORT).show()
+                _isWarnaLoading.value=false
+            }
+
             _isWarnaLoading.value = false
         }
     }

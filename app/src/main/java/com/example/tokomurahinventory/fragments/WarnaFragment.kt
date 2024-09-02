@@ -231,8 +231,8 @@ class WarnaFragment : AuthFragment() {
             }
         }
         builder.setPositiveButton("OK") { dialog, which ->
-            val kodeWarna = textWarna.text.toString()
-            val kodeSatuan = textSatuan.text.toString()
+            val kodeWarna = textWarna.text.toString().trim()
+            val kodeSatuan = textSatuan.text.toString().trim()
             if (kodeWarna.isNotEmpty() && kodeSatuan.isNotEmpty() &&(kodeSatuan==Satuan.METER||kodeSatuan==Satuan.YARD||kodeSatuan==Satuan.PCS)){
                 if (warnaTable == null) {
                     Log.i("WarnaProbs","warna is null, insert called")

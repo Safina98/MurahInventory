@@ -20,6 +20,10 @@ interface MerkDao  {
     @Update
     fun update(merkTable: MerkTable)
 
+
+    @Query("SELECT * from merk_table WHERE namaMerk=:namaMerk")
+    fun checkIfMerkExist(namaMerk: String):MerkTable?
+
     @Query("DELETE FROM merk_table WHERE id=:id")
     fun deleteAnItemMerk(id:Int)
 

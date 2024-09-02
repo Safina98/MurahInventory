@@ -442,19 +442,23 @@ class LogViewModel (
     fun updateCountModel(countModel: CountModel, oldCountModel: CountModel, callback: (UpdateStatus) -> Unit) {
         viewModelScope.launch {
             // Log initial state
-
+            Log.i("FCProbs","countModel: ${countModel}")
             val updatedList = _countModelList.value?.toMutableList() ?: mutableListOf()
             val itemToUpdate = updatedList.find { it.id == countModel.id }
-
+            Log.i("FCProbs","item to update: ${itemToUpdate}")
             if (itemToUpdate == null) {
                 callback(UpdateStatus.ITEM_NOT_FOUND)
                 return@launch
             }
-
             // Perform validation checks
             val isMerkPresent = checkMerkExisted(countModel.merkBarang!!)
+            Log.i("FCProbs","isMerkPresent: ${isMerkPresent}")
             val isWarnaPresent = isKodeWarnaInLiveData(codeWarnaByMerk, countModel.kodeBarang!!)
+            Log.i("FCProbs","kodeBarang ${itemToUpdate.kodeBarang},")
+            Log.i("FCProbs","kodeWarnaByMerk list ${codeWarnaByMerk.value}")
+            Log.i("FCProbs","isWarnaPresent: ${isWarnaPresent}")
             val isIsiPresent = isIsiInLiveData(isiByWarnaAndMerk, countModel.isi!!)
+            Log.i("FCProbs","countModel: ${isIsiPresent}")
 
             // Fetch data from database
             val barangLogfromdb = withContext(Dispatchers.IO) { dataSourceBarangLog.findByBarangLogRef(countModel.barangLogRef) } ?: BarangLog()
@@ -462,9 +466,13 @@ class LogViewModel (
 
             val isPcsReadyInStok = if (isIsiPresent) {
                 val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
+                Log.i("FCProbs","refMerk: ${refMerk}")
+                Log.i("FCProbs","kodeBarang: ${countModel.kodeBarang}")
                 val refWarna = getrefWanraByName(countModel.kodeBarang!!, refMerk)
+                Log.i("FCProbs","refWarna: ${refWarna}")
                 val refDetailWarna = refWarna?.let { getrefDetailWanraByWarnaRefndIsi(it, countModel.isi!!) }
-                checkIfPcsReadyInStok(refDetailWarna!!, selisihpcs)
+                Log.i("FCProbs","refDetailWarna: ${refDetailWarna}")
+              checkIfPcsReadyInStok(refDetailWarna!!, selisihpcs)
             } else false
 
             if (isMerkPresent && isWarnaPresent && isIsiPresent && isPcsReadyInStok) {
@@ -499,6 +507,8 @@ class LogViewModel (
                     }
                 )
             }
+
+
         }
     }
     //try update count model

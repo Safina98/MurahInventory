@@ -1,6 +1,7 @@
 package com.example.tokomurahinventory.utils
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -79,6 +80,7 @@ object DialogUtils {
         textLastEditedDate.setText(formatDateToStringNullable(dm.dateOut))
         textDateOld.setText(formatDateToStringNullable(dm.detailWarnaLastEditedDate))
         textKet.setText(dm.detailWarnaKet)
+        Log.i("FCProbs","${dm.warnaRef}")
         builder.setView(view)
         builder.setPositiveButton("OK") { dialog, which ->
         }

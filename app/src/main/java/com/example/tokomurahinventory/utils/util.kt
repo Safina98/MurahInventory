@@ -47,6 +47,8 @@ val dataNotFoundMsg="Data tidak ada di database, coba lagi"
 val dataNotFoundMsgD="tidak ada di database, coba lagi"
 val stokTidakCukup="Stok barang tidak cukup"
 val succsessMsg = "Berhasil"
+val merkAlredyExisted="Merk sudah ada di database"
+val warnaAlredyExisted="kode warna  sudah ada di database"
 
 fun formatDateToString(date: Date):String{
         val sdf = SimpleDateFormat(FULL_DATE_FORMAT, Locale.getDefault())

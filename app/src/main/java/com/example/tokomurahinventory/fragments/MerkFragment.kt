@@ -209,7 +209,7 @@ class MerkFragment : AuthFragment() {
        )
         builder.setView(view)
         builder.setPositiveButton("OK") { dialog, which ->
-            val merk = textBrand.text.toString().uppercase()
+            val merk = textBrand.text.toString().uppercase().trim()
             if (merk.isNotEmpty()){
                 if (merkTable==null){
                     viewModel.insertMerk(merk)

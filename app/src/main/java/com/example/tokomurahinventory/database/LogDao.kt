@@ -64,8 +64,8 @@ interface LogDao {
     JOIN detail_warna_table dw ON bl.detailWarnaRef = dw.detailWarnaRef
     JOIN warna_table w ON dw.warnaRef = w.warnaRef
     JOIN merk_table m ON w.refMerk = m.refMerk
-    WHERE m.namaMerk = :namaMerk
-    AND (:kodeWarna IS NULL OR w.kodeWarna = :kodeWarna)
+    WHERE TRIM(m.namaMerk) = :namaMerk
+    AND (:kodeWarna IS NULL OR TRIM(w.kodeWarna) = :kodeWarna)
     AND (:isi IS NULL OR dw.detailWarnaIsi = :isi)
     AND (:tipe IS NULL OR l.logTipe = :tipe)
     AND (:startDate IS NULL OR logLastEditedDate >= :startDate)

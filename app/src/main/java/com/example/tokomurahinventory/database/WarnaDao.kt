@@ -25,6 +25,9 @@ interface WarnaDao {
     @Update
     fun update(warnaTable: WarnaTable)
 
+    @Query("SELECT * FROM warna_table")
+    suspend fun getAllWarna(): List<WarnaTable>
+
     @Query("DELETE FROM warna_table WHERE idWarna =:id")
     fun deleteAnItemWarna(id:Int)
 
@@ -35,13 +38,13 @@ interface WarnaDao {
     @Query("SELECT * FROM warna_table")
     fun getAllWarnas():List<WarnaTable>
 
-    @Query("SELECT kodeWarna FROM warna_table WHERE refMerk = :refMerk")
+    @Query("SELECT TRIM(kodeWarna) FROM warna_table WHERE refMerk = :refMerk")
     fun selectStringWarnaByMerk(refMerk:String):List<String>
 
     @Query("SELECT kodeWarna FROM warna_table WHERE warnaRef = :refWarna")
     fun selectWarnaByWarnaRef(refWarna:String):LiveData<String>
 
-    @Query("SELECT warnaRef FROM warna_table WHERE refMerk=:refMerk AND kodeWarna = :namaWarna")
+    @Query("SELECT warnaRef FROM warna_table WHERE refMerk=:refMerk AND TRIM(kodeWarna) = :namaWarna")
     fun getWarnaRefByName(namaWarna:String, refMerk: String):String?
 
     @Query("SELECT refMerk FROM warna_table WHERE warnaRef=:warnaRef")

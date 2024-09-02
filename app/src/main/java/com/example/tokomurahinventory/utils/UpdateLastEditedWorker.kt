@@ -27,12 +27,6 @@ class UpdateLastEditedWorker(
             Result.failure()
         }
     }
-    // select all data from detail warna table
-    // select all from barang log table
-    // for i in detail warnatabe
-    //for j in baranglog table
-    //if i.detail warna ref == j. detail warna ref
-    //update detail warna dikeluarkan oleh
 
     private suspend fun performUpdate()= withContext(Dispatchers.IO){
         val dataSourceLog = DatabaseInventory.getInstance(applicationContext).logDao
@@ -41,20 +35,7 @@ class UpdateLastEditedWorker(
         Log.i("WorkerProbs", "function perform update called")
         dataSourceDetailWarna.updateDateOutNotInKeluar(null)
 
-       /* for(dw in allDetailWarna){
-            dw.lastEditedBy=null
-            dataSourceDetailWarna.update(dw)
-        }
-        val allLogKeluar = dataSourceLog.getLogsByDateRange(null, null, MASUKKELUAR.KELUAR)
-        for (log in allLogKeluar) {
-            val barangLogList = dataSourceBarangLog.selectBarangLogByLogRef(log.refLog)
-            for (bl in barangLogList) {
-                dataSourceDetailWarna.updateLastEditedByDetailWarna(bl.detailWarnaRef, log.lastEditedBy)
-            }
-            Log.i("DetailDateProbs", "barang log size ${barangLogList.size}")
-        }
 
-        */
     }
 
 
