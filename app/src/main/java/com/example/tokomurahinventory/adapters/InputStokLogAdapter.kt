@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.tokomurahinventory.databinding.ItemListInputStokLogBinding
+import com.example.tokomurahinventory1.databinding.ItemListInputStokLogBinding
 import com.example.tokomurahinventory.models.model.InputStokLogModel
 import com.example.tokomurahinventory.utils.DATE_FORMAT
 import com.example.tokomurahinventory.utils.FULL_DATE_FORMAT

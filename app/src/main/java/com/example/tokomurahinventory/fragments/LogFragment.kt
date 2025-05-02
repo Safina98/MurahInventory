@@ -12,13 +12,13 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.example.tokomurahinventory.R
+import com.example.tokomurahinventory1.R
 import com.example.tokomurahinventory.adapters.LogAdapter
 import com.example.tokomurahinventory.adapters.LogClickListener
 import com.example.tokomurahinventory.adapters.LogDeleteListener
 import com.example.tokomurahinventory.adapters.LogLongListener
 import com.example.tokomurahinventory.database.DatabaseInventory
-import com.example.tokomurahinventory.databinding.FragmentLogBinding
+import com.example.tokomurahinventory1.databinding.FragmentLogBinding
 import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.utils.DialogUtils
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper

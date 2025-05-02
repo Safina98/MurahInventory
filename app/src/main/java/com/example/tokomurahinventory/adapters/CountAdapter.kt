@@ -7,7 +7,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.tokomurahinventory.databinding.ItemListBarangLogNewBinding
+import com.example.tokomurahinventory1.databinding.ItemListBarangLogNewBinding
 import com.example.tokomurahinventory.models.CountModel
 import com.example.tokomurahinventory.viewmodels.LogViewModel
 import java.util.Locale

@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.tokomurahinventory.databinding.ItemListMerkBinding
+import com.example.tokomurahinventory1.databinding.ItemListMerkBinding
 import com.example.tokomurahinventory.models.MerkTable
 
 class MerkAdapter(

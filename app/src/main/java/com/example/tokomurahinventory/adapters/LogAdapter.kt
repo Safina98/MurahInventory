@@ -7,7 +7,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.tokomurahinventory.databinding.ItemListLogBinding
+import com.example.tokomurahinventory1.databinding.ItemListLogBinding
 import com.example.tokomurahinventory.models.LogTable
 import com.example.tokomurahinventory.utils.DATE_FORMAT
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper

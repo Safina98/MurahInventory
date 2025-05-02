@@ -13,14 +13,14 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.example.tokomurahinventory.R
+import com.example.tokomurahinventory1.R
 import com.example.tokomurahinventory.adapters.DeleteMerkClickListener
 import com.example.tokomurahinventory.adapters.MerkAdapter
 import com.example.tokomurahinventory.adapters.MerkClickListener
 import com.example.tokomurahinventory.adapters.MerkLongListener
 import com.example.tokomurahinventory.adapters.UpdateMerkClickListener
 import com.example.tokomurahinventory.database.DatabaseInventory
-import com.example.tokomurahinventory.databinding.FragmentMerkBinding
+import com.example.tokomurahinventory1.databinding.FragmentMerkBinding
 import com.example.tokomurahinventory.models.MerkTable
 import com.example.tokomurahinventory.utils.DialogUtils
 import com.example.tokomurahinventory.utils.DraggableFloatingActionButton

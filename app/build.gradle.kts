@@ -6,13 +6,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.tokomurahinventory"
-    compileSdk = 34
+    namespace = "com.example.tokomurahinventory1"
+    compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.tokomurahinventory"
+        applicationId = "com.example.tokomurahinventory1"
         minSdk = 21
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -35,18 +35,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
     kotlinOptions {
         jvmTarget = "17"
     }
-
-    kapt {
-        javacOptions {
-            // These options are used by the kapt task itself
-            option("-source", "17")
-            option("-target", "17")
-        }
-    }
-
     buildFeatures {
         dataBinding = true
     }
@@ -62,7 +54,7 @@ android {
 }
 
 dependencies {
-    val roomVersion = "2.4.3" // Replace with your actual Room version
+    val roomVersion = "2.6.1" // Replace with your actual Room version
     val lifecycleExtensionsVersion = "2.2.0" // Replace with your actual Lifecycle Extensions version
     val coroutineVersion = "1.7.3"
 
@@ -106,9 +98,9 @@ dependencies {
 
     // Nav drawer
     implementation("androidx.drawerlayout:drawerlayout:1.2.0")
-    implementation("com.google.android.material:material:1.12.0") // Updated version
+    implementation("com.google.android.material:material:1.5.0") // Updated version
 
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.4") // Updated version
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2") // Updated version
 
     implementation("androidx.work:work-runtime:2.9.0")
 }

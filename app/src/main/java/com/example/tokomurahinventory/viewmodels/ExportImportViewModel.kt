@@ -27,7 +27,7 @@ import com.example.tokomurahinventory.models.UsersTable
 import com.example.tokomurahinventory.models.WarnaTable
 import com.example.tokomurahinventory.models.model.CombinedDataModel
 import com.example.tokomurahinventory.models.model.CombinedLogData
-import com.example.tokomurahinventory.utils.DataGenerator
+//import com.example.tokomurahinventory.utils.DataGenerator
 import com.example.tokomurahinventory.utils.MASUKKELUAR
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.utils.formatDateToStringNullable
@@ -72,7 +72,7 @@ class ExportImportViewModel(
     val allMerkFromDb = dataSourceMerk.selectAllNamaMerk()
 
 
-    private val dataGenerator: DataGenerator = DataGenerator(dataSourceBarangLog,dataSourceDetailWarna,dataSourceLog,dataSourceMerk,dataSourceWarna)
+ //   private val dataGenerator: DataGenerator = DataGenerator(dataSourceBarangLog,dataSourceDetailWarna,dataSourceLog,dataSourceMerk,dataSourceWarna)
 
     //click export merk
     //muncul pop up autocomplete untuk pilih merk
@@ -91,7 +91,7 @@ class ExportImportViewModel(
                 val allMerk = withContext(Dispatchers.IO){dataSourceMerk.selectAllMerkList()}
                 _isLoading.value=true
                 //dataGenerator.populateMerk(getApplication(),allMerk)
-                dataGenerator.populateLog(getApplication(),allMerk)
+               // dataGenerator.populateLog(getApplication(),allMerk)
                 _isLoading.value=false
             //dataGenerator.populateLog(allMerk)
             } catch (e: Exception) {

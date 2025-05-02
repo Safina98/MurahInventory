@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.tokomurahinventory.databinding.ItemListWarnaBinding
+import com.example.tokomurahinventory1.databinding.ItemListWarnaBinding
 import com.example.tokomurahinventory.models.model.WarnaModel
 import java.util.Locale
 

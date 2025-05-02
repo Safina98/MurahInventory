@@ -19,7 +19,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.example.tokomurahinventory.R
+import com.example.tokomurahinventory1.R
 import com.example.tokomurahinventory.adapters.AddNetClickListener
 import com.example.tokomurahinventory.adapters.BarangLogIsiClickListener
 import com.example.tokomurahinventory.adapters.BarangLogKodeClickListener
@@ -28,9 +28,9 @@ import com.example.tokomurahinventory.adapters.BarangLogPcsClickListener
 import com.example.tokomurahinventory.adapters.CountAdapter
 import com.example.tokomurahinventory.adapters.DeleteNetClickListener
 import com.example.tokomurahinventory.database.DatabaseInventory
-import com.example.tokomurahinventory.databinding.FragmentInputLogBinding
-import com.example.tokomurahinventory.databinding.PopUpAddBarangLogBinding
-import com.example.tokomurahinventory.databinding.PopUpAutocompleteTextviewBinding
+import com.example.tokomurahinventory1.databinding.FragmentInputLogBinding
+import com.example.tokomurahinventory1.databinding.PopUpAddBarangLogBinding
+import com.example.tokomurahinventory1.databinding.PopUpAutocompleteTextviewBinding
 import com.example.tokomurahinventory.models.CountModel
 
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper

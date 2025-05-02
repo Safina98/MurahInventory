@@ -27,12 +27,13 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.work.WorkManager
-import com.example.tokomurahinventory.databinding.ActivityMainBinding
+import com.example.tokomurahinventory1.databinding.ActivityMainBinding
 import com.example.tokomurahinventory.fragments.ParentFragment
 import com.example.tokomurahinventory.utils.AppLifecycleObserver
 import com.example.tokomurahinventory.utils.CleanupWorker
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.viewmodels.AuthViewModel
+import com.example.tokomurahinventory1.R
 import org.w3c.dom.Text
 import java.util.concurrent.TimeUnit
 

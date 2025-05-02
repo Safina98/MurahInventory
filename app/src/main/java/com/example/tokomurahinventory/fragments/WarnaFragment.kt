@@ -17,14 +17,14 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.tokomurahinventory.R
+import com.example.tokomurahinventory1.R
 import com.example.tokomurahinventory.adapters.DeleteWarnaClickListener
 import com.example.tokomurahinventory.adapters.UpdateWarnaClickListener
 import com.example.tokomurahinventory.adapters.WarnaAdapter
 import com.example.tokomurahinventory.adapters.WarnaClickListener
 import com.example.tokomurahinventory.adapters.WarnaLongListener
 import com.example.tokomurahinventory.database.DatabaseInventory
-import com.example.tokomurahinventory.databinding.FragmentWarnaBinding
+import com.example.tokomurahinventory1.databinding.FragmentWarnaBinding
 import com.example.tokomurahinventory.models.model.WarnaModel
 import com.example.tokomurahinventory.utils.DialogUtils
 import com.example.tokomurahinventory.utils.Satuan

@@ -13,14 +13,14 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.example.tokomurahinventory.R
+import com.example.tokomurahinventory1.R
 import com.example.tokomurahinventory.adapters.DeleteDetailWarnaClickListener
 import com.example.tokomurahinventory.adapters.DetailWarnaAdapter
 import com.example.tokomurahinventory.adapters.DetailWarnaClickListener
 import com.example.tokomurahinventory.adapters.DetailWarnaLongListener
 import com.example.tokomurahinventory.adapters.UpdateDetailWarnaClickListener
 import com.example.tokomurahinventory.database.DatabaseInventory
-import com.example.tokomurahinventory.databinding.FragmentDetailWarnaBinding
+import com.example.tokomurahinventory1.databinding.FragmentDetailWarnaBinding
 import com.example.tokomurahinventory.models.model.DetailWarnaModel
 import com.example.tokomurahinventory.utils.DialogUtils
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper

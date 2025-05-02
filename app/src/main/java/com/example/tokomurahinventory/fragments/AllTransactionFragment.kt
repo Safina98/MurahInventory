@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,23 +13,19 @@ import android.widget.DatePicker
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.tokomurahinventory.R
 import com.example.tokomurahinventory.adapters.LogAdapter
 import com.example.tokomurahinventory.adapters.LogClickListener
 import com.example.tokomurahinventory.adapters.LogDeleteListener
 import com.example.tokomurahinventory.adapters.LogLongListener
 import com.example.tokomurahinventory.database.DatabaseInventory
-import com.example.tokomurahinventory.databinding.FragmentAllTransactionBinding
-import com.example.tokomurahinventory.databinding.FragmentExportImportBinding
-import com.example.tokomurahinventory.databinding.PopUpAddBarangLogBinding
-import com.example.tokomurahinventory.databinding.PopUpFilterBinding
+
 import com.example.tokomurahinventory.models.CountModel
-import com.example.tokomurahinventory.models.LogTable
-import com.example.tokomurahinventory.utils.DialogUtils
+
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.utils.UpdateStatus
 import com.example.tokomurahinventory.utils.dataNotFoundMsgD
@@ -42,10 +37,13 @@ import com.example.tokomurahinventory.viewmodels.AllTransViewModelFactory
 import com.example.tokomurahinventory.viewmodels.ExportImportViewModel
 import com.example.tokomurahinventory.viewmodels.ExportImportViewModelFactory
 import com.example.tokomurahinventory.viewmodels.LogViewModel
+import com.example.tokomurahinventory1.R
+import com.example.tokomurahinventory1.databinding.FragmentAllTransactionBinding
+import com.example.tokomurahinventory1.databinding.PopUpFilterBinding
 import java.util.Calendar
 
 
-class AllTransactionFragment : Fragment() {
+class AllTransactionFragment :Fragment() {
     private lateinit var binding: FragmentAllTransactionBinding
     private lateinit var viewModel: AllTransViewModel
     private var isDialogShowing = false
@@ -57,7 +55,7 @@ class AllTransactionFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding=DataBindingUtil.inflate(inflater,R.layout.fragment_all_transaction,container,false)
+        binding= DataBindingUtil.inflate(inflater, R.layout.fragment_all_transaction,container,false)
         val application = requireNotNull(this.activity).application
 
         val dataSourceLog = DatabaseInventory.getInstance(application).logDao

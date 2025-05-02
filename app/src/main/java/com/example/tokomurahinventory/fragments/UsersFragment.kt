@@ -15,14 +15,14 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.example.tokomurahinventory.R
+import com.example.tokomurahinventory1.R
 import com.example.tokomurahinventory.adapters.DeleteUsersClickListener
 import com.example.tokomurahinventory.adapters.UpdateUsersClickListener
 import com.example.tokomurahinventory.adapters.UsersAdapter
 import com.example.tokomurahinventory.adapters.UsersClickListener
 import com.example.tokomurahinventory.adapters.UsersLongListener
 import com.example.tokomurahinventory.database.DatabaseInventory
-import com.example.tokomurahinventory.databinding.FragmentUsersBinding
+import com.example.tokomurahinventory1.databinding.FragmentUsersBinding
 import com.example.tokomurahinventory.models.UsersTable
 import com.example.tokomurahinventory.utils.DialogUtils
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper

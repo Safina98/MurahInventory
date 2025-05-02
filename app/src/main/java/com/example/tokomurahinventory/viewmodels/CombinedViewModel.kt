@@ -732,10 +732,8 @@ class CombinedViewModel(
         barangLog: BarangLog
     ) {
         withContext(Dispatchers.IO){
-
             dataSourceBarangLog.insertDetailWarnaAndLogAndBarangLogFromDetailWarna(detailWarnaTable,logTable,barangLog)
         }
-
     }
     private suspend fun deleteDetailWarna(isi:Double,warnaRef: String){
         withContext(Dispatchers.IO){

@@ -7,7 +7,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
-import com.example.tokomurahinventory.R
+import com.example.tokomurahinventory1.R
 import com.example.tokomurahinventory.models.UsersTable
 import com.example.tokomurahinventory.models.model.DetailWarnaModel
 import com.example.tokomurahinventory.viewmodels.UsersViewModel
