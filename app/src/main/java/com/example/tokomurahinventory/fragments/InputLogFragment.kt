@@ -318,8 +318,6 @@ class InputLogFragment : AuthFragment() {
 
         // Fetch and observe data
         viewModel.allMerkFromDb.observe(viewLifecycleOwner) { allMerk ->
-            //merkAdapter.clear()
-            //merkAdapter.addAll(allMerk.sortedBy { it })
             merkAdapter.clear()
             merkAdapter.updateData(allMerk.sortedBy { it })
             autoCompleteMerk.setAdapter(merkAdapter)
@@ -367,7 +365,6 @@ class InputLogFragment : AuthFragment() {
                 isiAdapter.clear()
                 val stringList = isiList.sortedBy { it }.map { it.toString() }
                 isiAdapter.updateData(stringList)
-
             }
         }
 

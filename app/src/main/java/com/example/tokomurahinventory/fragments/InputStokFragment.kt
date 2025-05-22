@@ -21,6 +21,7 @@ import com.example.tokomurahinventory.adapters.DeleteInputStokLogClickListener
 import com.example.tokomurahinventory.adapters.InputStokLogAdapter
 import com.example.tokomurahinventory.adapters.InputStokLogClickListener
 import com.example.tokomurahinventory.adapters.InputStokLogLongListener
+import com.example.tokomurahinventory.adapters.SimilarWordAdapter
 import com.example.tokomurahinventory.adapters.UpdateInputStokLogClickListener
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory1.databinding.FragmentInputStokBinding
@@ -163,11 +164,13 @@ class InputStokFragment : AuthFragment() {
         val etPcs = dialogBinding.txtPcs
 
         // Initialize the adapter for the AutoCompleteTextView
-        val merkAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, emptyList())
+        val merkAdapter = SimilarWordAdapter(requireContext(), emptyList())
         autoCompleteMerk.setAdapter(merkAdapter)
+        autoCompleteMerk.threshold = 1
 
-        val warnaAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, emptyList())
+        val warnaAdapter = SimilarWordAdapter(requireContext(), emptyList())////ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, emptyList())
         autoCompleteWarna.setAdapter(warnaAdapter)
+        autoCompleteWarna.threshold = 1
 
         if (inputStokLogModel!=null){
             autoCompleteMerk.setText(inputStokLogModel.namaMerk)
@@ -180,7 +183,8 @@ class InputStokFragment : AuthFragment() {
         // Fetch and observe data
         viewModel.allMerkFromDb.observe(viewLifecycleOwner) { allMerk ->
             merkAdapter.clear()
-            merkAdapter.addAll(allMerk)
+            merkAdapter.updateData(allMerk.sortedBy { it })
+            autoCompleteMerk.setAdapter(merkAdapter)
         }
         autoCompleteMerk.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -195,8 +199,11 @@ class InputStokFragment : AuthFragment() {
             }
         })
         viewModel.codeWarnaByMerk.observe(viewLifecycleOwner) { warnaList ->
-            warnaAdapter.clear()
-            warnaAdapter.addAll(warnaList ?: emptyList())
+            if (warnaList!=null ){
+                warnaAdapter.clear()
+                warnaAdapter.updateData(warnaList.sortedBy { it })
+                warnaAdapter.addAll(warnaList.sortedBy { it } ?: emptyList())
+            }
         }
         autoCompleteWarna.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
