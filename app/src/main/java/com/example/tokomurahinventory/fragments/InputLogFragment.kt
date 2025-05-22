@@ -397,8 +397,6 @@ class InputLogFragment : AuthFragment() {
                 }
             }
         }
-
         dialog.show()
     }
-
 }
