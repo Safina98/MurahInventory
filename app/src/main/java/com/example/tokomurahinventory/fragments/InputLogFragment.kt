@@ -27,6 +27,7 @@ import com.example.tokomurahinventory.adapters.BarangLogMerkClickListener
 import com.example.tokomurahinventory.adapters.BarangLogPcsClickListener
 import com.example.tokomurahinventory.adapters.CountAdapter
 import com.example.tokomurahinventory.adapters.DeleteNetClickListener
+import com.example.tokomurahinventory.adapters.SimilarWordAdapter
 import com.example.tokomurahinventory.database.DatabaseInventory
 import com.example.tokomurahinventory1.databinding.FragmentInputLogBinding
 import com.example.tokomurahinventory1.databinding.PopUpAddBarangLogBinding
@@ -273,14 +274,30 @@ class InputLogFragment : AuthFragment() {
 
         val oldCountModel = inputStokLogModel?.copy()
         // Initialize the adapter for the AutoCompleteTextView
-        val merkAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, emptyList())
+        //val merkAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, emptyList())
+        //autoCompleteMerk.setAdapter(merkAdapter)
+
+        //new adapter with fuzzy
+        val merkAdapter = SimilarWordAdapter(requireContext(), emptyList())
         autoCompleteMerk.setAdapter(merkAdapter)
+        autoCompleteMerk.threshold = 1
 
-        val warnaAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, emptyList())
+        val warnaAdapter = SimilarWordAdapter(requireContext(), emptyList())////ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, emptyList())
         autoCompleteWarna.setAdapter(warnaAdapter)
+        autoCompleteWarna.threshold = 1
 
-        val isiAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, mutableListOf())
+        val isiAdapter = SimilarWordAdapter(requireContext(), emptyList())//ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, mutableListOf())
         autoCompleteIsi.setAdapter(isiAdapter)
+
+        autoCompleteIsi.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                if (isiAdapter.count > 0) {
+                    autoCompleteIsi.showDropDown()
+                } else {
+                    isiAdapter.filter.filter(autoCompleteIsi.text)
+                }
+            }
+        }
 
         if (inputStokLogModel != null) {
             autoCompleteMerk.setText(inputStokLogModel.merkBarang)
@@ -301,8 +318,16 @@ class InputLogFragment : AuthFragment() {
 
         // Fetch and observe data
         viewModel.allMerkFromDb.observe(viewLifecycleOwner) { allMerk ->
+            //merkAdapter.clear()
+            //merkAdapter.addAll(allMerk.sortedBy { it })
             merkAdapter.clear()
-            merkAdapter.addAll(allMerk.sortedBy { it })
+            merkAdapter.updateData(allMerk.sortedBy { it })
+            autoCompleteMerk.setAdapter(merkAdapter)
+        }
+        autoCompleteMerk.setOnItemClickListener { parent, view, position, id ->
+            val selected = parent.getItemAtPosition(position).toString()
+            autoCompleteMerk.setText(selected, false) // prevent filtering again
+            autoCompleteMerk.dismissDropDown()
         }
 
         autoCompleteMerk.addTextChangedListener(object : TextWatcher {
@@ -317,8 +342,11 @@ class InputLogFragment : AuthFragment() {
         })
 
         viewModel.codeWarnaByMerk.observe(viewLifecycleOwner) { warnaList ->
-            warnaAdapter.clear()
-            warnaAdapter.addAll(warnaList?.sortedBy { it } ?: emptyList())
+            if (warnaList!=null ){
+                warnaAdapter.clear()
+                warnaAdapter.updateData(warnaList.sortedBy { it })
+                warnaAdapter.addAll(warnaList.sortedBy { it } ?: emptyList())
+            }
         }
 
         autoCompleteWarna.addTextChangedListener(object : TextWatcher {
@@ -335,8 +363,12 @@ class InputLogFragment : AuthFragment() {
 
         viewModel.isiByWarnaAndMerk.observe(viewLifecycleOwner) { isiList ->
             // Update the UI or another adapter if needed
-            isiAdapter.clear()
-            isiAdapter.addAll(isiList?.sortedBy { it }?.map { it.toString() } ?: emptyList())
+            if (isiList!=null){
+                isiAdapter.clear()
+                val stringList = isiList.sortedBy { it }.map { it.toString() }
+                isiAdapter.updateData(stringList)
+
+            }
         }
 
         // Create and show the dialog

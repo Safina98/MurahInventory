@@ -118,7 +118,7 @@ class AllTransViewModel(val dataSourceMerk: MerkDao,
             if (refMerk!=null){
                 val refWarna = withContext(Dispatchers.IO){dataSourceWarna.getWarnaRefByName(warna,refMerk)}
                 if (refWarna!=null){
-                    val stringWarnaList=withContext(Dispatchers.IO){dataSourceDetailWarna.getIsiDetailWarnaByWarna(refWarna)}
+                    val stringWarnaList=withContext(Dispatchers.IO){dataSourceDetailWarna.getIsiDetailWarnaByWarnaWith0(refWarna)}
                     _isiByWarnaAndMerk.value = stringWarnaList
                 }
             }
