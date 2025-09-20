@@ -2,7 +2,8 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("androidx.navigation.safeargs.kotlin")
-    kotlin("kapt")
+    //kotlin("kapt")
+    id("kotlin-kapt")
 }
 
 android {
@@ -12,7 +13,7 @@ android {
     defaultConfig {
         applicationId = "com.example.tokomurahinventory1"
         minSdk = 21
-        targetSdk = 35
+        targetSdk=35
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -54,10 +55,6 @@ android {
 }
 
 dependencies {
-    val roomVersion = "2.6.1" // Replace with your actual Room version
-    val lifecycleExtensionsVersion = "2.2.0" // Replace with your actual Lifecycle Extensions version
-    val coroutineVersion = "1.7.3"
-
     //hash password
     implementation("org.mindrot:jbcrypt:0.4")
 
@@ -92,13 +89,11 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("androidx.room:room-ktx:2.6.1")
 
-    // Legacy support and Lifecycle Extensions
+    // Legacy support
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
-    implementation("androidx.lifecycle:lifecycle-extensions:$lifecycleExtensionsVersion")
 
     // Nav drawer
     implementation("androidx.drawerlayout:drawerlayout:1.2.0")
-    implementation("com.google.android.material:material:1.5.0") // Updated version
 
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2") // Updated version
 

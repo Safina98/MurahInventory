@@ -70,8 +70,10 @@ class MainActivity : AppCompatActivity() {
         authViewModel.checkAndInsertDefaultUser(applicationContext)
         checkAuthentication()
         authViewModel.showLoginDialog.observe(this) { shouldShow ->
+            Log.d("AppDebug", "show login dialog $shouldShow")
             if (shouldShow) {
-               // showLoginDialog()
+
+                showLoginDialog()
             }
         }
         originalOrientation = requestedOrientation
@@ -116,19 +118,22 @@ class MainActivity : AppCompatActivity() {
             } else {
                 Log.d("AppDebug", "Check authentication Login failed. Invalid username or password.")
                 Toast.makeText(this, "Invalid username or password", Toast.LENGTH_SHORT).show()
-                //showLoginDialog() // Show dialog if authentication failed
+                showLoginDialog() // Show dialog if authentication failed
             }
         }
+        /*
         authViewModel.authenticate("admin", "7276", applicationContext) { isAuthenticated ->
             if (isAuthenticated) {
                 Log.d("AppDebug", "Login successful.")
                 Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
-                //dialog!!.dismiss() // Dismiss the dialog after successful login
+                dialog!!.dismiss() // Dismiss the dialog after successful login
             } else {
                 Log.d("AppDebug", "Login failed. Invalid username or password.")
                 Toast.makeText(this, "Invalid username or password", Toast.LENGTH_SHORT).show()
             }
         }
+
+         */
     }
     //TODO uncomment shows login dialog
 

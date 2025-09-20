@@ -25,7 +25,6 @@ class SimilarWordAdapter(
                     val filteredList = filterSuggestions(constraint.toString(), originalList)
                     suggestions.addAll(filteredList)
                 }
-
                 results.values = suggestions
                 results.count = suggestions.size
                 return results
@@ -44,7 +43,6 @@ class SimilarWordAdapter(
     fun filterSuggestions(input: String, list: List<String>): List<String> {
         val normalizedInput = input.lowercase().trim()
         val inputWords = normalizedInput.split(" ")
-
         fun levenshtein(a: String, b: String): Int {
             val dp = Array(a.length + 1) { IntArray(b.length + 1) }
             for (i in 0..a.length) dp[i][0] = i
@@ -110,6 +108,4 @@ class SimilarWordAdapter(
         (view as TextView).text = item
         return view
     }
-
-
 }
