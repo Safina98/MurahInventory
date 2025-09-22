@@ -22,6 +22,7 @@ import com.example.tokomurahinventory.models.model.WarnaModel
 import com.example.tokomurahinventory.models.WarnaTable
 import com.example.tokomurahinventory.models.model.DetailWarnaModel
 import com.example.tokomurahinventory.utils.MASUKKELUAR
+import com.example.tokomurahinventory.utils.MerkSearchFilter
 import com.example.tokomurahinventory.utils.SharedPreferencesHelper
 import com.example.tokomurahinventory.utils.merkAlredyExisted
 import com.example.tokomurahinventory.utils.userNullString
@@ -246,7 +247,7 @@ class CombinedViewModel(
         }
     }
 
-    fun filterMerk(query: String?) {
+    /*fun filterMerk(query: String?) {
         if (isMerkClick.value!=true){
             val list = mutableListOf<MerkTable>()
             if (!query.isNullOrEmpty()) {
@@ -255,6 +256,18 @@ class CombinedViewModel(
                 })
             } else {
                 list.addAll(_unFilteredMerk.value?: listOf())
+            }
+            _allMerkTable.value = list
+        }
+    }
+
+     */
+    fun filterMerk(query: String?) {
+        if (isMerkClick.value != true) {
+            val list = if (!query.isNullOrEmpty()) {
+                MerkSearchFilter.filter(query, _unFilteredMerk.value ?: emptyList())
+            } else {
+                _unFilteredMerk.value ?: listOf()
             }
             _allMerkTable.value = list
         }
