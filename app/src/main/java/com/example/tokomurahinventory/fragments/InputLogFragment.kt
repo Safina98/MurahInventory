@@ -263,6 +263,7 @@ class InputLogFragment : AuthFragment() {
     private fun setupDialog(inputStokLogModel: CountModel?, code: Int) {
         if (isDialogShowing) return
         isDialogShowing = true
+        Log.i("LobBug","Setup Dialog called")
 
         val dialogBinding = DataBindingUtil.inflate<PopUpAddBarangLogBinding>(
             LayoutInflater.from(context), R.layout.pop_up_add_barang_log, null, false)
@@ -321,7 +322,10 @@ class InputLogFragment : AuthFragment() {
             merkAdapter.clear()
             merkAdapter.updateData(allMerk.sortedBy { it })
             autoCompleteMerk.setAdapter(merkAdapter)
+            Log.i("LogBug","$allMerk")
         }
+        Log.i("LogBug","${viewModel.allMerkFromDb.value}")
+
         autoCompleteMerk.setOnItemClickListener { parent, view, position, id ->
             val selected = parent.getItemAtPosition(position).toString()
             autoCompleteMerk.setText(selected, false) // prevent filtering again

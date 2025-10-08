@@ -395,6 +395,8 @@ class LogViewModel (
                     barangLogTipe = MASUKKELUAR.KELUAR
                 )
                 val ket = "Barang keluar sebanyak ${barangLog.pcs} pcs untuk $toko"
+
+
                 updateDetailWarnaAndInsertBarangLogToDao(barangLog,refWarna,isi,pcs,loggedInUsers,ket)
             }
         }
@@ -927,7 +929,17 @@ fun updateBarangLogToCountModel(barangLogList: List<BarangLog>,satuan:String){
     ){
         withContext(Dispatchers.IO){
             //dataSource5.insert(logTable)
-            dataSourceBarangLog.insertBarangLogAndUpdateDetailWarna(barangLog,refWarna,detailWarnaIsi,detailWarnaPcs,loggedInUsers,ket)
+            try {
+                dataSourceBarangLog.insertBarangLogAndUpdateDetailWarna(barangLog,refWarna,detailWarnaIsi,detailWarnaPcs,loggedInUsers,ket)
+            }catch (e:Exception){
+                Log.e("Log Bug","Barang log $barangLog")
+                Log.e("Log Bug","Ref Warna $refWarna")
+                Log.e("Log Bug","isi $detailWarnaIsi")
+                Log.e("Log Bug","pcs $detailWarnaPcs")
+                Log.e("Log Bug","logged in user $loggedInUser")
+                Log.e("Log Bug","ket $ket")
+            }
+
         }
     }
 
