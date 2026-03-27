@@ -229,7 +229,18 @@ class LogViewModel (
             if (refMerk!=null){
                 val refWarna = withContext(Dispatchers.IO){dataSourceWarna.getWarnaRefByName(warna,refMerk)}
                 if (refWarna!=null){
-                    val stringWarnaList=withContext(Dispatchers.IO){dataSourceDetailWarna.getIsiDetailWarnaByWarna(refWarna)}
+                    val stringWarnaList=withContext(Dispatchers.IO){
+                        dataSourceDetailWarna.getIsiDetailWarnaByWarna(refWarna)
+                    }
+                    val detailWarnaList=withContext(Dispatchers.IO){
+                        dataSourceDetailWarna.debugGetDetailWarnaByWarna(refWarna)
+                    }
+                    Log.i("LobBug","Detail warna list by ref warna")
+                    detailWarnaList.forEach {
+                        Log.i("LobBug","ViewModel isi ${it.detailWarnaIsi} pcs ${it.detailWarnaPcs} ref:${it.detailWarnaRef}")
+                    }
+
+
                     _isiByWarnaAndMerk.value = stringWarnaList
                 }
             }
@@ -374,6 +385,15 @@ class LogViewModel (
         }
     }
 
+    fun deleteDetailWarnaDebug(){
+        viewModelScope.launch {
+            withContext(Dispatchers.IO){
+                dataSourceDetailWarna.debugDeleteDetailWarnaByRef("2e99b9b5-8ac4-425e-9cb0-0188c63287a7")
+                dataSourceDetailWarna.debugDeleteDetailWarnaByRef("c7864032-33e8-498c-b1b1-7bdf238dddb8")
+            }
+        }
+    }
+
     fun getBarangLog(namaMerk:String,kodeWarna:String,isi:Double,pcs:Int,refLog:String,toko:String){
         viewModelScope.launch{
             Log.i("InsertLogTry","getBarangLog() called")
@@ -432,9 +452,11 @@ class LogViewModel (
 
     private suspend fun checkIfPcsReadyInStok(refDetailWarna:String,pcs_n:Int):Boolean{
         return withContext(Dispatchers.IO){
+            val detailWarna=dataSourceDetailWarna.debugSelectDetailWarna(refDetailWarna)
+            Log.i("LobBug","ViewModel existing detailwarna: $detailWarna")
         val a =dataSourceDetailWarna.countMatchingRows(refDetailWarna,pcs_n)
             a>0
-        //dataSourceDetailWarna.isPcsReady(refDetailWarna,pcs_n)
+           //dataSourceDetailWarna.isPcsReady(refDetailWarna,pcs_n)
         }
     }
 
@@ -444,39 +466,51 @@ class LogViewModel (
     fun updateCountModel(countModel: CountModel, oldCountModel: CountModel, callback: (UpdateStatus) -> Unit) {
         viewModelScope.launch {
             // Log initial state
-            Log.i("FCProbs","countModel: ${countModel}")
+            Log.i("LobBug","ViewModel updateCountModel called")
             val updatedList = _countModelList.value?.toMutableList() ?: mutableListOf()
             val itemToUpdate = updatedList.find { it.id == countModel.id }
-            Log.i("FCProbs","item to update: ${itemToUpdate}")
+            Log.i("LobBug"," item to update $itemToUpdate")
             if (itemToUpdate == null) {
                 callback(UpdateStatus.ITEM_NOT_FOUND)
                 return@launch
             }
             // Perform validation checks
             val isMerkPresent = checkMerkExisted(countModel.merkBarang!!)
-            Log.i("FCProbs","isMerkPresent: ${isMerkPresent}")
+            Log.i("LobBug","viewModel isMerkPresent: ${isMerkPresent}")
             val isWarnaPresent = isKodeWarnaInLiveData(codeWarnaByMerk, countModel.kodeBarang!!)
-            Log.i("FCProbs","kodeBarang ${itemToUpdate.kodeBarang},")
-            Log.i("FCProbs","kodeWarnaByMerk list ${codeWarnaByMerk.value}")
-            Log.i("FCProbs","isWarnaPresent: ${isWarnaPresent}")
+            Log.i("LobBug","viewModel kodeBarang ${itemToUpdate.kodeBarang},")
+            Log.i("LobBug","viewModel kodeWarnaByMerk list ${codeWarnaByMerk.value}")
+            Log.i("LobBug","viewModel isWarnaPresent: ${isWarnaPresent}")
             val isIsiPresent = isIsiInLiveData(isiByWarnaAndMerk, countModel.isi!!)
-            Log.i("FCProbs","countModel: ${isIsiPresent}")
+            Log.i("LobBug","countModel: ${isIsiPresent}")
 
             // Fetch data from database
             val barangLogfromdb = withContext(Dispatchers.IO) { dataSourceBarangLog.findByBarangLogRef(countModel.barangLogRef) } ?: BarangLog()
             val selisihpcs = countModel.psc - barangLogfromdb.pcs
 
             val isPcsReadyInStok = if (isIsiPresent) {
+                Log.i("LobBug","viewModel isIsiPresent : true")
                 val refMerk = getrefMerkByName(countModel.merkBarang!!.uppercase())
-                Log.i("FCProbs","refMerk: ${refMerk}")
-                Log.i("FCProbs","kodeBarang: ${countModel.kodeBarang}")
+                Log.i("LobBug","viewModel refMerk: ${refMerk}")
+                Log.i("LobBug","viewModel kodeBarang: ${countModel.kodeBarang}")
                 val refWarna = getrefWanraByName(countModel.kodeBarang!!, refMerk)
-                Log.i("FCProbs","refWarna: ${refWarna}")
-                val refDetailWarna = refWarna?.let { getrefDetailWanraByWarnaRefndIsi(it, countModel.isi!!) }
-                Log.i("FCProbs","refDetailWarna: ${refDetailWarna}")
-              checkIfPcsReadyInStok(refDetailWarna!!, selisihpcs)
-            } else false
 
+                Log.i("LobBug","viewModel refWarna: ${refWarna}")
+                val refDetailWarna = refWarna?.let { getrefDetailWanraByWarnaRefndIsi(it, countModel.isi!!) }
+                Log.i("LobBug","viewModel refDetailWarna: ${refDetailWarna}")
+                if (refDetailWarna == null) {
+                    Log.w("LobBug", "refDetailWarna is null — detail not found in DB yet")
+                    false
+                } else {
+                    checkIfPcsReadyInStok(refDetailWarna, selisihpcs)
+                }
+              //checkIfPcsReadyInStok(refDetailWarna!!, selisihpcs)
+            } else{
+                Log.i("LobBug","viewModel isIsiPresent : false")
+                false
+            }
+
+            Log.i("LobBug","viewModel isPcsReadyInStok : $isPcsReadyInStok")
             if (isMerkPresent && isWarnaPresent && isIsiPresent && isPcsReadyInStok) {
                 // Update item in list
                 itemToUpdate.apply {
@@ -642,6 +676,7 @@ class LogViewModel (
     }
     //Untuk Check isi ada di list
     fun isIsiInLiveData(liveData: LiveData<List<Double>?>, value: Double): Boolean {
+        Log.i("LobBug","isi in live data")
         return liveData.value?.contains(value) == true
     }
 

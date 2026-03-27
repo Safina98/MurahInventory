@@ -97,6 +97,7 @@ class InputLogFragment : AuthFragment() {
             clearEditText()
             if (isDialogShowing==false)
             {val countModel = viewModel.addNewCountItemBtn()
+                Log.i("FCProbs","Fragment: Add Click")
             setupDialog(countModel,0)}
         }
 
@@ -105,6 +106,7 @@ class InputLogFragment : AuthFragment() {
             adapter.submitList(it)
             adapter.notifyDataSetChanged()
         }}
+       // viewModel.deleteDetailWarnaDebug()
         viewModel.allMerkFromDb.observe(viewLifecycleOwner){it?.let {}}
 
         viewModel.navigateToLog.observe(viewLifecycleOwner, Observer {
@@ -396,14 +398,17 @@ class InputLogFragment : AuthFragment() {
             .create()
 
         dialog.setOnShowListener {
+            Log.i("LobBug","Fragment Ok Clicked")
             val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             positiveButton.setOnClickListener {
                 if (inputStokLogModel != null) {
+                    Log.i("LobBug","Fragment InputStokLogModel !=null")
                     val namaMerk = autoCompleteMerk.text.toString().trim()
                     val kodeWarna = autoCompleteWarna.text.toString().trim()
                     val isi = autoCompleteIsi.text.toString().trim().toDoubleOrNull()
                     val pcs = etPcs.text.toString().trim().toIntOrNull()
                     if (namaMerk.isNotEmpty() && kodeWarna.isNotEmpty() && isi != null && pcs != null) {
+                        Log.i("LobBug","Fragment merk, kode warna, isi, pes not null nor empty")
                         inputStokLogModel.merkBarang = namaMerk
                         inputStokLogModel.kodeBarang = kodeWarna
                         inputStokLogModel.isi = isi

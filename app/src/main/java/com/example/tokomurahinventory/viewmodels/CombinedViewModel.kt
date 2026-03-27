@@ -39,6 +39,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
+import kotlin.random.Random
 
 class CombinedViewModel(
     val merkDao: MerkDao,
@@ -768,4 +769,48 @@ class CombinedViewModel(
     fun onAddDetailWarnaFabClicked() { _addDetailWarnaFab.value = false }
     fun onLongClick(v: View): Boolean { return false }
 
+
+    fun insertDummy(){
+        viewModelScope.launch {
+            createDummyDetailWarna("ADMIN")
+        }
+    }
+    suspend fun createDummyDetailWarna(
+        currentUserName: String // Ensure this user exists in UsersTable
+    ) {
+        withContext(Dispatchers.IO) {
+            // 1. Get all existing Warna entries
+            val allWarna = warnaDao.getAllWarnas() // Assuming you have a list-returning query
+
+            if (allWarna.isEmpty()) return@withContext
+
+            val dummyList = mutableListOf<DetailWarnaTable>()
+            val loggedInUsers = SharedPreferencesHelper.getLoggedInUser(getApplication())
+
+            // 2. Loop through each Warna
+            for (warna in allWarna) {
+                // 3. Create 20 Detail entries for each Warna
+                for (i in 1..20) {
+                    val uniqueRef = "${warna.warnaRef}_DET_${System.currentTimeMillis()}_$i"
+
+                    val detail = DetailWarnaTable(
+                        warnaRef = warna.warnaRef,
+                        detailWarnaIsi = 20+i*0.5, // Random double
+                        detailWarnaPcs = 100,    // Random 1-50 pcs
+                        detailWarnaRef = uniqueRef,                 // Must be unique per your Index
+                        detailWarnaDate = Date(),
+                        detailWarnaLastEditedDate = Date(),
+                        createdBy = loggedInUsers,
+                        lastEditedBy = loggedInUsers,
+                        detailWarnaKet = "Dummy Detail $i for ${warna.kodeWarna}",
+                        detailWarnaBool = true
+                    )
+                    dummyList.add(detail)
+                }
+            }
+
+            // 4. Insert all at once to the database
+            dataSourceDetailWarna.insertAllDummy(dummyList)
+        }
+    }
 }

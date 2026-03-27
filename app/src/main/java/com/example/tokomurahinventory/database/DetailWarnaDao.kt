@@ -16,6 +16,9 @@ interface DetailWarnaDao {
     @Insert
     fun insert(detailWarnaTable: DetailWarnaTable)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllDummy(details: List<DetailWarnaTable>)
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertDetailWarnaTable(detailWarnaTable: DetailWarnaTable)
 
@@ -24,6 +27,9 @@ interface DetailWarnaDao {
 
     @Query("DELETE FROM detail_warna_table WHERE detailWarnaIsi=:isi AND warnaRef=:warnaRef")
     fun deleteAnItemDetailWarna(isi:Double,warnaRef: String)
+
+    @Query("Delete FROM detail_warna_table WHERE detailWarnaRef = :ref")
+    fun debugDeleteDetailWarnaByRef(ref:String)
 
     @Query("DELETE FROM detail_warna_table WHERE warnaRef = :warnaRef and detailWarnaIsi =:isi")
     fun deteteDetailWarnaByIsi(warnaRef: String,isi: Double)
@@ -147,6 +153,9 @@ interface DetailWarnaDao {
     @Query("""SELECT d.detailWarnaIsi FROM detail_warna_table d WHERE d.warnaRef = :warnaRef AND d.detailWarnaIsi!=0.0  AND detailWarnaPcs>0""")
     fun getIsiDetailWarnaByWarna(warnaRef: String): List<Double>
 
+    @Query("""SELECT * FROM detail_warna_table d WHERE d.warnaRef = :warnaRef AND d.detailWarnaIsi!=0.0 """)
+    fun debugGetDetailWarnaByWarna(warnaRef: String): List<DetailWarnaTable>
+
     @Query("""SELECT d.detailWarnaIsi FROM detail_warna_table d WHERE d.warnaRef = :warnaRef AND d.detailWarnaIsi!=0.0""")
     fun getIsiDetailWarnaByWarnaWith0(warnaRef: String): List<Double>
 
@@ -176,6 +185,9 @@ interface DetailWarnaDao {
 
     @Query("SELECT COUNT(*) FROM detail_warna_table WHERE detailWarnaRef = :refDetailWarna AND detailWarnaPcs >= :pcs_n")
     fun countMatchingRows(refDetailWarna: String, pcs_n: Int): Int
+
+    @Query("SELECT * FROM detail_warna_table WHERE  detailWarnaRef = :refDetailWarna")
+    fun debugSelectDetailWarna(refDetailWarna:String): DetailWarnaTable
 
     @Query("DELETE FROM detail_warna_table WHERE detailWarnaIsi = 0.0 AND detailWarnaPcs != 0")
     suspend fun deleteItemsWithConditions()

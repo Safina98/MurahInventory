@@ -46,9 +46,9 @@ class MerkFragment : AuthFragment() {
         val application = requireNotNull(this.activity).application
         val merkDao = DatabaseInventory.getInstance(application).merkDao
         val warnaDao = DatabaseInventory.getInstance(application).warnaDao
-       val dataSourceDetailWarna = DatabaseInventory.getInstance(application).detailWarnaDao
-       val dataSourceLog = DatabaseInventory.getInstance(application).logDao
-       val dataSourceBarangLog = DatabaseInventory.getInstance(application).barangLogDao
+        val dataSourceDetailWarna = DatabaseInventory.getInstance(application).detailWarnaDao
+        val dataSourceLog = DatabaseInventory.getInstance(application).logDao
+        val dataSourceBarangLog = DatabaseInventory.getInstance(application).barangLogDao
         val refMerk =""
         val loggedInUser = SharedPreferencesHelper.getLoggedInUser(requireContext()) ?:""
 
@@ -57,16 +57,9 @@ class MerkFragment : AuthFragment() {
 
         //val viewModel = ViewModelProvider(this, factory).get(CombinedViewModel::class.java)
 
-        /*
-                val viewModelFactory = MerkViewModelFactory(dataSource1,loggedInUser,application)
-                binding.lifecycleOwner =this
-                val viewModel = ViewModelProvider(this,viewModelFactory)
-                    .get(MerkViewModel::class.java)
-                binding.viewModel = viewModel
-
-                 */
        binding.viewModel = viewModel
        binding.lifecycleOwner = viewLifecycleOwner
+      // viewModel.insertDummy()
         val adapter  = MerkAdapter(
             MerkClickListener {
                 clearSearchQuery()
@@ -84,8 +77,6 @@ class MerkFragment : AuthFragment() {
 
                     //viewModel.getWarnaByMerk(it.refMerk)
                 }
-
-
                 //toogle extra bool
                 //if bool is true, select only one merk
                 //else select all merk
